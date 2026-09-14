@@ -15,12 +15,66 @@ type Player = {
 }
 
 const featuredPlayers = [
-  {name:'Sophia Wilson', club:'Kansas City Current', league:'NWSL', position:'Forward', age:25, contract:'2026-12-31', salary:'$842,400', status:'Verified'},
-  {name:'Temwa Chawinga', club:'Kansas City Current', league:'NWSL', position:'Forward', age:27, contract:'2027-12-31', salary:'Unknown', status:'Reported'},
-  {name:'Barbra Banda', club:'Orlando Pride', league:'NWSL', position:'Forward', age:26, contract:'2027-12-31', salary:'Unknown', status:'Reported'},
-  {name:'Trinity Rodman', club:'Washington Spirit', league:'NWSL', position:'Forward', age:24, contract:'2026-12-31', salary:'Unknown', status:'Reported'},
-  {name:'Lucy Bronze', club:'Chelsea FC Women', league:'WSL', position:'Defender', age:34, contract:'2027-06-30', salary:'Unknown', status:'Estimated'},
-  {name:'Aitana Bonmatí', club:'FC Barcelona Femení', league:'Liga F', position:'Midfielder', age:28, contract:'2028-06-30', salary:'Unknown', status:'Reported'}
+  {
+    name: 'Sophia Wilson',
+    club: 'Kansas City Current',
+    league: 'NWSL',
+    position: 'Forward',
+    age: 25,
+    contract: '2026-12-31',
+    salary: '$842,400',
+    status: 'Verified',
+  },
+  {
+    name: 'Temwa Chawinga',
+    club: 'Kansas City Current',
+    league: 'NWSL',
+    position: 'Forward',
+    age: 27,
+    contract: '2027-12-31',
+    salary: 'Unknown',
+    status: 'Reported',
+  },
+  {
+    name: 'Barbra Banda',
+    club: 'Orlando Pride',
+    league: 'NWSL',
+    position: 'Forward',
+    age: 26,
+    contract: '2027-12-31',
+    salary: 'Unknown',
+    status: 'Reported',
+  },
+  {
+    name: 'Trinity Rodman',
+    club: 'Washington Spirit',
+    league: 'NWSL',
+    position: 'Forward',
+    age: 24,
+    contract: '2026-12-31',
+    salary: 'Unknown',
+    status: 'Reported',
+  },
+  {
+    name: 'Lucy Bronze',
+    club: 'Chelsea FC Women',
+    league: 'WSL',
+    position: 'Defender',
+    age: 34,
+    contract: '2027-06-30',
+    salary: 'Unknown',
+    status: 'Estimated',
+  },
+  {
+    name: 'Aitana Bonmatí',
+    club: 'FC Barcelona Femení',
+    league: 'Liga F',
+    position: 'Midfielder',
+    age: 28,
+    contract: '2028-06-30',
+    salary: 'Unknown',
+    status: 'Reported',
+  },
 ]
 
 function calculateAge(dateOfBirth: string | null) {
@@ -80,7 +134,7 @@ export default function Home() {
         player.full_name,
         player.nationality,
         player.position,
-        player.agency
+        player.agency,
       ]
         .filter(Boolean)
         .join(' ')
@@ -99,7 +153,7 @@ export default function Home() {
         player.name,
         player.club,
         player.league,
-        player.position
+        player.position,
       ]
         .join(' ')
         .toLowerCase()
@@ -110,101 +164,344 @@ export default function Home() {
   const hasDatabaseResults = filteredDatabasePlayers.length > 0
   const hasFeaturedResults = filteredFeaturedPlayers.length > 0
 
+  const totalSearchResults =
+    filteredDatabasePlayers.length + filteredFeaturedPlayers.length
+
   return (
-    <main>
-      <nav>
-        <div className="logo">
-          WFM<span>•</span>
+    <main
+      style={{
+        minHeight: '100vh',
+        background: '#fff',
+        color: '#111',
+        fontFamily: 'Arial, sans-serif',
+      }}
+    >
+      {/* HEADER */}
+      <nav
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: '18px 32px',
+          borderBottom: '1px solid #e5e5e5',
+          background: '#fff',
+        }}
+      >
+        <Link
+          href="/"
+          style={{
+            fontSize: '24px',
+            fontWeight: 800,
+            textDecoration: 'none',
+            color: '#111',
+            marginRight: '40px',
+          }}
+        >
+          WFM<span style={{ color: '#777' }}>•</span>
+        </Link>
+
+        <div
+          style={{
+            display: 'flex',
+            gap: '28px',
+            alignItems: 'center',
+          }}
+        >
+          <Link
+            href="/players"
+            style={{ color: '#111', textDecoration: 'none' }}
+          >
+            Players
+          </Link>
+
+          <Link
+            href="/contracts"
+            style={{ color: '#111', textDecoration: 'none' }}
+          >
+            Contracts
+          </Link>
+
+          <Link
+            href="/transfers"
+            style={{ color: '#111', textDecoration: 'none' }}
+          >
+            Transfers
+          </Link>
+
+          <Link
+            href="/salaries"
+            style={{ color: '#111', textDecoration: 'none' }}
+          >
+            Salaries
+          </Link>
+
+          <Link
+            href="/clubs"
+            style={{ color: '#111', textDecoration: 'none' }}
+          >
+            Clubs
+          </Link>
         </div>
 
-        <div className="navlinks">
-  <Link href="/players">Players</Link>
-  <Link href="/contracts">Contracts</Link>
-  <Link href="/transfers">Transfers</Link>
-  <Link href="/salaries">Salaries</Link>
-  <Link href="/clubs">Clubs</Link>
-</div>
-
-        <button className="login">Sign in</button>
+        <button
+          className="login"
+          style={{
+            marginLeft: 'auto',
+            border: '1px solid #ddd',
+            background: '#fff',
+            borderRadius: '8px',
+            padding: '9px 16px',
+            fontSize: '14px',
+            cursor: 'pointer',
+          }}
+        >
+          Sign in
+        </button>
       </nav>
 
-      <section className="hero">
-        <div className="eyebrow">THE WOMEN’S FOOTBALL DATABASE</div>
+      {/* HERO */}
+      <section
+        style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '58px 20px 42px',
+        }}
+      >
+        <div
+          style={{
+            fontSize: '13px',
+            color: '#777',
+            fontWeight: 700,
+            letterSpacing: '1.2px',
+            marginBottom: '14px',
+          }}
+        >
+          THE WOMEN’S FOOTBALL DATABASE
+        </div>
 
-        <h1>
+        <h1
+          style={{
+            fontSize: '48px',
+            lineHeight: 1.05,
+            letterSpacing: '-1.8px',
+            margin: '0 0 18px',
+            fontWeight: 800,
+          }}
+        >
           Know the market.
           <br />
-          <em>Know the player.</em>
+          <span style={{ color: '#777' }}>Know the player.</span>
         </h1>
 
-        <p>
+        <p
+          style={{
+            fontSize: '17px',
+            lineHeight: 1.6,
+            color: '#666',
+            maxWidth: '650px',
+            margin: '0 0 28px',
+          }}
+        >
           Track women’s football salaries, contracts, transfers and player
           movement — in one place.
         </p>
 
-        <div className="search">
-          <span>⌕</span>
+        <div
+          style={{
+            maxWidth: '700px',
+            display: 'flex',
+            alignItems: 'center',
+            border: '1px solid #ddd',
+            borderRadius: '10px',
+            background: '#fff',
+            padding: '0 16px',
+            height: '54px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          }}
+        >
+          <span
+            style={{
+              fontSize: '24px',
+              color: '#777',
+              marginRight: '12px',
+              lineHeight: 1,
+            }}
+          >
+            ⌕
+          </span>
 
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search player, club or league…"
+            style={{
+              width: '100%',
+              border: 'none',
+              outline: 'none',
+              fontSize: '15px',
+              color: '#111',
+              background: 'transparent',
+            }}
           />
         </div>
       </section>
 
-      <section className="stats">
-        <div>
-          <b>Players</b>
-          <strong>8,700+</strong>
-        </div>
+      {/* STATS */}
+      <section
+        style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 20px 42px',
+        }}
+      >
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            border: '1px solid #e3e3e3',
+            borderRadius: '14px',
+            overflow: 'hidden',
+          }}
+        >
+          {[
+            ['Players', '8,700+'],
+            ['Leagues', '23'],
+            ['Clubs', '1,900+'],
+            ['Contract data', 'Growing daily'],
+          ].map(([label, value], index) => (
+            <div
+              key={label}
+              style={{
+                padding: '22px 24px',
+                borderRight:
+                  index < 3 ? '1px solid #e5e5e5' : 'none',
+                background: '#fff',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '12px',
+                  color: '#777',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.8px',
+                  fontWeight: 700,
+                  marginBottom: '8px',
+                }}
+              >
+                {label}
+              </div>
 
-        <div>
-          <b>Leagues</b>
-          <strong>23</strong>
-        </div>
-
-        <div>
-          <b>Clubs</b>
-          <strong>1,900+</strong>
-        </div>
-
-        <div>
-          <b>Contract data</b>
-          <strong>Growing daily</strong>
+              <div
+                style={{
+                  fontSize: '22px',
+                  fontWeight: 700,
+                }}
+              >
+                {value}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      <section className="content">
-        <div className="sectionhead">
+      {/* PLAYER DATABASE */}
+      <section
+        style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 20px 60px',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+            marginBottom: '20px',
+            gap: '20px',
+          }}
+        >
           <div>
-            <span className="eyebrow">PLAYER DATABASE</span>
-            <h2>
+            <div
+              style={{
+                fontSize: '13px',
+                color: '#777',
+                fontWeight: 700,
+                letterSpacing: '1.2px',
+                marginBottom: '8px',
+              }}
+            >
+              PLAYER DATABASE
+            </div>
+
+            <h2
+              style={{
+                fontSize: '30px',
+                lineHeight: 1.15,
+                margin: 0,
+                fontWeight: 750,
+                letterSpacing: '-0.5px',
+              }}
+            >
               {q.trim() ? 'Search results' : 'Market leaders'}
             </h2>
           </div>
 
-         <Link href="/players" className="outline">
-  View all players →
-</Link>
+          <Link
+            href="/players"
+            style={{
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              padding: '10px 15px',
+              color: '#111',
+              textDecoration: 'none',
+              fontSize: '14px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            View all players →
+          </Link>
         </div>
 
         {q.trim() && (
-          <div style={{ marginBottom: '18px', opacity: 0.65 }}>
+          <div
+            style={{
+              fontSize: '14px',
+              color: '#777',
+              marginBottom: '12px',
+            }}
+          >
             {loading
               ? 'Searching database…'
-              : `${filteredDatabasePlayers.length + filteredFeaturedPlayers.length} result${
-                  filteredDatabasePlayers.length +
-                    filteredFeaturedPlayers.length !==
-                  1
-                    ? 's'
-                    : ''
+              : `${totalSearchResults} result${
+                  totalSearchResults !== 1 ? 's' : ''
                 } found`}
           </div>
         )}
 
-        <div className="table">
-          <div className="thead">
+        <div
+          style={{
+            border: '1px solid #e3e3e3',
+            borderRadius: '14px',
+            overflow: 'hidden',
+            background: '#fff',
+          }}
+        >
+          {/* TABLE HEADER */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns:
+                '1.8fr 1.5fr 1fr 1.2fr 1.3fr 1fr',
+              gap: '16px',
+              padding: '13px 20px',
+              background: '#fafafa',
+              borderBottom: '1px solid #e5e5e5',
+              fontSize: '11px',
+              fontWeight: 700,
+              color: '#777',
+              letterSpacing: '0.8px',
+            }}
+          >
             <span>PLAYER</span>
             <span>CLUB</span>
             <span>LEAGUE</span>
@@ -213,50 +510,121 @@ export default function Home() {
             <span>CONFIDENCE</span>
           </div>
 
+          {/* DATABASE PLAYERS */}
           {filteredDatabasePlayers.map((player) => {
             const age = calculateAge(player.date_of_birth)
 
             return (
-              <div className="row" key={`db-${player.id}`}>
+              <Link
+                href={`/players/${player.id}`}
+                key={`db-${player.id}`}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns:
+                    '1.8fr 1.5fr 1fr 1.2fr 1.3fr 1fr',
+                  gap: '16px',
+                  padding: '16px 20px',
+                  borderBottom: '1px solid #eeeeee',
+                  alignItems: 'center',
+                  color: '#111',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                }}
+              >
                 <span>
-                  <b>{player.full_name}</b>
+                  <b
+                    style={{
+                      display: 'block',
+                      fontSize: '14px',
+                    }}
+                  >
+                    {player.full_name}
+                  </b>
 
-                  <small>
+                  <small
+                    style={{
+                      display: 'block',
+                      color: '#888',
+                      marginTop: '4px',
+                      fontSize: '12px',
+                    }}
+                  >
                     {player.position || 'Unknown'}
                     {age !== null ? ` · ${age}` : ''}
                   </small>
                 </span>
 
-                <span>—</span>
+                <span style={{ color: '#777' }}>—</span>
 
-                <span>—</span>
+                <span style={{ color: '#777' }}>—</span>
 
-                <span>—</span>
-
-                <span>Unknown</span>
+                <span style={{ color: '#777' }}>—</span>
 
                 <span>
-                  <i className="badge reported">
+                  <b>Unknown</b>
+                </span>
+
+                <span>
+                  <i
+                    style={{
+                      display: 'inline-block',
+                      fontStyle: 'normal',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      padding: '5px 8px',
+                      borderRadius: '999px',
+                      background: '#f1f1f1',
+                      color: '#555',
+                    }}
+                  >
                     Database
                   </i>
                 </span>
-              </div>
+              </Link>
             )
           })}
 
+          {/* FEATURED PLAYERS */}
           {!q.trim() &&
             filteredFeaturedPlayers.map((player) => (
-              <div className="row" key={`featured-${player.name}`}>
+              <div
+                className="row"
+                key={`featured-${player.name}`}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns:
+                    '1.8fr 1.5fr 1fr 1.2fr 1.3fr 1fr',
+                  gap: '16px',
+                  padding: '16px 20px',
+                  borderBottom: '1px solid #eeeeee',
+                  alignItems: 'center',
+                  fontSize: '14px',
+                }}
+              >
                 <span>
-                  <b>{player.name}</b>
-                  <small>
+                  <b
+                    style={{
+                      display: 'block',
+                    }}
+                  >
+                    {player.name}
+                  </b>
+
+                  <small
+                    style={{
+                      display: 'block',
+                      color: '#888',
+                      marginTop: '4px',
+                      fontSize: '12px',
+                    }}
+                  >
                     {player.position} · {player.age}
                   </small>
                 </span>
 
                 <span>{player.club}</span>
 
-                <span>{player.league}</span>
+                <span style={{ color: '#666' }}>{player.league}</span>
 
                 <span>{player.contract}</span>
 
@@ -264,9 +632,26 @@ export default function Home() {
 
                 <span>
                   <i
-                    className={
-                      'badge ' + player.status.toLowerCase()
-                    }
+                    style={{
+                      display: 'inline-block',
+                      fontStyle: 'normal',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      padding: '5px 8px',
+                      borderRadius: '999px',
+                      background:
+                        player.status === 'Verified'
+                          ? '#e9f7ee'
+                          : player.status === 'Reported'
+                            ? '#f3f3f3'
+                            : '#f5f0e8',
+                      color:
+                        player.status === 'Verified'
+                          ? '#237a43'
+                          : player.status === 'Reported'
+                            ? '#666'
+                            : '#806b45',
+                    }}
                   >
                     {player.status}
                   </i>
@@ -274,16 +659,31 @@ export default function Home() {
               </div>
             ))}
 
+          {/* EMPTY STATES */}
           {q.trim() &&
             !hasDatabaseResults &&
             !hasFeaturedResults && (
-              <div className="empty">
+              <div
+                style={{
+                  padding: '40px 20px',
+                  textAlign: 'center',
+                  color: '#777',
+                  fontSize: '14px',
+                }}
+              >
                 No players found. Try another search.
               </div>
             )}
 
           {!q.trim() && loading && (
-            <div className="empty">
+            <div
+              style={{
+                padding: '40px 20px',
+                textAlign: 'center',
+                color: '#777',
+                fontSize: '14px',
+              }}
+            >
               Loading players...
             </div>
           )}
@@ -292,55 +692,160 @@ export default function Home() {
             !loading &&
             !hasDatabaseResults &&
             filteredFeaturedPlayers.length === 0 && (
-              <div className="empty">
+              <div
+                style={{
+                  padding: '40px 20px',
+                  textAlign: 'center',
+                  color: '#777',
+                  fontSize: '14px',
+                }}
+              >
                 No players found.
               </div>
             )}
         </div>
       </section>
 
-      <section className="cards">
-        <article>
-          <span>01</span>
-          <h3>Contracts</h3>
-          <p>
-            Expiration dates, options, extensions and free-agent status.
-          </p>
-        </article>
+      {/* DATABASE FEATURES */}
+      <section
+        style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 20px 70px',
+        }}
+      >
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '12px',
+          }}
+        >
+          {[
+            {
+              number: '01',
+              title: 'Contracts',
+              text: 'Expiration dates, options, extensions and free-agent status.',
+              href: '/contracts',
+            },
+            {
+              number: '02',
+              title: 'Transfers',
+              text: 'Permanent moves, loans, trades, releases and fees.',
+              href: '/transfers',
+            },
+            {
+              number: '03',
+              title: 'Salaries',
+              text: 'Reported and estimated compensation with source confidence.',
+              href: '/salaries',
+            },
+            {
+              number: '04',
+              title: 'Scouting',
+              text: 'Find players by position, age, league and contract status.',
+              href: '/players',
+            },
+          ].map((card) => (
+            <Link
+              href={card.href}
+              key={card.number}
+              style={{
+                display: 'block',
+                padding: '22px',
+                border: '1px solid #e3e3e3',
+                borderRadius: '14px',
+                textDecoration: 'none',
+                color: '#111',
+                background: '#fff',
+              }}
+            >
+              <span
+                style={{
+                  display: 'block',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  color: '#999',
+                  letterSpacing: '0.8px',
+                  marginBottom: '28px',
+                }}
+              >
+                {card.number}
+              </span>
 
-        <article>
-          <span>02</span>
-          <h3>Transfers</h3>
-          <p>
-            Permanent moves, loans, trades, releases and fees.
-          </p>
-        </article>
+              <h3
+                style={{
+                  margin: '0 0 8px',
+                  fontSize: '18px',
+                  fontWeight: 700,
+                }}
+              >
+                {card.title}
+              </h3>
 
-        <article>
-          <span>03</span>
-          <h3>Salaries</h3>
-          <p>
-            Reported and estimated compensation with source confidence.
-          </p>
-        </article>
-
-        <article>
-          <span>04</span>
-          <h3>Scouting</h3>
-          <p>
-            Find players by position, age, league and contract status.
-          </p>
-        </article>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '13px',
+                  lineHeight: 1.5,
+                  color: '#777',
+                }}
+              >
+                {card.text}
+              </p>
+            </Link>
+          ))}
+        </div>
       </section>
 
-      <footer>
-        <div className="logo">
-          WFM<span>•</span>
+      {/* FOOTER */}
+      <footer
+        style={{
+          borderTop: '1px solid #e5e5e5',
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '28px 20px 45px',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '14px',
+            marginBottom: '14px',
+          }}
+        >
+          <Link
+            href="/"
+            style={{
+              fontSize: '22px',
+              fontWeight: 800,
+              textDecoration: 'none',
+              color: '#111',
+            }}
+          >
+            WFM<span style={{ color: '#777' }}>•</span>
+          </Link>
+
+          <span
+            style={{
+              fontSize: '14px',
+              color: '#777',
+            }}
+          >
+            Built for women’s football.
+          </span>
         </div>
 
-        <p>Built for women’s football.</p>
-
-        <small>
+        <small
+          style={{
+            display: 'block',
+            color: '#999',
+            fontSize: '12px',
+            lineHeight: 1.5,
+            maxWidth: '600px',
+          }}
+        >
           Data confidence is shown on every record. Estimates are never
           presented as confirmed facts.
         </small>
