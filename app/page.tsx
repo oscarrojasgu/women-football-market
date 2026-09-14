@@ -114,7 +114,7 @@ export default function Home() {
     <main
       style={{
         minHeight: '100vh',
-        background: '#fff',
+        background: '#f5f4ef',
         color: '#111',
         fontFamily: 'Arial, sans-serif',
       }}
