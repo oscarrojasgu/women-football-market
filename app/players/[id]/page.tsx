@@ -29,17 +29,27 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     );
   }
 
-  const { data: contracts } = await supabase
+ const { data: contracts } = await supabase
   .from("contracts")
   .select("*")
   .eq("player_id", id)
   .order("start_date", { ascending: false });
 
-  const currentContract = contracts?.find(
-    (contract) => contract.status === "active"
-  );
+const currentContract = contracts?.find(
+  (contract) => contract.status === "active"
+);
 
- const club = currentContract?.clubs?.[0];
+let club = null;
+
+if (currentContract?.club_id) {
+  const { data: clubData } = await supabase
+    .from("clubs")
+    .select("name, country, league")
+    .eq("id", currentContract.club_id)
+    .single();
+
+  club = clubData;
+}
 
   return (
     <main
