@@ -1,3 +1,4 @@
+```tsx
 import { supabase } from "../../lib/supabase";
 
 type PlayerPageProps = {
@@ -29,27 +30,52 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     );
   }
 
- const { data: contracts } = await supabase
-  .from("contracts")
-  .select("*")
-  .eq("player_id", id)
-  .order("start_date", { ascending: false });
+  const { data: contracts } = await supabase
+    .from("contracts")
+    .select("*")
+    .eq("player_id", id)
+    .order("start_date", { ascending: false });
 
-const currentContract = contracts?.find(
-  (contract) => contract.status === "active"
-);
+  const currentContract = contracts?.find(
+    (contract) => contract.status === "active"
+  );
 
-let club = null;
+  let club = null;
 
-if (currentContract?.club_id) {
-  const { data: clubData } = await supabase
-    .from("clubs")
-    .select("name, country, league")
-    .eq("id", currentContract.club_id)
-    .single();
+  if (currentContract?.club_id) {
+    const { data: clubData } = await supabase
+      .from("clubs")
+      .select("name, country, league")
+      .eq("id", currentContract.club_id)
+      .single();
 
-  club = clubData;
-}
+    club = clubData;
+  }
+
+  const contractHistory =
+    contracts?.filter((contract) => contract.id !== currentContract?.id) || [];
+
+  const formatDate = (date: string | null) => {
+    if (!date) return "—";
+
+    return new Date(`${date}T00:00:00`).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const formatSalary = (
+    salary: number | null,
+    currency: string | null
+  ) => {
+    if (salary === null || salary === undefined) return "—";
+
+    return `${currency || "USD"} ${Number(salary).toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    })}`;
+  };
 
   return (
     <main
@@ -171,26 +197,30 @@ if (currentContract?.club_id) {
 
             <p>
               <strong>Contract Start:</strong>{" "}
-              {currentContract.start_date || "—"}
+              {formatDate(currentContract.start_date)}
             </p>
 
             <p>
               <strong>Contract End:</strong>{" "}
-              {currentContract.end_date || "—"}
+              {currentContract.end_date
+                ? formatDate(currentContract.end_date)
+                : "Present"}
             </p>
 
             <p>
               <strong>Annual Salary:</strong>{" "}
-              {currentContract.annual_salary
-                ? `${currentContract.currency} ${currentContract.annual_salary.toLocaleString()}`
-                : "—"}
+              {formatSalary(
+                currentContract.annual_salary,
+                currentContract.currency
+              )}
             </p>
 
             <p>
               <strong>Weekly Salary:</strong>{" "}
-              {currentContract.weekly_salary
-                ? `${currentContract.currency} ${currentContract.weekly_salary.toLocaleString()}`
-                : "—"}
+              {formatSalary(
+                currentContract.weekly_salary,
+                currentContract.currency
+              )}
             </p>
           </div>
         ) : (
@@ -198,7 +228,73 @@ if (currentContract?.club_id) {
             No current contract information available.
           </p>
         )}
+
+        <hr style={{ margin: "30px 0" }} />
+
+        <h2>Contract History</h2>
+
+        {contractHistory.length > 0 ? (
+          <div style={{ marginTop: "20px" }}>
+            {contractHistory.map((contract) => (
+              <div
+                key={contract.id}
+                style={{
+                  marginBottom: "15px",
+                  padding: "20px",
+                  border: "1px solid #ddd",
+                  borderRadius: "10px",
+                }}
+              >
+                <p>
+                  <strong>Status:</strong> {contract.status || "—"}
+                </p>
+
+                <p>
+                  <strong>Start:</strong>{" "}
+                  {formatDate(contract.start_date)}
+                </p>
+
+                <p>
+                  <strong>End:</strong>{" "}
+                  {formatDate(contract.end_date)}
+                </p>
+
+                <p>
+                  <strong>Annual Salary:</strong>{" "}
+                  {formatSalary(
+                    contract.annual_salary,
+                    contract.currency
+                  )}
+                </p>
+
+                <p>
+                  <strong>Weekly Salary:</strong>{" "}
+                  {formatSalary(
+                    contract.weekly_salary,
+                    contract.currency
+                  )}
+                </p>
+
+                <p>
+                  <strong>Confidence:</strong>{" "}
+                  {contract.confidence || "—"}
+                </p>
+
+                {contract.notes && (
+                  <p>
+                    <strong>Notes:</strong> {contract.notes}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p style={{ color: "#666" }}>
+            No previous contract information available.
+          </p>
+        )}
       </div>
     </main>
   );
 }
+```
