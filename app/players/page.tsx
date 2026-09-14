@@ -54,19 +54,19 @@ const { data: playerData, error: playerError } = await supabase
   }
 
   const { data: contractData, error: contractError } = await supabase
-    .from("contracts")
-    .select(`
-      player_id,
-      annual_salary,
-      weekly_salary,
-      currency,
-      status,
-      club:clubs (
-        name,
-        league,
-        logo_url
-      )
-    `);
+  .from("contracts")
+  .select(`
+    player_id,
+    annual_salary,
+    weekly_salary,
+    currency,
+    status,
+    club:clubs (
+      name,
+      league,
+      logo_url
+    )
+  `);
 
   if (contractError) {
     console.error("Error loading contracts:", contractError);
