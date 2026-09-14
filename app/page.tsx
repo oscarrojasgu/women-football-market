@@ -215,9 +215,9 @@ export default function Home() {
       >
         <div
           style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            padding: '55px 20px 45px',
+            maxWidth: 'none',
+margin: '0',
+padding: '55px 6vw 45px',
           }}
         >
           <div
