@@ -30,23 +30,28 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   }
 
   const { data: contracts } = await supabase
-  .from("contracts")
-  .select(`
-    *,
-    clubs (
-      name,
-      country,
-      league
-    )
-  `)
-  .eq("player_id", id)
-  .order("start_date", { ascending: false });
+    .from("contracts")
+    .select("*")
+    .eq("player_id", id)
+    .order("start_date", { ascending: false });
 
   const currentContract = contracts?.find(
     (contract) => contract.status === "active"
   );
 
-    const contractHistory =
+  let club = null;
+
+  if (currentContract?.club_id) {
+    const { data: clubData } = await supabase
+      .from("clubs")
+      .select("name, country, league")
+      .eq("id", currentContract.club_id)
+      .maybeSingle();
+
+    club = clubData;
+  }
+
+  const contractHistory =
     contracts?.filter(
       (contract) => contract.id !== currentContract?.id
     ) || [];
