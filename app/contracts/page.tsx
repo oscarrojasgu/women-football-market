@@ -4,6 +4,20 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 
+type PlayerData = {
+  full_name: string;
+  photo_url: string | null;
+  nationality: string | null;
+  position: string | null;
+};
+
+type ClubData = {
+  name: string;
+  league: string | null;
+  country: string | null;
+  logo_url: string | null;
+};
+
 type Contract = {
   id: string;
   player_id: string;
@@ -14,18 +28,8 @@ type Contract = {
   annual_salary: number | null;
   weekly_salary: number | null;
   currency: string | null;
-  player: {
-    full_name: string;
-    photo_url: string | null;
-    nationality: string | null;
-    position: string | null;
-  } | null;
-  club: {
-    name: string;
-    league: string | null;
-    country: string | null;
-    logo_url: string | null;
-  } | null;
+  player: PlayerData | null;
+  club: ClubData | null;
 };
 
 export default function ContractsPage() {
@@ -70,7 +74,29 @@ export default function ContractsPage() {
         return;
       }
 
-      setContracts(data || []);
+      const normalizedContracts: Contract[] = (data || []).map(
+        (contract: any) => ({
+          id: contract.id,
+          player_id: contract.player_id,
+          status: contract.status,
+          confidence: contract.confidence,
+          start_date: contract.start_date,
+          end_date: contract.end_date,
+          annual_salary: contract.annual_salary,
+          weekly_salary: contract.weekly_salary,
+          currency: contract.currency,
+
+          player: Array.isArray(contract.player)
+            ? contract.player[0] || null
+            : contract.player || null,
+
+          club: Array.isArray(contract.club)
+            ? contract.club[0] || null
+            : contract.club || null,
+        })
+      );
+
+      setContracts(normalizedContracts);
       setLoading(false);
     }
 
@@ -123,7 +149,8 @@ export default function ContractsPage() {
       status === "All" || contract.status === status;
 
     const matchesLeague =
-      league === "All" || contract.club?.league === league;
+      league === "All" ||
+      contract.club?.league === league;
 
     return (
       matchesSearch &&
@@ -334,7 +361,7 @@ export default function ContractsPage() {
           </div>
         )}
 
-        {/* LOADING */}
+        {/* RESULTS */}
 
         {loading ? (
           <div
@@ -362,8 +389,6 @@ export default function ContractsPage() {
             </p>
           </div>
         ) : (
-          /* CONTRACT TABLE */
-
           <div
             style={{
               border: "1px solid #e3e3e3",
@@ -398,7 +423,7 @@ export default function ContractsPage() {
               <span>Confidence</span>
             </div>
 
-            {/* TABLE ROWS */}
+            {/* CONTRACT ROWS */}
 
             {filteredContracts.map((contract) => {
               const confidence = getConfidenceLabel(
@@ -459,11 +484,7 @@ export default function ContractsPage() {
                         />
                       )}
 
-                      <div
-                        style={{
-                          minWidth: 0,
-                        }}
-                      >
+                      <div style={{ minWidth: 0 }}>
                         <div
                           style={{
                             fontSize: "14px",
@@ -520,19 +541,14 @@ export default function ContractsPage() {
                         />
                       )}
 
-                      <div
-                        style={{
-                          minWidth: 0,
-                        }}
-                      >
+                      <div>
                         <div
                           style={{
                             fontSize: "13px",
                             fontWeight: "700",
                           }}
                         >
-                          {contract.club?.name ||
-                            "No club"}
+                          {contract.club?.name || "No club"}
                         </div>
 
                         <div
