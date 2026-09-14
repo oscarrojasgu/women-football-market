@@ -156,21 +156,21 @@ export default function Home() {
 
         supabase
           .from('contracts')
-          .select(`
-            player_id,
-            annual_salary,
-            weekly_salary,
-            currency,
-            status,
-            start_date,
-            end_date,
-            confidence,
-            club:clubs (
-              name,
-              league,
-              logo_url
-            )
-          `),
+.select(`
+  player_id,
+  annual_salary,
+  weekly_salary,
+  currency,
+  status,
+  start_date,
+  end_date,
+  confidence,
+  club:clubs (
+    name,
+    league,
+    logo_url
+  )
+`)
       ])
 
       if (playerError) {
