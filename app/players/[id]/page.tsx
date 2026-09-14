@@ -55,14 +55,14 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   const contractHistory =
     contracts?.filter((contract) => contract.id !== currentContract?.id) || [];
 
- const formatDate = (date: string | null) => {
+const formatDate = (date: string | null) => {
   if (!date) return "—";
 
   const parts = date.split("-");
 
   if (parts.length !== 3) return date;
 
-  return `${parts[1]}/${parts[2]}/${parts[0]}`;
+  return parts[1] + "/" + parts[2] + "/" + parts[0];
 };
 
   const formatSalary = (
