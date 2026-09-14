@@ -205,7 +205,6 @@ export default function TransfersPage() {
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
           padding: "18px 32px",
           borderBottom: "1px solid #e5e5e5",
           background: "#fff",
@@ -218,6 +217,7 @@ export default function TransfersPage() {
             fontWeight: 800,
             textDecoration: "none",
             color: "#111",
+            marginRight: "40px",
           }}
         >
           WFM<span style={{ color: "#777" }}>•</span>
@@ -232,35 +232,50 @@ export default function TransfersPage() {
         >
           <Link
             href="/players"
-            style={{ color: "#111", textDecoration: "none" }}
+            style={{
+              color: "#111",
+              textDecoration: "none",
+            }}
           >
             Players
           </Link>
 
           <Link
             href="/contracts"
-            style={{ color: "#111", textDecoration: "none" }}
+            style={{
+              color: "#111",
+              textDecoration: "none",
+            }}
           >
             Contracts
           </Link>
 
           <Link
             href="/transfers"
-            style={{ color: "#111", textDecoration: "none" }}
+            style={{
+              color: "#111",
+              textDecoration: "none",
+            }}
           >
             Transfers
           </Link>
 
           <Link
             href="/salaries"
-            style={{ color: "#111", textDecoration: "none" }}
+            style={{
+              color: "#111",
+              textDecoration: "none",
+            }}
           >
             Salaries
           </Link>
 
           <Link
             href="/clubs"
-            style={{ color: "#111", textDecoration: "none" }}
+            style={{
+              color: "#111",
+              textDecoration: "none",
+            }}
           >
             Clubs
           </Link>
@@ -269,6 +284,7 @@ export default function TransfersPage() {
         <button
           className="login"
           style={{
+            marginLeft: "auto",
             border: "1px solid #ddd",
             background: "#fff",
             borderRadius: "8px",
@@ -420,7 +436,8 @@ export default function TransfersPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "1.8fr 1.5fr 40px 1.5fr 1.1fr 1fr",
+              gridTemplateColumns:
+                "1.8fr 1.5fr 40px 1.5fr 1.1fr 1fr",
               gap: "12px",
               padding: "15px 20px",
               background: "#fafafa",
