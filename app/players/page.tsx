@@ -205,7 +205,15 @@ export default function PlayersPage() {
                       fontWeight: "600",
                     }}
                   >
-                    {player.full_name}
+                    <a
+  href={`/players/${player.id}`}
+  style={{
+    color: "inherit",
+    textDecoration: "none",
+  }}
+>
+  {player.full_name}
+</a>
                   </td>
 
                   <td
