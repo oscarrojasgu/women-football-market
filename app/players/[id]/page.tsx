@@ -45,7 +45,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   if (currentContract?.club_id) {
     const { data: clubData } = await supabase
       .from("clubs")
-      .select("name, country, league")
+      .select("name, country, league, logo_url")
       .eq("id", currentContract.club_id)
       .maybeSingle();
 
@@ -102,36 +102,135 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
         ← Back to Players
       </a>
 
+      {/* PLAYER HEADER */}
+
       <div
         style={{
           marginTop: "30px",
           padding: "30px",
           border: "1px solid #ddd",
           borderRadius: "12px",
+          display: "flex",
+          gap: "30px",
+          alignItems: "center",
         }}
       >
-        <h1
+        {/* PLAYER PHOTO */}
+
+        <div
           style={{
-            fontSize: "40px",
-            marginBottom: "8px",
+            width: "180px",
+            height: "180px",
+            flexShrink: 0,
+            borderRadius: "12px",
+            overflow: "hidden",
+            background: "#f1f1f1",
           }}
         >
-          {player.full_name}
-        </h1>
+          {player.photo_url ? (
+            <img
+              src={player.photo_url}
+              alt={player.full_name}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#999",
+                fontSize: "14px",
+              }}
+            >
+              No Photo
+            </div>
+          )}
+        </div>
 
-        <p
-          style={{
-            color: "#666",
-            fontSize: "18px",
-            marginTop: "0",
-          }}
-        >
-          {player.nationality || "Nationality unknown"} ·{" "}
-          {player.position || "Position unknown"}
-        </p>
+        {/* PLAYER NAME */}
 
-        <hr style={{ margin: "30px 0" }} />
+        <div>
+          <h1
+            style={{
+              fontSize: "40px",
+              margin: "0 0 8px 0",
+            }}
+          >
+            {player.full_name}
+          </h1>
 
+          <p
+            style={{
+              color: "#666",
+              fontSize: "18px",
+              margin: "0 0 15px 0",
+            }}
+          >
+            {player.nationality || "Nationality unknown"} ·{" "}
+            {player.position || "Position unknown"}
+          </p>
+
+          {club && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+              }}
+            >
+              {club.logo_url && (
+                <img
+                  src={club.logo_url}
+                  alt={club.name}
+                  style={{
+                    width: "50px",
+                    height: "50px",
+                    objectFit: "contain",
+                  }}
+                />
+              )}
+
+              <div>
+                <div
+                  style={{
+                    fontSize: "20px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {club.name}
+                </div>
+
+                <div
+                  style={{
+                    color: "#666",
+                    marginTop: "3px",
+                  }}
+                >
+                  {club.league || "—"}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* PLAYER INFORMATION */}
+
+      <div
+        style={{
+          marginTop: "25px",
+          padding: "30px",
+          border: "1px solid #ddd",
+          borderRadius: "12px",
+        }}
+      >
         <h2>Player Information</h2>
 
         <div
@@ -148,7 +247,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           </p>
 
           <p>
-            <strong>Position:</strong> {player.position || "—"}
+            <strong>Position:</strong>{" "}
+            {player.position || "—"}
           </p>
 
           <p>
@@ -161,9 +261,18 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             {player.agency || "—"}
           </p>
         </div>
+      </div>
 
-        <hr style={{ margin: "30px 0" }} />
+      {/* CURRENT CLUB */}
 
+      <div
+        style={{
+          marginTop: "25px",
+          padding: "30px",
+          border: "1px solid #ddd",
+          borderRadius: "12px",
+        }}
+      >
         <h2>Current Club</h2>
 
         {currentContract && club ? (
@@ -175,24 +284,42 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
               borderRadius: "10px",
             }}
           >
-            <h3
+            <div
               style={{
-                fontSize: "24px",
-                marginTop: "0",
+                display: "flex",
+                alignItems: "center",
+                gap: "15px",
+                marginBottom: "20px",
               }}
             >
-              {club.name}
-            </h3>
+              {club.logo_url && (
+                <img
+                  src={club.logo_url}
+                  alt={club.name}
+                  style={{
+                    width: "70px",
+                    height: "70px",
+                    objectFit: "contain",
+                  }}
+                />
+              )}
 
-            <p>
-              <strong>League:</strong>{" "}
-              {club.league || "—"}
-            </p>
+              <div>
+                <h3
+                  style={{
+                    fontSize: "26px",
+                    margin: "0 0 5px 0",
+                  }}
+                >
+                  {club.name}
+                </h3>
 
-            <p>
-              <strong>Country:</strong>{" "}
-              {club.country || "—"}
-            </p>
+                <div style={{ color: "#666" }}>
+                  {club.league || "—"} ·{" "}
+                  {club.country || "—"}
+                </div>
+              </div>
+            </div>
 
             <p>
               <strong>Contract Status:</strong>{" "}
@@ -237,9 +364,18 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             No current contract information available.
           </p>
         )}
+      </div>
 
-        <hr style={{ margin: "30px 0" }} />
+      {/* CONTRACT HISTORY */}
 
+      <div
+        style={{
+          marginTop: "25px",
+          padding: "30px",
+          border: "1px solid #ddd",
+          borderRadius: "12px",
+        }}
+      >
         <h2>Contract History</h2>
 
         {contractHistory.length > 0 ? (
