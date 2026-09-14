@@ -42,14 +42,16 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   let club = null;
 
   if (currentContract?.club_id) {
-    const { data: clubData } = await supabase
-      .from("clubs")
-      .select("name, country, league")
-      .eq("id", currentContract.club_id)
-      .single();
+  const { data: clubData, error: clubError } = await supabase
+    .from("clubs")
+    .select("name, country, league")
+    .eq("id", currentContract.club_id)
+    .maybeSingle();
 
+  if (!clubError && clubData) {
     club = clubData;
   }
+}
 
   const contractHistory =
     contracts?.filter(
@@ -300,7 +302,6 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           </p>
         )}
       </div>
- ```tsx
     </main>
   );
 }
