@@ -30,24 +30,10 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   }
 
   const { data: contracts } = await supabase
-    .from("contracts")
-    .select(`
-      id,
-      status,
-      confidence,
-      start_date,
-      end_date,
-      annual_salary,
-      weekly_salary,
-      currency,
-      clubs (
-        name,
-        country,
-        league
-      )
-    `)
-    .eq("player_id", id)
-    .order("start_date", { ascending: false });
+  .from("contracts")
+  .select("*")
+  .eq("player_id", id)
+  .order("start_date", { ascending: false });
 
   const currentContract = contracts?.find(
     (contract) => contract.status === "active"
