@@ -300,7 +300,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           </p>
         )}
       </div>
+ ```tsx
     </main>
   );
 }
-```
