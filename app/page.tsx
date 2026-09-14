@@ -15,66 +15,12 @@ type Player = {
 }
 
 const featuredPlayers = [
-  {
-    name: 'Sophia Wilson',
-    club: 'Kansas City Current',
-    league: 'NWSL',
-    position: 'Forward',
-    age: 25,
-    contract: '2026-12-31',
-    salary: '$842,400',
-    status: 'Verified',
-  },
-  {
-    name: 'Temwa Chawinga',
-    club: 'Kansas City Current',
-    league: 'NWSL',
-    position: 'Forward',
-    age: 27,
-    contract: '2027-12-31',
-    salary: 'Unknown',
-    status: 'Reported',
-  },
-  {
-    name: 'Barbra Banda',
-    club: 'Orlando Pride',
-    league: 'NWSL',
-    position: 'Forward',
-    age: 26,
-    contract: '2027-12-31',
-    salary: 'Unknown',
-    status: 'Reported',
-  },
-  {
-    name: 'Trinity Rodman',
-    club: 'Washington Spirit',
-    league: 'NWSL',
-    position: 'Forward',
-    age: 24,
-    contract: '2026-12-31',
-    salary: 'Unknown',
-    status: 'Reported',
-  },
-  {
-    name: 'Lucy Bronze',
-    club: 'Chelsea FC Women',
-    league: 'WSL',
-    position: 'Defender',
-    age: 34,
-    contract: '2027-06-30',
-    salary: 'Unknown',
-    status: 'Estimated',
-  },
-  {
-    name: 'Aitana Bonmatí',
-    club: 'FC Barcelona Femení',
-    league: 'Liga F',
-    position: 'Midfielder',
-    age: 28,
-    contract: '2028-06-30',
-    salary: 'Unknown',
-    status: 'Reported',
-  },
+  {name:'Sophia Wilson', club:'Kansas City Current', league:'NWSL', position:'Forward', age:25, contract:'2026-12-31', salary:'$842,400', status:'Verified'},
+  {name:'Temwa Chawinga', club:'Kansas City Current', league:'NWSL', position:'Forward', age:27, contract:'2027-12-31', salary:'Unknown', status:'Reported'},
+  {name:'Barbra Banda', club:'Orlando Pride', league:'NWSL', position:'Forward', age:26, contract:'2027-12-31', salary:'Unknown', status:'Reported'},
+  {name:'Trinity Rodman', club:'Washington Spirit', league:'NWSL', position:'Forward', age:24, contract:'2026-12-31', salary:'Unknown', status:'Reported'},
+  {name:'Lucy Bronze', club:'Chelsea FC Women', league:'WSL', position:'Defender', age:34, contract:'2027-06-30', salary:'Unknown', status:'Estimated'},
+  {name:'Aitana Bonmatí', club:'FC Barcelona Femení', league:'Liga F', position:'Midfielder', age:28, contract:'2028-06-30', salary:'Unknown', status:'Reported'}
 ]
 
 function calculateAge(dateOfBirth: string | null) {
@@ -134,7 +80,7 @@ export default function Home() {
         player.full_name,
         player.nationality,
         player.position,
-        player.agency,
+        player.agency
       ]
         .filter(Boolean)
         .join(' ')
@@ -153,7 +99,7 @@ export default function Home() {
         player.name,
         player.club,
         player.league,
-        player.position,
+        player.position
       ]
         .join(' ')
         .toLowerCase()
@@ -164,9 +110,6 @@ export default function Home() {
   const hasDatabaseResults = filteredDatabasePlayers.length > 0
   const hasFeaturedResults = filteredFeaturedPlayers.length > 0
 
-  const totalSearchResults =
-    filteredDatabasePlayers.length + filteredFeaturedPlayers.length
-
   return (
     <main
       style={{
@@ -176,6 +119,7 @@ export default function Home() {
         fontFamily: 'Arial, sans-serif',
       }}
     >
+
       {/* HEADER */}
       <nav
         style={{
@@ -258,15 +202,17 @@ export default function Home() {
         </button>
       </nav>
 
-      {/* HERO */}
+      {/* HERO — ORIGINAL STRUCTURE */}
       <section
+        className="hero"
         style={{
           maxWidth: '1200px',
           margin: '0 auto',
-          padding: '58px 20px 42px',
+          padding: '55px 20px 45px',
         }}
       >
         <div
+          className="eyebrow"
           style={{
             fontSize: '13px',
             color: '#777',
@@ -280,25 +226,32 @@ export default function Home() {
 
         <h1
           style={{
-            fontSize: '48px',
-            lineHeight: 1.05,
-            letterSpacing: '-1.8px',
-            margin: '0 0 18px',
+            margin: '0 0 16px',
+            fontSize: '46px',
+            lineHeight: 1.08,
+            letterSpacing: '-1.5px',
             fontWeight: 800,
           }}
         >
           Know the market.
           <br />
-          <span style={{ color: '#777' }}>Know the player.</span>
+          <em
+            style={{
+              fontStyle: 'normal',
+              color: '#777',
+            }}
+          >
+            Know the player.
+          </em>
         </h1>
 
         <p
           style={{
-            fontSize: '17px',
-            lineHeight: 1.6,
-            color: '#666',
-            maxWidth: '650px',
             margin: '0 0 28px',
+            maxWidth: '680px',
+            fontSize: '17px',
+            lineHeight: 1.55,
+            color: '#666',
           }}
         >
           Track women’s football salaries, contracts, transfers and player
@@ -306,24 +259,23 @@ export default function Home() {
         </p>
 
         <div
+          className="search"
           style={{
-            maxWidth: '700px',
+            maxWidth: '760px',
             display: 'flex',
             alignItems: 'center',
             border: '1px solid #ddd',
-            borderRadius: '10px',
+            borderRadius: '9px',
             background: '#fff',
             padding: '0 16px',
             height: '54px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
           }}
         >
           <span
             style={{
-              fontSize: '24px',
+              fontSize: '23px',
               color: '#777',
-              marginRight: '12px',
-              lineHeight: 1,
+              marginRight: '10px',
             }}
           >
             ⌕
@@ -338,107 +290,182 @@ export default function Home() {
               border: 'none',
               outline: 'none',
               fontSize: '15px',
-              color: '#111',
               background: 'transparent',
+              color: '#111',
             }}
           />
         </div>
       </section>
 
-      {/* STATS */}
+      {/* STATS — SAME FOUR STAT BLOCKS */}
       <section
+        className="stats"
         style={{
           maxWidth: '1200px',
           margin: '0 auto',
-          padding: '0 20px 42px',
+          padding: '0 20px 45px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '12px',
         }}
       >
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
             border: '1px solid #e3e3e3',
             borderRadius: '14px',
-            overflow: 'hidden',
+            padding: '20px',
           }}
         >
-          {[
-            ['Players', '8,700+'],
-            ['Leagues', '23'],
-            ['Clubs', '1,900+'],
-            ['Contract data', 'Growing daily'],
-          ].map(([label, value], index) => (
-            <div
-              key={label}
-              style={{
-                padding: '22px 24px',
-                borderRight:
-                  index < 3 ? '1px solid #e5e5e5' : 'none',
-                background: '#fff',
-              }}
-            >
-              <div
-                style={{
-                  fontSize: '12px',
-                  color: '#777',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.8px',
-                  fontWeight: 700,
-                  marginBottom: '8px',
-                }}
-              >
-                {label}
-              </div>
+          <b
+            style={{
+              display: 'block',
+              fontSize: '12px',
+              color: '#777',
+              textTransform: 'uppercase',
+              letterSpacing: '0.8px',
+              marginBottom: '9px',
+            }}
+          >
+            Players
+          </b>
 
-              <div
-                style={{
-                  fontSize: '22px',
-                  fontWeight: 700,
-                }}
-              >
-                {value}
-              </div>
-            </div>
-          ))}
+          <strong
+            style={{
+              display: 'block',
+              fontSize: '22px',
+            }}
+          >
+            8,700+
+          </strong>
+        </div>
+
+        <div
+          style={{
+            border: '1px solid #e3e3e3',
+            borderRadius: '14px',
+            padding: '20px',
+          }}
+        >
+          <b
+            style={{
+              display: 'block',
+              fontSize: '12px',
+              color: '#777',
+              textTransform: 'uppercase',
+              letterSpacing: '0.8px',
+              marginBottom: '9px',
+            }}
+          >
+            Leagues
+          </b>
+
+          <strong
+            style={{
+              display: 'block',
+              fontSize: '22px',
+            }}
+          >
+            23
+          </strong>
+        </div>
+
+        <div
+          style={{
+            border: '1px solid #e3e3e3',
+            borderRadius: '14px',
+            padding: '20px',
+          }}
+        >
+          <b
+            style={{
+              display: 'block',
+              fontSize: '12px',
+              color: '#777',
+              textTransform: 'uppercase',
+              letterSpacing: '0.8px',
+              marginBottom: '9px',
+            }}
+          >
+            Clubs
+          </b>
+
+          <strong
+            style={{
+              display: 'block',
+              fontSize: '22px',
+            }}
+          >
+            1,900+
+          </strong>
+        </div>
+
+        <div
+          style={{
+            border: '1px solid #e3e3e3',
+            borderRadius: '14px',
+            padding: '20px',
+          }}
+        >
+          <b
+            style={{
+              display: 'block',
+              fontSize: '12px',
+              color: '#777',
+              textTransform: 'uppercase',
+              letterSpacing: '0.8px',
+              marginBottom: '9px',
+            }}
+          >
+            Contract data
+          </b>
+
+          <strong
+            style={{
+              display: 'block',
+              fontSize: '22px',
+            }}
+          >
+            Growing daily
+          </strong>
         </div>
       </section>
 
-      {/* PLAYER DATABASE */}
+      {/* PLAYER DATABASE — SAME CONTENT, TRANSFERS TABLE STYLE */}
       <section
+        className="content"
         style={{
           maxWidth: '1200px',
           margin: '0 auto',
-          padding: '0 20px 60px',
+          padding: '0 20px 55px',
         }}
       >
         <div
+          className="sectionhead"
           style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'flex-end',
             marginBottom: '20px',
-            gap: '20px',
           }}
         >
           <div>
-            <div
+            <span
+              className="eyebrow"
               style={{
                 fontSize: '13px',
                 color: '#777',
                 fontWeight: 700,
                 letterSpacing: '1.2px',
-                marginBottom: '8px',
               }}
             >
               PLAYER DATABASE
-            </div>
+            </span>
 
             <h2
               style={{
+                margin: '8px 0 0',
                 fontSize: '30px',
-                lineHeight: 1.15,
-                margin: 0,
-                fontWeight: 750,
+                lineHeight: 1.1,
                 letterSpacing: '-0.5px',
               }}
             >
@@ -448,14 +475,15 @@ export default function Home() {
 
           <Link
             href="/players"
+            className="outline"
             style={{
               border: '1px solid #ddd',
+              background: '#fff',
               borderRadius: '8px',
               padding: '10px 15px',
               color: '#111',
               textDecoration: 'none',
               fontSize: '14px',
-              whiteSpace: 'nowrap',
             }}
           >
             View all players →
@@ -465,20 +493,25 @@ export default function Home() {
         {q.trim() && (
           <div
             style={{
+              marginBottom: '12px',
               fontSize: '14px',
               color: '#777',
-              marginBottom: '12px',
             }}
           >
             {loading
               ? 'Searching database…'
-              : `${totalSearchResults} result${
-                  totalSearchResults !== 1 ? 's' : ''
+              : `${filteredDatabasePlayers.length + filteredFeaturedPlayers.length} result${
+                  filteredDatabasePlayers.length +
+                    filteredFeaturedPlayers.length !==
+                  1
+                    ? 's'
+                    : ''
                 } found`}
           </div>
         )}
 
         <div
+          className="table"
           style={{
             border: '1px solid #e3e3e3',
             borderRadius: '14px',
@@ -486,8 +519,8 @@ export default function Home() {
             background: '#fff',
           }}
         >
-          {/* TABLE HEADER */}
           <div
+            className="thead"
             style={{
               display: 'grid',
               gridTemplateColumns:
@@ -510,13 +543,13 @@ export default function Home() {
             <span>CONFIDENCE</span>
           </div>
 
-          {/* DATABASE PLAYERS */}
           {filteredDatabasePlayers.map((player) => {
             const age = calculateAge(player.date_of_birth)
 
             return (
               <Link
                 href={`/players/${player.id}`}
+                className="row"
                 key={`db-${player.id}`}
                 style={{
                   display: 'grid',
@@ -532,20 +565,13 @@ export default function Home() {
                 }}
               >
                 <span>
-                  <b
-                    style={{
-                      display: 'block',
-                      fontSize: '14px',
-                    }}
-                  >
-                    {player.full_name}
-                  </b>
+                  <b>{player.full_name}</b>
 
                   <small
                     style={{
                       display: 'block',
-                      color: '#888',
                       marginTop: '4px',
+                      color: '#888',
                       fontSize: '12px',
                     }}
                   >
@@ -560,12 +586,11 @@ export default function Home() {
 
                 <span style={{ color: '#777' }}>—</span>
 
-                <span>
-                  <b>Unknown</b>
-                </span>
+                <span>Unknown</span>
 
                 <span>
                   <i
+                    className="badge reported"
                     style={{
                       display: 'inline-block',
                       fontStyle: 'normal',
@@ -573,8 +598,8 @@ export default function Home() {
                       fontWeight: 700,
                       padding: '5px 8px',
                       borderRadius: '999px',
-                      background: '#f1f1f1',
-                      color: '#555',
+                      background: '#f3f3f3',
+                      color: '#666',
                     }}
                   >
                     Database
@@ -584,7 +609,6 @@ export default function Home() {
             )
           })}
 
-          {/* FEATURED PLAYERS */}
           {!q.trim() &&
             filteredFeaturedPlayers.map((player) => (
               <div
@@ -602,19 +626,13 @@ export default function Home() {
                 }}
               >
                 <span>
-                  <b
-                    style={{
-                      display: 'block',
-                    }}
-                  >
-                    {player.name}
-                  </b>
+                  <b>{player.name}</b>
 
                   <small
                     style={{
                       display: 'block',
-                      color: '#888',
                       marginTop: '4px',
+                      color: '#888',
                       fontSize: '12px',
                     }}
                   >
@@ -632,6 +650,9 @@ export default function Home() {
 
                 <span>
                   <i
+                    className={
+                      'badge ' + player.status.toLowerCase()
+                    }
                     style={{
                       display: 'inline-block',
                       fontStyle: 'normal',
@@ -659,16 +680,15 @@ export default function Home() {
               </div>
             ))}
 
-          {/* EMPTY STATES */}
           {q.trim() &&
             !hasDatabaseResults &&
             !hasFeaturedResults && (
               <div
+                className="empty"
                 style={{
                   padding: '40px 20px',
                   textAlign: 'center',
                   color: '#777',
-                  fontSize: '14px',
                 }}
               >
                 No players found. Try another search.
@@ -677,11 +697,11 @@ export default function Home() {
 
           {!q.trim() && loading && (
             <div
+              className="empty"
               style={{
                 padding: '40px 20px',
                 textAlign: 'center',
                 color: '#777',
-                fontSize: '14px',
               }}
             >
               Loading players...
@@ -693,11 +713,11 @@ export default function Home() {
             !hasDatabaseResults &&
             filteredFeaturedPlayers.length === 0 && (
               <div
+                className="empty"
                 style={{
                   padding: '40px 20px',
                   textAlign: 'center',
                   color: '#777',
-                  fontSize: '14px',
                 }}
               >
                 No players found.
@@ -706,144 +726,208 @@ export default function Home() {
         </div>
       </section>
 
-      {/* DATABASE FEATURES */}
+      {/* CARDS — SAME FOUR CARDS */}
       <section
+        className="cards"
         style={{
           maxWidth: '1200px',
           margin: '0 auto',
           padding: '0 20px 70px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '12px',
         }}
       >
-        <div
+        <article
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '12px',
+            border: '1px solid #e3e3e3',
+            borderRadius: '14px',
+            padding: '22px',
+            background: '#fff',
           }}
         >
-          {[
-            {
-              number: '01',
-              title: 'Contracts',
-              text: 'Expiration dates, options, extensions and free-agent status.',
-              href: '/contracts',
-            },
-            {
-              number: '02',
-              title: 'Transfers',
-              text: 'Permanent moves, loans, trades, releases and fees.',
-              href: '/transfers',
-            },
-            {
-              number: '03',
-              title: 'Salaries',
-              text: 'Reported and estimated compensation with source confidence.',
-              href: '/salaries',
-            },
-            {
-              number: '04',
-              title: 'Scouting',
-              text: 'Find players by position, age, league and contract status.',
-              href: '/players',
-            },
-          ].map((card) => (
-            <Link
-              href={card.href}
-              key={card.number}
-              style={{
-                display: 'block',
-                padding: '22px',
-                border: '1px solid #e3e3e3',
-                borderRadius: '14px',
-                textDecoration: 'none',
-                color: '#111',
-                background: '#fff',
-              }}
-            >
-              <span
-                style={{
-                  display: 'block',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  color: '#999',
-                  letterSpacing: '0.8px',
-                  marginBottom: '28px',
-                }}
-              >
-                {card.number}
-              </span>
+          <span
+            style={{
+              fontSize: '11px',
+              color: '#999',
+              fontWeight: 700,
+            }}
+          >
+            01
+          </span>
 
-              <h3
-                style={{
-                  margin: '0 0 8px',
-                  fontSize: '18px',
-                  fontWeight: 700,
-                }}
-              >
-                {card.title}
-              </h3>
+          <h3
+            style={{
+              margin: '28px 0 8px',
+              fontSize: '18px',
+            }}
+          >
+            Contracts
+          </h3>
 
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: '13px',
-                  lineHeight: 1.5,
-                  color: '#777',
-                }}
-              >
-                {card.text}
-              </p>
-            </Link>
-          ))}
-        </div>
+          <p
+            style={{
+              margin: 0,
+              color: '#777',
+              fontSize: '13px',
+              lineHeight: 1.5,
+            }}
+          >
+            Expiration dates, options, extensions and free-agent status.
+          </p>
+        </article>
+
+        <article
+          style={{
+            border: '1px solid #e3e3e3',
+            borderRadius: '14px',
+            padding: '22px',
+            background: '#fff',
+          }}
+        >
+          <span
+            style={{
+              fontSize: '11px',
+              color: '#999',
+              fontWeight: 700,
+            }}
+          >
+            02
+          </span>
+
+          <h3
+            style={{
+              margin: '28px 0 8px',
+              fontSize: '18px',
+            }}
+          >
+            Transfers
+          </h3>
+
+          <p
+            style={{
+              margin: 0,
+              color: '#777',
+              fontSize: '13px',
+              lineHeight: 1.5,
+            }}
+          >
+            Permanent moves, loans, trades, releases and fees.
+          </p>
+        </article>
+
+        <article
+          style={{
+            border: '1px solid #e3e3e3',
+            borderRadius: '14px',
+            padding: '22px',
+            background: '#fff',
+          }}
+        >
+          <span
+            style={{
+              fontSize: '11px',
+              color: '#999',
+              fontWeight: 700,
+            }}
+          >
+            03
+          </span>
+
+          <h3
+            style={{
+              margin: '28px 0 8px',
+              fontSize: '18px',
+            }}
+          >
+            Salaries
+          </h3>
+
+          <p
+            style={{
+              margin: 0,
+              color: '#777',
+              fontSize: '13px',
+              lineHeight: 1.5,
+            }}
+          >
+            Reported and estimated compensation with source confidence.
+          </p>
+        </article>
+
+        <article
+          style={{
+            border: '1px solid #e3e3e3',
+            borderRadius: '14px',
+            padding: '22px',
+            background: '#fff',
+          }}
+        >
+          <span
+            style={{
+              fontSize: '11px',
+              color: '#999',
+              fontWeight: 700,
+            }}
+          >
+            04
+          </span>
+
+          <h3
+            style={{
+              margin: '28px 0 8px',
+              fontSize: '18px',
+            }}
+          >
+            Scouting
+          </h3>
+
+          <p
+            style={{
+              margin: 0,
+              color: '#777',
+              fontSize: '13px',
+              lineHeight: 1.5,
+            }}
+          >
+            Find players by position, age, league and contract status.
+          </p>
+        </article>
       </section>
 
       {/* FOOTER */}
       <footer
         style={{
-          borderTop: '1px solid #e5e5e5',
           maxWidth: '1200px',
           margin: '0 auto',
           padding: '28px 20px 45px',
+          borderTop: '1px solid #e5e5e5',
         }}
       >
         <div
+          className="logo"
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '14px',
-            marginBottom: '14px',
+            fontSize: '22px',
+            fontWeight: 800,
           }}
         >
-          <Link
-            href="/"
-            style={{
-              fontSize: '22px',
-              fontWeight: 800,
-              textDecoration: 'none',
-              color: '#111',
-            }}
-          >
-            WFM<span style={{ color: '#777' }}>•</span>
-          </Link>
-
-          <span
-            style={{
-              fontSize: '14px',
-              color: '#777',
-            }}
-          >
-            Built for women’s football.
-          </span>
+          WFM<span style={{ color: '#777' }}>•</span>
         </div>
+
+        <p
+          style={{
+            color: '#777',
+            fontSize: '14px',
+            margin: '10px 0',
+          }}
+        >
+          Built for women’s football.
+        </p>
 
         <small
           style={{
-            display: 'block',
             color: '#999',
             fontSize: '12px',
-            lineHeight: 1.5,
-            maxWidth: '600px',
           }}
         >
           Data confidence is shown on every record. Estimates are never
