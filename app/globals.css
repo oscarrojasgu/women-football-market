@@ -467,3 +467,16 @@ footer small {
     border-bottom: 0;
   }
 }
+html {
+  background: #f5f4ef;
+}
+
+body {
+  background: #f5f4ef;
+  min-height: 100vh;
+}
+
+main {
+  background: #f5f4ef;
+  min-height: 100vh;
+}
