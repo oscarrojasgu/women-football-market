@@ -53,17 +53,19 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   }
 
   const contractHistory =
-    contracts?.filter((contract) => contract.id !== currentContract?.id) || [];
+    contracts?.filter(
+      (contract) => contract.id !== currentContract?.id
+    ) || [];
 
-const formatDate = (date: string | null) => {
-  if (!date) return "—";
+  const formatDate = (date: string | null) => {
+    if (!date) return "—";
 
-  const parts = date.split("-");
+    const parts = date.split("-");
 
-  if (parts.length !== 3) return date;
+    if (parts.length !== 3) return date;
 
-  return parts[1] + "/" + parts[2] + "/" + parts[0];
-};
+    return parts[1] + "/" + parts[2] + "/" + parts[0];
+  };
 
   const formatSalary = (
     salary: number | null,
@@ -71,10 +73,14 @@ const formatDate = (date: string | null) => {
   ) => {
     if (salary === null || salary === undefined) return "—";
 
-    return `${currency || "USD"} ${Number(salary).toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    })}`;
+    return (
+      (currency || "USD") +
+      " " +
+      Number(salary).toLocaleString("en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      })
+    );
   };
 
   return (
@@ -187,12 +193,12 @@ const formatDate = (date: string | null) => {
 
             <p>
               <strong>Contract Status:</strong>{" "}
-              {currentContract.status}
+              {currentContract.status || "—"}
             </p>
 
             <p>
               <strong>Contract Confidence:</strong>{" "}
-              {currentContract.confidence}
+              {currentContract.confidence || "—"}
             </p>
 
             <p>
@@ -246,7 +252,8 @@ const formatDate = (date: string | null) => {
                 }}
               >
                 <p>
-                  <strong>Status:</strong> {contract.status || "—"}
+                  <strong>Status:</strong>{" "}
+                  {contract.status || "—"}
                 </p>
 
                 <p>
