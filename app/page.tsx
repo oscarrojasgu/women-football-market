@@ -202,7 +202,6 @@ export default function Home() {
         </button>
       </nav>
 
-      ```tsx
       {/* HERO — FULL WIDTH */}
       <section
         className="hero"
