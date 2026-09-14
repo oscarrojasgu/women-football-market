@@ -202,101 +202,111 @@ export default function Home() {
         </button>
       </nav>
 
-      {/* HERO — ORIGINAL STRUCTURE */}
+      ```tsx
+      {/* HERO — FULL WIDTH */}
       <section
         className="hero"
         style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '55px 20px 45px',
+          width: '100%',
+          background: '#111',
+          color: '#fff',
+          padding: '0',
         }}
       >
         <div
-          className="eyebrow"
           style={{
-            fontSize: '13px',
-            color: '#777',
-            fontWeight: 700,
-            letterSpacing: '1.2px',
-            marginBottom: '14px',
+            maxWidth: '1200px',
+            margin: '0 auto',
+            padding: '55px 20px 45px',
           }}
         >
-          THE WOMEN’S FOOTBALL DATABASE
-        </div>
-
-        <h1
-          style={{
-            margin: '0 0 16px',
-            fontSize: '46px',
-            lineHeight: 1.08,
-            letterSpacing: '-1.5px',
-            fontWeight: 800,
-          }}
-        >
-          Know the market.
-          <br />
-          <em
+          <div
+            className="eyebrow"
             style={{
-              fontStyle: 'normal',
-              color: '#777',
+              fontSize: '13px',
+              color: '#aaa',
+              fontWeight: 700,
+              letterSpacing: '1.2px',
+              marginBottom: '14px',
             }}
           >
-            Know the player.
-          </em>
-        </h1>
+            THE WOMEN’S FOOTBALL DATABASE
+          </div>
 
-        <p
-          style={{
-            margin: '0 0 28px',
-            maxWidth: '680px',
-            fontSize: '17px',
-            lineHeight: 1.55,
-            color: '#666',
-          }}
-        >
-          Track women’s football salaries, contracts, transfers and player
-          movement — in one place.
-        </p>
-
-        <div
-          className="search"
-          style={{
-            maxWidth: '760px',
-            display: 'flex',
-            alignItems: 'center',
-            border: '1px solid #ddd',
-            borderRadius: '9px',
-            background: '#fff',
-            padding: '0 16px',
-            height: '54px',
-          }}
-        >
-          <span
+          <h1
             style={{
-              fontSize: '23px',
-              color: '#777',
-              marginRight: '10px',
+              margin: '0 0 16px',
+              fontSize: '46px',
+              lineHeight: 1.08,
+              letterSpacing: '-1.5px',
+              fontWeight: 800,
             }}
           >
-            ⌕
-          </span>
+            Know the market.
+            <br />
+            <em
+              style={{
+                fontStyle: 'normal',
+                color: '#c9ff3d',
+              }}
+            >
+              Know the player.
+            </em>
+          </h1>
 
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search player, club or league…"
+          <p
             style={{
-              width: '100%',
-              border: 'none',
-              outline: 'none',
-              fontSize: '15px',
-              background: 'transparent',
-              color: '#111',
+              margin: '0 0 28px',
+              maxWidth: '680px',
+              fontSize: '17px',
+              lineHeight: 1.55,
+              color: '#c7c7c7',
             }}
-          />
+          >
+            Track women’s football salaries, contracts, transfers and player
+            movement — in one place.
+          </p>
+
+          <div
+            className="search"
+            style={{
+              maxWidth: '760px',
+              display: 'flex',
+              alignItems: 'center',
+              border: '1px solid #ddd',
+              borderRadius: '9px',
+              background: '#fff',
+              padding: '0 16px',
+              height: '54px',
+            }}
+          >
+            <span
+              style={{
+                fontSize: '23px',
+                color: '#777',
+                marginRight: '10px',
+              }}
+            >
+              ⌕
+            </span>
+
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search player, club or league…"
+              style={{
+                width: '100%',
+                border: 'none',
+                outline: 'none',
+                fontSize: '15px',
+                background: 'transparent',
+                color: '#111',
+              }}
+            />
+          </div>
         </div>
       </section>
-
+```
       {/* STATS — SAME FOUR STAT BLOCKS */}
       <section
         className="stats"
