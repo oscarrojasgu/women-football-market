@@ -1,5 +1,6 @@
 import './globals.css'
 import type { ReactNode } from 'react'
+import Header from './components/Header'
 
 export const metadata = {
   title: 'Women’s Football Market',
@@ -7,5 +8,12 @@ export const metadata = {
 }
 
 export default function RootLayout({children}:{children:ReactNode}) {
-  return <html lang="en"><body>{children}</body></html>
+  return (
+    <html lang="en">
+      <body>
+        <Header />
+        {children}
+      </body>
+    </html>
+  )
 }
