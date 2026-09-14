@@ -1,3 +1,4 @@
+```tsx
 'use client'
 
 import Link from 'next/link'
@@ -14,13 +15,85 @@ type Player = {
   agency: string | null
 }
 
+type ContractInfo = {
+  player_id: string
+  annual_salary: number | null
+  weekly_salary: number | null
+  currency: string | null
+  status: string | null
+  start_date: string | null
+  end_date: string | null
+  confidence: string | null
+  club:
+    | {
+        name: string
+        league: string | null
+        logo_url: string | null
+      }
+    | null
+}
+
 const featuredPlayers = [
-  {name:'Sophia Wilson', club:'Kansas City Current', league:'NWSL', position:'Forward', age:25, contract:'2026-12-31', salary:'$842,400', status:'Verified'},
-  {name:'Temwa Chawinga', club:'Kansas City Current', league:'NWSL', position:'Forward', age:27, contract:'2027-12-31', salary:'Unknown', status:'Reported'},
-  {name:'Barbra Banda', club:'Orlando Pride', league:'NWSL', position:'Forward', age:26, contract:'2027-12-31', salary:'Unknown', status:'Reported'},
-  {name:'Trinity Rodman', club:'Washington Spirit', league:'NWSL', position:'Forward', age:24, contract:'2026-12-31', salary:'Unknown', status:'Reported'},
-  {name:'Lucy Bronze', club:'Chelsea FC Women', league:'WSL', position:'Defender', age:34, contract:'2027-06-30', salary:'Unknown', status:'Estimated'},
-  {name:'Aitana Bonmatí', club:'FC Barcelona Femení', league:'Liga F', position:'Midfielder', age:28, contract:'2028-06-30', salary:'Unknown', status:'Reported'}
+  {
+    name: 'Sophia Wilson',
+    club: 'Kansas City Current',
+    league: 'NWSL',
+    position: 'Forward',
+    age: 25,
+    contract: '2026-12-31',
+    salary: '$842,400',
+    status: 'Verified',
+  },
+  {
+    name: 'Temwa Chawinga',
+    club: 'Kansas City Current',
+    league: 'NWSL',
+    position: 'Forward',
+    age: 27,
+    contract: '2027-12-31',
+    salary: 'Unknown',
+    status: 'Reported',
+  },
+  {
+    name: 'Barbra Banda',
+    club: 'Orlando Pride',
+    league: 'NWSL',
+    position: 'Forward',
+    age: 26,
+    contract: '2027-12-31',
+    salary: 'Unknown',
+    status: 'Reported',
+  },
+  {
+    name: 'Trinity Rodman',
+    club: 'Washington Spirit',
+    league: 'NWSL',
+    position: 'Forward',
+    age: 24,
+    contract: '2026-12-31',
+    salary: 'Unknown',
+    status: 'Reported',
+  },
+  {
+    name: 'Lucy Bronze',
+    club: 'Chelsea FC Women',
+    league: 'WSL',
+    position: 'Defender',
+    age: 34,
+    contract: '2027-06-30',
+    salary: 'Unknown',
+    status: 'Estimated',
+  },
+  {
+    name: 'Aitana Bonmatí',
+    club: 'FC Barcelona Femení',
+    league: 'Liga F',
+    position: 'Midfielder',
+    age: 28,
+    contract: '2028-06-30',
+    salary: 'Unknown',
+    status: 'Reported',
+  },
 ]
 
 function calculateAge(dateOfBirth: string | null) {
@@ -43,51 +116,130 @@ function calculateAge(dateOfBirth: string | null) {
   return age
 }
 
+function formatSalary(
+  annualSalary: number | null,
+  currency: string | null
+) {
+  if (annualSalary === null) return 'Unknown'
+
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency || 'USD',
+    maximumFractionDigits: 0,
+  }).format(annualSalary)
+}
+
+function formatConfidence(confidence: string | null) {
+  if (!confidence) return 'Database'
+
+  return confidence.charAt(0).toUpperCase() + confidence.slice(1)
+}
+
 export default function Home() {
   const [q, setQ] = useState('')
   const [databasePlayers, setDatabasePlayers] = useState<Player[]>([])
+  const [contracts, setContracts] = useState<ContractInfo[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function loadPlayers() {
-      const { data, error } = await supabase
-        .from('players')
-        .select(
-          'id, full_name, date_of_birth, nationality, position, preferred_foot, agency'
-        )
-        .order('full_name', { ascending: true })
+      const [
+        { data: playerData, error: playerError },
+        { data: contractData, error: contractError },
+      ] = await Promise.all([
+        supabase
+          .from('players')
+          .select(
+            'id, full_name, date_of_birth, nationality, position, preferred_foot, agency'
+          )
+          .order('full_name', { ascending: true }),
 
-      if (error) {
-        console.error('Error loading players:', error)
-        setLoading(false)
-        return
+        supabase
+          .from('contracts')
+          .select(`
+            player_id,
+            annual_salary,
+            weekly_salary,
+            currency,
+            status,
+            start_date,
+            end_date,
+            confidence,
+            club:clubs (
+              name,
+              league,
+              logo_url
+            )
+          `),
+      ])
+
+      if (playerError) {
+        console.error('Error loading players:', playerError)
       }
 
-      setDatabasePlayers(data || [])
+      if (contractError) {
+        console.error('Error loading contracts:', contractError)
+      }
+
+      setDatabasePlayers(playerData || [])
+      setContracts((contractData || []) as unknown as ContractInfo[])
       setLoading(false)
     }
 
     loadPlayers()
   }, [])
 
+  const getContract = (playerId: string) => {
+    const playerContracts = contracts
+      .filter((contract) => contract.player_id === playerId)
+      .sort((a, b) => {
+        const aStart = a.start_date
+          ? new Date(a.start_date).getTime()
+          : 0
+        const bStart = b.start_date
+          ? new Date(b.start_date).getTime()
+          : 0
+
+        return bStart - aStart
+      })
+
+    if (playerContracts.length === 0) return null
+
+    const activeContract = playerContracts.find(
+      (contract) =>
+        contract.status?.toLowerCase() === 'active'
+    )
+
+    return activeContract || playerContracts[0]
+  }
+
   const filteredDatabasePlayers = useMemo(() => {
     if (!q.trim()) return databasePlayers
 
     const search = q.toLowerCase()
 
-    return databasePlayers.filter((player) =>
-      [
+    return databasePlayers.filter((player) => {
+      const contract = contracts.find(
+        (item) => item.player_id === player.id
+      )
+
+      const clubName = contract?.club?.name || ''
+      const league = contract?.club?.league || ''
+
+      return [
         player.full_name,
         player.nationality,
         player.position,
-        player.agency
+        player.agency,
+        clubName,
+        league,
       ]
         .filter(Boolean)
         .join(' ')
         .toLowerCase()
         .includes(search)
-    )
-  }, [q, databasePlayers])
+    })
+  }, [q, databasePlayers, contracts])
 
   const filteredFeaturedPlayers = useMemo(() => {
     if (!q.trim()) return featuredPlayers
@@ -99,7 +251,7 @@ export default function Home() {
         player.name,
         player.club,
         player.league,
-        player.position
+        player.position,
       ]
         .join(' ')
         .toLowerCase()
@@ -215,8 +367,8 @@ export default function Home() {
         <div
           style={{
             maxWidth: 'none',
-margin: '0',
-padding: '55px 6vw 45px',
+            margin: '0',
+            padding: '55px 6vw 45px',
           }}
         >
           <div
@@ -305,8 +457,8 @@ padding: '55px 6vw 45px',
           </div>
         </div>
       </section>
-      
-      {/* STATS — SAME FOUR STAT BLOCKS */}
+
+      {/* STATS */}
       <section
         className="stats"
         style={{
@@ -439,7 +591,7 @@ padding: '55px 6vw 45px',
         </div>
       </section>
 
-      {/* PLAYER DATABASE — SAME CONTENT, TRANSFERS TABLE STYLE */}
+      {/* PLAYER DATABASE */}
       <section
         className="content"
         style={{
@@ -554,6 +706,7 @@ padding: '55px 6vw 45px',
 
           {filteredDatabasePlayers.map((player) => {
             const age = calculateAge(player.date_of_birth)
+            const contract = getContract(player.id)
 
             return (
               <Link
@@ -589,17 +742,28 @@ padding: '55px 6vw 45px',
                   </small>
                 </span>
 
-                <span style={{ color: '#777' }}>—</span>
+                <span>
+                  {contract?.club?.name || 'Unknown'}
+                </span>
 
-                <span style={{ color: '#777' }}>—</span>
+                <span style={{ color: '#666' }}>
+                  {contract?.club?.league || 'Unknown'}
+                </span>
 
-                <span style={{ color: '#777' }}>—</span>
+                <span>
+                  {contract?.end_date || 'Unknown'}
+                </span>
 
-                <span>Unknown</span>
+                <span>
+                  {formatSalary(
+                    contract?.annual_salary ?? null,
+                    contract?.currency ?? null
+                  )}
+                </span>
 
                 <span>
                   <i
-                    className="badge reported"
+                    className="badge"
                     style={{
                       display: 'inline-block',
                       fontStyle: 'normal',
@@ -607,11 +771,21 @@ padding: '55px 6vw 45px',
                       fontWeight: 700,
                       padding: '5px 8px',
                       borderRadius: '999px',
-                      background: '#f3f3f3',
-                      color: '#666',
+                      background:
+                        contract?.confidence?.toLowerCase() === 'verified'
+                          ? '#e9f7ee'
+                          : contract?.confidence?.toLowerCase() === 'reported'
+                            ? '#f3f3f3'
+                            : '#f5f0e8',
+                      color:
+                        contract?.confidence?.toLowerCase() === 'verified'
+                          ? '#237a43'
+                          : contract?.confidence?.toLowerCase() === 'reported'
+                            ? '#666'
+                            : '#806b45',
                     }}
                   >
-                    Database
+                    {formatConfidence(contract?.confidence ?? null)}
                   </i>
                 </span>
               </Link>
@@ -735,7 +909,7 @@ padding: '55px 6vw 45px',
         </div>
       </section>
 
-      {/* CARDS — SAME FOUR CARDS */}
+      {/* CARDS */}
       <section
         className="cards"
         style={{
@@ -755,22 +929,11 @@ padding: '55px 6vw 45px',
             background: '#fff',
           }}
         >
-          <span
-            style={{
-              fontSize: '11px',
-              color: '#999',
-              fontWeight: 700,
-            }}
-          >
+          <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>
             01
           </span>
 
-          <h3
-            style={{
-              margin: '28px 0 8px',
-              fontSize: '18px',
-            }}
-          >
+          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>
             Contracts
           </h3>
 
@@ -794,22 +957,11 @@ padding: '55px 6vw 45px',
             background: '#fff',
           }}
         >
-          <span
-            style={{
-              fontSize: '11px',
-              color: '#999',
-              fontWeight: 700,
-            }}
-          >
+          <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>
             02
           </span>
 
-          <h3
-            style={{
-              margin: '28px 0 8px',
-              fontSize: '18px',
-            }}
-          >
+          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>
             Transfers
           </h3>
 
@@ -833,22 +985,11 @@ padding: '55px 6vw 45px',
             background: '#fff',
           }}
         >
-          <span
-            style={{
-              fontSize: '11px',
-              color: '#999',
-              fontWeight: 700,
-            }}
-          >
+          <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>
             03
           </span>
 
-          <h3
-            style={{
-              margin: '28px 0 8px',
-              fontSize: '18px',
-            }}
-          >
+          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>
             Salaries
           </h3>
 
@@ -872,22 +1013,11 @@ padding: '55px 6vw 45px',
             background: '#fff',
           }}
         >
-          <span
-            style={{
-              fontSize: '11px',
-              color: '#999',
-              fontWeight: 700,
-            }}
-          >
+          <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>
             04
           </span>
 
-          <h3
-            style={{
-              margin: '28px 0 8px',
-              fontSize: '18px',
-            }}
-          >
+          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>
             Scouting
           </h3>
 
