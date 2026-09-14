@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from './lib/supabase'
 
@@ -117,12 +118,12 @@ export default function Home() {
         </div>
 
         <div className="navlinks">
-          <a>Players</a>
-          <a>Contracts</a>
-          <a>Transfers</a>
-          <a>Salaries</a>
-          <a>Clubs</a>
-        </div>
+  <Link href="/players">Players</Link>
+  <Link href="/contracts">Contracts</Link>
+  <Link href="/transfers">Transfers</Link>
+  <Link href="/salaries">Salaries</Link>
+  <Link href="/clubs">Clubs</Link>
+</div>
 
         <button className="login">Sign in</button>
       </nav>
@@ -183,9 +184,9 @@ export default function Home() {
             </h2>
           </div>
 
-          <button className="outline">
-            View all players →
-          </button>
+         <Link href="/players" className="outline">
+  View all players →
+</Link>
         </div>
 
         {q.trim() && (
