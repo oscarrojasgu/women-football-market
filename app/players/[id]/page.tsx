@@ -36,21 +36,20 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     .order("start_date", { ascending: false });
 
   const currentContract = contracts?.find(
-    (contract) => contract.status === "active"
+    (contract) =>
+      String(contract.status).toLowerCase() === "active"
   );
 
   let club = null;
-  let clubError = null;
 
   if (currentContract?.club_id) {
-    const result = await supabase
+    const { data: clubData } = await supabase
       .from("clubs")
-      .select("id, name, country, league")
+      .select("name, country, league")
       .eq("id", currentContract.club_id)
       .maybeSingle();
 
-    club = result.data;
-    clubError = result.error;
+    club = clubData;
   }
 
   const contractHistory =
@@ -158,7 +157,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           </p>
 
           <p>
-            <strong>Agency:</strong> {player.agency || "—"}
+            <strong>Agency:</strong>{" "}
+            {player.agency || "—"}
           </p>
         </div>
 
@@ -185,11 +185,13 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             </h3>
 
             <p>
-              <strong>League:</strong> {club.league || "—"}
+              <strong>League:</strong>{" "}
+              {club.league || "—"}
             </p>
 
             <p>
-              <strong>Country:</strong> {club.country || "—"}
+              <strong>Country:</strong>{" "}
+              {club.country || "—"}
             </p>
 
             <p>
@@ -231,28 +233,9 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             </p>
           </div>
         ) : (
-          <div
-            style={{
-              marginTop: "20px",
-              padding: "20px",
-              background: "#fff3cd",
-              borderRadius: "10px",
-            }}
-          >
-            <p>
-              <strong>Debug:</strong> Club lookup failed.
-            </p>
-
-            <p>
-              <strong>Contract Club ID:</strong>{" "}
-              {currentContract?.club_id || "none"}
-            </p>
-
-            <p>
-              <strong>Club Error:</strong>{" "}
-              {clubError?.message || "No error returned"}
-            </p>
-          </div>
+          <p style={{ color: "#666" }}>
+            No current contract information available.
+          </p>
         )}
 
         <hr style={{ margin: "30px 0" }} />
@@ -309,7 +292,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
 
                 {contract.notes && (
                   <p>
-                    <strong>Notes:</strong> {contract.notes}
+                    <strong>Notes:</strong>{" "}
+                    {contract.notes}
                   </p>
                 )}
               </div>
