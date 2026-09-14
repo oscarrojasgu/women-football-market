@@ -1,4 +1,3 @@
-```tsx
 "use client";
 
 import Link from "next/link";
@@ -36,11 +35,13 @@ export default function TransfersPage() {
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [type, setType] = useState("All");
-  const [league, setLeague] = useState("All");
+  const [typeFilter, setTypeFilter] = useState("All");
+  const [leagueFilter, setLeagueFilter] = useState("All");
 
   useEffect(() => {
     async function loadTransfers() {
+      setLoading(true);
+
       const { data, error } = await supabase
         .from("transfers")
         .select(`
@@ -74,6 +75,7 @@ export default function TransfersPage() {
 
       if (error) {
         console.error("Error loading transfers:", error);
+        setTransfers([]);
         setLoading(false);
         return;
       }
@@ -87,15 +89,12 @@ export default function TransfersPage() {
           fee: transfer.fee,
           currency: transfer.currency,
           confidence: transfer.confidence,
-
           player: Array.isArray(transfer.player)
             ? transfer.player[0] || null
             : transfer.player || null,
-
           from_club: Array.isArray(transfer.from_club)
             ? transfer.from_club[0] || null
             : transfer.from_club || null,
-
           to_club: Array.isArray(transfer.to_club)
             ? transfer.to_club[0] || null
             : transfer.to_club || null,
@@ -109,277 +108,260 @@ export default function TransfersPage() {
     loadTransfers();
   }, []);
 
-  const transferTypes = useMemo(
-    () => [
-      "All",
-      ...Array.from(
-        new Set(
-          transfers
-            .map((transfer) => transfer.transfer_type)
-            .filter(Boolean)
-        )
-      ),
-    ],
-    [transfers]
-  );
+  const transferTypes = useMemo(() => {
+    const values = transfers
+      .map((transfer) => transfer.transfer_type)
+      .filter(Boolean) as string[];
 
-  const leagues = useMemo(
-    () => [
-      "All",
-      ...Array.from(
-        new Set(
-          transfers
-            .map((transfer) => transfer.to_club?.league)
-            .filter(Boolean)
-        )
-      ),
-    ],
-    [transfers]
-  );
+    return ["All", ...Array.from(new Set(values))];
+  }, [transfers]);
 
-  const filteredTransfers = transfers.filter((transfer) => {
-    const searchText = search.toLowerCase();
+  const leagues = useMemo(() => {
+    const values = transfers
+      .map(
+        (transfer) =>
+          transfer.to_club?.league || transfer.from_club?.league
+      )
+      .filter(Boolean) as string[];
 
-    const matchesSearch =
-      (transfer.player?.full_name || "")
-        .toLowerCase()
-        .includes(searchText) ||
-      (transfer.from_club?.name || "")
-        .toLowerCase()
-        .includes(searchText) ||
-      (transfer.to_club?.name || "")
-        .toLowerCase()
-        .includes(searchText);
+    return ["All", ...Array.from(new Set(values))];
+  }, [transfers]);
 
-    const matchesType =
-      type === "All" ||
-      transfer.transfer_type === type;
+  const filteredTransfers = useMemo(() => {
+    const query = search.toLowerCase().trim();
 
-    const matchesLeague =
-      league === "All" ||
-      transfer.to_club?.league === league;
+    return transfers.filter((transfer) => {
+      const playerName = transfer.player?.full_name?.toLowerCase() || "";
+      const fromClub = transfer.from_club?.name?.toLowerCase() || "";
+      const toClub = transfer.to_club?.name?.toLowerCase() || "";
 
-    return (
-      matchesSearch &&
-      matchesType &&
-      matchesLeague
-    );
-  });
+      const matchesSearch =
+        !query ||
+        playerName.includes(query) ||
+        fromClub.includes(query) ||
+        toClub.includes(query);
 
-  const formatDate = (date: string | null) => {
-    if (!date) return "Unknown";
+      const matchesType =
+        typeFilter === "All" ||
+        transfer.transfer_type === typeFilter;
 
-    return new Date(`${date}T00:00:00`).toLocaleDateString(
-      "en-US",
-      {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }
-    );
-  };
+      const transferLeague =
+        transfer.to_club?.league || transfer.from_club?.league;
 
-  const formatFee = (
-    fee: number | null,
-    currency: string | null,
-    transferType: string | null
-  ) => {
-    if (fee === null || fee === undefined) {
-      if (transferType === "free") return "Free";
+      const matchesLeague =
+        leagueFilter === "All" || transferLeague === leagueFilter;
+
+      return matchesSearch && matchesType && matchesLeague;
+    });
+  }, [transfers, search, typeFilter, leagueFilter]);
+
+  function formatDate(date: string | null) {
+    if (!date) return "—";
+
+    return new Date(date + "T00:00:00").toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
+  function formatFee(transfer: Transfer) {
+    if (transfer.transfer_type === "free") {
+      return "Free";
+    }
+
+    if (transfer.fee === null || transfer.fee === undefined) {
       return "Undisclosed";
     }
 
-    return `${currency || "USD"} ${Number(
-      fee
-    ).toLocaleString("en-US", {
+    const currency = transfer.currency || "USD";
+
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
       maximumFractionDigits: 0,
-    })}`;
-  };
+    }).format(transfer.fee);
+  }
 
-  const getTypeLabel = (value: string | null) => {
-    if (!value) return "Unknown";
+  function getTypeLabel(type: string | null) {
+    if (!type) return "";
 
-    if (value === "contract_expiration") {
-      return "Contract Expiration";
-    }
+    return type
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
 
-    return value.charAt(0).toUpperCase() + value.slice(1);
-  };
+  function getConfidenceLabel(confidence: string | null) {
+    if (!confidence) return "";
 
-  const getConfidenceLabel = (value: string | null) => {
-    if (!value) return null;
-
-    return value.charAt(0).toUpperCase() + value.slice(1);
-  };
+    return confidence
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
 
   return (
-    <main>
-      {/* HEADER */}
-
-      <nav>
-        <Link href="/" className="logo">
-          WFM<span>•</span>
-        </Link>
-
-        <div className="navlinks">
-          <Link href="/players">Players</Link>
-          <Link href="/contracts">Contracts</Link>
-          <Link href="/transfers">Transfers</Link>
-          <Link href="/salaries">Salaries</Link>
-          <Link href="/clubs">Clubs</Link>
-        </div>
-
-        <button className="login">Sign in</button>
-      </nav>
-
-      {/* TRANSFER DATABASE */}
-
-      <section
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "40px 20px 60px",
-          fontFamily: "Arial, sans-serif",
-        }}
-      >
-        {/* PAGE HEADER */}
-
-        <div style={{ marginBottom: "30px" }}>
-          <div
-            style={{
-              color: "#777",
-              fontSize: "13px",
-              fontWeight: "700",
-              letterSpacing: "1.5px",
-              textTransform: "uppercase",
-              marginBottom: "8px",
-            }}
-          >
-            Transfer Database
-          </div>
-
-          <h1
-            style={{
-              fontSize: "42px",
-              margin: "0 0 10px",
-              letterSpacing: "-1px",
-            }}
-          >
-            Player Transfers
-          </h1>
-
-          <p
-            style={{
-              color: "#666",
-              margin: 0,
-              fontSize: "17px",
-            }}
-          >
-            Transfers, loans, free moves and player movement across women's football.
-          </p>
-        </div>
-
-        {/* SEARCH + FILTERS */}
-
+    <main
+      style={{
+        maxWidth: "1200px",
+        margin: "0 auto",
+        padding: "40px 20px 60px",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
+      <div style={{ marginBottom: "28px" }}>
         <div
           style={{
-            padding: "20px",
-            border: "1px solid #e5e5e5",
-            borderRadius: "14px",
-            marginBottom: "30px",
-            background: "#fafafa",
+            fontSize: "13px",
+            fontWeight: 700,
+            color: "#666",
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            marginBottom: "8px",
           }}
         >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "minmax(250px, 2fr) minmax(150px, 1fr) minmax(150px, 1fr)",
-              gap: "12px",
-            }}
-          >
-            <input
-              type="text"
-              placeholder="Search players, clubs..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{
-                padding: "14px 16px",
-                border: "1px solid #d5d5d5",
-                borderRadius: "9px",
-                fontSize: "15px",
-                outline: "none",
-                background: "#fff",
-              }}
-            />
-
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              style={{
-                padding: "14px 16px",
-                border: "1px solid #d5d5d5",
-                borderRadius: "9px",
-                fontSize: "15px",
-                background: "#fff",
-              }}
-            >
-              {transferTypes.map((item) => (
-                <option key={item} value={item || ""}>
-                  {item === "All"
-                    ? "All Transfer Types"
-                    : getTypeLabel(item)}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={league}
-              onChange={(e) => setLeague(e.target.value)}
-              style={{
-                padding: "14px 16px",
-                border: "1px solid #d5d5d5",
-                borderRadius: "9px",
-                fontSize: "15px",
-                background: "#fff",
-              }}
-            >
-              {leagues.map((item) => (
-                <option key={item} value={item || ""}>
-                  {item === "All"
-                    ? "All Leagues"
-                    : item || "Unknown"}
-                </option>
-              ))}
-            </select>
-          </div>
+          Transfer Database
         </div>
 
-        {/* RESULTS COUNT */}
+        <h1
+          style={{
+            fontSize: "42px",
+            lineHeight: 1.1,
+            margin: 0,
+            marginBottom: "10px",
+          }}
+        >
+          Transfers
+        </h1>
 
-        {!loading && (
-          <div
+        <p
+          style={{
+            fontSize: "17px",
+            color: "#666",
+            margin: 0,
+          }}
+        >
+          Track player moves across women&apos;s football.
+        </p>
+      </div>
+
+      <div
+        style={{
+          padding: "20px",
+          border: "1px solid #e5e5e5",
+          borderRadius: "14px",
+          marginBottom: "30px",
+          background: "#fafafa",
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "2fr 1fr 1fr",
+            gap: "12px",
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Search player or club..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             style={{
-              marginBottom: "18px",
-              fontSize: "14px",
-              color: "#777",
+              padding: "14px 16px",
+              border: "1px solid #ddd",
+              borderRadius: "9px",
+              fontSize: "15px",
+              background: "#fff",
+            }}
+          />
+
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            style={{
+              padding: "14px 16px",
+              border: "1px solid #ddd",
+              borderRadius: "9px",
+              fontSize: "15px",
+              background: "#fff",
             }}
           >
-            Showing{" "}
-            <strong style={{ color: "#222" }}>
-              {filteredTransfers.length}
-            </strong>{" "}
-            transfer
-            {filteredTransfers.length !== 1 ? "s" : ""}
-          </div>
-        )}
+            {transferTypes.map((type) => (
+              <option key={type} value={type}>
+                {type === "All" ? "All Transfer Types" : getTypeLabel(type)}
+              </option>
+            ))}
+          </select>
 
-        {/* RESULTS */}
+          <select
+            value={leagueFilter}
+            onChange={(e) => setLeagueFilter(e.target.value)}
+            style={{
+              padding: "14px 16px",
+              border: "1px solid #ddd",
+              borderRadius: "9px",
+              fontSize: "15px",
+              background: "#fff",
+            }}
+          >
+            {leagues.map((league) => (
+              <option key={league} value={league}>
+                {league === "All" ? "All Leagues" : league}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div
+        style={{
+          fontSize: "14px",
+          color: "#666",
+          marginBottom: "12px",
+        }}
+      >
+        {loading
+          ? "Loading transfers..."
+          : `${filteredTransfers.length} transfer${
+              filteredTransfers.length === 1 ? "" : "s"
+            } found`}
+      </div>
+
+      <div
+        style={{
+          border: "1px solid #e3e3e3",
+          borderRadius: "14px",
+          overflow: "hidden",
+          background: "#fff",
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1.8fr 1.5fr 40px 1.5fr 1.1fr 1fr",
+            gap: "12px",
+            padding: "15px 20px",
+            background: "#fafafa",
+            borderBottom: "1px solid #e3e3e3",
+            fontSize: "11px",
+            fontWeight: 700,
+            color: "#777",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            alignItems: "center",
+          }}
+        >
+          <div>Player</div>
+          <div>From</div>
+          <div></div>
+          <div>To</div>
+          <div>Fee</div>
+          <div>Date</div>
+        </div>
 
         {loading ? (
           <div
             style={{
-              padding: "60px",
+              padding: "40px 20px",
               textAlign: "center",
               color: "#777",
             }}
@@ -389,74 +371,237 @@ export default function TransfersPage() {
         ) : filteredTransfers.length === 0 ? (
           <div
             style={{
-              padding: "50px",
-              border: "1px solid #e5e5e5",
-              borderRadius: "14px",
+              padding: "40px 20px",
               textAlign: "center",
+              color: "#777",
             }}
           >
-            <h2>No transfers found</h2>
-
-            <p style={{ color: "#666" }}>
-              Try changing your search or filters.
-            </p>
+            No transfers found.
           </div>
         ) : (
-          <div
-            style={{
-              border: "1px solid #e3e3e3",
-              borderRadius: "14px",
-              overflow: "hidden",
-              background: "#fff",
-            }}
-          >
-            {/* TABLE HEADER */}
-
-            <div
+          filteredTransfers.map((transfer) => (
+            <Link
+              key={transfer.id}
+              href={`/players/${transfer.player_id}`}
               style={{
                 display: "grid",
                 gridTemplateColumns:
                   "1.8fr 1.5fr 40px 1.5fr 1.1fr 1fr",
-                gap: "15px",
-                padding: "15px 20px",
-                background: "#f7f7f7",
-                borderBottom: "1px solid #e5e5e5",
-                fontSize: "11px",
-                fontWeight: "700",
-                letterSpacing: "0.8px",
-                color: "#777",
-                textTransform: "uppercase",
+                gap: "12px",
+                padding: "18px 20px",
+                borderBottom: "1px solid #eee",
+                alignItems: "center",
+                textDecoration: "none",
+                color: "inherit",
               }}
             >
-              <span>Player</span>
-              <span>From</span>
-              <span></span>
-              <span>To</span>
-              <span>Fee</span>
-              <span>Date</span>
-            </div>
-
-            {/* TRANSFER ROWS */}
-
-            {filteredTransfers.map((transfer) => {
-              const confidence = getConfidenceLabel(
-                transfer.confidence
-              );
-
-              return (
-                <Link
-                  key={transfer.id}
-                  href={`/players/${transfer.player_id}`}
-                  style={{
-                    textDecoration: "none",
-                    color: "inherit",
-                  }}
-                >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  minWidth: 0,
+                }}
+              >
+                {transfer.player?.photo_url ? (
+                  <img
+                    src={transfer.player.photo_url}
+                    alt={transfer.player.full_name}
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      flexShrink: 0,
+                    }}
+                  />
+                ) : (
                   <div
                     style={{
-                      display: "grid",
-                      gridTemplateColumns:
-                        "1.8fr 1.5fr 40px 1.5fr 1.1fr 1fr",
-                      gap: "15px",
-                      padding: "18px 20px"
-```
+                      width: "44px",
+                      height: "44px",
+                      borderRadius: "50%",
+                      background: "#eee",
+                      flexShrink: 0,
+                    }}
+                  />
+                )}
+
+                <div style={{ minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontWeight: 700,
+                      fontSize: "15px",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {transfer.player?.full_name || "Unknown Player"}
+                  </div>
+
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#777",
+                      marginTop: "3px",
+                    }}
+                  >
+                    {transfer.player?.position || "—"}
+                    {transfer.player?.nationality
+                      ? ` • ${transfer.player.nationality}`
+                      : ""}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "9px",
+                  minWidth: 0,
+                }}
+              >
+                {transfer.from_club?.logo_url ? (
+                  <img
+                    src={transfer.from_club.logo_url}
+                    alt={transfer.from_club.name}
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      objectFit: "contain",
+                      flexShrink: 0,
+                    }}
+                  />
+                ) : null}
+
+                <div style={{ minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {transfer.from_club?.name || "—"}
+                  </div>
+
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "#888",
+                      marginTop: "2px",
+                    }}
+                  >
+                    {transfer.from_club?.league || ""}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  textAlign: "center",
+                  fontSize: "20px",
+                  color: "#999",
+                }}
+              >
+                →
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "9px",
+                  minWidth: 0,
+                }}
+              >
+                {transfer.to_club?.logo_url ? (
+                  <img
+                    src={transfer.to_club.logo_url}
+                    alt={transfer.to_club.name}
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      objectFit: "contain",
+                      flexShrink: 0,
+                    }}
+                  />
+                ) : null}
+
+                <div style={{ minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {transfer.to_club?.name || "—"}
+                  </div>
+
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "#888",
+                      marginTop: "2px",
+                    }}
+                  >
+                    {transfer.to_club?.league || ""}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: 700,
+                  }}
+                >
+                  {formatFee(transfer)}
+                </div>
+
+                <div
+                  style={{
+                    fontSize: "11px",
+                    color: "#888",
+                    marginTop: "3px",
+                  }}
+                >
+                  {getTypeLabel(transfer.transfer_type)}
+                </div>
+              </div>
+
+              <div>
+                <div
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: 600,
+                  }}
+                >
+                  {formatDate(transfer.transfer_date)}
+                </div>
+
+                <div
+                  style={{
+                    fontSize: "11px",
+                    color: "#888",
+                    marginTop: "3px",
+                  }}
+                >
+                  {getConfidenceLabel(transfer.confidence)}
+                </div>
+              </div>
+            </Link>
+          ))
+        )}
+      </div>
+    </main>
+  );
+}
