@@ -56,14 +56,14 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     contracts?.filter((contract) => contract.id !== currentContract?.id) || [];
 
   const formatDate = (date: string | null) => {
-    if (!date) return "—";
+  if (!date) return "—";
 
-    return new Date(`${date}T00:00:00`).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
+  return new Date(`${date}T00:00:00`).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
 
   const formatSalary = (
     salary: number | null,
