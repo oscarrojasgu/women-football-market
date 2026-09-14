@@ -306,7 +306,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-```
+      
       {/* STATS — SAME FOUR STAT BLOCKS */}
       <section
         className="stats"
