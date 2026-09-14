@@ -156,21 +156,21 @@ export default function Home() {
 
         supabase
           .from('contracts')
-.select(`
-  player_id,
-  annual_salary,
-  weekly_salary,
-  currency,
-  status,
-  start_date,
-  end_date,
-  confidence,
-  club:clubs (
-    name,
-    league,
-    logo_url
-  )
-`)
+          .select(`
+            player_id,
+            annual_salary,
+            weekly_salary,
+            currency,
+            status,
+            start_date,
+            end_date,
+            confidence,
+            club:clubs (
+              name,
+              league,
+              logo_url
+            )
+          `),
       ])
 
       if (playerError) {
@@ -196,6 +196,7 @@ export default function Home() {
         const aStart = a.start_date
           ? new Date(a.start_date).getTime()
           : 0
+
         const bStart = b.start_date
           ? new Date(b.start_date).getTime()
           : 0
@@ -271,7 +272,6 @@ export default function Home() {
         fontFamily: 'Arial, sans-serif',
       }}
     >
-
       {/* HEADER */}
       <nav
         style={{
@@ -1076,3 +1076,4 @@ export default function Home() {
     </main>
   )
 }
+```
