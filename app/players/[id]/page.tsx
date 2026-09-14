@@ -40,15 +40,17 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   );
 
   let club = null;
+  let clubError = null;
 
   if (currentContract?.club_id) {
-    const { data: clubData } = await supabase
+    const result = await supabase
       .from("clubs")
-      .select("name, country, league")
+      .select("id, name, country, league")
       .eq("id", currentContract.club_id)
       .maybeSingle();
 
-    club = clubData;
+    club = result.data;
+    clubError = result.error;
   }
 
   const contractHistory =
@@ -229,9 +231,28 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             </p>
           </div>
         ) : (
-          <p style={{ color: "#666" }}>
-            No current contract information available.
-          </p>
+          <div
+            style={{
+              marginTop: "20px",
+              padding: "20px",
+              background: "#fff3cd",
+              borderRadius: "10px",
+            }}
+          >
+            <p>
+              <strong>Debug:</strong> Club lookup failed.
+            </p>
+
+            <p>
+              <strong>Contract Club ID:</strong>{" "}
+              {currentContract?.club_id || "none"}
+            </p>
+
+            <p>
+              <strong>Club Error:</strong>{" "}
+              {clubError?.message || "No error returned"}
+            </p>
+          </div>
         )}
 
         <hr style={{ margin: "30px 0" }} />
