@@ -1,4 +1,3 @@
-```tsx
 import { supabase } from "../../lib/supabase";
 
 type PlayerPageProps = {
