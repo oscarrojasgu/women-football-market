@@ -53,14 +53,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     (contract) => contract.status === "active"
   );
 
-  const club = currentContract?.clubs as
-    | {
-        name: string;
-        country: string | null;
-        league: string | null;
-      }
-    | null
-    | undefined;
+ const club = currentContract?.clubs?.[0];
 
   return (
     <main
