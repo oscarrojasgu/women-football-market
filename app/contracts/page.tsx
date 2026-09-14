@@ -41,6 +41,8 @@ export default function ContractsPage() {
 
   useEffect(() => {
     async function loadContracts() {
+      setLoading(true);
+
       const { data, error } = await supabase
         .from("contracts")
         .select(`
@@ -70,6 +72,7 @@ export default function ContractsPage() {
 
       if (error) {
         console.error("Error loading contracts:", error);
+        setContracts([]);
         setLoading(false);
         return;
       }
@@ -103,79 +106,70 @@ export default function ContractsPage() {
     loadContracts();
   }, []);
 
-  const statuses = useMemo(
-    () => [
-      "All",
-      ...Array.from(
-        new Set(
-          contracts
-            .map((contract) => contract.status)
-            .filter(Boolean)
-        )
-      ),
-    ],
-    [contracts]
-  );
+  const statuses = useMemo(() => {
+    const values = contracts
+      .map((contract) => contract.status)
+      .filter(Boolean) as string[];
 
-  const leagues = useMemo(
-    () => [
-      "All",
-      ...Array.from(
-        new Set(
-          contracts
-            .map((contract) => contract.club?.league)
-            .filter(Boolean)
-        )
-      ),
-    ],
-    [contracts]
-  );
+    return ["All", ...Array.from(new Set(values))];
+  }, [contracts]);
 
-  const filteredContracts = contracts.filter((contract) => {
-    const searchText = search.toLowerCase();
+  const leagues = useMemo(() => {
+    const values = contracts
+      .map((contract) => contract.club?.league)
+      .filter(Boolean) as string[];
 
-    const matchesSearch =
-      (contract.player?.full_name || "")
-        .toLowerCase()
-        .includes(searchText) ||
-      (contract.club?.name || "")
-        .toLowerCase()
-        .includes(searchText) ||
-      (contract.club?.league || "")
-        .toLowerCase()
-        .includes(searchText);
+    return ["All", ...Array.from(new Set(values))];
+  }, [contracts]);
 
-    const matchesStatus =
-      status === "All" || contract.status === status;
+  const filteredContracts = useMemo(() => {
+    const query = search.toLowerCase().trim();
 
-    const matchesLeague =
-      league === "All" ||
-      contract.club?.league === league;
+    return contracts.filter((contract) => {
+      const playerName =
+        contract.player?.full_name?.toLowerCase() || "";
 
-    return (
-      matchesSearch &&
-      matchesStatus &&
-      matchesLeague
-    );
-  });
+      const clubName =
+        contract.club?.name?.toLowerCase() || "";
 
-  const formatSalary = (
+      const clubLeague =
+        contract.club?.league?.toLowerCase() || "";
+
+      const matchesSearch =
+        !query ||
+        playerName.includes(query) ||
+        clubName.includes(query) ||
+        clubLeague.includes(query);
+
+      const matchesStatus =
+        status === "All" || contract.status === status;
+
+      const matchesLeague =
+        league === "All" ||
+        contract.club?.league === league;
+
+      return matchesSearch && matchesStatus && matchesLeague;
+    });
+  }, [contracts, search, status, league]);
+
+  function formatSalary(
     salary: number | null,
     currency: string | null
-  ) => {
+  ) {
     if (salary === null || salary === undefined) {
       return "Not available";
     }
 
-    return `${currency || "USD"} ${Number(
-      salary
-    ).toLocaleString("en-US", {
-      maximumFractionDigits: 0,
-    })}`;
-  };
+    return `${currency || "USD"} ${Number(salary).toLocaleString(
+      "en-US",
+      {
+        maximumFractionDigits: 0,
+      }
+    )}`;
+  }
 
-  const formatDate = (date: string | null) => {
-    if (!date) return "Unknown";
+  function formatDate(date: string | null) {
+    if (!date) return "—";
 
     return new Date(`${date}T00:00:00`).toLocaleDateString(
       "en-US",
@@ -185,43 +179,127 @@ export default function ContractsPage() {
         year: "numeric",
       }
     );
-  };
+  }
 
-  const getStatusLabel = (value: string | null) => {
+  function getStatusLabel(value: string | null) {
     if (!value) return "Unknown";
 
-    return value.charAt(0).toUpperCase() + value.slice(1);
-  };
+    return value
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
 
-  const getConfidenceLabel = (value: string | null) => {
-    if (!value) return null;
+  function getConfidenceLabel(value: string | null) {
+    if (!value) return "";
 
-    return value.charAt(0).toUpperCase() + value.slice(1);
-  };
+    return value
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
 
   return (
-    <main>
+    <>
       {/* HEADER */}
 
-      <nav>
-        <Link href="/" className="logo">
-          WFM<span>•</span>
+      <nav
+        style={{
+          display: "flex",
+          alignItems: "center",
+          padding: "18px 32px",
+          borderBottom: "1px solid #e5e5e5",
+          background: "#fff",
+        }}
+      >
+        <Link
+          href="/"
+          style={{
+            fontSize: "24px",
+            fontWeight: 800,
+            textDecoration: "none",
+            color: "#111",
+            marginRight: "40px",
+          }}
+        >
+          WFM<span style={{ color: "#777" }}>•</span>
         </Link>
 
-        <div className="navlinks">
-          <Link href="/players">Players</Link>
-          <Link href="/contracts">Contracts</Link>
-          <Link href="/transfers">Transfers</Link>
-          <Link href="/salaries">Salaries</Link>
-          <Link href="/clubs">Clubs</Link>
+        <div
+          style={{
+            display: "flex",
+            gap: "28px",
+            alignItems: "center",
+          }}
+        >
+          <Link
+            href="/players"
+            style={{
+              color: "#111",
+              textDecoration: "none",
+            }}
+          >
+            Players
+          </Link>
+
+          <Link
+            href="/contracts"
+            style={{
+              color: "#111",
+              textDecoration: "none",
+            }}
+          >
+            Contracts
+          </Link>
+
+          <Link
+            href="/transfers"
+            style={{
+              color: "#111",
+              textDecoration: "none",
+            }}
+          >
+            Transfers
+          </Link>
+
+          <Link
+            href="/salaries"
+            style={{
+              color: "#111",
+              textDecoration: "none",
+            }}
+          >
+            Salaries
+          </Link>
+
+          <Link
+            href="/clubs"
+            style={{
+              color: "#111",
+              textDecoration: "none",
+            }}
+          >
+            Clubs
+          </Link>
         </div>
 
-        <button className="login">Sign in</button>
+        <button
+          className="login"
+          style={{
+            marginLeft: "auto",
+            border: "1px solid #ddd",
+            background: "#fff",
+            borderRadius: "8px",
+            padding: "9px 16px",
+            fontSize: "14px",
+            cursor: "pointer",
+          }}
+        >
+          Sign in
+        </button>
       </nav>
 
-      {/* CONTRACT DATABASE */}
+      {/* MAIN */}
 
-      <section
+      <main
         style={{
           maxWidth: "1200px",
           margin: "0 auto",
@@ -231,14 +309,14 @@ export default function ContractsPage() {
       >
         {/* PAGE HEADER */}
 
-        <div style={{ marginBottom: "30px" }}>
+        <div style={{ marginBottom: "28px" }}>
           <div
             style={{
-              color: "#777",
               fontSize: "13px",
-              fontWeight: "700",
-              letterSpacing: "1.5px",
+              fontWeight: 700,
+              color: "#666",
               textTransform: "uppercase",
+              letterSpacing: "0.08em",
               marginBottom: "8px",
             }}
           >
@@ -248,8 +326,9 @@ export default function ContractsPage() {
           <h1
             style={{
               fontSize: "42px",
-              margin: "0 0 10px",
-              letterSpacing: "-1px",
+              lineHeight: 1.1,
+              margin: 0,
+              marginBottom: "10px",
             }}
           >
             Player Contracts
@@ -257,16 +336,16 @@ export default function ContractsPage() {
 
           <p
             style={{
+              fontSize: "17px",
               color: "#666",
               margin: 0,
-              fontSize: "17px",
             }}
           >
             Contract terms, expiration dates, salaries and market confidence.
           </p>
         </div>
 
-        {/* SEARCH + FILTERS */}
+        {/* FILTERS */}
 
         <div
           style={{
@@ -280,22 +359,20 @@ export default function ContractsPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns:
-                "minmax(250px, 2fr) minmax(150px, 1fr) minmax(150px, 1fr)",
+              gridTemplateColumns: "2fr 1fr 1fr",
               gap: "12px",
             }}
           >
             <input
               type="text"
-              placeholder="Search players, clubs, leagues..."
+              placeholder="Search player or club..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{
                 padding: "14px 16px",
-                border: "1px solid #d5d5d5",
+                border: "1px solid #ddd",
                 borderRadius: "9px",
                 fontSize: "15px",
-                outline: "none",
                 background: "#fff",
               }}
             />
@@ -305,14 +382,14 @@ export default function ContractsPage() {
               onChange={(e) => setStatus(e.target.value)}
               style={{
                 padding: "14px 16px",
-                border: "1px solid #d5d5d5",
+                border: "1px solid #ddd",
                 borderRadius: "9px",
                 fontSize: "15px",
                 background: "#fff",
               }}
             >
               {statuses.map((item) => (
-                <option key={item} value={item || ""}>
+                <option key={item} value={item}>
                   {item === "All"
                     ? "All Statuses"
                     : getStatusLabel(item)}
@@ -325,17 +402,17 @@ export default function ContractsPage() {
               onChange={(e) => setLeague(e.target.value)}
               style={{
                 padding: "14px 16px",
-                border: "1px solid #d5d5d5",
+                border: "1px solid #ddd",
                 borderRadius: "9px",
                 fontSize: "15px",
                 background: "#fff",
               }}
             >
               {leagues.map((item) => (
-                <option key={item} value={item || ""}>
+                <option key={item} value={item}>
                   {item === "All"
                     ? "All Leagues"
-                    : item || "Unknown"}
+                    : item}
                 </option>
               ))}
             </select>
@@ -344,293 +421,304 @@ export default function ContractsPage() {
 
         {/* RESULTS COUNT */}
 
-        {!loading && (
-          <div
-            style={{
-              marginBottom: "18px",
-              fontSize: "14px",
-              color: "#777",
-            }}
-          >
-            Showing{" "}
-            <strong style={{ color: "#222" }}>
-              {filteredContracts.length}
-            </strong>{" "}
-            contract
-            {filteredContracts.length !== 1 ? "s" : ""}
-          </div>
-        )}
+        <div
+          style={{
+            fontSize: "14px",
+            color: "#666",
+            marginBottom: "12px",
+          }}
+        >
+          {loading
+            ? "Loading contracts..."
+            : `${filteredContracts.length} contract${
+                filteredContracts.length === 1 ? "" : "s"
+              } found`}
+        </div>
 
         {/* RESULTS */}
 
-        {loading ? (
+        <div
+          style={{
+            border: "1px solid #e3e3e3",
+            borderRadius: "14px",
+            overflow: "hidden",
+            background: "#fff",
+          }}
+        >
+          {/* TABLE HEADER */}
+
           <div
             style={{
-              padding: "60px",
-              textAlign: "center",
+              display: "grid",
+              gridTemplateColumns:
+                "1.8fr 1.5fr 1.1fr 1.1fr 1.3fr 1fr",
+              gap: "12px",
+              padding: "15px 20px",
+              background: "#fafafa",
+              borderBottom: "1px solid #e3e3e3",
+              fontSize: "11px",
+              fontWeight: 700,
               color: "#777",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              alignItems: "center",
             }}
           >
-            Loading contracts...
+            <div>Player</div>
+            <div>Club</div>
+            <div>Status</div>
+            <div>Contract End</div>
+            <div>Salary</div>
+            <div>Confidence</div>
           </div>
-        ) : filteredContracts.length === 0 ? (
-          <div
-            style={{
-              padding: "50px",
-              border: "1px solid #e5e5e5",
-              borderRadius: "14px",
-              textAlign: "center",
-            }}
-          >
-            <h2>No contracts found</h2>
 
-            <p style={{ color: "#666" }}>
-              Try changing your search or filters.
-            </p>
-          </div>
-        ) : (
-          <div
-            style={{
-              border: "1px solid #e3e3e3",
-              borderRadius: "14px",
-              overflow: "hidden",
-              background: "#fff",
-            }}
-          >
-            {/* TABLE HEADER */}
+          {/* ROWS */}
 
+          {loading ? (
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "2fr 1.5fr 1fr 1.2fr 1.2fr 1fr",
-                gap: "15px",
-                padding: "15px 20px",
-                background: "#f7f7f7",
-                borderBottom: "1px solid #e5e5e5",
-                fontSize: "11px",
-                fontWeight: "700",
-                letterSpacing: "0.8px",
+                padding: "40px 20px",
+                textAlign: "center",
                 color: "#777",
-                textTransform: "uppercase",
               }}
             >
-              <span>Player</span>
-              <span>Club</span>
-              <span>Status</span>
-              <span>Contract End</span>
-              <span>Salary</span>
-              <span>Confidence</span>
+              Loading contracts...
             </div>
+          ) : filteredContracts.length === 0 ? (
+            <div
+              style={{
+                padding: "40px 20px",
+                textAlign: "center",
+                color: "#777",
+              }}
+            >
+              No contracts found.
+            </div>
+          ) : (
+            filteredContracts.map((contract) => (
+              <Link
+                key={contract.id}
+                href={`/players/${contract.player_id}`}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns:
+                    "1.8fr 1.5fr 1.1fr 1.1fr 1.3fr 1fr",
+                  gap: "12px",
+                  padding: "18px 20px",
+                  borderBottom: "1px solid #eee",
+                  alignItems: "center",
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                {/* PLAYER */}
 
-            {/* CONTRACT ROWS */}
-
-            {filteredContracts.map((contract) => {
-              const confidence = getConfidenceLabel(
-                contract.confidence
-              );
-
-              return (
-                <Link
-                  key={contract.id}
-                  href={`/players/${contract.player_id}`}
+                <div
                   style={{
-                    textDecoration: "none",
-                    color: "inherit",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    minWidth: 0,
                   }}
                 >
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns:
-                        "2fr 1.5fr 1fr 1.2fr 1.2fr 1fr",
-                      gap: "15px",
-                      padding: "18px 20px",
-                      borderBottom: "1px solid #eeeeee",
-                      alignItems: "center",
-                    }}
-                  >
-                    {/* PLAYER */}
-
+                  {contract.player?.photo_url ? (
+                    <img
+                      src={contract.player.photo_url}
+                      alt={contract.player.full_name}
+                      style={{
+                        width: "44px",
+                        height: "44px",
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        flexShrink: 0,
+                      }}
+                    />
+                  ) : (
                     <div
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "12px",
-                        minWidth: 0,
+                        width: "44px",
+                        height: "44px",
+                        borderRadius: "50%",
+                        background: "#eee",
+                        flexShrink: 0,
                       }}
-                    >
-                      {contract.player?.photo_url ? (
-                        <img
-                          src={contract.player.photo_url}
-                          alt={contract.player.full_name}
-                          style={{
-                            width: "44px",
-                            height: "44px",
-                            borderRadius: "50%",
-                            objectFit: "cover",
-                            flexShrink: 0,
-                          }}
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            width: "44px",
-                            height: "44px",
-                            borderRadius: "50%",
-                            background: "#f1f1f1",
-                            flexShrink: 0,
-                          }}
-                        />
-                      )}
+                    />
+                  )}
 
-                      <div style={{ minWidth: 0 }}>
-                        <div
-                          style={{
-                            fontSize: "14px",
-                            fontWeight: "700",
-                            marginBottom: "3px",
-                          }}
-                        >
-                          {contract.player?.full_name ||
-                            "Unknown player"}
-                        </div>
-
-                        <div
-                          style={{
-                            color: "#888",
-                            fontSize: "12px",
-                          }}
-                        >
-                          {contract.player?.position ||
-                            "Position unknown"}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* CLUB */}
-
+                  <div style={{ minWidth: 0 }}>
                     <div
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "9px",
-                        minWidth: 0,
+                        fontWeight: 700,
+                        fontSize: "15px",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
                       }}
                     >
-                      {contract.club?.logo_url ? (
-                        <img
-                          src={contract.club.logo_url}
-                          alt={contract.club.name}
-                          style={{
-                            width: "32px",
-                            height: "32px",
-                            objectFit: "contain",
-                            flexShrink: 0,
-                          }}
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "7px",
-                            background: "#f1f1f1",
-                            flexShrink: 0,
-                          }}
-                        />
-                      )}
-
-                      <div>
-                        <div
-                          style={{
-                            fontSize: "13px",
-                            fontWeight: "700",
-                          }}
-                        >
-                          {contract.club?.name || "No club"}
-                        </div>
-
-                        <div
-                          style={{
-                            color: "#888",
-                            fontSize: "11px",
-                            marginTop: "2px",
-                          }}
-                        >
-                          {contract.club?.league || "—"}
-                        </div>
-                      </div>
+                      {contract.player?.full_name ||
+                        "Unknown Player"}
                     </div>
-
-                    {/* STATUS */}
-
-                    <div>
-                      <span
-                        style={{
-                          display: "inline-block",
-                          padding: "5px 9px",
-                          borderRadius: "20px",
-                          background:
-                            contract.status?.toLowerCase() ===
-                            "active"
-                              ? "#e9f7ef"
-                              : "#f3f3f3",
-                          color:
-                            contract.status?.toLowerCase() ===
-                            "active"
-                              ? "#237a45"
-                              : "#666",
-                          fontSize: "11px",
-                          fontWeight: "700",
-                        }}
-                      >
-                        {getStatusLabel(contract.status)}
-                      </span>
-                    </div>
-
-                    {/* CONTRACT END */}
-
-                    <div
-                      style={{
-                        fontSize: "13px",
-                        color: "#444",
-                      }}
-                    >
-                      {formatDate(contract.end_date)}
-                    </div>
-
-                    {/* SALARY */}
-
-                    <div
-                      style={{
-                        fontSize: "13px",
-                        fontWeight: "700",
-                      }}
-                    >
-                      {formatSalary(
-                        contract.annual_salary,
-                        contract.currency
-                      )}
-                    </div>
-
-                    {/* CONFIDENCE */}
 
                     <div
                       style={{
                         fontSize: "12px",
                         color: "#777",
+                        marginTop: "3px",
                       }}
                     >
-                      {confidence || "Not rated"}
+                      {contract.player?.position || "—"}
+                      {contract.player?.nationality
+                        ? ` • ${contract.player.nationality}`
+                        : ""}
                     </div>
                   </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </section>
-    </main>
+                </div>
+
+                {/* CLUB */}
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "9px",
+                    minWidth: 0,
+                  }}
+                >
+                  {contract.club?.logo_url ? (
+                    <img
+                      src={contract.club.logo_url}
+                      alt={contract.club.name}
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        objectFit: "contain",
+                        flexShrink: 0,
+                      }}
+                    />
+                  ) : null}
+
+                  <div style={{ minWidth: 0 }}>
+                    <div
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: 600,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {contract.club?.name || "—"}
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: "11px",
+                        color: "#888",
+                        marginTop: "2px",
+                      }}
+                    >
+                      {contract.club?.league || ""}
+                    </div>
+                  </div>
+                </div>
+
+                {/* STATUS */}
+
+                <div>
+                  <span
+                    style={{
+                      display: "inline-block",
+                      padding: "5px 9px",
+                      borderRadius: "20px",
+                      background:
+                        contract.status?.toLowerCase() ===
+                        "active"
+                          ? "#e9f7ef"
+                          : "#f3f3f3",
+                      color:
+                        contract.status?.toLowerCase() ===
+                        "active"
+                          ? "#237a45"
+                          : "#666",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {getStatusLabel(contract.status)}
+                  </span>
+                </div>
+
+                {/* CONTRACT END */}
+
+                <div>
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {formatDate(contract.end_date)}
+                  </div>
+
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "#888",
+                      marginTop: "3px",
+                    }}
+                  >
+                    Start: {formatDate(contract.start_date)}
+                  </div>
+                </div>
+
+                {/* SALARY */}
+
+                <div>
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {formatSalary(
+                      contract.annual_salary,
+                      contract.currency
+                    )}
+                  </div>
+
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "#888",
+                      marginTop: "3px",
+                    }}
+                  >
+                    {contract.weekly_salary
+                      ? `${contract.currency || "USD"} ${Number(
+                          contract.weekly_salary
+                        ).toLocaleString("en-US", {
+                          maximumFractionDigits: 0,
+                        })} / wk`
+                      : "Weekly salary unavailable"}
+                  </div>
+                </div>
+
+                {/* CONFIDENCE */}
+
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "#777",
+                  }}
+                >
+                  {getConfidenceLabel(contract.confidence) ||
+                    "Not rated"}
+                </div>
+              </Link>
+            ))
+          )}
+        </div>
+      </main>
+    </>
   );
 }
