@@ -593,12 +593,14 @@ export default function PlayersPage() {
                         src={player.photo_url}
                         alt={player.full_name}
                         style={{
-                          width: "44px",
-                          height: "44px",
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                          flexShrink: 0,
-                        }}
+  width: "44px",
+  height: "44px",
+  borderRadius: "50%",
+  objectFit: "cover",
+  objectPosition: "center top",
+  flexShrink: 0,
+  display: "block",
+}}
                       />
                     ) : (
                       <div
