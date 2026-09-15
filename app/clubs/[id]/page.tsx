@@ -737,25 +737,68 @@ player:players (
                       }}
                     >
                       <td
-                        style={{
-                          padding: '17px 22px',
-                          fontWeight: 700,
-                        }}
-                      >
-                        {contract.player ? (
-                          <Link
-                            href={`/players/${contract.player.id}`}
-                            style={{
-                              color: '#111',
-                              textDecoration: 'none',
-                            }}
-                          >
-                            {contract.player.full_name}
-                          </Link>
-                        ) : (
-                          'Unknown player'
-                        )}
-                      </td>
+  style={{
+    padding: '17px 22px',
+  }}
+>
+  {contract.player ? (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+      }}
+    >
+      {contract.player.photo_url ? (
+        <img
+          src={contract.player.photo_url}
+          alt={contract.player.full_name}
+          style={{
+            width: '42px',
+            height: '42px',
+            borderRadius: '50%',
+            objectFit: 'cover',
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            width: '42px',
+            height: '42px',
+            borderRadius: '50%',
+            background: '#eee',
+          }}
+        />
+      )}
+
+      <div>
+        <Link
+          href={`/players/${contract.player.id}`}
+          style={{
+            color: '#111',
+            textDecoration: 'none',
+            fontWeight: 700,
+          }}
+        >
+          {contract.player.full_name}
+        </Link>
+
+        <div
+          style={{
+            fontSize: '12px',
+            color: '#777',
+            marginTop: '3px',
+          }}
+        >
+          {contract.player.nationality || '—'} ·{' '}
+          {contract.player.position || '—'}
+        </div>
+      </div>
+    </div>
+  ) : (
+    'Unknown player'
+  )}
+</td>
 
                       <td
                         style={{
