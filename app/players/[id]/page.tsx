@@ -20,63 +20,74 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
         style={{
           minHeight: "100vh",
           background: "#f5f4ef",
+          color: "#111",
           fontFamily: "Arial, sans-serif",
         }}
       >
-        <header
+        <nav
           style={{
-            background: "#fff",
+            display: "flex",
+            alignItems: "center",
+            padding: "18px 32px",
             borderBottom: "1px solid #e5e5e5",
+            background: "#fff",
           }}
         >
-          <div
+          <Link
+            href="/"
             style={{
-              maxWidth: "1200px",
-              margin: "0 auto",
-              padding: "18px 20px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "20px",
+              fontSize: "24px",
+              fontWeight: 800,
+              textDecoration: "none",
+              color: "#111",
+              marginRight: "40px",
             }}
           >
-            <Link
-              href="/"
-              style={{
-                textDecoration: "none",
-                color: "#111",
-                fontSize: "22px",
-                fontWeight: "700",
-              }}
-            >
-              Women Football Market
+            WFM<span style={{ color: "#777" }}>•</span>
+          </Link>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "28px",
+              alignItems: "center",
+            }}
+          >
+            <Link href="/players" style={{ color: "#111", textDecoration: "none", fontWeight: 700 }}>
+              Players
             </Link>
 
-            <nav
-              style={{
-                display: "flex",
-                gap: "22px",
-                flexWrap: "wrap",
-              }}
-            >
-              <Link href="/players" style={{ color: "#111", textDecoration: "none" }}>
-                Players
-              </Link>
-              <Link href="/contracts" style={{ color: "#111", textDecoration: "none" }}>
-                Contracts
-              </Link>
-              <Link href="/transfers" style={{ color: "#111", textDecoration: "none" }}>
-                Transfers
-              </Link>
-              <Link href="/salaries" style={{ color: "#111", textDecoration: "none" }}>
-                Salaries
-              </Link>
-              <Link href="/clubs" style={{ color: "#111", textDecoration: "none" }}>
-                Clubs
-              </Link>
-            </nav>
+            <Link href="/contracts" style={{ color: "#111", textDecoration: "none" }}>
+              Contracts
+            </Link>
+
+            <Link href="/transfers" style={{ color: "#111", textDecoration: "none" }}>
+              Transfers
+            </Link>
+
+            <Link href="/salaries" style={{ color: "#111", textDecoration: "none" }}>
+              Salaries
+            </Link>
+
+            <Link href="/clubs" style={{ color: "#111", textDecoration: "none" }}>
+              Clubs
+            </Link>
           </div>
-        </header>
+
+          <button
+            style={{
+              marginLeft: "auto",
+              border: "1px solid #ddd",
+              background: "#fff",
+              borderRadius: "8px",
+              padding: "9px 16px",
+              fontSize: "14px",
+              cursor: "pointer",
+            }}
+          >
+            Sign in
+          </button>
+        </nav>
 
         <div
           style={{
@@ -151,100 +162,107 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
       style={{
         minHeight: "100vh",
         background: "#f5f4ef",
+        color: "#111",
         fontFamily: "Arial, sans-serif",
       }}
     >
-      {/* MAIN NAVIGATION */}
+      {/* HEADER */}
 
-      <header
+      <nav
         style={{
-          background: "#fff",
+          display: "flex",
+          alignItems: "center",
+          padding: "18px 32px",
           borderBottom: "1px solid #e5e5e5",
+          background: "#fff",
         }}
       >
+        <Link
+          href="/"
+          style={{
+            fontSize: "24px",
+            fontWeight: 800,
+            textDecoration: "none",
+            color: "#111",
+            marginRight: "40px",
+          }}
+        >
+          WFM<span style={{ color: "#777" }}>•</span>
+        </Link>
+
         <div
           style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-            padding: "18px 20px",
             display: "flex",
+            gap: "28px",
             alignItems: "center",
-            justifyContent: "space-between",
-            gap: "20px",
           }}
         >
           <Link
-            href="/"
+            href="/players"
             style={{
-              textDecoration: "none",
               color: "#111",
-              fontSize: "22px",
-              fontWeight: "700",
+              textDecoration: "none",
+              fontWeight: 700,
             }}
           >
-            Women Football Market
+            Players
           </Link>
 
-          <nav
+          <Link
+            href="/contracts"
             style={{
-              display: "flex",
-              gap: "22px",
-              flexWrap: "wrap",
+              color: "#111",
+              textDecoration: "none",
             }}
           >
-            <Link
-              href="/players"
-              style={{
-                color: "#111",
-                textDecoration: "none",
-                fontWeight: "700",
-              }}
-            >
-              Players
-            </Link>
+            Contracts
+          </Link>
 
-            <Link
-              href="/contracts"
-              style={{
-                color: "#111",
-                textDecoration: "none",
-              }}
-            >
-              Contracts
-            </Link>
+          <Link
+            href="/transfers"
+            style={{
+              color: "#111",
+              textDecoration: "none",
+            }}
+          >
+            Transfers
+          </Link>
 
-            <Link
-              href="/transfers"
-              style={{
-                color: "#111",
-                textDecoration: "none",
-              }}
-            >
-              Transfers
-            </Link>
+          <Link
+            href="/salaries"
+            style={{
+              color: "#111",
+              textDecoration: "none",
+            }}
+          >
+            Salaries
+          </Link>
 
-            <Link
-              href="/salaries"
-              style={{
-                color: "#111",
-                textDecoration: "none",
-              }}
-            >
-              Salaries
-            </Link>
-
-            <Link
-              href="/clubs"
-              style={{
-                color: "#111",
-                textDecoration: "none",
-              }}
-            >
-              Clubs
-            </Link>
-          </nav>
+          <Link
+            href="/clubs"
+            style={{
+              color: "#111",
+              textDecoration: "none",
+            }}
+          >
+            Clubs
+          </Link>
         </div>
-      </header>
+
+        <button
+          style={{
+            marginLeft: "auto",
+            border: "1px solid #ddd",
+            background: "#fff",
+            borderRadius: "8px",
+            padding: "9px 16px",
+            fontSize: "14px",
+            cursor: "pointer",
+          }}
+        >
+          Sign in
+        </button>
+      </nav>
 
       {/* PLAYER CONTENT */}
 
@@ -253,6 +271,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           maxWidth: "1000px",
           margin: "0 auto",
           padding: "40px 20px",
+          fontFamily: "Arial, sans-serif",
         }}
       >
         <Link
@@ -276,7 +295,6 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             display: "flex",
             gap: "30px",
             alignItems: "center",
-            background: "#fff",
           }}
         >
           {/* PLAYER PHOTO */}
@@ -393,7 +411,6 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             padding: "30px",
             border: "1px solid #ddd",
             borderRadius: "12px",
-            background: "#fff",
           }}
         >
           <h2>Player Information</h2>
@@ -436,7 +453,6 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             padding: "30px",
             border: "1px solid #ddd",
             borderRadius: "12px",
-            background: "#fff",
           }}
         >
           <h2>Current Club</h2>
@@ -540,7 +556,6 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             padding: "30px",
             border: "1px solid #ddd",
             borderRadius: "12px",
-            background: "#fff",
           }}
         >
           <h2>Contract History</h2>
