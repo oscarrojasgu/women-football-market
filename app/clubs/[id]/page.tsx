@@ -571,19 +571,29 @@ player:players (
           </div>
 
           <div
-            style={{
-              marginTop: '8px',
-              fontSize: '26px',
-              fontWeight: 800,
-            }}
-          >
-            {salaryRecords.length > 0
-              ? formatSalary(
-                  totalKnownPayroll,
-                  salaryRecords[0].currency
-                )
-              : 'Unknown'}
-          </div>
+  style={{
+    marginTop: '8px',
+    fontSize: '26px',
+    fontWeight: 800,
+  }}
+>
+  {salaryRecords.length > 0
+    ? formatSalary(
+        totalKnownPayroll,
+        salaryRecords[0].currency
+      )
+    : 'Unknown'}
+</div>
+
+<div
+  style={{
+    marginTop: '6px',
+    fontSize: '12px',
+    color: '#777',
+  }}
+>
+  {salaryRecords.length} of {currentContracts.length} players with salary data
+</div>
         </div>
 
         <div
