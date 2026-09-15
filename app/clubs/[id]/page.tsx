@@ -24,9 +24,12 @@ type Contract = {
   weekly_salary: number | null
   currency: string | null
   player: {
-    id: string
-    full_name: string
-  } | null
+  id: string
+  full_name: string
+  nationality: string | null
+  position: string | null
+  photo_url: string | null
+} | null
 }
 
 type Transfer = {
