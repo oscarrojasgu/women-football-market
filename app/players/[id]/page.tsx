@@ -67,24 +67,28 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             >
               Players
             </Link>
+
             <Link
               href="/contracts"
               style={{ color: "#111", textDecoration: "none" }}
             >
               Contracts
             </Link>
+
             <Link
               href="/transfers"
               style={{ color: "#111", textDecoration: "none" }}
             >
               Transfers
             </Link>
+
             <Link
               href="/salaries"
               style={{ color: "#111", textDecoration: "none" }}
             >
               Salaries
             </Link>
+
             <Link
               href="/clubs"
               style={{ color: "#111", textDecoration: "none" }}
@@ -403,19 +407,22 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           <div
             style={{
               display: "flex",
-              gap: "22px",
+              gap: "30px",
               alignItems: "center",
             }}
           >
             <div
               style={{
-                width: "115px",
-                height: "115px",
+                width: "260px",
+                height: "260px",
                 flexShrink: 0,
                 borderRadius: "10px",
                 overflow: "hidden",
                 background: "#222",
                 border: "1px solid #333",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
               {player.photo_url ? (
@@ -423,14 +430,12 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                   src={player.photo_url}
                   alt={player.full_name}
                   style={{
-  width: "260px",
-  height: "260px",
-  borderRadius: "50%",
-  objectFit: "cover",
-  objectPosition: "center center",
-  flexShrink: 0,
-  display: "block",
-}}
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    objectPosition: "center center",
+                    display: "block",
+                  }}
                 />
               ) : (
                 <div
@@ -508,7 +513,12 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                   )}
 
                   <div>
-                    <div style={{ fontSize: "17px", fontWeight: 700 }}>
+                    <div
+                      style={{
+                        fontSize: "17px",
+                        fontWeight: 700,
+                      }}
+                    >
                       {currentClub.name}
                     </div>
 
@@ -544,7 +554,12 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             background: "#fff",
           }}
         >
-          <h2 style={{ margin: "0 0 14px", fontSize: "20px" }}>
+          <h2
+            style={{
+              margin: "0 0 14px",
+              fontSize: "20px",
+            }}
+          >
             Player Information
           </h2>
 
@@ -557,22 +572,30 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           >
             <div>
               <div style={labelStyle}>Date of Birth</div>
-              <div style={valueStyle}>{player.date_of_birth || "—"}</div>
+              <div style={valueStyle}>
+                {player.date_of_birth || "—"}
+              </div>
             </div>
 
             <div>
               <div style={labelStyle}>Position</div>
-              <div style={valueStyle}>{player.position || "—"}</div>
+              <div style={valueStyle}>
+                {player.position || "—"}
+              </div>
             </div>
 
             <div>
               <div style={labelStyle}>Preferred Foot</div>
-              <div style={valueStyle}>{player.preferred_foot || "—"}</div>
+              <div style={valueStyle}>
+                {player.preferred_foot || "—"}
+              </div>
             </div>
 
             <div>
               <div style={labelStyle}>Agency</div>
-              <div style={valueStyle}>{player.agency || "—"}</div>
+              <div style={valueStyle}>
+                {player.agency || "—"}
+              </div>
             </div>
           </div>
         </div>
@@ -586,7 +609,12 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             background: "#fff",
           }}
         >
-          <h2 style={{ margin: "0 0 14px", fontSize: "20px" }}>
+          <h2
+            style={{
+              margin: "0 0 14px",
+              fontSize: "20px",
+            }}
+          >
             Current Club
           </h2>
 
@@ -719,7 +747,12 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             background: "#fff",
           }}
         >
-          <h2 style={{ margin: "0 0 14px", fontSize: "20px" }}>
+          <h2
+            style={{
+              margin: "0 0 14px",
+              fontSize: "20px",
+            }}
+          >
             Transfer History
           </h2>
 
@@ -919,7 +952,12 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             background: "#fff",
           }}
         >
-          <h2 style={{ margin: "0 0 14px", fontSize: "20px" }}>
+          <h2
+            style={{
+              margin: "0 0 14px",
+              fontSize: "20px",
+            }}
+          >
             Contract History
           </h2>
 
