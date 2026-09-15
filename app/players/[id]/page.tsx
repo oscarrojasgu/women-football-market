@@ -57,19 +57,38 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
               alignItems: "center",
             }}
           >
-            <Link href="/players" style={{ color: "#111", textDecoration: "none", fontWeight: 700 }}>
+            <Link
+              href="/players"
+              style={{
+                color: "#111",
+                textDecoration: "none",
+                fontWeight: 700,
+              }}
+            >
               Players
             </Link>
-            <Link href="/contracts" style={{ color: "#111", textDecoration: "none" }}>
+            <Link
+              href="/contracts"
+              style={{ color: "#111", textDecoration: "none" }}
+            >
               Contracts
             </Link>
-            <Link href="/transfers" style={{ color: "#111", textDecoration: "none" }}>
+            <Link
+              href="/transfers"
+              style={{ color: "#111", textDecoration: "none" }}
+            >
               Transfers
             </Link>
-            <Link href="/salaries" style={{ color: "#111", textDecoration: "none" }}>
+            <Link
+              href="/salaries"
+              style={{ color: "#111", textDecoration: "none" }}
+            >
               Salaries
             </Link>
-            <Link href="/clubs" style={{ color: "#111", textDecoration: "none" }}>
+            <Link
+              href="/clubs"
+              style={{ color: "#111", textDecoration: "none" }}
+            >
               Clubs
             </Link>
           </div>
@@ -89,7 +108,13 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           </button>
         </nav>
 
-        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "30px 20px" }}>
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "30px 20px",
+          }}
+        >
           <h1>Player not found</h1>
           <p>The player profile could not be found.</p>
         </div>
@@ -305,19 +330,31 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             Players
           </Link>
 
-          <Link href="/contracts" style={{ color: "#111", textDecoration: "none" }}>
+          <Link
+            href="/contracts"
+            style={{ color: "#111", textDecoration: "none" }}
+          >
             Contracts
           </Link>
 
-          <Link href="/transfers" style={{ color: "#111", textDecoration: "none" }}>
+          <Link
+            href="/transfers"
+            style={{ color: "#111", textDecoration: "none" }}
+          >
             Transfers
           </Link>
 
-          <Link href="/salaries" style={{ color: "#111", textDecoration: "none" }}>
+          <Link
+            href="/salaries"
+            style={{ color: "#111", textDecoration: "none" }}
+          >
             Salaries
           </Link>
 
-          <Link href="/clubs" style={{ color: "#111", textDecoration: "none" }}>
+          <Link
+            href="/clubs"
+            style={{ color: "#111", textDecoration: "none" }}
+          >
             Clubs
           </Link>
         </div>
@@ -717,33 +754,43 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                       style={{
                         textDecoration: "none",
                         color: "#111",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
                       }}
                     >
                       {transfer.from_club?.logo_url && (
-  <img
-    src={transfer.from_club.logo_url}
-    alt={transfer.from_club.name}
-    style={{
-      width: "42px",
-      height: "42px",
-      objectFit: "contain",
-      flexShrink: 0,
-    }}
-  />
-)}
+                        <img
+                          src={transfer.from_club.logo_url}
+                          alt={transfer.from_club.name}
+                          style={{
+                            width: "42px",
+                            height: "42px",
+                            objectFit: "contain",
+                            flexShrink: 0,
+                          }}
+                        />
+                      )}
 
-                      <div style={{ fontWeight: 700, fontSize: "14px" }}>
-                        {transfer.from_club?.name || "—"}
-                      </div>
+                      <div>
+                        <div
+                          style={{
+                            fontWeight: 700,
+                            fontSize: "14px",
+                          }}
+                        >
+                          {transfer.from_club?.name || "—"}
+                        </div>
 
-                      <div
-                        style={{
-                          color: "#777",
-                          fontSize: "11px",
-                          marginTop: "2px",
-                        }}
-                      >
-                        {transfer.from_club?.league || "—"}
+                        <div
+                          style={{
+                            color: "#777",
+                            fontSize: "11px",
+                            marginTop: "2px",
+                          }}
+                        >
+                          {transfer.from_club?.league || "—"}
+                        </div>
                       </div>
                     </Link>
 
@@ -766,6 +813,9 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                       style={{
                         textDecoration: "none",
                         color: "#111",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
                       }}
                     >
                       {transfer.to_club?.logo_url && (
@@ -776,23 +826,30 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                             width: "42px",
                             height: "42px",
                             objectFit: "contain",
-                            marginBottom: "5px",
+                            flexShrink: 0,
                           }}
                         />
                       )}
 
-                      <div style={{ fontWeight: 700, fontSize: "14px" }}>
-                        {transfer.to_club?.name || "—"}
-                      </div>
+                      <div>
+                        <div
+                          style={{
+                            fontWeight: 700,
+                            fontSize: "14px",
+                          }}
+                        >
+                          {transfer.to_club?.name || "—"}
+                        </div>
 
-                      <div
-                        style={{
-                          color: "#777",
-                          fontSize: "11px",
-                          marginTop: "2px",
-                        }}
-                      >
-                        {transfer.to_club?.league || "—"}
+                        <div
+                          style={{
+                            color: "#777",
+                            fontSize: "11px",
+                            marginTop: "2px",
+                          }}
+                        >
+                          {transfer.to_club?.league || "—"}
+                        </div>
                       </div>
                     </Link>
                   </div>
