@@ -606,14 +606,24 @@ player:players (
           </div>
 
           <div
-            style={{
-              marginTop: '8px',
-              fontSize: '30px',
-              fontWeight: 800,
-            }}
-          >
-            {transfers.length}
-          </div>
+  style={{
+    marginTop: '8px',
+    fontSize: '30px',
+    fontWeight: 800,
+  }}
+>
+  {transfers.length}
+</div>
+
+<div
+  style={{
+    marginTop: '6px',
+    fontSize: '12px',
+    color: '#777',
+  }}
+>
+  {incomingTransfers.length} incoming · {outgoingTransfers.length} outgoing
+</div>
         </div>
       </section>
 
