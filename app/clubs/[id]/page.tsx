@@ -1030,20 +1030,32 @@ player:players (
 </td>
 
                       <td
-                        style={{
-                          padding: '17px 22px',
-                          color:
-                            transfer.to_club?.id === id
-                              ? '#111'
-                              : '#555',
-                          fontWeight:
-                            transfer.to_club?.id === id
-                              ? 700
-                              : 400,
-                        }}
-                      >
-                        {transfer.to_club?.name || '—'}
-                      </td>
+  style={{
+    padding: '17px 22px',
+    color:
+      transfer.to_club?.id === id
+        ? '#111'
+        : '#555',
+    fontWeight:
+      transfer.to_club?.id === id
+        ? 700
+        : 400,
+  }}
+>
+  {transfer.to_club ? (
+    <Link
+      href={`/clubs/${transfer.to_club.id}`}
+      style={{
+        color: 'inherit',
+        textDecoration: 'none',
+      }}
+    >
+      {transfer.to_club.name}
+    </Link>
+  ) : (
+    '—'
+  )}
+</td>
 
                       <td
                         style={{
