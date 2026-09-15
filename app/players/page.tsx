@@ -80,10 +80,7 @@ export default function PlayersPage() {
           `);
 
       if (contractError) {
-        console.error(
-          "Error loading contracts:",
-          contractError
-        );
+        console.error("Error loading contracts:", contractError);
       }
 
       const normalizedContracts: ContractInfo[] = (
@@ -270,6 +267,7 @@ export default function PlayersPage() {
             style={{
               color: "#111",
               textDecoration: "none",
+              fontWeight: 700,
             }}
           >
             Players
@@ -332,6 +330,60 @@ export default function PlayersPage() {
         </button>
       </nav>
 
+      {/* BLACK PAGE HERO */}
+
+      <section
+        style={{
+          background: "#111",
+          color: "#fff",
+          padding: "55px 6vw 50px",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "12px",
+              letterSpacing: "2px",
+              fontWeight: 700,
+              marginBottom: "14px",
+              color: "#aaa",
+            }}
+          >
+            WOMEN&apos;S FOOTBALL MARKET
+          </div>
+
+          <h1
+            style={{
+              fontSize: "48px",
+              lineHeight: 1.05,
+              margin: 0,
+              fontWeight: 800,
+            }}
+          >
+            Players
+          </h1>
+
+          <p
+            style={{
+              maxWidth: "700px",
+              color: "#ccc",
+              fontSize: "17px",
+              lineHeight: 1.6,
+              marginTop: "18px",
+              marginBottom: 0,
+            }}
+          >
+            Explore women&apos;s football players, clubs,
+            positions and market data.
+          </p>
+        </div>
+      </section>
+
       {/* MAIN */}
 
       <main
@@ -340,47 +392,9 @@ export default function PlayersPage() {
           margin: "0 auto",
           padding: "40px 20px 60px",
           fontFamily: "Arial, sans-serif",
+          background: "#f5f4ef",
         }}
       >
-        {/* PAGE HEADER */}
-
-        <div style={{ marginBottom: "28px" }}>
-          <div
-            style={{
-              fontSize: "13px",
-              fontWeight: 700,
-              color: "#666",
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              marginBottom: "8px",
-            }}
-          >
-            Player Database
-          </div>
-
-          <h1
-            style={{
-              fontSize: "42px",
-              lineHeight: 1.1,
-              margin: 0,
-              marginBottom: "10px",
-            }}
-          >
-            Players
-          </h1>
-
-          <p
-            style={{
-              fontSize: "17px",
-              color: "#666",
-              margin: 0,
-            }}
-          >
-            Explore women&apos;s football players, clubs,
-            positions and market data.
-          </p>
-        </div>
-
         {/* FILTERS */}
 
         <div
@@ -389,7 +403,7 @@ export default function PlayersPage() {
             border: "1px solid #e5e5e5",
             borderRadius: "14px",
             marginBottom: "30px",
-            background: "#fafafa",
+            background: "#fff",
           }}
         >
           <div
@@ -755,8 +769,7 @@ export default function PlayersPage() {
                       }}
                     >
                       {formatSalary(
-                        contract?.annual_salary ??
-                          null,
+                        contract?.annual_salary ?? null,
                         contract?.currency ?? null
                       )}
                     </div>
