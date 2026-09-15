@@ -25,17 +25,17 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
         }}
       >
         <nav
-  style={{
-    position: "sticky",
-    top: 0,
-    zIndex: 1000,
-    display: "flex",
-    alignItems: "center",
-    padding: "18px 32px",
-    borderBottom: "1px solid #e5e5e5",
-    background: "#fff",
-  }}
->
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 1000,
+            display: "flex",
+            alignItems: "center",
+            padding: "18px 32px",
+            borderBottom: "1px solid #e5e5e5",
+            background: "#fff",
+          }}
+        >
           <Link
             href="/"
             style={{
@@ -148,17 +148,29 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
       String(contract.status).toLowerCase() === "active"
   );
 
-  let club = null;
+  const contractClubIds = [
+    ...new Set(
+      (contracts || [])
+        .map((contract) => contract.club_id)
+        .filter(Boolean)
+    ),
+  ];
 
-  if (currentContract?.club_id) {
-    const { data: clubData } = await supabase
-      .from("clubs")
-      .select("id, name, country, league, logo_url")
-      .eq("id", currentContract.club_id)
-      .maybeSingle();
+  const { data: contractClubs } =
+    contractClubIds.length > 0
+      ? await supabase
+          .from("clubs")
+          .select("id, name, country, league, logo_url")
+          .in("id", contractClubIds)
+      : { data: [] };
 
-    club = clubData;
-  }
+  const contractClubMap = new Map(
+    (contractClubs || []).map((club) => [club.id, club])
+  );
+
+  const currentClub = currentContract?.club_id
+    ? contractClubMap.get(currentContract.club_id) || null
+    : null;
 
   const { data: transferData } = await supabase
     .from("transfers")
@@ -284,18 +296,18 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
       {/* HEADER */}
 
       <nav
-  style={{
-    position: "sticky",
-    top: 0,
-    zIndex: 1000,
-    width: "100%",
-    display: "flex",
-    alignItems: "center",
-    padding: "18px 32px",
-    borderBottom: "1px solid #e5e5e5",
-    background: "#fff",
-  }}
->
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          padding: "18px 32px",
+          borderBottom: "1px solid #e5e5e5",
+          background: "#fff",
+        }}
+      >
         <Link
           href="/"
           style={{
@@ -491,9 +503,9 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 {player.position || "Position unknown"}
               </p>
 
-              {club && (
+              {currentClub && (
                 <Link
-                  href={`/clubs/${club.id}`}
+                  href={`/clubs/${currentClub.id}`}
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -502,10 +514,10 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                     color: "#fff",
                   }}
                 >
-                  {club.logo_url && (
+                  {currentClub.logo_url && (
                     <img
-                      src={club.logo_url}
-                      alt={club.name}
+                      src={currentClub.logo_url}
+                      alt={currentClub.name}
                       style={{
                         width: "50px",
                         height: "50px",
@@ -521,7 +533,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                         fontWeight: 700,
                       }}
                     >
-                      {club.name}
+                      {currentClub.name}
                     </div>
 
                     <div
@@ -530,7 +542,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                         marginTop: "3px",
                       }}
                     >
-                      {club.league || "—"}
+                      {currentClub.league || "—"}
                     </div>
                   </div>
                 </Link>
@@ -604,9 +616,9 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
         >
           <h2>Current Club</h2>
 
-          {currentContract && club ? (
+          {currentContract && currentClub ? (
             <Link
-              href={`/clubs/${club.id}`}
+              href={`/clubs/${currentClub.id}`}
               style={{
                 display: "block",
                 marginTop: "20px",
@@ -625,10 +637,10 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                   marginBottom: "20px",
                 }}
               >
-                {club.logo_url && (
+                {currentClub.logo_url && (
                   <img
-                    src={club.logo_url}
-                    alt={club.name}
+                    src={currentClub.logo_url}
+                    alt={currentClub.name}
                     style={{
                       width: "70px",
                       height: "70px",
@@ -644,12 +656,12 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                       margin: "0 0 5px 0",
                     }}
                   >
-                    {club.name}
+                    {currentClub.name}
                   </h3>
 
                   <div style={{ color: "#666" }}>
-                    {club.league || "—"} ·{" "}
-                    {club.country || "—"}
+                    {currentClub.league || "—"} ·{" "}
+                    {currentClub.country || "—"}
                   </div>
                 </div>
               </div>
@@ -953,62 +965,255 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           <h2>Contract History</h2>
 
           {contractHistory.length > 0 ? (
-            <div style={{ marginTop: "20px" }}>
-              {contractHistory.map((contract) => (
-                <div
-                  key={contract.id}
-                  style={{
-                    marginBottom: "15px",
-                    padding: "20px",
-                    border: "1px solid #ddd",
-                    borderRadius: "10px",
-                    background: "#fff",
-                  }}
-                >
-                  <p>
-                    <strong>Status:</strong>{" "}
-                    {contract.status || "—"}
-                  </p>
+            <div
+              style={{
+                marginTop: "20px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "15px",
+              }}
+            >
+              {contractHistory.map((contract) => {
+                const contractClub = contract.club_id
+                  ? contractClubMap.get(contract.club_id) || null
+                  : null;
 
-                  <p>
-                    <strong>Start:</strong>{" "}
-                    {formatDate(contract.start_date)}
-                  </p>
+                return (
+                  <div
+                    key={contract.id}
+                    style={{
+                      padding: "20px",
+                      border: "1px solid #ddd",
+                      borderRadius: "10px",
+                      background: "#fff",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "15px",
+                        marginBottom: "20px",
+                      }}
+                    >
+                      {contractClub?.logo_url && (
+                        <img
+                          src={contractClub.logo_url}
+                          alt={contractClub.name}
+                          style={{
+                            width: "60px",
+                            height: "60px",
+                            objectFit: "contain",
+                          }}
+                        />
+                      )}
 
-                  <p>
-                    <strong>End:</strong>{" "}
-                    {formatDate(contract.end_date)}
-                  </p>
+                      <div>
+                        {contractClub ? (
+                          <Link
+                            href={`/clubs/${contractClub.id}`}
+                            style={{
+                              color: "#111",
+                              textDecoration: "none",
+                              fontSize: "21px",
+                              fontWeight: 700,
+                            }}
+                          >
+                            {contractClub.name}
+                          </Link>
+                        ) : (
+                          <div
+                            style={{
+                              fontSize: "21px",
+                              fontWeight: 700,
+                            }}
+                          >
+                            Previous Club
+                          </div>
+                        )}
 
-                  <p>
-                    <strong>Annual Salary:</strong>{" "}
-                    {formatSalary(
-                      contract.annual_salary,
-                      contract.currency
+                        {contractClub && (
+                          <div
+                            style={{
+                              color: "#777",
+                              fontSize: "13px",
+                              marginTop: "4px",
+                            }}
+                          >
+                            {contractClub.league || "—"} ·{" "}
+                            {contractClub.country || "—"}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(2, 1fr)",
+                        gap: "12px",
+                      }}
+                    >
+                      <div>
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "#888",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.05em",
+                          }}
+                        >
+                          Status
+                        </div>
+
+                        <div
+                          style={{
+                            fontWeight: 600,
+                            marginTop: "4px",
+                          }}
+                        >
+                          {contract.status || "—"}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "#888",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.05em",
+                          }}
+                        >
+                          Confidence
+                        </div>
+
+                        <div
+                          style={{
+                            fontWeight: 600,
+                            marginTop: "4px",
+                          }}
+                        >
+                          {formatConfidence(
+                            contract.confidence
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "#888",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.05em",
+                          }}
+                        >
+                          Contract Start
+                        </div>
+
+                        <div
+                          style={{
+                            fontWeight: 600,
+                            marginTop: "4px",
+                          }}
+                        >
+                          {formatDate(contract.start_date)}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "#888",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.05em",
+                          }}
+                        >
+                          Contract End
+                        </div>
+
+                        <div
+                          style={{
+                            fontWeight: 600,
+                            marginTop: "4px",
+                          }}
+                        >
+                          {formatDate(contract.end_date)}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "#888",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.05em",
+                          }}
+                        >
+                          Annual Salary
+                        </div>
+
+                        <div
+                          style={{
+                            fontWeight: 600,
+                            marginTop: "4px",
+                          }}
+                        >
+                          {formatSalary(
+                            contract.annual_salary,
+                            contract.currency
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "#888",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.05em",
+                          }}
+                        >
+                          Weekly Salary
+                        </div>
+
+                        <div
+                          style={{
+                            fontWeight: 600,
+                            marginTop: "4px",
+                          }}
+                        >
+                          {formatSalary(
+                            contract.weekly_salary,
+                            contract.currency
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {contract.notes && (
+                      <div
+                        style={{
+                          marginTop: "18px",
+                          paddingTop: "15px",
+                          borderTop: "1px solid #eee",
+                          color: "#555",
+                          fontSize: "14px",
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        <strong>Notes:</strong>{" "}
+                        {contract.notes}
+                      </div>
                     )}
-                  </p>
-
-                  <p>
-                    <strong>Weekly Salary:</strong>{" "}
-                    {formatSalary(
-                      contract.weekly_salary,
-                      contract.currency
-                    )}
-                  </p>
-
-                  <p>
-                    <strong>Confidence:</strong>{" "}
-                    {contract.confidence || "—"}
-                  </p>
-
-                  {contract.notes && (
-                    <p>
-                      <strong>Notes:</strong>{" "}
-                      {contract.notes}
-                    </p>
-                  )}
-                </div>
-              ))}
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <p style={{ color: "#666" }}>
