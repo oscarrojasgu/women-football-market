@@ -117,10 +117,13 @@ export default function ClubProfilePage() {
             annual_salary,
             weekly_salary,
             currency,
-            player:players (
-              id,
-              full_name
-            )
+player:players (
+  id,
+  full_name,
+  nationality,
+  position,
+  photo_url
+)
           `)
           .eq('club_id', id)
           .order('start_date', {
