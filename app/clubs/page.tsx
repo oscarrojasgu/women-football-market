@@ -615,15 +615,7 @@ export default function ClubsPage() {
                         >
                           {club.logo_url ? (
                             <img
-  src={
-    club.name === 'Orlando Pride'
-      ? 'https://a.espncdn.com/i/teamlogos/soccer/500/18206.png'
-      : club.name === 'Washington Spirit'
-      ? 'https://a.espncdn.com/i/teamlogos/soccer/500/15365.png'
-      : club.name === 'Tampa Bay Sun FC'
-      ? 'https://www.tampabaysunfc.com/wp-content/uploads/2024/02/Tampa-Bay-Sun-FC-Logo.png'
-      : club.logo_url
-  }
+  src={club.logo_url}
   alt=""
   style={{
     width: '34px',
