@@ -433,7 +433,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                     width: "100%",
                     height: "100%",
                     objectFit: "cover",
-                    objectPosition: "center center",
+                    objectPosition: "50% 35%",
                     display: "block",
                   }}
                 />
