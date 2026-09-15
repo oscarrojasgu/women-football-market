@@ -68,7 +68,7 @@ function formatSalary(
 }
 
 function formatDate(date: string | null) {
-  if (!date) return 'Unknown'
+  if (!date) return 'Present'
 
   return new Date(`${date}T00:00:00`).toLocaleDateString(
     'en-US',
