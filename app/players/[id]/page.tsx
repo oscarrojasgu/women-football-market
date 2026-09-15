@@ -720,17 +720,17 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                       }}
                     >
                       {transfer.from_club?.logo_url && (
-                        <img
-                          src={transfer.from_club.logo_url}
-                          alt={transfer.from_club.name}
-                          style={{
-                            width: "42px",
-                            height: "42px",
-                            objectFit: "contain",
-                            marginBottom: "5px",
-                          }}
-                        />
-                      )}
+  <img
+    src={transfer.from_club.logo_url}
+    alt={transfer.from_club.name}
+    style={{
+      width: "42px",
+      height: "42px",
+      objectFit: "contain",
+      flexShrink: 0,
+    }}
+  />
+)}
 
                       <div style={{ fontWeight: 700, fontSize: "14px" }}>
                         {transfer.from_club?.name || "—"}
