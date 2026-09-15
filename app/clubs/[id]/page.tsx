@@ -486,7 +486,7 @@ player:players (
           margin: '0 auto',
           padding: '35px 20px',
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
+          gridTemplateColumns: 'repeat(5, 1fr)',
           gap: '12px',
         }}
       >
