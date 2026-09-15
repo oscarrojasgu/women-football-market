@@ -25,14 +25,17 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
         }}
       >
         <nav
-          style={{
-            display: "flex",
-            alignItems: "center",
-            padding: "18px 32px",
-            borderBottom: "1px solid #e5e5e5",
-            background: "#fff",
-          }}
-        >
+  style={{
+    position: "sticky",
+    top: 0,
+    zIndex: 1000,
+    display: "flex",
+    alignItems: "center",
+    padding: "18px 32px",
+    borderBottom: "1px solid #e5e5e5",
+    background: "#fff",
+  }}
+>
           <Link
             href="/"
             style={{
