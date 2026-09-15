@@ -796,10 +796,11 @@ export default function ClubProfilePage() {
   width: 42,
   height: 42,
   borderRadius: "50%",
-  objectFit: "cover",
-  objectPosition: "center center",
+  objectFit: "contain",
+  objectPosition: "center",
   display: "block",
   flexShrink: 0,
+  background: "#f3f3f3",
 }}
                         />
                       ) : (
