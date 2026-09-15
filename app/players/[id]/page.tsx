@@ -505,10 +505,11 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                       src={currentClub.logo_url}
                       alt={currentClub.name}
                       style={{
-                        width: "38px",
-                        height: "38px",
-                        objectFit: "contain",
-                      }}
+  width: "48px",
+  height: "48px",
+  objectFit: "contain",
+  display: "block",
+}}
                     />
                   )}
 
