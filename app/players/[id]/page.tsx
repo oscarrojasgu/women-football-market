@@ -407,6 +407,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             display: "flex",
             gap: "30px",
             alignItems: "center",
+            background: "#fff",
           }}
         >
           <div
@@ -519,6 +520,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             padding: "30px",
             border: "1px solid #ddd",
             borderRadius: "12px",
+            background: "#fff",
           }}
         >
           <h2>Player Information</h2>
@@ -561,6 +563,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             padding: "30px",
             border: "1px solid #ddd",
             borderRadius: "12px",
+            background: "#fff",
           }}
         >
           <h2>Current Club</h2>
@@ -664,6 +667,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             padding: "30px",
             border: "1px solid #ddd",
             borderRadius: "12px",
+            background: "#fff",
           }}
         >
           <h2>Transfer History</h2>
@@ -684,6 +688,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                     padding: "20px",
                     border: "1px solid #ddd",
                     borderRadius: "10px",
+                    background: "#fff",
                   }}
                 >
                   <div
@@ -882,6 +887,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             padding: "30px",
             border: "1px solid #ddd",
             borderRadius: "12px",
+            background: "#fff",
           }}
         >
           <h2>Contract History</h2>
@@ -896,6 +902,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                     padding: "20px",
                     border: "1px solid #ddd",
                     borderRadius: "10px",
+                    background: "#fff",
                   }}
                 >
                   <p>
