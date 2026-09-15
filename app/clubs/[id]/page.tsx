@@ -793,13 +793,14 @@ export default function ClubProfilePage() {
                             player.full_name
                           }
                           style={{
-                            width: 42,
-                            height: 42,
-                            borderRadius:
-                              "50%",
-                            objectFit:
-                              "cover",
-                          }}
+  width: 42,
+  height: 42,
+  borderRadius: "50%",
+  objectFit: "cover",
+  objectPosition: "center center",
+  display: "block",
+  flexShrink: 0,
+}}
                         />
                       ) : (
                         <div
