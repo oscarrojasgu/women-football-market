@@ -53,23 +53,54 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
               alignItems: "center",
             }}
           >
-            <Link href="/players" style={{ color: "#111", textDecoration: "none", fontWeight: 700 }}>
+            <Link
+              href="/players"
+              style={{
+                color: "#111",
+                textDecoration: "none",
+                fontWeight: 700,
+              }}
+            >
               Players
             </Link>
 
-            <Link href="/contracts" style={{ color: "#111", textDecoration: "none" }}>
+            <Link
+              href="/contracts"
+              style={{
+                color: "#111",
+                textDecoration: "none",
+              }}
+            >
               Contracts
             </Link>
 
-            <Link href="/transfers" style={{ color: "#111", textDecoration: "none" }}>
+            <Link
+              href="/transfers"
+              style={{
+                color: "#111",
+                textDecoration: "none",
+              }}
+            >
               Transfers
             </Link>
 
-            <Link href="/salaries" style={{ color: "#111", textDecoration: "none" }}>
+            <Link
+              href="/salaries"
+              style={{
+                color: "#111",
+                textDecoration: "none",
+              }}
+            >
               Salaries
             </Link>
 
-            <Link href="/clubs" style={{ color: "#111", textDecoration: "none" }}>
+            <Link
+              href="/clubs"
+              style={{
+                color: "#111",
+                textDecoration: "none",
+              }}
+            >
               Clubs
             </Link>
           </div>
@@ -126,6 +157,48 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     club = clubData;
   }
 
+  const { data: transferData } = await supabase
+    .from("transfers")
+    .select(`
+      id,
+      transfer_date,
+      transfer_type,
+      fee,
+      currency,
+      confidence,
+      from_club:clubs!transfers_from_club_id_fkey (
+        id,
+        name,
+        league,
+        country,
+        logo_url
+      ),
+      to_club:clubs!transfers_to_club_id_fkey (
+        id,
+        name,
+        league,
+        country,
+        logo_url
+      )
+    `)
+    .eq("player_id", id)
+    .order("transfer_date", { ascending: false });
+
+  const transfers = (transferData || []).map((transfer: any) => ({
+    id: transfer.id,
+    transfer_date: transfer.transfer_date,
+    transfer_type: transfer.transfer_type,
+    fee: transfer.fee,
+    currency: transfer.currency,
+    confidence: transfer.confidence,
+    from_club: Array.isArray(transfer.from_club)
+      ? transfer.from_club[0] || null
+      : transfer.from_club || null,
+    to_club: Array.isArray(transfer.to_club)
+      ? transfer.to_club[0] || null
+      : transfer.to_club || null,
+  }));
+
   const contractHistory =
     contracts?.filter(
       (contract) => contract.id !== currentContract?.id
@@ -155,6 +228,45 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
         maximumFractionDigits: 2,
       })
     );
+  };
+
+  const formatTransferFee = (
+    fee: number | null,
+    currency: string | null,
+    transferType: string | null
+  ) => {
+    if (transferType === "free") {
+      return "Free";
+    }
+
+    if (fee === null || fee === undefined) {
+      return "Undisclosed";
+    }
+
+    return (
+      (currency || "USD") +
+      " " +
+      Number(fee).toLocaleString("en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      })
+    );
+  };
+
+  const formatTransferType = (type: string | null) => {
+    if (!type) return "—";
+
+    return type
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  };
+
+  const formatConfidence = (confidence: string | null) => {
+    if (!confidence) return "—";
+
+    return confidence
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
   };
 
   return (
@@ -297,8 +409,6 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             alignItems: "center",
           }}
         >
-          {/* PLAYER PHOTO */}
-
           <div
             style={{
               width: "180px",
@@ -335,8 +445,6 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
               </div>
             )}
           </div>
-
-          {/* PLAYER NAME */}
 
           <div>
             <h1
@@ -544,6 +652,224 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           ) : (
             <p style={{ color: "#666" }}>
               No current contract information available.
+            </p>
+          )}
+        </div>
+
+        {/* TRANSFER HISTORY */}
+
+        <div
+          style={{
+            marginTop: "25px",
+            padding: "30px",
+            border: "1px solid #ddd",
+            borderRadius: "12px",
+          }}
+        >
+          <h2>Transfer History</h2>
+
+          {transfers.length > 0 ? (
+            <div
+              style={{
+                marginTop: "20px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "15px",
+              }}
+            >
+              {transfers.map((transfer: any) => (
+                <div
+                  key={transfer.id}
+                  style={{
+                    padding: "20px",
+                    border: "1px solid #ddd",
+                    borderRadius: "10px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 40px 1fr",
+                      gap: "15px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div>
+                      {transfer.from_club?.logo_url && (
+                        <img
+                          src={transfer.from_club.logo_url}
+                          alt={transfer.from_club.name}
+                          style={{
+                            width: "50px",
+                            height: "50px",
+                            objectFit: "contain",
+                            marginBottom: "8px",
+                          }}
+                        />
+                      )}
+
+                      <div
+                        style={{
+                          fontWeight: 700,
+                          fontSize: "16px",
+                        }}
+                      >
+                        {transfer.from_club?.name || "—"}
+                      </div>
+
+                      <div
+                        style={{
+                          color: "#777",
+                          fontSize: "12px",
+                          marginTop: "3px",
+                        }}
+                      >
+                        {transfer.from_club?.league || "—"}
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        textAlign: "center",
+                        fontSize: "22px",
+                        color: "#999",
+                      }}
+                    >
+                      →
+                    </div>
+
+                    <div>
+                      {transfer.to_club?.logo_url && (
+                        <img
+                          src={transfer.to_club.logo_url}
+                          alt={transfer.to_club.name}
+                          style={{
+                            width: "50px",
+                            height: "50px",
+                            objectFit: "contain",
+                            marginBottom: "8px",
+                          }}
+                        />
+                      )}
+
+                      <div
+                        style={{
+                          fontWeight: 700,
+                          fontSize: "16px",
+                        }}
+                      >
+                        {transfer.to_club?.name || "—"}
+                      </div>
+
+                      <div
+                        style={{
+                          color: "#777",
+                          fontSize: "12px",
+                          marginTop: "3px",
+                        }}
+                      >
+                        {transfer.to_club?.league || "—"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: "20px",
+                      paddingTop: "15px",
+                      borderTop: "1px solid #eee",
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr 1fr",
+                      gap: "15px",
+                    }}
+                  >
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "11px",
+                          color: "#888",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.05em",
+                        }}
+                      >
+                        Date
+                      </div>
+
+                      <div
+                        style={{
+                          fontWeight: 600,
+                          marginTop: "4px",
+                        }}
+                      >
+                        {formatDate(transfer.transfer_date)}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "11px",
+                          color: "#888",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.05em",
+                        }}
+                      >
+                        Type
+                      </div>
+
+                      <div
+                        style={{
+                          fontWeight: 600,
+                          marginTop: "4px",
+                        }}
+                      >
+                        {formatTransferType(transfer.transfer_type)}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "11px",
+                          color: "#888",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.05em",
+                        }}
+                      >
+                        Fee
+                      </div>
+
+                      <div
+                        style={{
+                          fontWeight: 600,
+                          marginTop: "4px",
+                        }}
+                      >
+                        {formatTransferFee(
+                          transfer.fee,
+                          transfer.currency,
+                          transfer.transfer_type
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: "12px",
+                      fontSize: "12px",
+                      color: "#777",
+                    }}
+                  >
+                    Confidence:{" "}
+                    {formatConfidence(transfer.confidence)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ color: "#666" }}>
+              No transfer history available.
             </p>
           )}
         </div>
