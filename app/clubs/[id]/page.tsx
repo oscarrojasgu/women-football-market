@@ -890,22 +890,19 @@ export default function ClubProfilePage() {
                         contract.currency
                       )}
 
-                      {contract.annual_salary !==
-                        null && (
-                        <div
-                          style={{
-                            fontSize: 11,
-                            color:
-                              "#888",
-                            marginTop: 3,
-                          }}
-                        >
-                          #
-                          {index +
-                            1} roster
-                          salary
-                        </div>
-                      )}
+                      {contract.annual_salary !== null && (
+  <div
+    style={{
+      fontSize: 11,
+      color: "#888",
+      marginTop: 3,
+    }}
+  >
+    #{salaryRecords.findIndex(
+      (record) => record.id === contract.id
+    ) + 1} roster salary
+  </div>
+)}
                     </div>
                   </div>
                 )
