@@ -122,7 +122,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
 
         <div
           style={{
-            maxWidth: "1000px",
+            maxWidth: "1200px",
             margin: "0 auto",
             padding: "40px 20px",
           }}
@@ -150,7 +150,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   if (currentContract?.club_id) {
     const { data: clubData } = await supabase
       .from("clubs")
-      .select("name, country, league, logo_url")
+      .select("id, name, country, league, logo_url")
       .eq("id", currentContract.club_id)
       .maybeSingle();
 
@@ -376,147 +376,176 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
         </button>
       </nav>
 
+      {/* PLAYER HERO */}
+
+      <section
+        style={{
+          background: "#111",
+          color: "#fff",
+          padding: "45px 6vw 50px",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+          }}
+        >
+          <Link
+            href="/players"
+            style={{
+              color: "#aaa",
+              textDecoration: "none",
+              fontSize: "14px",
+              display: "inline-block",
+              marginBottom: "30px",
+            }}
+          >
+            ← Back to Players
+          </Link>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "30px",
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{
+                width: "150px",
+                height: "150px",
+                flexShrink: 0,
+                borderRadius: "12px",
+                overflow: "hidden",
+                background: "#222",
+                border: "1px solid #333",
+              }}
+            >
+              {player.photo_url ? (
+                <img
+                  src={player.photo_url}
+                  alt={player.full_name}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#777",
+                    fontSize: "14px",
+                  }}
+                >
+                  No Photo
+                </div>
+              )}
+            </div>
+
+            <div>
+              <div
+                style={{
+                  fontSize: "12px",
+                  letterSpacing: "2px",
+                  fontWeight: 700,
+                  color: "#aaa",
+                  marginBottom: "10px",
+                }}
+              >
+                WOMEN&apos;S FOOTBALL MARKET
+              </div>
+
+              <h1
+                style={{
+                  fontSize: "48px",
+                  lineHeight: 1.05,
+                  margin: 0,
+                  fontWeight: 800,
+                }}
+              >
+                {player.full_name}
+              </h1>
+
+              <p
+                style={{
+                  color: "#ccc",
+                  fontSize: "18px",
+                  margin: "12px 0 18px 0",
+                }}
+              >
+                {player.nationality || "Nationality unknown"} ·{" "}
+                {player.position || "Position unknown"}
+              </p>
+
+              {club && (
+                <Link
+                  href={`/clubs/${club.id}`}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    textDecoration: "none",
+                    color: "#fff",
+                  }}
+                >
+                  {club.logo_url && (
+                    <img
+                      src={club.logo_url}
+                      alt={club.name}
+                      style={{
+                        width: "50px",
+                        height: "50px",
+                        objectFit: "contain",
+                      }}
+                    />
+                  )}
+
+                  <div>
+                    <div
+                      style={{
+                        fontSize: "20px",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {club.name}
+                    </div>
+
+                    <div
+                      style={{
+                        color: "#aaa",
+                        marginTop: "3px",
+                      }}
+                    >
+                      {club.league || "—"}
+                    </div>
+                  </div>
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* PLAYER CONTENT */}
 
       <div
         style={{
-          maxWidth: "1000px",
+          maxWidth: "1200px",
           margin: "0 auto",
-          padding: "40px 20px",
-          fontFamily: "Arial, sans-serif",
+          padding: "40px 20px 70px",
         }}
       >
-        <Link
-          href="/players"
-          style={{
-            textDecoration: "none",
-            color: "#555",
-          }}
-        >
-          ← Back to Players
-        </Link>
-
-        {/* PLAYER HEADER */}
-
-        <div
-          style={{
-            marginTop: "30px",
-            padding: "30px",
-            border: "1px solid #ddd",
-            borderRadius: "12px",
-            display: "flex",
-            gap: "30px",
-            alignItems: "center",
-            background: "#fff",
-          }}
-        >
-          <div
-            style={{
-              width: "180px",
-              height: "180px",
-              flexShrink: 0,
-              borderRadius: "12px",
-              overflow: "hidden",
-              background: "#f1f1f1",
-            }}
-          >
-            {player.photo_url ? (
-              <img
-                src={player.photo_url}
-                alt={player.full_name}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#999",
-                  fontSize: "14px",
-                }}
-              >
-                No Photo
-              </div>
-            )}
-          </div>
-
-          <div>
-            <h1
-              style={{
-                fontSize: "40px",
-                margin: "0 0 8px 0",
-              }}
-            >
-              {player.full_name}
-            </h1>
-
-            <p
-              style={{
-                color: "#666",
-                fontSize: "18px",
-                margin: "0 0 15px 0",
-              }}
-            >
-              {player.nationality || "Nationality unknown"} ·{" "}
-              {player.position || "Position unknown"}
-            </p>
-
-            {club && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                }}
-              >
-                {club.logo_url && (
-                  <img
-                    src={club.logo_url}
-                    alt={club.name}
-                    style={{
-                      width: "50px",
-                      height: "50px",
-                      objectFit: "contain",
-                    }}
-                  />
-                )}
-
-                <div>
-                  <div
-                    style={{
-                      fontSize: "20px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {club.name}
-                  </div>
-
-                  <div
-                    style={{
-                      color: "#666",
-                      marginTop: "3px",
-                    }}
-                  >
-                    {club.league || "—"}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* PLAYER INFORMATION */}
 
         <div
           style={{
-            marginTop: "25px",
             padding: "30px",
             border: "1px solid #ddd",
             borderRadius: "12px",
@@ -569,12 +598,16 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           <h2>Current Club</h2>
 
           {currentContract && club ? (
-            <div
+            <Link
+              href={`/clubs/${club.id}`}
               style={{
+                display: "block",
                 marginTop: "20px",
                 padding: "20px",
                 background: "#f7f7f7",
                 borderRadius: "10px",
+                textDecoration: "none",
+                color: "#111",
               }}
             >
               <div
@@ -651,7 +684,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                   currentContract.currency
                 )}
               </p>
-            </div>
+            </Link>
           ) : (
             <p style={{ color: "#666" }}>
               No current contract information available.
@@ -699,7 +732,17 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                       alignItems: "center",
                     }}
                   >
-                    <div>
+                    <Link
+                      href={
+                        transfer.from_club?.id
+                          ? `/clubs/${transfer.from_club.id}`
+                          : "#"
+                      }
+                      style={{
+                        textDecoration: "none",
+                        color: "#111",
+                      }}
+                    >
                       {transfer.from_club?.logo_url && (
                         <img
                           src={transfer.from_club.logo_url}
@@ -731,7 +774,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                       >
                         {transfer.from_club?.league || "—"}
                       </div>
-                    </div>
+                    </Link>
 
                     <div
                       style={{
@@ -743,7 +786,17 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                       →
                     </div>
 
-                    <div>
+                    <Link
+                      href={
+                        transfer.to_club?.id
+                          ? `/clubs/${transfer.to_club.id}`
+                          : "#"
+                      }
+                      style={{
+                        textDecoration: "none",
+                        color: "#111",
+                      }}
+                    >
                       {transfer.to_club?.logo_url && (
                         <img
                           src={transfer.to_club.logo_url}
@@ -775,7 +828,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                       >
                         {transfer.to_club?.league || "—"}
                       </div>
-                    </div>
+                    </Link>
                   </div>
 
                   <div
