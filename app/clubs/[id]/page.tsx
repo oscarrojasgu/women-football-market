@@ -24,12 +24,12 @@ type Contract = {
   weekly_salary: number | null
   currency: string | null
   player: {
-  id: string
-  full_name: string
-  nationality: string | null
-  position: string | null
-  photo_url: string | null
-} | null
+    id: string
+    full_name: string
+    nationality: string | null
+    position: string | null
+    photo_url: string | null
+  } | null
 }
 
 type Transfer = {
@@ -120,13 +120,13 @@ export default function ClubProfilePage() {
             annual_salary,
             weekly_salary,
             currency,
-player:players (
-  id,
-  full_name,
-  nationality,
-  position,
-  photo_url
-)
+            player:players (
+              id,
+              full_name,
+              nationality,
+              position,
+              photo_url
+            )
           `)
           .eq('club_id', id)
           .order('start_date', {
@@ -181,9 +181,11 @@ player:players (
       }
 
       setClub(clubData as Club | null)
+
       setContracts(
         (contractData || []) as unknown as Contract[]
       )
+
       setTransfers(
         (transferData || []) as unknown as Transfer[]
       )
@@ -197,26 +199,24 @@ player:players (
   }, [id])
 
   const currentContracts = contracts.filter(
-    (contract) => contract.status?.toLowerCase() === 'active'
+    (contract) =>
+      contract.status?.toLowerCase() === 'active'
   )
 
   const salaryRecords = currentContracts.filter(
     (contract) => contract.annual_salary !== null
   )
-const totalKnownPayroll = salaryRecords.reduce(
-  (total, contract) =>
-    total + (contract.annual_salary || 0),
-  0
-)
 
-const averageKnownSalary =
-  salaryRecords.length > 0
-    ? totalKnownPayroll / salaryRecords.length
-    : null
+  const totalKnownPayroll = salaryRecords.reduce(
+    (total, contract) =>
+      total + (contract.annual_salary || 0),
+    0
+  )
+
   const averageKnownSalary =
-  salaryRecords.length > 0
-    ? totalKnownPayroll / salaryRecords.length
-    : null
+    salaryRecords.length > 0
+      ? totalKnownPayroll / salaryRecords.length
+      : null
 
   const incomingTransfers = transfers.filter(
     (transfer) =>
@@ -283,18 +283,18 @@ const averageKnownSalary =
     >
       {/* HEADER */}
       <nav
-  style={{
-    position: "sticky",
-    top: 0,
-    zIndex: 1000,
-    width: "100%",
-    display: "flex",
-    alignItems: "center",
-    padding: "18px 32px",
-    borderBottom: "1px solid #e5e5e5",
-    background: "#fff",
-  }}
->
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 1000,
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '18px 32px',
+          borderBottom: '1px solid #e5e5e5',
+          background: '#fff',
+        }}
+      >
         <Link
           href="/"
           style={{
@@ -579,29 +579,30 @@ const averageKnownSalary =
           </div>
 
           <div
-  style={{
-    marginTop: '8px',
-    fontSize: '26px',
-    fontWeight: 800,
-  }}
->
-  {salaryRecords.length > 0
-    ? formatSalary(
-        totalKnownPayroll,
-        salaryRecords[0].currency
-      )
-    : 'Unknown'}
-</div>
+            style={{
+              marginTop: '8px',
+              fontSize: '26px',
+              fontWeight: 800,
+            }}
+          >
+            {salaryRecords.length > 0
+              ? formatSalary(
+                  totalKnownPayroll,
+                  salaryRecords[0].currency
+                )
+              : 'Unknown'}
+          </div>
 
-<div
-  style={{
-    marginTop: '6px',
-    fontSize: '12px',
-    color: '#777',
-  }}
->
-  {salaryRecords.length} of {currentContracts.length} players with salary data
-</div>
+          <div
+            style={{
+              marginTop: '6px',
+              fontSize: '12px',
+              color: '#777',
+            }}
+          >
+            {salaryRecords.length} of{' '}
+            {currentContracts.length} players with salary data
+          </div>
         </div>
 
         <div
@@ -624,26 +625,28 @@ const averageKnownSalary =
           </div>
 
           <div
-  style={{
-    marginTop: '8px',
-    fontSize: '30px',
-    fontWeight: 800,
-  }}
->
-  {transfers.length}
-</div>
+            style={{
+              marginTop: '8px',
+              fontSize: '30px',
+              fontWeight: 800,
+            }}
+          >
+            {transfers.length}
+          </div>
 
-<div
-  style={{
-    marginTop: '6px',
-    fontSize: '12px',
-    color: '#777',
-  }}
->
-  {incomingTransfers.length} incoming · {outgoingTransfers.length} outgoing
-</div>
+          <div
+            style={{
+              marginTop: '6px',
+              fontSize: '12px',
+              color: '#777',
+            }}
+          >
+            {incomingTransfers.length} incoming ·{' '}
+            {outgoingTransfers.length} outgoing
+          </div>
         </div>
-                <div
+
+        <div
           style={{
             background: '#fff',
             border: '1px solid #e5e5e5',
@@ -799,68 +802,68 @@ const averageKnownSalary =
                       }}
                     >
                       <td
-  style={{
-    padding: '17px 22px',
-  }}
->
-  {contract.player ? (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-      }}
-    >
-      {contract.player.photo_url ? (
-        <img
-          src={contract.player.photo_url}
-          alt={contract.player.full_name}
-          style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '50%',
-            objectFit: 'cover',
-          }}
-        />
-      ) : (
-        <div
-          style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '50%',
-            background: '#eee',
-          }}
-        />
-      )}
+                        style={{
+                          padding: '17px 22px',
+                        }}
+                      >
+                        {contract.player ? (
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '12px',
+                            }}
+                          >
+                            {contract.player.photo_url ? (
+                              <img
+                                src={contract.player.photo_url}
+                                alt={contract.player.full_name}
+                                style={{
+                                  width: '42px',
+                                  height: '42px',
+                                  borderRadius: '50%',
+                                  objectFit: 'cover',
+                                }}
+                              />
+                            ) : (
+                              <div
+                                style={{
+                                  width: '42px',
+                                  height: '42px',
+                                  borderRadius: '50%',
+                                  background: '#eee',
+                                }}
+                              />
+                            )}
 
-      <div>
-        <Link
-          href={`/players/${contract.player.id}`}
-          style={{
-            color: '#111',
-            textDecoration: 'none',
-            fontWeight: 700,
-          }}
-        >
-          {contract.player.full_name}
-        </Link>
+                            <div>
+                              <Link
+                                href={`/players/${contract.player.id}`}
+                                style={{
+                                  color: '#111',
+                                  textDecoration: 'none',
+                                  fontWeight: 700,
+                                }}
+                              >
+                                {contract.player.full_name}
+                              </Link>
 
-        <div
-          style={{
-            fontSize: '12px',
-            color: '#777',
-            marginTop: '3px',
-          }}
-        >
-          {contract.player.nationality || '—'} ·{' '}
-          {contract.player.position || '—'}
-        </div>
-      </div>
-    </div>
-  ) : (
-    'Unknown player'
-  )}
-</td>
+                              <div
+                                style={{
+                                  fontSize: '12px',
+                                  color: '#777',
+                                  marginTop: '3px',
+                                }}
+                              >
+                                {contract.player.nationality || '—'} ·{' '}
+                                {contract.player.position || '—'}
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          'Unknown player'
+                        )}
+                      </td>
 
                       <td
                         style={{
@@ -1064,60 +1067,60 @@ const averageKnownSalary =
                       </td>
 
                       <td
-  style={{
-    padding: '17px 22px',
-    color:
-      transfer.from_club?.id === id
-        ? '#111'
-        : '#555',
-    fontWeight:
-      transfer.from_club?.id === id
-        ? 700
-        : 400,
-  }}
->
-  {transfer.from_club ? (
-    <Link
-      href={`/clubs/${transfer.from_club.id}`}
-      style={{
-        color: 'inherit',
-        textDecoration: 'none',
-      }}
-    >
-      {transfer.from_club.name}
-    </Link>
-  ) : (
-    '—'
-  )}
-</td>
+                        style={{
+                          padding: '17px 22px',
+                          color:
+                            transfer.from_club?.id === id
+                              ? '#111'
+                              : '#555',
+                          fontWeight:
+                            transfer.from_club?.id === id
+                              ? 700
+                              : 400,
+                        }}
+                      >
+                        {transfer.from_club ? (
+                          <Link
+                            href={`/clubs/${transfer.from_club.id}`}
+                            style={{
+                              color: 'inherit',
+                              textDecoration: 'none',
+                            }}
+                          >
+                            {transfer.from_club.name}
+                          </Link>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
 
                       <td
-  style={{
-    padding: '17px 22px',
-    color:
-      transfer.to_club?.id === id
-        ? '#111'
-        : '#555',
-    fontWeight:
-      transfer.to_club?.id === id
-        ? 700
-        : 400,
-  }}
->
-  {transfer.to_club ? (
-    <Link
-      href={`/clubs/${transfer.to_club.id}`}
-      style={{
-        color: 'inherit',
-        textDecoration: 'none',
-      }}
-    >
-      {transfer.to_club.name}
-    </Link>
-  ) : (
-    '—'
-  )}
-</td>
+                        style={{
+                          padding: '17px 22px',
+                          color:
+                            transfer.to_club?.id === id
+                              ? '#111'
+                              : '#555',
+                          fontWeight:
+                            transfer.to_club?.id === id
+                              ? 700
+                              : 400,
+                        }}
+                      >
+                        {transfer.to_club ? (
+                          <Link
+                            href={`/clubs/${transfer.to_club.id}`}
+                            style={{
+                              color: 'inherit',
+                              textDecoration: 'none',
+                            }}
+                          >
+                            {transfer.to_club.name}
+                          </Link>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
 
                       <td
                         style={{
