@@ -634,6 +634,40 @@ player:players (
   {incomingTransfers.length} incoming · {outgoingTransfers.length} outgoing
 </div>
         </div>
+                <div
+          style={{
+            background: '#fff',
+            border: '1px solid #e5e5e5',
+            borderRadius: '14px',
+            padding: '22px',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '12px',
+              color: '#888',
+              fontWeight: 700,
+              letterSpacing: '0.8px',
+            }}
+          >
+            AVERAGE KNOWN SALARY
+          </div>
+
+          <div
+            style={{
+              marginTop: '8px',
+              fontSize: '26px',
+              fontWeight: 800,
+            }}
+          >
+            {averageKnownSalary !== null
+              ? formatSalary(
+                  averageKnownSalary,
+                  salaryRecords[0]?.currency || 'USD'
+                )
+              : 'Unknown'}
+          </div>
+        </div>
       </section>
 
       {/* CURRENT PLAYERS */}
