@@ -643,7 +643,15 @@ export default function ClubsPage() {
                             </div>
                           )}
 
-                          <span>{club.name}</span>
+                          <Link
+  href={`/clubs/${club.id}`}
+  style={{
+    color: '#111',
+    textDecoration: 'none',
+  }}
+>
+  {club.name}
+</Link>
                         </div>
                       </td>
 
