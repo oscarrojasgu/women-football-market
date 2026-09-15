@@ -203,7 +203,16 @@ player:players (
   const salaryRecords = currentContracts.filter(
     (contract) => contract.annual_salary !== null
   )
+const totalKnownPayroll = salaryRecords.reduce(
+  (total, contract) =>
+    total + (contract.annual_salary || 0),
+  0
+)
 
+const averageKnownSalary =
+  salaryRecords.length > 0
+    ? totalKnownPayroll / salaryRecords.length
+    : null
   const averageKnownSalary =
   salaryRecords.length > 0
     ? totalKnownPayroll / salaryRecords.length
