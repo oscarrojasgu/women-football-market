@@ -423,8 +423,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                   src={player.photo_url}
                   alt={player.full_name}
                   style={{
-  width: "150px",
-height: "150px",
+  width: "180px",
+height: "180px",
   borderRadius: "50%",
   objectFit: "cover",
   objectPosition: "center top",
