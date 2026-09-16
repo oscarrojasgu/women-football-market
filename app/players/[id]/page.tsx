@@ -141,7 +141,7 @@ function getFlagUrl(nationality: string | null) {
 
   const countryCodes: Record<string, string> = {
     USA: "us",
-    United States: "us",
+    "United States": "us",
     Canada: "ca",
     Mexico: "mx",
     Colombia: "co",
