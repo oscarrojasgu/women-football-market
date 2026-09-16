@@ -43,12 +43,10 @@ const normalizePosition = (position: string | null | undefined) => {
 
   if (!value) return null;
 
-  // Exact database abbreviations first.
   if (positions[value]) {
     return value;
   }
 
-  // Goalkeeper
   if (
     value === "GOALKEEPER" ||
     value === "GOAL KEEPER" ||
@@ -57,7 +55,6 @@ const normalizePosition = (position: string | null | undefined) => {
     return "GK";
   }
 
-  // Center backs
   if (
     value === "CENTER BACK" ||
     value === "CENTRE BACK" ||
@@ -69,7 +66,6 @@ const normalizePosition = (position: string | null | undefined) => {
     return "CB";
   }
 
-  // Fullbacks / wingbacks
   if (
     value === "LEFT BACK" ||
     value === "LEFT-BACK" ||
@@ -102,9 +98,7 @@ const normalizePosition = (position: string | null | undefined) => {
     return "RWB";
   }
 
-  // Defensive midfield
   if (
-    value === "DEFENSIVE MIDFIELDER" ||
     value === "DEFENSIVE MIDFIELDER" ||
     value === "DEFENSIVE MIDFIELD" ||
     value === "DEFENSIVE MID"
@@ -112,7 +106,6 @@ const normalizePosition = (position: string | null | undefined) => {
     return "DM";
   }
 
-  // Central midfield
   if (
     value === "CENTRAL MIDFIELDER" ||
     value === "CENTRAL MIDFIELD" ||
@@ -124,7 +117,6 @@ const normalizePosition = (position: string | null | undefined) => {
     return "CM";
   }
 
-  // Wide midfield
   if (
     value === "LEFT MIDFIELDER" ||
     value === "LEFT MIDFIELD" ||
@@ -141,7 +133,6 @@ const normalizePosition = (position: string | null | undefined) => {
     return "RM";
   }
 
-  // Attacking midfield
   if (
     value === "ATTACKING MIDFIELDER" ||
     value === "ATTACKING MIDFIELD" ||
@@ -152,7 +143,6 @@ const normalizePosition = (position: string | null | undefined) => {
     return "CAM";
   }
 
-  // Wings
   if (
     value === "LEFT WINGER" ||
     value === "LEFT WING"
@@ -167,7 +157,6 @@ const normalizePosition = (position: string | null | undefined) => {
     return "RW";
   }
 
-  // Forwards
   if (
     value === "CENTER FORWARD" ||
     value === "CENTRE FORWARD" ||
@@ -220,17 +209,14 @@ const getSecondaryOffset = (
 
   const distance = Math.sqrt(dx * dx + dy * dy);
 
-  // Positions far apart don't need artificial movement.
   if (distance >= 18) {
     return { x: 0, y: 0 };
   }
 
-  // Same location: place secondary beside primary.
   if (Math.abs(dx) < 4 && Math.abs(dy) < 4) {
     return { x: 25, y: 0 };
   }
 
-  // Almost vertically aligned.
   if (Math.abs(dx) < 8) {
     return {
       x: 24,
@@ -238,7 +224,6 @@ const getSecondaryOffset = (
     };
   }
 
-  // Almost horizontally aligned.
   if (Math.abs(dy) < 8) {
     return {
       x: 0,
@@ -246,7 +231,6 @@ const getSecondaryOffset = (
     };
   }
 
-  // Diagonal positions.
   return {
     x: dx > 0 ? 14 : -14,
     y: dy > 0 ? 14 : -14,
@@ -267,158 +251,223 @@ export default function PositionMap({
       style={{
         width: "100%",
         maxWidth: 190,
-        aspectRatio: "4 / 5",
         marginTop: 12,
-        borderRadius: 10,
-        overflow: "hidden",
-        position: "relative",
-        background: "#171717",
-        border: "1px solid #333",
       }}
     >
       <div
         style={{
-          position: "absolute",
-          inset: 10,
-          border: "1px solid #777",
+          width: "100%",
+          aspectRatio: "4 / 5",
+          borderRadius: 10,
+          overflow: "hidden",
+          position: "relative",
+          background: "#171717",
+          border: "1px solid #333",
         }}
-      />
-
-      <div
-        style={{
-          position: "absolute",
-          left: 10,
-          right: 10,
-          top: "50%",
-          borderTop: "1px solid #777",
-        }}
-      />
-
-      <div
-        style={{
-          position: "absolute",
-          width: "25%",
-          aspectRatio: "1",
-          left: "37.5%",
-          top: "37.5%",
-          border: "1px solid #777",
-          borderRadius: "50%",
-        }}
-      />
-
-      <div
-        style={{
-          position: "absolute",
-          width: 4,
-          height: 4,
-          left: "calc(50% - 2px)",
-          top: "calc(50% - 2px)",
-          borderRadius: "50%",
-          background: "#777",
-        }}
-      />
-
-      <div
-        style={{
-          position: "absolute",
-          width: "48%",
-          height: "15%",
-          left: "26%",
-          top: 10,
-          border: "1px solid #777",
-          borderTop: "none",
-        }}
-      />
-
-      <div
-        style={{
-          position: "absolute",
-          width: "20%",
-          height: "7%",
-          left: "40%",
-          top: 10,
-          border: "1px solid #777",
-          borderTop: "none",
-        }}
-      />
-
-      <div
-        style={{
-          position: "absolute",
-          width: "48%",
-          height: "15%",
-          left: "26%",
-          bottom: 10,
-          border: "1px solid #777",
-          borderBottom: "none",
-        }}
-      />
-
-      <div
-        style={{
-          position: "absolute",
-          width: "20%",
-          height: "7%",
-          left: "40%",
-          bottom: 10,
-          border: "1px solid #777",
-          borderBottom: "none",
-        }}
-      />
-
-      {primary && positions[primary] && (
+      >
         <div
           style={{
             position: "absolute",
-            top: positions[primary].top,
-            left: positions[primary].left,
-            transform: "translate(-50%, -50%)",
-            width: 42,
-            height: 42,
-            borderRadius: "50%",
-            background: "#f5f4ef",
-            color: "#111",
-            border: "3px solid #111",
-            boxShadow: "0 0 0 2px #f5f4ef",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 11,
-            fontWeight: 800,
-            zIndex: 3,
+            inset: 10,
+            border: "1px solid #777",
           }}
-        >
-          {positions[primary].label}
-        </div>
-      )}
+        />
 
-      {secondary &&
-        secondary !== primary &&
-        positions[secondary] && (
+        <div
+          style={{
+            position: "absolute",
+            left: 10,
+            right: 10,
+            top: "50%",
+            borderTop: "1px solid #777",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            width: "25%",
+            aspectRatio: "1",
+            left: "37.5%",
+            top: "37.5%",
+            border: "1px solid #777",
+            borderRadius: "50%",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            width: 4,
+            height: 4,
+            left: "calc(50% - 2px)",
+            top: "calc(50% - 2px)",
+            borderRadius: "50%",
+            background: "#777",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            width: "48%",
+            height: "15%",
+            left: "26%",
+            top: 10,
+            border: "1px solid #777",
+            borderTop: "none",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            width: "20%",
+            height: "7%",
+            left: "40%",
+            top: 10,
+            border: "1px solid #777",
+            borderTop: "none",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            width: "48%",
+            height: "15%",
+            left: "26%",
+            bottom: 10,
+            border: "1px solid #777",
+            borderBottom: "none",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            width: "20%",
+            height: "7%",
+            left: "40%",
+            bottom: 10,
+            border: "1px solid #777",
+            borderBottom: "none",
+          }}
+        />
+
+        {primary && positions[primary] && (
           <div
             style={{
               position: "absolute",
-              top: positions[secondary].top,
-              left: positions[secondary].left,
-              transform: `translate(calc(-50% + ${secondaryOffset.x}px), calc(-50% + ${secondaryOffset.y}px))`,
-              width: 34,
-              height: 34,
+              top: positions[primary].top,
+              left: positions[primary].left,
+              transform: "translate(-50%, -50%)",
+              width: 42,
+              height: 42,
               borderRadius: "50%",
-              background: "#111",
-              color: "#f5f4ef",
-              border: "2px solid #f5f4ef",
-              boxShadow: "0 0 0 1px #111",
+              background: "#f5f4ef",
+              color: "#111",
+              border: "3px solid #111",
+              boxShadow: "0 0 0 2px #f5f4ef",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: 800,
-              zIndex: 4,
+              zIndex: 3,
             }}
           >
-            {positions[secondary].label}
+            {positions[primary].label}
           </div>
         )}
+
+        {secondary &&
+          secondary !== primary &&
+          positions[secondary] && (
+            <div
+              style={{
+                position: "absolute",
+                top: positions[secondary].top,
+                left: positions[secondary].left,
+                transform: `translate(calc(-50% + ${secondaryOffset.x}px), calc(-50% + ${secondaryOffset.y}px))`,
+                width: 34,
+                height: 34,
+                borderRadius: "50%",
+                background: "#111",
+                color: "#f5f4ef",
+                border: "2px solid #f5f4ef",
+                boxShadow: "0 0 0 1px #111",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 10,
+                fontWeight: 800,
+                zIndex: 4,
+              }}
+            >
+              {positions[secondary].label}
+            </div>
+          )}
+      </div>
+
+      {(primary || secondary) && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 16,
+            marginTop: 8,
+            fontSize: 10,
+            color: "#aaa",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {primary && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <span
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  background: "#f5f4ef",
+                  border: "1px solid #111",
+                  display: "inline-block",
+                }}
+              />
+              <span>Primary</span>
+            </div>
+          )}
+
+          {secondary && secondary !== primary && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <span
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  background: "#111",
+                  border: "1px solid #f5f4ef",
+                  display: "inline-block",
+                }}
+              />
+              <span>Secondary</span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
