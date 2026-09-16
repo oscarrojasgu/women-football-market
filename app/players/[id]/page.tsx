@@ -58,7 +58,7 @@ US: "us",
 "UNITED STATES": "us",
 "UNITED STATES OF AMERICA": "us",
 
-```
+
 CAN: "ca",
 CANADA: "ca",
 
@@ -181,7 +181,7 @@ PERU: "pe",
 
 VEN: "ve",
 VENEZUELA: "ve",
-```
+
 
 };
 
@@ -315,7 +315,7 @@ marginRight: 40,
 >
 WFM<span style={{ color: "#777" }}>•</span> </Link>
 
-```
+
       <div
         style={{
           display: "flex",
@@ -414,7 +414,7 @@ WFM<span style={{ color: "#777" }}>•</span> </Link>
     </div>
   </main>
 );
-```
+
 
 }
 
@@ -446,9 +446,9 @@ const { data: clubs } = await supabase
 .select("id, name, league, country, logo_url")
 .in("id", clubIds);
 
-```
+
 contractClubs = clubs || [];
-```
+
 
 }
 
@@ -543,7 +543,7 @@ marginRight: 40,
 >
 WFM<span style={{ color: "#777" }}>•</span> </Link>
 
-```
+
     <div
       style={{
         display: "flex",
@@ -1643,7 +1643,7 @@ WFM<span style={{ color: "#777" }}>•</span> </Link>
     </div>
   </div>
 </main>
-```
+
 
 );
 }
