@@ -612,7 +612,97 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             </div>
           </div>
         </div>
+        <div
+          style={{
+            marginTop: "16px",
+            padding: "20px",
+            border: "1px solid #ddd",
+            borderRadius: "10px",
+            background: "#fff",
+          }}
+        >
+          <h2
+            style={{
+              margin: "0 0 14px",
+              fontSize: "20px",
+            }}
+          >
+            Market Value
+          </h2>
 
+          {marketValues && marketValues.length > 0 ? (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+              }}
+            >
+              {marketValues.map((value) => (
+                <div
+                  key={value.id}
+                  style={{
+                    padding: "14px",
+                    border: "1px solid #ddd",
+                    borderRadius: "8px",
+                    background: "#fff",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(3, 1fr)",
+                      gap: "12px",
+                    }}
+                  >
+                    <div>
+                      <div style={labelStyle}>Date</div>
+                      <div style={valueStyle}>
+                        {formatDate(value.valuation_date)}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style={labelStyle}>Market Value</div>
+                      <div style={valueStyle}>
+                        {formatSalary(
+                          value.market_value,
+                          value.currency
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style={labelStyle}>Confidence</div>
+                      <div style={valueStyle}>
+                        {formatConfidence(value.confidence)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {value.notes && (
+                    <div
+                      style={{
+                        marginTop: "12px",
+                        paddingTop: "10px",
+                        borderTop: "1px solid #eee",
+                        color: "#555",
+                        fontSize: "12px",
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      <strong>Notes:</strong> {value.notes}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ color: "#666", margin: 0 }}>
+              No market value information available.
+            </p>
+          )}
+        </div>
         <div
           style={{
             marginTop: "16px",
