@@ -206,6 +206,18 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     contracts?.filter(
       (contract) => contract.id !== currentContract?.id
     ) || [];
+  const { data: marketValues } = await supabase
+  .from("market_values")
+  .select(`
+    id,
+    valuation_date,
+    market_value,
+    currency,
+    confidence,
+    notes
+  `)
+  .eq("player_id", id)
+  .order("valuation_date", { ascending: false });
 
   const formatDate = (date: string | null) => {
     if (!date) return "—";
