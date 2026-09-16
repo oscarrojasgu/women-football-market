@@ -273,7 +273,54 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
       .replace(/_/g, " ")
       .replace(/\b\w/g, (letter) => letter.toUpperCase());
   };
+const getCountryFlag = (country: string | null) => {
+  if (!country) return "🌐";
 
+  const flags: Record<string, string> = {
+    "United States": "🇺🇸",
+    USA: "🇺🇸",
+    "United States of America": "🇺🇸",
+    Canada: "🇨🇦",
+    Mexico: "🇲🇽",
+    Brazil: "🇧🇷",
+    Colombia: "🇨🇴",
+    Argentina: "🇦🇷",
+    Chile: "🇨🇱",
+    Ecuador: "🇪🇨",
+    Paraguay: "🇵🇾",
+    Uruguay: "🇺🇾",
+    Venezuela: "🇻🇪",
+    England: "🏴",
+    Germany: "🇩🇪",
+    France: "🇫🇷",
+    Spain: "🇪🇸",
+    Italy: "🇮🇹",
+    Netherlands: "🇳🇱",
+    Sweden: "🇸🇪",
+    Norway: "🇳🇴",
+    Denmark: "🇩🇰",
+    Finland: "🇫🇮",
+    Iceland: "🇮🇸",
+    Ireland: "🇮🇪",
+    Switzerland: "🇨🇭",
+    Austria: "🇦🇹",
+    Belgium: "🇧🇪",
+    Portugal: "🇵🇹",
+    Japan: "🇯🇵",
+    "South Korea": "🇰🇷",
+    Australia: "🇦🇺",
+    China: "🇨🇳",
+    Nigeria: "🇳🇬",
+    Ghana: "🇬🇭",
+    Zambia: "🇿🇲",
+    Malawi: "🇲🇼",
+    "South Africa": "🇿🇦",
+    Jamaica: "🇯🇲",
+    Haiti: "🇭🇹",
+  };
+
+  return flags[country] || "🌐";
+};
   const formatConfidence = (confidence: string | null) => {
     if (!confidence) return "—";
 
@@ -579,41 +626,93 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           </h2>
 
           <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: "12px",
-            }}
-          >
-            <div>
-              <div style={labelStyle}>Date of Birth</div>
-              <div style={valueStyle}>
-                {player.date_of_birth || "—"}
-              </div>
-            </div>
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "16px",
+  }}
+>
+  <div>
+    <div style={labelStyle}>Nationality</div>
+    <div
+      style={{
+        ...valueStyle,
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+      }}
+    >
+      <span style={{ fontSize: "22px" }}>
+        {getCountryFlag(player.nationality)}
+      </span>
+      {player.nationality || "—"}
+    </div>
+  </div>
 
-            <div>
-              <div style={labelStyle}>Position</div>
-              <div style={valueStyle}>
-                {player.position || "—"}
-              </div>
-            </div>
+  <div>
+    <div style={labelStyle}>Date of Birth</div>
+    <div style={valueStyle}>
+      {player.date_of_birth || "—"}
+    </div>
+  </div>
 
-            <div>
-              <div style={labelStyle}>Preferred Foot</div>
-              <div style={valueStyle}>
-                {player.preferred_foot || "—"}
-              </div>
-            </div>
+  <div>
+    <div style={labelStyle}>Position</div>
+    <div style={valueStyle}>
+      {player.position || "—"}
+    </div>
+  </div>
 
-            <div>
-              <div style={labelStyle}>Agency</div>
-              <div style={valueStyle}>
-                {player.agency || "—"}
-              </div>
-            </div>
-          </div>
-        </div>
+  <div>
+    <div style={labelStyle}>Secondary Position</div>
+    <div style={valueStyle}>
+      {player.secondary_position || "—"}
+    </div>
+  </div>
+
+  <div>
+    <div style={labelStyle}>Preferred Foot</div>
+    <div style={valueStyle}>
+      {player.preferred_foot || "—"}
+    </div>
+  </div>
+
+  <div>
+    <div style={labelStyle}>Height</div>
+    <div style={valueStyle}>
+      {player.height_cm ? `${player.height_cm} cm` : "—"}
+    </div>
+  </div>
+
+  <div>
+    <div style={labelStyle}>Birthplace</div>
+    <div style={valueStyle}>
+      {player.birthplace || "—"}
+    </div>
+  </div>
+
+  <div>
+    <div style={labelStyle}>Agency</div>
+    <div style={valueStyle}>
+      {player.agency || "—"}
+    </div>
+  </div>
+</div>
+
+<div
+  style={{
+    marginTop: "28px",
+    paddingTop: "20px",
+    borderTop: "1px solid #eee",
+  }}
+>
+  <div style={labelStyle}>Position Map</div>
+
+  <PositionMap
+    primaryPosition={player.position}
+    secondaryPosition={player.secondary_position}
+  />
+</div>
 
         <div
           style={{
