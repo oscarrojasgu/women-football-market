@@ -241,13 +241,14 @@ export default function PlayerPage({
           return
         }
 
-        const { data: playerData, error: playerError } = await supabase
-          .from('players')
-          .select(
-            'id, full_name, date_of_birth, nationality, position, preferred_foot, agency, photo_url, height_cm, birthplace, secondary_position, current_club_since, youth_clubs'
-          )
-          .eq('id', playerId)
-          .single()
+        const { data: playerData, error: playerError } =
+          await supabase
+            .from('players')
+            .select(
+              'id, full_name, date_of_birth, nationality, position, preferred_foot, agency, photo_url, height_cm, birthplace, secondary_position, current_club_since, youth_clubs'
+            )
+            .eq('id', playerId)
+            .single()
 
         if (playerError) {
           console.error('Player query error:', playerError)
@@ -276,7 +277,14 @@ export default function PlayerPage({
         if (contractError) {
           console.error('Contract query error:', contractError)
         } else {
-          setContracts(contractData || [])
+          setContracts(
+            (contractData || []).map((contract: any) => ({
+              ...contract,
+              clubs: Array.isArray(contract.clubs)
+                ? contract.clubs[0] || null
+                : contract.clubs || null,
+            }))
+          )
         }
 
         const { data: transferData, error: transferError } =
@@ -291,20 +299,35 @@ export default function PlayerPage({
         if (transferError) {
           console.error('Transfer query error:', transferError)
         } else {
-          setTransfers(transferData || [])
+          setTransfers(
+            (transferData || []).map((transfer: any) => ({
+              ...transfer,
+              from_club: Array.isArray(transfer.from_club)
+                ? transfer.from_club[0] || null
+                : transfer.from_club || null,
+              to_club: Array.isArray(transfer.to_club)
+                ? transfer.to_club[0] || null
+                : transfer.to_club || null,
+            }))
+          )
         }
 
-        const { data: marketValueData, error: marketValueError } =
-          await supabase
-            .from('market_values')
-            .select(
-              'id, valuation_date, market_value, currency, confidence, notes'
-            )
-            .eq('player_id', playerId)
-            .order('valuation_date', { ascending: false })
+        const {
+          data: marketValueData,
+          error: marketValueError,
+        } = await supabase
+          .from('market_values')
+          .select(
+            'id, valuation_date, market_value, currency, confidence, notes'
+          )
+          .eq('player_id', playerId)
+          .order('valuation_date', { ascending: false })
 
         if (marketValueError) {
-          console.error('Market value query error:', marketValueError)
+          console.error(
+            'Market value query error:',
+            marketValueError
+          )
         } else {
           setMarketValues(marketValueData || [])
         }
@@ -321,7 +344,7 @@ export default function PlayerPage({
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-950 text-white p-8">
+      <main className="min-h-screen bg-slate-950 p-8 text-white">
         <div className="mx-auto max-w-6xl">
           <p className="text-slate-400">Loading player...</p>
         </div>
@@ -331,7 +354,7 @@ export default function PlayerPage({
 
   if (error || !player) {
     return (
-      <main className="min-h-screen bg-slate-950 text-white p-8">
+      <main className="min-h-screen bg-slate-950 p-8 text-white">
         <div className="mx-auto max-w-6xl">
           <Link
             href="/players"
@@ -341,7 +364,10 @@ export default function PlayerPage({
           </Link>
 
           <div className="mt-8 rounded-xl border border-red-900 bg-red-950/40 p-6">
-            <h1 className="text-xl font-semibold">Player not found</h1>
+            <h1 className="text-xl font-semibold">
+              Player not found
+            </h1>
+
             <p className="mt-2 text-sm text-red-300">
               {error || 'This player could not be loaded.'}
             </p>
@@ -426,6 +452,7 @@ export default function PlayerPage({
                 </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
+
                   <div>
                     <div className="text-slate-500">Age</div>
                     <div className="mt-1 font-medium">
@@ -434,25 +461,32 @@ export default function PlayerPage({
                   </div>
 
                   <div>
-                    <div className="text-slate-500">Nationality</div>
+                    <div className="text-slate-500">
+                      Nationality
+                    </div>
                     <div className="mt-1 font-medium">
                       {player.nationality || '—'}
                     </div>
                   </div>
 
                   <div>
-                    <div className="text-slate-500">Preferred Foot</div>
+                    <div className="text-slate-500">
+                      Preferred Foot
+                    </div>
                     <div className="mt-1 font-medium">
                       {player.preferred_foot || '—'}
                     </div>
                   </div>
 
                   <div>
-                    <div className="text-slate-500">Current Club</div>
+                    <div className="text-slate-500">
+                      Current Club
+                    </div>
                     <div className="mt-1 font-medium">
                       {currentClub?.name || '—'}
                     </div>
                   </div>
+
                 </div>
               </div>
             </div>
@@ -467,6 +501,7 @@ export default function PlayerPage({
             </h2>
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
+
               <div>
                 <div className="text-sm text-slate-500">
                   Date of Birth
@@ -522,6 +557,7 @@ export default function PlayerPage({
                   {player.youth_clubs || '—'}
                 </div>
               </div>
+
             </div>
           </div>
 
@@ -549,6 +585,7 @@ export default function PlayerPage({
 
             {currentClub ? (
               <div className="mt-5 flex items-center gap-4">
+
                 {currentClub.logo_url ? (
                   <img
                     src={currentClub.logo_url}
@@ -565,13 +602,16 @@ export default function PlayerPage({
                   <div className="text-lg font-semibold">
                     {currentClub.name}
                   </div>
+
                   <div className="mt-1 text-sm text-slate-400">
                     {currentClub.league || '—'}
                   </div>
+
                   <div className="text-sm text-slate-500">
                     {currentClub.country || '—'}
                   </div>
                 </div>
+
               </div>
             ) : (
               <p className="mt-4 text-slate-500">
@@ -597,7 +637,10 @@ export default function PlayerPage({
 
               {currentMarketValue?.valuation_date && (
                 <div className="mt-1 text-sm text-slate-500">
-                  As of {formatDate(currentMarketValue.valuation_date)}
+                  As of{' '}
+                  {formatDate(
+                    currentMarketValue.valuation_date
+                  )}
                 </div>
               )}
 
@@ -610,6 +653,7 @@ export default function PlayerPage({
 
             {marketValues.length > 1 && (
               <div className="mt-6">
+
                 <div className="mb-3 text-sm font-medium text-slate-400">
                   Previous Valuations
                 </div>
@@ -623,6 +667,7 @@ export default function PlayerPage({
                       <span className="text-slate-400">
                         {formatDate(value.valuation_date)}
                       </span>
+
                       <span className="font-medium">
                         {formatMarketValue(
                           value.market_value,
@@ -632,6 +677,7 @@ export default function PlayerPage({
                     </div>
                   ))}
                 </div>
+
               </div>
             )}
           </div>
@@ -711,6 +757,7 @@ export default function PlayerPage({
 
           {contracts.length > 0 ? (
             <div className="mt-5 space-y-3">
+
               {contracts.map((contract) => (
                 <div
                   key={contract.id}
@@ -747,6 +794,7 @@ export default function PlayerPage({
                   </div>
                 </div>
               ))}
+
             </div>
           ) : (
             <p className="mt-4 text-slate-500">
@@ -762,6 +810,7 @@ export default function PlayerPage({
 
           {transfers.length > 0 ? (
             <div className="mt-5 space-y-4">
+
               {transfers.map((transfer) => {
                 const fee = formatTransferFee(
                   transfer.fee,
@@ -777,6 +826,7 @@ export default function PlayerPage({
                     key={transfer.id}
                     className="rounded-xl border border-slate-800 bg-slate-950/40 p-4"
                   >
+
                     <div className="text-sm text-slate-500">
                       {formatDate(transfer.transfer_date)}
                     </div>
@@ -798,6 +848,7 @@ export default function PlayerPage({
                           <div className="font-medium">
                             {transfer.from_club?.name || 'Unknown'}
                           </div>
+
                           <div className="text-xs text-slate-500">
                             {transfer.from_club?.league || ''}
                           </div>
@@ -823,6 +874,7 @@ export default function PlayerPage({
                           <div className="font-medium">
                             {transfer.to_club?.name || 'Unknown'}
                           </div>
+
                           <div className="text-xs text-slate-500">
                             {transfer.to_club?.league || ''}
                           </div>
@@ -847,6 +899,7 @@ export default function PlayerPage({
                   </div>
                 )
               })}
+
             </div>
           ) : (
             <p className="mt-4 text-slate-500">
