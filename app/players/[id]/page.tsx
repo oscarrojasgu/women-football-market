@@ -426,7 +426,6 @@ color: "#111",
 >
 {/* NAVIGATION */}
 
-```
   <nav
     style={{
       position: "sticky",
