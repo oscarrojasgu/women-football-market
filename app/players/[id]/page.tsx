@@ -836,127 +836,112 @@ export default async function PlayerPage({
             </div>
           </div>
 
-          {/* POSITION MAP */}
+                    {/* POSITION MAP + MARKET VALUE */}
 
           <div
             style={{
               marginTop: 24,
               paddingTop: 20,
               borderTop: "1px solid #eee",
+              display: "grid",
+              gridTemplateColumns:
+                "minmax(190px, 230px) minmax(0, 1fr)",
+              gap: 28,
+              alignItems: "start",
             }}
           >
-            <div style={labelStyle}>Position Map</div>
+            {/* POSITION MAP */}
 
-            <PositionMap
-              primaryPosition={player.position}
-              secondaryPosition={player.secondary_position}
-            />
-          </div>
-        </div>
-
-                {/* MARKET VALUE */}
-
-        <div
-          style={{
-            marginTop: 16,
-            padding: "22px",
-            border: "1px solid #ddd",
-            borderRadius: 10,
-            background: "#fff",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              gap: 20,
-              flexWrap: "wrap",
-            }}
-          >
             <div>
-              <h2
-                style={{
-                  margin: 0,
-                  fontSize: 18,
-                  fontWeight: 750,
-                }}
-              >
-                Market Value
-              </h2>
+              <div style={labelStyle}>Position Map</div>
 
-              <div
-                style={{
-                  marginTop: 5,
-                  fontSize: 12,
-                  color: "#888",
-                }}
-              >
-                Estimated transfer-market valuation
-              </div>
+              <PositionMap
+                primaryPosition={player.position}
+                secondaryPosition={player.secondary_position}
+              />
             </div>
 
-            {marketValues.length > 0 && (
-              <div
-                style={{
-                  fontSize: 12,
-                  color: "#777",
-                }}
-              >
-                {marketValues.length} valuation
-                {marketValues.length !== 1 ? "s" : ""}
-              </div>
-            )}
-          </div>
+            {/* MARKET VALUE */}
 
-          {marketValues.length === 0 ? (
             <div
               style={{
-                marginTop: 22,
-                padding: "18px 0",
-                color: "#888",
-                fontSize: 14,
-                borderTop: "1px solid #eee",
+                border: "1px solid #e1e1e1",
+                borderRadius: 9,
+                background: "#fff",
+                padding: 18,
+                minHeight: 190,
               }}
             >
-              No market value information available.
-            </div>
-          ) : (
-            <>
-              {/* CURRENT VALUE */}
-
               <div
                 style={{
-                  marginTop: 22,
-                  padding: "22px",
-                  background: "#111",
-                  color: "#fff",
-                  borderRadius: 9,
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  gap: 24,
-                  flexWrap: "wrap",
+                  gap: 15,
                 }}
               >
                 <div>
-                  <div
+                  <h2
                     style={{
-                      fontSize: 10,
-                      color: "#aaa",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.06em",
+                      margin: 0,
+                      fontSize: 17,
+                      fontWeight: 750,
                     }}
                   >
+                    Market Value
+                  </h2>
+
+                  <div
+                    style={{
+                      marginTop: 4,
+                      fontSize: 11,
+                      color: "#888",
+                    }}
+                  >
+                    Transfer-market valuation
+                  </div>
+                </div>
+
+                {marketValues.length > 0 && (
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: "#888",
+                    }}
+                  >
+                    {marketValues.length} valuation
+                    {marketValues.length !== 1 ? "s" : ""}
+                  </div>
+                )}
+              </div>
+
+              {marketValues.length === 0 ? (
+                <div
+                  style={{
+                    marginTop: 24,
+                    color: "#888",
+                    fontSize: 13,
+                  }}
+                >
+                  No market value information available.
+                </div>
+              ) : (
+                <div
+                  style={{
+                    marginTop: 22,
+                  }}
+                >
+                  <div style={labelStyle}>
                     Current Market Value
                   </div>
 
                   <div
                     style={{
-                      marginTop: 7,
-                      fontSize: 32,
+                      marginTop: 5,
+                      fontSize: 30,
                       fontWeight: 800,
                       letterSpacing: "-0.03em",
+                      color: "#111",
                     }}
                   >
                     {formatSalary(
@@ -964,212 +949,142 @@ export default async function PlayerPage({
                       marketValues[0].currency
                     )}
                   </div>
-                </div>
-
-                <div
-                  style={{
-                    textAlign: "right",
-                    minWidth: 150,
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 10,
-                      color: "#aaa",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.06em",
-                    }}
-                  >
-                    Valuation Date
-                  </div>
 
                   <div
                     style={{
-                      marginTop: 6,
-                      fontSize: 14,
-                      fontWeight: 600,
+                      display: "grid",
+                      gridTemplateColumns:
+                        "repeat(2, minmax(100px, 1fr))",
+                      gap: 16,
+                      marginTop: 20,
+                      paddingTop: 14,
+                      borderTop: "1px solid #eee",
                     }}
                   >
-                    {formatDate(
-                      marketValues[0].valuation_date
-                    )}
-                  </div>
+                    <div>
+                      <div style={labelStyle}>
+                        Valuation Date
+                      </div>
 
-                  <div
-                    style={{
-                      marginTop: 5,
-                      fontSize: 11,
-                      color: "#aaa",
-                    }}
-                  >
-                    {formatConfidence(
-                      marketValues[0].confidence
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* SOURCE / NOTE */}
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: 20,
-                  flexWrap: "wrap",
-                  marginTop: 14,
-                  paddingBottom: 18,
-                  borderBottom: "1px solid #eee",
-                  fontSize: 11,
-                  color: "#777",
-                }}
-              >
-                <div>
-                  <span
-                    style={{
-                      fontWeight: 600,
-                      color: "#555",
-                    }}
-                  >
-                    Source:
-                  </span>{" "}
-                  Third-party
-                </div>
-
-                {marketValues[0].notes && (
-                  <div
-                    style={{
-                      maxWidth: 650,
-                      textAlign: "right",
-                    }}
-                  >
-                    {marketValues[0].notes}
-                  </div>
-                )}
-              </div>
-
-              {/* HISTORY */}
-
-              {marketValues.length > 1 && (
-                <div
-                  style={{
-                    marginTop: 22,
-                  }}
-                >
-                  <div
-                    style={{
-                      ...labelStyle,
-                      marginBottom: 12,
-                    }}
-                  >
-                    Value History
-                  </div>
-
-                  <div
-                    style={{
-                      border: "1px solid #e5e5e5",
-                      borderRadius: 8,
-                      overflow: "hidden",
-                    }}
-                  >
-                    {marketValues.map((value, index) => (
                       <div
-                        key={value.id}
                         style={{
-                          display: "grid",
-                          gridTemplateColumns:
-                            "1.2fr 1.5fr 1fr 1fr",
-                          gap: 18,
-                          alignItems: "center",
-                          padding: "14px 16px",
-                          background:
-                            index % 2 === 0
-                              ? "#fafaf8"
-                              : "#fff",
-                          borderTop:
-                            index === 0
-                              ? "none"
-                              : "1px solid #eee",
+                          marginTop: 4,
+                          fontSize: 12,
+                          fontWeight: 600,
                         }}
                       >
-                        <div>
-                          <div style={labelStyle}>
-                            Date
-                          </div>
-
-                          <div
-                            style={{
-                              marginTop: 4,
-                              fontSize: 13,
-                              fontWeight: 600,
-                            }}
-                          >
-                            {formatDate(
-                              value.valuation_date
-                            )}
-                          </div>
-                        </div>
-
-                        <div>
-                          <div style={labelStyle}>
-                            Market Value
-                          </div>
-
-                          <div
-                            style={{
-                              marginTop: 4,
-                              fontSize: 16,
-                              fontWeight: 750,
-                            }}
-                          >
-                            {formatSalary(
-                              value.market_value,
-                              value.currency
-                            )}
-                          </div>
-                        </div>
-
-                        <div>
-                          <div style={labelStyle}>
-                            Confidence
-                          </div>
-
-                          <div
-                            style={{
-                              marginTop: 4,
-                              fontSize: 12,
-                              fontWeight: 600,
-                            }}
-                          >
-                            {formatConfidence(
-                              value.confidence
-                            )}
-                          </div>
-                        </div>
-
-                        <div>
-                          <div style={labelStyle}>
-                            Source
-                          </div>
-
-                          <div
-                            style={{
-                              marginTop: 4,
-                              fontSize: 12,
-                              color: "#666",
-                            }}
-                          >
-                            Third-party
-                          </div>
-                        </div>
+                        {formatDate(
+                          marketValues[0].valuation_date
+                        )}
                       </div>
-                    ))}
+                    </div>
+
+                    <div>
+                      <div style={labelStyle}>
+                        Confidence
+                      </div>
+
+                      <div
+                        style={{
+                          marginTop: 4,
+                          fontSize: 12,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {formatConfidence(
+                          marketValues[0].confidence
+                        )}
+                      </div>
+                    </div>
                   </div>
+
+                  <div
+                    style={{
+                      marginTop: 14,
+                      fontSize: 11,
+                      color: "#777",
+                    }}
+                  >
+                    Source: Third-party
+                  </div>
+
+                  {marketValues[0].notes && (
+                    <div
+                      style={{
+                        marginTop: 6,
+                        fontSize: 11,
+                        color: "#777",
+                        lineHeight: 1.45,
+                      }}
+                    >
+                      {marketValues[0].notes}
+                    </div>
+                  )}
+
+                  {marketValues.length > 1 && (
+                    <div
+                      style={{
+                        marginTop: 16,
+                        paddingTop: 14,
+                        borderTop: "1px solid #eee",
+                      }}
+                    >
+                      <div style={labelStyle}>
+                        Previous Valuations
+                      </div>
+
+                      <div
+                        style={{
+                          marginTop: 8,
+                        }}
+                      >
+                        {marketValues
+                          .slice(1)
+                          .map((value) => (
+                            <div
+                              key={value.id}
+                              style={{
+                                display: "flex",
+                                justifyContent:
+                                  "space-between",
+                                alignItems: "center",
+                                gap: 15,
+                                padding: "8px 0",
+                                borderTop:
+                                  "1px solid #f0f0f0",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: 11,
+                                  color: "#777",
+                                }}
+                              >
+                                {formatDate(
+                                  value.valuation_date
+                                )}
+                              </div>
+
+                              <div
+                                style={{
+                                  fontSize: 12,
+                                  fontWeight: 700,
+                                }}
+                              >
+                                {formatSalary(
+                                  value.market_value,
+                                  value.currency
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
-            </>
-          )}
-        </div>
+            </div>
+          </div>
 
         {/* CURRENT CLUB */}
 
