@@ -47,57 +47,145 @@ type MarketValue = {
   notes: string | null;
 };
 
-const getCountryFlag = (nationality: string | null) => {
-  if (!nationality) return "🌐";
+const getCountryCode = (nationality: string | null) => {
+  if (!nationality) return null;
 
   const value = nationality.trim().toUpperCase();
 
-  if (
-    value === "USA" ||
-    value === "US" ||
-    value === "UNITED STATES" ||
-    value === "UNITED STATES OF AMERICA"
-  ) {
-    return "🇺🇸";
-  }
+  const countries: Record<string, string> = {
+    USA: "us",
+    US: "us",
+    "UNITED STATES": "us",
+    "UNITED STATES OF AMERICA": "us",
 
-  if (value === "CANADA" || value === "CAN") {
-    return "🇨🇦";
-  }
+    CAN: "ca",
+    CANADA: "ca",
 
-  if (value === "MEXICO" || value === "MEX") {
-    return "🇲🇽";
-  }
+    MEX: "mx",
+    MEXICO: "mx",
 
-  if (value === "ENGLAND" || value === "ENG") {
-    return "🏴";
-  }
+    ENG: "gb-eng",
+    ENGLAND: "gb-eng",
 
-  if (value === "FRANCE" || value === "FRA") {
-    return "🇫🇷";
-  }
+    FRA: "fr",
+    FRANCE: "fr",
 
-  if (value === "SPAIN" || value === "ESP") {
-    return "🇪🇸";
-  }
+    ESP: "es",
+    SPAIN: "es",
 
-  if (value === "GERMANY" || value === "GER") {
-    return "🇩🇪";
-  }
+    GER: "de",
+    GERMANY: "de",
 
-  if (value === "BRAZIL" || value === "BRA") {
-    return "🇧🇷";
-  }
+    BRA: "br",
+    BRAZIL: "br",
 
-  if (value === "COLOMBIA" || value === "COL") {
-    return "🇨🇴";
-  }
+    COL: "co",
+    COLOMBIA: "co",
 
-  if (value === "ARGENTINA" || value === "ARG") {
-    return "🇦🇷";
-  }
+    ARG: "ar",
+    ARGENTINA: "ar",
 
-  return "🌐";
+    CHI: "cl",
+    CHILE: "cl",
+
+    ITA: "it",
+    ITALY: "it",
+
+    NED: "nl",
+    NETHERLANDS: "nl",
+
+    POR: "pt",
+    PORTUGAL: "pt",
+
+    SWE: "se",
+    SWEDEN: "se",
+
+    NOR: "no",
+    NORWAY: "no",
+
+    DEN: "dk",
+    DENMARK: "dk",
+
+    JPN: "jp",
+    JAPAN: "jp",
+
+    KOR: "kr",
+    "SOUTH KOREA": "kr",
+
+    AUS: "au",
+    AUSTRALIA: "au",
+
+    NZL: "nz",
+    "NEW ZEALAND": "nz",
+
+    NIG: "ng",
+    NIGERIA: "ng",
+
+    GHA: "gh",
+    GHANA: "gh",
+
+    RSA: "za",
+    "SOUTH AFRICA": "za",
+
+    IRL: "ie",
+    IRELAND: "ie",
+
+    SCO: "gb-sct",
+    SCOTLAND: "gb-sct",
+
+    WAL: "gb-wls",
+    WALES: "gb-wls",
+
+    SUI: "ch",
+    SWITZERLAND: "ch",
+
+    AUT: "at",
+    AUSTRIA: "at",
+
+    BEL: "be",
+    BELGIUM: "be",
+
+    DEN: "dk",
+    DENMARK: "dk",
+
+    POL: "pl",
+    POLAND: "pl",
+
+    UKR: "ua",
+    UKRAINE: "ua",
+
+    CZE: "cz",
+    "CZECH REPUBLIC": "cz",
+
+    JAM: "jm",
+    JAMAICA: "jm",
+
+    CRC: "cr",
+    "COSTA RICA": "cr",
+
+    PAN: "pa",
+    PANAMA: "pa",
+
+    PUR: "pr",
+    "PUERTO RICO": "pr",
+
+    PAR: "py",
+    PARAGUAY: "py",
+
+    URU: "uy",
+    URUGUAY: "uy",
+
+    ECU: "ec",
+    ECUADOR: "ec",
+
+    PER: "pe",
+    PERU: "pe",
+
+    VEN: "ve",
+    VENEZUELA: "ve",
+  };
+
+  return countries[value] || null;
 };
 
 const formatDate = (date: string | null) => {
@@ -612,7 +700,33 @@ export default async function PlayerPage({
                 }}
               >
                 <span>
-                  {getCountryFlag(player.nationality)}
+                  <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+  }}
+>
+  {getCountryCode(player.nationality) ? (
+    <img
+      src={`https://flagcdn.com/w40/${getCountryCode(
+        player.nationality
+      )}.png`}
+      alt={player.nationality || "Country flag"}
+      style={{
+        width: 22,
+        height: 15,
+        objectFit: "cover",
+        borderRadius: 2,
+        display: "block",
+      }}
+    />
+  ) : (
+    <span style={{ fontSize: 16 }}>🌐</span>
+  )}
+
+  <span>{player.nationality || "—"}</span>
+</div>
                 </span>
 
                 <span>
