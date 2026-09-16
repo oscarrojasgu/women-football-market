@@ -3,24 +3,27 @@ type PositionMapProps = {
   secondaryPosition?: string | null;
 };
 
-const positions: Record<
-  string,
-  { top: string; left: string; label: string }
-> = {
+type PositionData = {
+  top: string;
+  left: string;
+  label: string;
+};
+
+const positions: Record<string, PositionData> = {
   GK: { top: "86%", left: "50%", label: "GK" },
 
-  LB: { top: "70%", left: "15%", label: "LB" },
-  LWB: { top: "61%", left: "14%", label: "LWB" },
+  LB: { top: "68%", left: "17%", label: "LB" },
+  LWB: { top: "59%", left: "14%", label: "LWB" },
   CB: { top: "70%", left: "50%", label: "CB" },
-  RB: { top: "70%", left: "85%", label: "RB" },
-  RWB: { top: "61%", left: "86%", label: "RWB" },
+  RB: { top: "68%", left: "83%", label: "RB" },
+  RWB: { top: "59%", left: "86%", label: "RWB" },
 
   DM: { top: "56%", left: "50%", label: "DM" },
   CDM: { top: "56%", left: "50%", label: "CDM" },
-  CM: { top: "45%", left: "50%", label: "CM" },
 
-  LM: { top: "44%", left: "17%", label: "LM" },
-  RM: { top: "44%", left: "83%", label: "RM" },
+  LM: { top: "46%", left: "17%", label: "LM" },
+  CM: { top: "45%", left: "50%", label: "CM" },
+  RM: { top: "46%", left: "83%", label: "RM" },
 
   CAM: { top: "34%", left: "50%", label: "CAM" },
   AM: { top: "34%", left: "50%", label: "AM" },
@@ -38,36 +41,156 @@ const normalizePosition = (position: string | null | undefined) => {
 
   const value = position.trim().toUpperCase();
 
-  if (value.includes("GOAL")) return "GK";
+  if (!value) return null;
 
-  if (value.includes("CENTER BACK") || value === "CENTRE BACK") {
+  // Exact database abbreviations first.
+  if (positions[value]) {
+    return value;
+  }
+
+  // Goalkeeper
+  if (
+    value === "GOALKEEPER" ||
+    value === "GOAL KEEPER" ||
+    value.includes("GOALKEEPER")
+  ) {
+    return "GK";
+  }
+
+  // Center backs
+  if (
+    value === "CENTER BACK" ||
+    value === "CENTRE BACK" ||
+    value === "CENTER-BACK" ||
+    value === "CENTRE-BACK" ||
+    value === "CENTRAL DEFENDER" ||
+    value === "CENTRAL DEFENCE"
+  ) {
     return "CB";
   }
 
-  if (value.includes("LEFT WING BACK")) return "LWB";
-  if (value.includes("RIGHT WING BACK")) return "RWB";
+  // Fullbacks / wingbacks
+  if (
+    value === "LEFT BACK" ||
+    value === "LEFT-BACK" ||
+    value === "LEFT FULLBACK" ||
+    value === "LEFT FULL BACK"
+  ) {
+    return "LB";
+  }
 
-  if (value.includes("LEFT BACK")) return "LB";
-  if (value.includes("RIGHT BACK")) return "RB";
+  if (
+    value === "RIGHT BACK" ||
+    value === "RIGHT-BACK" ||
+    value === "RIGHT FULLBACK" ||
+    value === "RIGHT FULL BACK"
+  ) {
+    return "RB";
+  }
 
-  if (value.includes("DEFENSIVE MID")) return "DM";
-  if (value.includes("CENTRAL MID")) return "CM";
+  if (
+    value === "LEFT WING BACK" ||
+    value === "LEFT WING-BACK"
+  ) {
+    return "LWB";
+  }
 
-  if (value.includes("LEFT MID")) return "LM";
-  if (value.includes("RIGHT MID")) return "RM";
+  if (
+    value === "RIGHT WING BACK" ||
+    value === "RIGHT WING-BACK"
+  ) {
+    return "RWB";
+  }
 
-  if (value.includes("ATTACKING MID")) return "CAM";
+  // Defensive midfield
+  if (
+    value === "DEFENSIVE MIDFIELDER" ||
+    value === "DEFENSIVE MIDFIELDER" ||
+    value === "DEFENSIVE MIDFIELD" ||
+    value === "DEFENSIVE MID"
+  ) {
+    return "DM";
+  }
 
-  if (value.includes("LEFT WING")) return "LW";
-  if (value.includes("RIGHT WING")) return "RW";
+  // Central midfield
+  if (
+    value === "CENTRAL MIDFIELDER" ||
+    value === "CENTRAL MIDFIELD" ||
+    value === "CENTRAL MID" ||
+    value === "CENTER MIDFIELDER" ||
+    value === "CENTER MIDFIELD" ||
+    value === "CENTER MID"
+  ) {
+    return "CM";
+  }
 
-  if (value.includes("CENTER FORWARD")) return "CF";
-  if (value.includes("CENTRE FORWARD")) return "CF";
+  // Wide midfield
+  if (
+    value === "LEFT MIDFIELDER" ||
+    value === "LEFT MIDFIELD" ||
+    value === "LEFT MID"
+  ) {
+    return "LM";
+  }
 
-  if (value.includes("STRIKER")) return "ST";
-  if (value.includes("FORWARD")) return "FW";
+  if (
+    value === "RIGHT MIDFIELDER" ||
+    value === "RIGHT MIDFIELD" ||
+    value === "RIGHT MID"
+  ) {
+    return "RM";
+  }
 
-  if (positions[value]) return value;
+  // Attacking midfield
+  if (
+    value === "ATTACKING MIDFIELDER" ||
+    value === "ATTACKING MIDFIELD" ||
+    value === "ATTACKING MID" ||
+    value === "OFFENSIVE MIDFIELDER" ||
+    value === "OFFENSIVE MIDFIELD"
+  ) {
+    return "CAM";
+  }
+
+  // Wings
+  if (
+    value === "LEFT WINGER" ||
+    value === "LEFT WING"
+  ) {
+    return "LW";
+  }
+
+  if (
+    value === "RIGHT WINGER" ||
+    value === "RIGHT WING"
+  ) {
+    return "RW";
+  }
+
+  // Forwards
+  if (
+    value === "CENTER FORWARD" ||
+    value === "CENTRE FORWARD" ||
+    value === "CENTER-FORWARD" ||
+    value === "CENTRE-FORWARD"
+  ) {
+    return "CF";
+  }
+
+  if (
+    value === "STRIKER" ||
+    value === "CENTER STRIKER" ||
+    value === "CENTRE STRIKER"
+  ) {
+    return "ST";
+  }
+
+  if (
+    value === "FORWARD" ||
+    value === "FORWARDER"
+  ) {
+    return "FW";
+  }
 
   return null;
 };
@@ -97,31 +220,36 @@ const getSecondaryOffset = (
 
   const distance = Math.sqrt(dx * dx + dy * dy);
 
+  // Positions far apart don't need artificial movement.
   if (distance >= 18) {
     return { x: 0, y: 0 };
   }
 
+  // Same location: place secondary beside primary.
   if (Math.abs(dx) < 4 && Math.abs(dy) < 4) {
-    return { x: 24, y: 0 };
+    return { x: 25, y: 0 };
   }
 
+  // Almost vertically aligned.
   if (Math.abs(dx) < 8) {
     return {
-      x: 22,
-      y: dy > 0 ? 0 : 0,
+      x: 24,
+      y: 0,
     };
   }
 
+  // Almost horizontally aligned.
   if (Math.abs(dy) < 8) {
     return {
       x: 0,
-      y: dy > 0 ? 20 : -20,
+      y: dy > 0 ? 22 : -22,
     };
   }
 
+  // Diagonal positions.
   return {
-    x: dx > 0 ? 12 : -12,
-    y: dy > 0 ? 12 : -12,
+    x: dx > 0 ? 14 : -14,
+    y: dy > 0 ? 14 : -14,
   };
 };
 
@@ -148,7 +276,6 @@ export default function PositionMap({
         border: "1px solid #333",
       }}
     >
-      {/* OUTER PITCH */}
       <div
         style={{
           position: "absolute",
@@ -157,7 +284,6 @@ export default function PositionMap({
         }}
       />
 
-      {/* HALF WAY LINE */}
       <div
         style={{
           position: "absolute",
@@ -168,7 +294,6 @@ export default function PositionMap({
         }}
       />
 
-      {/* CENTER CIRCLE */}
       <div
         style={{
           position: "absolute",
@@ -181,7 +306,6 @@ export default function PositionMap({
         }}
       />
 
-      {/* CENTER SPOT */}
       <div
         style={{
           position: "absolute",
@@ -194,7 +318,6 @@ export default function PositionMap({
         }}
       />
 
-      {/* TOP PENALTY BOX */}
       <div
         style={{
           position: "absolute",
@@ -207,7 +330,6 @@ export default function PositionMap({
         }}
       />
 
-      {/* TOP GOAL BOX */}
       <div
         style={{
           position: "absolute",
@@ -220,7 +342,6 @@ export default function PositionMap({
         }}
       />
 
-      {/* BOTTOM PENALTY BOX */}
       <div
         style={{
           position: "absolute",
@@ -233,7 +354,6 @@ export default function PositionMap({
         }}
       />
 
-      {/* BOTTOM GOAL BOX */}
       <div
         style={{
           position: "absolute",
@@ -246,7 +366,6 @@ export default function PositionMap({
         }}
       />
 
-      {/* PRIMARY POSITION */}
       {primary && positions[primary] && (
         <div
           style={{
@@ -273,7 +392,6 @@ export default function PositionMap({
         </div>
       )}
 
-      {/* SECONDARY POSITION */}
       {secondary &&
         secondary !== primary &&
         positions[secondary] && (
