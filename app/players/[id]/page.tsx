@@ -627,83 +627,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
               fontSize: "20px",
             }}
           >
-            Market Value
-          </h2>
-
-          {marketValues && marketValues.length > 0 ? (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "10px",
-              }}
-            >
-              {marketValues.map((value) => (
-                <div
-                  key={value.id}
-                  style={{
-                    padding: "14px",
-                    border: "1px solid #ddd",
-                    borderRadius: "8px",
-                    background: "#fff",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(3, 1fr)",
-                      gap: "12px",
-                    }}
-                  >
-                    <div>
-                      <div style={labelStyle}>Date</div>
-                      <div style={valueStyle}>
-                        {formatDate(value.valuation_date)}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div style={labelStyle}>Market Value</div>
-                      <div style={valueStyle}>
-                        {formatSalary(
-                          value.market_value,
-                          value.currency
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div style={labelStyle}>Confidence</div>
-                      <div style={valueStyle}>
-                        {formatConfidence(value.confidence)}
-                      </div>
-                    </div>
-                  </div>
-
-                  {value.notes && (
-                    <div
-                      style={{
-                        marginTop: "12px",
-                        paddingTop: "10px",
-                        borderTop: "1px solid #eee",
-                        color: "#555",
-                        fontSize: "12px",
-                        lineHeight: 1.4,
-                      }}
-                    >
-                      <strong>Notes:</strong> {value.notes}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p style={{ color: "#666", margin: 0 }}>
-              No market value information available.
-            </p>
-          )}
-        </div>
-        <div
+                   <div
           style={{
             marginTop: "16px",
             padding: "20px",
@@ -718,6 +642,210 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
               fontSize: "20px",
             }}
           >
+            Market Value History
+          </h2>
+
+          {marketValues && marketValues.length > 0 ? (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                }}
+              >
+                {marketValues.map((value) => (
+                  <div
+                    key={value.id}
+                    style={{
+                      padding: "14px",
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      background: "#fafafa",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(4, 1fr)",
+                        gap: "12px",
+                      }}
+                    >
+                      <div>
+                        <div style={labelStyle}>Date</div>
+                        <div style={valueStyle}>
+                          {formatDate(value.valuation_date)}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div style={labelStyle}>Market Value</div>
+                        <div
+                          style={{
+                            ...valueStyle,
+                            fontSize: "18px",
+                          }}
+                        >
+                          {formatSalary(
+                            value.market_value,
+                            value.currency
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div style={labelStyle}>Confidence</div>
+                        <div style={valueStyle}>
+                          {formatConfidence(value.confidence)}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div style={labelStyle}>Source</div>
+                        <div style={valueStyle}>
+                          Third-party
+                        </div>
+                      </div>
+                    </div>
+
+                    {value.notes && (
+                      <div
+                        style={{
+                          marginTop: "12px",
+                          paddingTop: "10px",
+                          borderTop: "1px solid #eee",
+                          color: "#555",
+                          fontSize: "12px",
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        <strong>Notes:</strong> {value.notes}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div
+                style={{
+                  marginTop: "20px",
+                  paddingTop: "16px",
+                  borderTop: "1px solid #eee",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "11px",
+                    color: "#888",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    marginBottom: "12px",
+                  }}
+                >
+                  Valuation Timeline
+                </div>
+
+                <div
+                  style={{
+                    position: "relative",
+                    paddingLeft: "24px",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: "7px",
+                      top: "5px",
+                      bottom: "5px",
+                      width: "2px",
+                      background: "#ddd",
+                    }}
+                  />
+
+                  {marketValues.map((value, index) => (
+                    <div
+                      key={`timeline-${value.id}`}
+                      style={{
+                        position: "relative",
+                        paddingBottom:
+                          index === marketValues.length - 1
+                            ? "0"
+                            : "18px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: "absolute",
+                          left: "-21px",
+                          top: "4px",
+                          width: "10px",
+                          height: "10px",
+                          borderRadius: "50%",
+                          background: "#111",
+                          border: "2px solid #fff",
+                          boxShadow: "0 0 0 1px #ccc",
+                        }}
+                      />
+
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          gap: "16px",
+                        }}
+                      >
+                        <div>
+                          <div
+                            style={{
+                              fontSize: "12px",
+                              color: "#777",
+                            }}
+                          >
+                            {formatDate(value.valuation_date)}
+                          </div>
+
+                          <div
+                            style={{
+                              fontSize: "16px",
+                              fontWeight: 700,
+                              marginTop: "2px",
+                            }}
+                          >
+                            {formatSalary(
+                              value.market_value,
+                              value.currency
+                            )}
+                          </div>
+                        </div>
+
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "#777",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.04em",
+                          }}
+                        >
+                          {formatConfidence(value.confidence)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            <p
+              style={{
+                color: "#666",
+                margin: 0,
+              }}
+            >
+              No market value information available.
+            </p>
+          )}
+        </div>
             Current Club
           </h2>
 
