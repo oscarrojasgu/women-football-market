@@ -713,6 +713,7 @@ const getCountryFlag = (country: string | null) => {
     secondaryPosition={player.secondary_position}
   />
 </div>
+        </div>
 
         <div
           style={{
