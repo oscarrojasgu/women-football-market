@@ -1,914 +1,998 @@
 'use client'
 
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import PositionMap from '../../components/PositionMap'
 
-type Player = {
-  id: string
-  full_name: string
-  date_of_birth: string | null
-  nationality: string | null
-  position: string | null
-  preferred_foot: string | null
-  agency: string | null
-  photo_url: string | null
-  height_cm: number | null
-  birthplace: string | null
-  secondary_position: string | null
-  current_club_since: string | null
-  youth_clubs: string | null
+type Club = {
+id: string
+name: string
+country: string | null
+league: string | null
+logo_url: string | null
 }
 
-type Club = {
-  id: string
-  name: string
-  country: string | null
-  league: string | null
-  logo_url: string | null
+type Player = {
+id: string
+full_name: string
+date_of_birth: string | null
+nationality: string | null
+position: string | null
+secondary_position: string | null
+preferred_foot: string | null
+agency: string | null
+photo_url: string | null
+height_cm: number | null
+birthplace: string | null
+current_club_since: string | null
+youth_clubs: string | null
 }
 
 type Contract = {
-  id: string
-  start_date: string | null
-  end_date: string | null
-  annual_salary: number | null
-  weekly_salary: number | null
-  currency: string | null
-  status: string | null
-  confidence: string | null
-  notes: string | null
-  clubs: Club | null
+id: string
+start_date: string | null
+end_date: string | null
+annual_salary: number | null
+weekly_salary: number | null
+currency: string | null
+status: string | null
+confidence: string | null
+notes: string | null
+clubs: Club | null
 }
 
 type Transfer = {
-  id: string
-  transfer_date: string | null
-  transfer_type: string | null
-  fee: number | null
-  currency: string | null
-  confidence: string | null
-  from_club: Club | null
-  to_club: Club | null
+id: string
+transfer_date: string | null
+transfer_type: string | null
+fee: number | null
+currency: string | null
+confidence: string | null
+from_club: Club | null
+to_club: Club | null
 }
 
 type MarketValue = {
-  id: string
-  valuation_date: string | null
-  market_value: number | null
-  currency: string | null
-  confidence: string | null
-  notes: string | null
+id: string
+valuation_date: string | null
+market_value: number | null
+currency: string | null
+confidence: string | null
+notes: string | null
 }
 
 function formatDate(date: string | null) {
-  if (!date) return '—'
+if (!date) return '—'
 
-  return new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
+const parsed = new Date(date)
+
+if (Number.isNaN(parsed.getTime())) return date
+
+return parsed.toLocaleDateString('en-US', {
+month: 'short',
+day: 'numeric',
+year: 'numeric',
+})
 }
 
 function formatSalary(
-  amount: number | null,
-  currency: string | null,
-  weekly = false
+amount: number | null,
+currency: string | null
 ) {
-  if (amount === null || amount === undefined) return '—'
+if (amount === null || amount === undefined) return 'Not disclosed'
 
-  const symbol =
-    currency === 'EUR'
-      ? '€'
-      : currency === 'GBP'
-        ? '£'
-        : currency === 'DKK'
-          ? 'kr '
-          : '$'
-
-  const formatted = amount.toLocaleString('en-US', {
-    maximumFractionDigits: 0,
-  })
-
-  return weekly
-    ? `${symbol}${formatted} / week`
-    : `${symbol}${formatted} / year`
+return new Intl.NumberFormat('en-US', {
+style: 'currency',
+currency: currency || 'USD',
+maximumFractionDigits: 0,
+}).format(amount)
 }
 
 function formatMarketValue(
-  amount: number | null,
-  currency: string | null
+amount: number | null,
+currency: string | null
 ) {
-  if (amount === null || amount === undefined) return '—'
+if (amount === null || amount === undefined) return 'Not available'
 
-  const symbol =
-    currency === 'EUR'
-      ? '€'
-      : currency === 'GBP'
-        ? '£'
-        : currency === 'DKK'
-          ? 'kr '
-          : '$'
-
-  if (amount >= 1000000) {
-    return `${symbol}${(amount / 1000000).toFixed(1)}M`
-  }
-
-  if (amount >= 1000) {
-    return `${symbol}${Math.round(amount / 1000)}K`
-  }
-
-  return `${symbol}${amount.toLocaleString('en-US')}`
+return new Intl.NumberFormat('en-US', {
+style: 'currency',
+currency: currency || 'EUR',
+maximumFractionDigits: 0,
+}).format(amount)
 }
 
 function formatTransferFee(
-  amount: number | null,
-  currency: string | null
+fee: number | null,
+currency: string | null
 ) {
-  if (amount === null || amount === undefined) return null
+if (fee === null || fee === undefined) return null
 
-  const symbol =
-    currency === 'EUR'
-      ? '€'
-      : currency === 'GBP'
-        ? '£'
-        : currency === 'DKK'
-          ? 'kr '
-          : '$'
-
-  return `${symbol}${amount.toLocaleString('en-US')}`
+return new Intl.NumberFormat('en-US', {
+style: 'currency',
+currency: currency || 'USD',
+maximumFractionDigits: 0,
+}).format(fee)
 }
 
 function formatTransferType(type: string | null) {
-  if (!type) return 'Transfer'
+if (!type) return ''
 
-  const value = type.toLowerCase()
-
-  if (value === 'free') return 'Free'
-  if (value === 'loan') return 'Loan'
-  if (value === 'permanent') return 'Transfer'
-
-  return type.charAt(0).toUpperCase() + type.slice(1)
+return type.charAt(0).toUpperCase() + type.slice(1)
 }
 
 function calculateAge(dateOfBirth: string | null) {
-  if (!dateOfBirth) return null
+if (!dateOfBirth) return null
 
-  const birthDate = new Date(dateOfBirth + 'T00:00:00')
-  const today = new Date()
+const birthDate = new Date(dateOfBirth)
 
-  let age = today.getFullYear() - birthDate.getFullYear()
+if (Number.isNaN(birthDate.getTime())) return null
 
-  const monthDifference = today.getMonth() - birthDate.getMonth()
+const today = new Date()
 
-  if (
-    monthDifference < 0 ||
-    (monthDifference === 0 &&
-      today.getDate() < birthDate.getDate())
-  ) {
-    age--
-  }
+let age = today.getFullYear() - birthDate.getFullYear()
 
-  return age
+const monthDifference =
+today.getMonth() - birthDate.getMonth()
+
+if (
+monthDifference < 0 ||
+(monthDifference === 0 &&
+today.getDate() < birthDate.getDate())
+) {
+age--
+}
+
+return age
 }
 
 function getFlagUrl(nationality: string | null) {
-  if (!nationality) return null
+if (!nationality) return null
 
-  const flags: Record<string, string> = {
-    USA: 'us',
-    'United States': 'us',
-    Canada: 'ca',
-    Mexico: 'mx',
-    Colombia: 'co',
-    Brazil: 'br',
-    Argentina: 'ar',
-    England: 'gb-eng',
-    France: 'fr',
-    Germany: 'de',
-    Spain: 'es',
-    Italy: 'it',
-    Netherlands: 'nl',
-    Denmark: 'dk',
-    Sweden: 'se',
-    Norway: 'no',
-    Australia: 'au',
-    Japan: 'jp',
-    Korea: 'kr',
-    'South Korea': 'kr',
-    Nigeria: 'ng',
-    Ghana: 'gh',
-    Jamaica: 'jm',
-    Haiti: 'ht',
-    Portugal: 'pt',
-    Ireland: 'ie',
-    Scotland: 'gb-sct',
-    Wales: 'gb-wls',
-  }
-
-  const code = flags[nationality]
-
-  if (!code) return null
-
-  return `https://flagcdn.com/w80/${code}.png`
+const flags: Record<string, string> = {
+USA: 'us',
+'United States': 'us',
+England: 'gb-eng',
+Scotland: 'gb-sct',
+Wales: 'gb-wls',
+France: 'fr',
+Germany: 'de',
+Spain: 'es',
+Brazil: 'br',
+Colombia: 'co',
+Mexico: 'mx',
+Canada: 'ca',
+Australia: 'au',
+Japan: 'jp',
+Netherlands: 'nl',
+Denmark: 'dk',
+Sweden: 'se',
+Norway: 'no',
+Italy: 'it',
+Argentina: 'ar',
+Chile: 'cl',
+Portugal: 'pt',
 }
 
-export default function PlayerPage({
-  params,
-}: {
-  params: { id: string }
-}) {
-  const [player, setPlayer] = useState<Player | null>(null)
-  const [contracts, setContracts] = useState<Contract[]>([])
-  const [transfers, setTransfers] = useState<Transfer[]>([])
-  const [marketValues, setMarketValues] = useState<MarketValue[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+const code = flags[nationality]
 
-  useEffect(() => {
-    async function loadPlayer() {
-      setLoading(true)
-      setError('')
+if (!code) return null
 
-      try {
-        const playerId = params.id
+return `https://flagcdn.com/w40/${code}.png`
+}
 
-        if (!playerId) {
-          setError('Player ID is missing.')
-          setLoading(false)
-          return
-        }
+export default function PlayerPage() {
+const params = useParams<{ id: string }>()
 
-        const { data: playerData, error: playerError } =
-          await supabase
-            .from('players')
-            .select(
-              'id, full_name, date_of_birth, nationality, position, preferred_foot, agency, photo_url, height_cm, birthplace, secondary_position, current_club_since, youth_clubs'
-            )
-            .eq('id', playerId)
-            .single()
+const playerId = params?.id
 
-        if (playerError) {
-          console.error('Player query error:', playerError)
-          setError(playerError.message)
-          setLoading(false)
-          return
-        }
+const [player, setPlayer] = useState<Player | null>(null)
+const [contracts, setContracts] = useState<Contract[]>([])
+const [transfers, setTransfers] = useState<Transfer[]>([])
+const [marketValues, setMarketValues] = useState<MarketValue[]>([])
 
-        if (!playerData) {
-          setError('Player not found.')
-          setLoading(false)
-          return
-        }
+const [loading, setLoading] = useState(true)
+const [error, setError] = useState('')
 
-        setPlayer(playerData)
+useEffect(() => {
+if (!playerId) return
 
-        const { data: contractData, error: contractError } =
-          await supabase
-            .from('contracts')
-            .select(
-              'id, start_date, end_date, annual_salary, weekly_salary, currency, status, confidence, notes, clubs(id, name, country, league, logo_url)'
-            )
-            .eq('player_id', playerId)
-            .order('start_date', { ascending: false })
 
-        if (contractError) {
-          console.error('Contract query error:', contractError)
-        } else {
-          setContracts(
-            (contractData || []).map((contract: any) => ({
-              ...contract,
-              clubs: Array.isArray(contract.clubs)
-                ? contract.clubs[0] || null
-                : contract.clubs || null,
-            }))
-          )
-        }
+async function loadPlayer() {
+  setLoading(true)
+  setError('')
 
-        const { data: transferData, error: transferError } =
-          await supabase
-            .from('transfers')
-            .select(
-              'id, transfer_date, transfer_type, fee, currency, confidence, from_club:clubs!transfers_from_club_id_fkey(id, name, country, league, logo_url), to_club:clubs!transfers_to_club_id_fkey(id, name, country, league, logo_url)'
-            )
-            .eq('player_id', playerId)
-            .order('transfer_date', { ascending: false })
+  try {
+    const {
+      data: playerData,
+      error: playerError,
+    } = await supabase
+      .from('players')
+      .select(`
+        id,
+        full_name,
+        date_of_birth,
+        nationality,
+        position,
+        secondary_position,
+        preferred_foot,
+        agency,
+        photo_url,
+        height_cm,
+        birthplace,
+        current_club_since,
+        youth_clubs
+      `)
+      .eq('id', playerId)
+      .single()
 
-        if (transferError) {
-          console.error('Transfer query error:', transferError)
-        } else {
-          setTransfers(
-            (transferData || []).map((transfer: any) => ({
-              ...transfer,
-              from_club: Array.isArray(transfer.from_club)
-                ? transfer.from_club[0] || null
-                : transfer.from_club || null,
-              to_club: Array.isArray(transfer.to_club)
-                ? transfer.to_club[0] || null
-                : transfer.to_club || null,
-            }))
-          )
-        }
-
-        const {
-          data: marketValueData,
-          error: marketValueError,
-        } = await supabase
-          .from('market_values')
-          .select(
-            'id, valuation_date, market_value, currency, confidence, notes'
-          )
-          .eq('player_id', playerId)
-          .order('valuation_date', { ascending: false })
-
-        if (marketValueError) {
-          console.error(
-            'Market value query error:',
-            marketValueError
-          )
-        } else {
-          setMarketValues(marketValueData || [])
-        }
-      } catch (err) {
-        console.error('Unexpected player page error:', err)
-        setError('Unable to load player.')
-      } finally {
-        setLoading(false)
-      }
+    if (playerError) {
+      console.error('Player query error:', playerError)
+      throw new Error(playerError.message)
     }
 
-    loadPlayer()
-  }, [params.id])
+    if (!playerData) {
+      throw new Error('Player not found.')
+    }
 
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-slate-950 p-8 text-white">
-        <div className="mx-auto max-w-6xl">
-          <p className="text-slate-400">Loading player...</p>
-        </div>
-      </main>
+    setPlayer(playerData)
+
+    const {
+      data: contractData,
+      error: contractError,
+    } = await supabase
+      .from('contracts')
+      .select(`
+        id,
+        start_date,
+        end_date,
+        annual_salary,
+        weekly_salary,
+        currency,
+        status,
+        confidence,
+        notes,
+        clubs (
+          id,
+          name,
+          country,
+          league,
+          logo_url
+        )
+      `)
+      .eq('player_id', playerId)
+      .order('start_date', { ascending: false })
+
+    if (contractError) {
+      console.error('Contract query error:', contractError)
+    }
+
+    setContracts(
+      (contractData || []).map((contract: any) => ({
+        ...contract,
+        clubs: Array.isArray(contract.clubs)
+          ? contract.clubs[0] || null
+          : contract.clubs || null,
+      }))
     )
-  }
 
-  if (error || !player) {
-    return (
-      <main className="min-h-screen bg-slate-950 p-8 text-white">
-        <div className="mx-auto max-w-6xl">
-          <Link
-            href="/players"
-            className="text-sm text-blue-400 hover:text-blue-300"
-          >
-            ← Back to Players
-          </Link>
+    const {
+      data: transferData,
+      error: transferError,
+    } = await supabase
+      .from('transfers')
+      .select(`
+        id,
+        transfer_date,
+        transfer_type,
+        fee,
+        currency,
+        confidence,
+        from_club:clubs!transfers_from_club_id_fkey (
+          id,
+          name,
+          country,
+          league,
+          logo_url
+        ),
+        to_club:clubs!transfers_to_club_id_fkey (
+          id,
+          name,
+          country,
+          league,
+          logo_url
+        )
+      `)
+      .eq('player_id', playerId)
+      .order('transfer_date', { ascending: false })
 
-          <div className="mt-8 rounded-xl border border-red-900 bg-red-950/40 p-6">
-            <h1 className="text-xl font-semibold">
-              Player not found
-            </h1>
+    if (transferError) {
+      console.error('Transfer query error:', transferError)
+    }
 
-            <p className="mt-2 text-sm text-red-300">
-              {error || 'This player could not be loaded.'}
-            </p>
-          </div>
-        </div>
-      </main>
+    setTransfers(
+      (transferData || []).map((transfer: any) => ({
+        ...transfer,
+        from_club: Array.isArray(transfer.from_club)
+          ? transfer.from_club[0] || null
+          : transfer.from_club || null,
+        to_club: Array.isArray(transfer.to_club)
+          ? transfer.to_club[0] || null
+          : transfer.to_club || null,
+      }))
     )
+
+    const {
+      data: marketValueData,
+      error: marketValueError,
+    } = await supabase
+      .from('market_values')
+      .select(`
+        id,
+        valuation_date,
+        market_value,
+        currency,
+        confidence,
+        notes
+      `)
+      .eq('player_id', playerId)
+      .order('valuation_date', { ascending: false })
+
+    if (marketValueError) {
+      console.error(
+        'Market value query error:',
+        marketValueError
+      )
+    }
+
+    setMarketValues(marketValueData || [])
+  } catch (err: any) {
+    console.error('Player page error:', err)
+    setError(err?.message || 'Unable to load player.')
+  } finally {
+    setLoading(false)
   }
+}
 
-  const age = calculateAge(player.date_of_birth)
-  const flagUrl = getFlagUrl(player.nationality)
+loadPlayer()
 
-  const currentContract =
-    contracts.find(
-      (contract) =>
-        contract.status?.toLowerCase() === 'active'
-    ) || contracts[0]
 
-  const currentClub =
-    currentContract?.clubs ||
-    transfers[0]?.to_club ||
-    null
+}, [playerId])
 
-  const currentMarketValue = marketValues[0] || null
+if (loading) {
+return ( <main className="min-h-screen bg-slate-50 px-6 py-12"> <div className="mx-auto max-w-6xl"> <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm"> <div className="animate-pulse space-y-6"> <div className="h-8 w-64 rounded bg-slate-200" /> <div className="h-4 w-96 rounded bg-slate-200" /> <div className="h-40 rounded bg-slate-200" /> </div> </div> </div> </main>
+)
+}
 
-  return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+if (error || !player) {
+return ( <main className="min-h-screen bg-slate-50 px-6 py-12"> <div className="mx-auto max-w-3xl"> <Link
+         href="/players"
+         className="mb-6 inline-flex text-sm font-semibold text-blue-600 hover:text-blue-800"
+       >
+← Back to Players </Link>
 
-        <Link
-          href="/players"
-          className="text-sm text-blue-400 hover:text-blue-300"
-        >
-          ← Back to Players
-        </Link>
 
-        <section className="mt-6 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-          <div className="p-6 sm:p-8">
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
+      <div className="rounded-2xl border border-red-200 bg-white p-8 shadow-sm">
+        <h1 className="text-2xl font-bold text-slate-900">
+          Player not found
+        </h1>
 
-              <div className="h-32 w-32 shrink-0 overflow-hidden rounded-full border-4 border-slate-700 bg-slate-800">
-                {player.photo_url ? (
-                  <img
-                    src={player.photo_url}
-                    alt={player.full_name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-4xl font-bold text-slate-500">
-                    {player.full_name.charAt(0)}
-                  </div>
-                )}
-              </div>
+        <p className="mt-3 text-slate-600">
+          {error || 'This player could not be loaded.'}
+        </p>
 
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-3">
-                  <h1 className="text-3xl font-bold sm:text-4xl">
-                    {player.full_name}
-                  </h1>
+        <p className="mt-4 break-all text-xs text-slate-400">
+          Player ID: {playerId || 'No ID received'}
+        </p>
+      </div>
+    </div>
+  </main>
+)
 
-                  {flagUrl && (
-                    <img
-                      src={flagUrl}
-                      alt={player.nationality || ''}
-                      className="h-6 w-9 rounded-sm object-cover"
-                    />
-                  )}
-                </div>
 
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {player.position && (
-                    <span className="rounded-full bg-blue-600/20 px-3 py-1 text-sm font-medium text-blue-300">
-                      {player.position}
-                    </span>
-                  )}
+}
 
-                  {player.secondary_position && (
-                    <span className="rounded-full bg-slate-700 px-3 py-1 text-sm text-slate-300">
-                      {player.secondary_position}
-                    </span>
-                  )}
-                </div>
+const age = calculateAge(player.date_of_birth)
+const flagUrl = getFlagUrl(player.nationality)
 
-                <div className="mt-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
+const currentContract =
+contracts.find(
+(contract) =>
+contract.status?.toLowerCase() === 'active'
+) || contracts[0]
 
-                  <div>
-                    <div className="text-slate-500">Age</div>
-                    <div className="mt-1 font-medium">
-                      {age ?? '—'}
-                    </div>
-                  </div>
+const currentClub =
+currentContract?.clubs ||
+transfers[0]?.to_club ||
+null
 
-                  <div>
-                    <div className="text-slate-500">
-                      Nationality
-                    </div>
-                    <div className="mt-1 font-medium">
-                      {player.nationality || '—'}
-                    </div>
-                  </div>
+const currentMarketValue =
+marketValues.length > 0
+? marketValues[0]
+: null
 
-                  <div>
-                    <div className="text-slate-500">
-                      Preferred Foot
-                    </div>
-                    <div className="mt-1 font-medium">
-                      {player.preferred_foot || '—'}
-                    </div>
-                  </div>
+return ( <main className="min-h-screen bg-slate-50"> <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 
-                  <div>
-                    <div className="text-slate-500">
-                      Current Club
-                    </div>
-                    <div className="mt-1 font-medium">
-                      {currentClub?.name || '—'}
-                    </div>
-                  </div>
 
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+    <Link
+      href="/players"
+      className="mb-6 inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-800"
+    >
+      ← Back to Players
+    </Link>
 
-        <section className="mt-6 grid gap-6 lg:grid-cols-2">
+    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <div className="bg-slate-900 px-6 py-8 sm:px-8">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-            <h2 className="text-xl font-semibold">
-              Player Information
-            </h2>
-
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-
-              <div>
-                <div className="text-sm text-slate-500">
-                  Date of Birth
-                </div>
-                <div className="mt-1">
-                  {formatDate(player.date_of_birth)}
-                </div>
-              </div>
-
-              <div>
-                <div className="text-sm text-slate-500">
-                  Height
-                </div>
-                <div className="mt-1">
-                  {player.height_cm
-                    ? `${player.height_cm} cm`
-                    : '—'}
-                </div>
-              </div>
-
-              <div>
-                <div className="text-sm text-slate-500">
-                  Birthplace
-                </div>
-                <div className="mt-1">
-                  {player.birthplace || '—'}
-                </div>
-              </div>
-
-              <div>
-                <div className="text-sm text-slate-500">
-                  Agency
-                </div>
-                <div className="mt-1">
-                  {player.agency || '—'}
-                </div>
-              </div>
-
-              <div>
-                <div className="text-sm text-slate-500">
-                  Current Club Since
-                </div>
-                <div className="mt-1">
-                  {formatDate(player.current_club_since)}
-                </div>
-              </div>
-
-              <div>
-                <div className="text-sm text-slate-500">
-                  Youth Club
-                </div>
-                <div className="mt-1">
-                  {player.youth_clubs || '—'}
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-            <h2 className="text-xl font-semibold">
-              Position Map
-            </h2>
-
-            <div className="mt-4">
-              <PositionMap
-                primaryPosition={player.position}
-                secondaryPosition={player.secondary_position}
+          <div className="h-32 w-32 shrink-0 overflow-hidden rounded-2xl border-4 border-white/20 bg-slate-800">
+            {player.photo_url ? (
+              <img
+                src={player.photo_url}
+                alt={player.full_name}
+                className="h-full w-full object-cover"
               />
-            </div>
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-4xl font-bold text-white">
+                {player.full_name
+                  .split(' ')
+                  .map((name) => name[0])
+                  .join('')
+                  .slice(0, 2)}
+              </div>
+            )}
           </div>
 
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                {player.full_name}
+              </h1>
+
+              {flagUrl && (
+                <img
+                  src={flagUrl}
+                  alt={player.nationality || 'Nationality'}
+                  className="h-6 w-9 rounded-sm object-cover shadow-sm"
+                />
+              )}
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              {player.position && (
+                <span className="rounded-full bg-white/15 px-3 py-1 text-sm font-semibold text-white">
+                  {player.position}
+                </span>
+              )}
+
+              {player.secondary_position && (
+                <span className="rounded-full bg-white/10 px-3 py-1 text-sm font-medium text-slate-200">
+                  {player.secondary_position}
+                </span>
+              )}
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-300">
+              {age !== null && <span>{age} years old</span>}
+
+              {player.nationality && (
+                <span>{player.nationality}</span>
+              )}
+
+              {currentClub && (
+                <span>{currentClub.name}</span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 divide-x divide-slate-200 border-t border-slate-200 sm:grid-cols-4">
+        <div className="p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Position
+          </p>
+          <p className="mt-1 font-bold text-slate-900">
+            {player.position || '—'}
+          </p>
+        </div>
+
+        <div className="p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Age
+          </p>
+          <p className="mt-1 font-bold text-slate-900">
+            {age !== null ? age : '—'}
+          </p>
+        </div>
+
+        <div className="p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Current Club
+          </p>
+          <p className="mt-1 truncate font-bold text-slate-900">
+            {currentClub?.name || '—'}
+          </p>
+        </div>
+
+        <div className="p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Market Value
+          </p>
+          <p className="mt-1 font-bold text-slate-900">
+            {formatMarketValue(
+              currentMarketValue?.market_value ?? null,
+              currentMarketValue?.currency ?? null
+            )}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div className="mt-8 grid gap-8 lg:grid-cols-3">
+
+      <div className="space-y-8 lg:col-span-2">
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900">
+            Player Information
+          </h2>
+
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Date of Birth
+              </p>
+              <p className="mt-1 font-medium text-slate-900">
+                {formatDate(player.date_of_birth)}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Nationality
+              </p>
+              <p className="mt-1 font-medium text-slate-900">
+                {player.nationality || '—'}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Preferred Foot
+              </p>
+              <p className="mt-1 font-medium text-slate-900">
+                {player.preferred_foot || '—'}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Height
+              </p>
+              <p className="mt-1 font-medium text-slate-900">
+                {player.height_cm
+                  ? `${player.height_cm} cm`
+                  : '—'}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Birthplace
+              </p>
+              <p className="mt-1 font-medium text-slate-900">
+                {player.birthplace || '—'}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Agency
+              </p>
+              <p className="mt-1 font-medium text-slate-900">
+                {player.agency || '—'}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Current Club Since
+              </p>
+              <p className="mt-1 font-medium text-slate-900">
+                {formatDate(player.current_club_since)}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Youth Club
+              </p>
+              <p className="mt-1 font-medium text-slate-900">
+                {player.youth_clubs || '—'}
+              </p>
+            </div>
+
+          </div>
         </section>
 
-        <section className="mt-6 grid gap-6 lg:grid-cols-2">
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900">
+            Position Map
+          </h2>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-            <h2 className="text-xl font-semibold">
+          <div className="mt-5">
+            <PositionMap
+              primaryPosition={player.position}
+              secondaryPosition={player.secondary_position}
+            />
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-xl font-bold text-slate-900">
               Current Club
             </h2>
 
-            {currentClub ? (
-              <div className="mt-5 flex items-center gap-4">
+            {currentClub && (
+              <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700">
+                Current
+              </span>
+            )}
+          </div>
 
+          {currentClub ? (
+            <div className="mt-5 flex items-center gap-4">
+
+              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-slate-200 bg-white p-2">
                 {currentClub.logo_url ? (
                   <img
                     src={currentClub.logo_url}
                     alt={currentClub.name}
-                    className="h-16 w-16 object-contain"
+                    className="max-h-full max-w-full object-contain"
                   />
                 ) : (
-                  <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-slate-800 text-xs text-slate-500">
-                    No Logo
-                  </div>
+                  <span className="text-xs font-bold text-slate-400">
+                    CLUB
+                  </span>
                 )}
-
-                <div>
-                  <div className="text-lg font-semibold">
-                    {currentClub.name}
-                  </div>
-
-                  <div className="mt-1 text-sm text-slate-400">
-                    {currentClub.league || '—'}
-                  </div>
-
-                  <div className="text-sm text-slate-500">
-                    {currentClub.country || '—'}
-                  </div>
-                </div>
-
-              </div>
-            ) : (
-              <p className="mt-4 text-slate-500">
-                No current club information.
-              </p>
-            )}
-          </div>
-
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-            <h2 className="text-xl font-semibold">
-              Market Value
-            </h2>
-
-            <div className="mt-4">
-              <div className="text-3xl font-bold">
-                {currentMarketValue
-                  ? formatMarketValue(
-                      currentMarketValue.market_value,
-                      currentMarketValue.currency
-                    )
-                  : '—'}
-              </div>
-
-              {currentMarketValue?.valuation_date && (
-                <div className="mt-1 text-sm text-slate-500">
-                  As of{' '}
-                  {formatDate(
-                    currentMarketValue.valuation_date
-                  )}
-                </div>
-              )}
-
-              {currentMarketValue?.confidence && (
-                <div className="mt-3 inline-block rounded-full bg-amber-500/10 px-3 py-1 text-xs text-amber-300">
-                  {currentMarketValue.confidence}
-                </div>
-              )}
-            </div>
-
-            {marketValues.length > 1 && (
-              <div className="mt-6">
-
-                <div className="mb-3 text-sm font-medium text-slate-400">
-                  Previous Valuations
-                </div>
-
-                <div className="space-y-2">
-                  {marketValues.slice(1).map((value) => (
-                    <div
-                      key={value.id}
-                      className="flex items-center justify-between rounded-lg bg-slate-800/60 px-3 py-2 text-sm"
-                    >
-                      <span className="text-slate-400">
-                        {formatDate(value.valuation_date)}
-                      </span>
-
-                      <span className="font-medium">
-                        {formatMarketValue(
-                          value.market_value,
-                          value.currency
-                        )}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-              </div>
-            )}
-          </div>
-
-        </section>
-
-        <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-6">
-          <h2 className="text-xl font-semibold">
-            Current Contract
-          </h2>
-
-          {currentContract ? (
-            <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-
-              <div>
-                <div className="text-sm text-slate-500">
-                  Club
-                </div>
-                <div className="mt-1 font-medium">
-                  {currentContract.clubs?.name || '—'}
-                </div>
               </div>
 
               <div>
-                <div className="text-sm text-slate-500">
-                  Contract
-                </div>
-                <div className="mt-1 font-medium">
-                  {formatDate(currentContract.start_date)} –{' '}
-                  {formatDate(currentContract.end_date)}
-                </div>
-              </div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  {currentClub.name}
+                </h3>
 
-              <div>
-                <div className="text-sm text-slate-500">
-                  Annual Salary
-                </div>
-                <div className="mt-1 font-medium">
-                  {formatSalary(
-                    currentContract.annual_salary,
-                    currentContract.currency
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <div className="text-sm text-slate-500">
-                  Weekly Salary
-                </div>
-                <div className="mt-1 font-medium">
-                  {formatSalary(
-                    currentContract.weekly_salary,
-                    currentContract.currency,
-                    true
-                  )}
-                </div>
+                <p className="text-sm text-slate-500">
+                  {currentClub.league || 'League not available'}
+                  {currentClub.country
+                    ? ` · ${currentClub.country}`
+                    : ''}
+                </p>
               </div>
 
             </div>
           ) : (
             <p className="mt-4 text-slate-500">
-              No contract information available.
+              Current club information is not available.
             </p>
           )}
+        </section>
 
-          {currentContract?.notes && (
-            <div className="mt-5 rounded-lg bg-slate-800/50 p-4 text-sm text-slate-400">
-              {currentContract.notes}
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900">
+            Transfer History
+          </h2>
+
+          {transfers.length === 0 ? (
+            <p className="mt-5 text-sm text-slate-500">
+              No transfer history available.
+            </p>
+          ) : (
+            <div className="mt-5 overflow-x-auto">
+              <table className="w-full min-w-[700px] text-left">
+                <thead>
+                  <tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
+                    <th className="pb-3 pr-4">Date</th>
+                    <th className="pb-3 pr-4">From</th>
+                    <th className="pb-3 pr-4">To</th>
+                    <th className="pb-3 pr-4">Type</th>
+                    <th className="pb-3">Fee</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {transfers.map((transfer) => {
+                    const feeText = formatTransferFee(
+                      transfer.fee,
+                      transfer.currency
+                    )
+
+                    const typeText = formatTransferType(
+                      transfer.transfer_type
+                    )
+
+                    return (
+                      <tr
+                        key={transfer.id}
+                        className="border-b border-slate-100 last:border-0"
+                      >
+                        <td className="py-4 pr-4 text-sm text-slate-600">
+                          {formatDate(
+                            transfer.transfer_date
+                          )}
+                        </td>
+
+                        <td className="py-4 pr-4 font-medium text-slate-900">
+                          {transfer.from_club?.name || '—'}
+                        </td>
+
+                        <td className="py-4 pr-4 font-medium text-slate-900">
+                          {transfer.to_club?.name || '—'}
+                        </td>
+
+                        <td className="py-4 pr-4 text-sm text-slate-600">
+                          {typeText || '—'}
+                        </td>
+
+                        <td className="py-4 text-sm font-semibold text-slate-900">
+                          {feeText || (
+                            transfer.transfer_type?.toLowerCase() ===
+                            'free'
+                              ? 'Free'
+                              : '—'
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </section>
 
-        <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-6">
-          <h2 className="text-xl font-semibold">
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900">
             Contract History
           </h2>
 
-          {contracts.length > 0 ? (
-            <div className="mt-5 space-y-3">
-
+          {contracts.length === 0 ? (
+            <p className="mt-5 text-sm text-slate-500">
+              No contract history available.
+            </p>
+          ) : (
+            <div className="mt-5 space-y-4">
               {contracts.map((contract) => (
                 <div
                   key={contract.id}
-                  className="rounded-xl border border-slate-800 bg-slate-950/40 p-4"
+                  className="rounded-xl border border-slate-200 p-5"
                 >
                   <div className="flex flex-col justify-between gap-3 sm:flex-row">
-
                     <div>
-                      <div className="font-semibold">
-                        {contract.clubs?.name || 'Unknown Club'}
-                      </div>
+                      <h3 className="font-bold text-slate-900">
+                        {contract.clubs?.name || 'Club not available'}
+                      </h3>
 
-                      <div className="mt-1 text-sm text-slate-500">
-                        {formatDate(contract.start_date)} –{' '}
+                      <p className="mt-1 text-sm text-slate-500">
+                        {formatDate(contract.start_date)}
+                        {' — '}
                         {formatDate(contract.end_date)}
-                      </div>
+                      </p>
                     </div>
 
-                    <div className="text-left sm:text-right">
-                      <div className="font-medium">
+                    <span className="h-fit rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
+                      {contract.status || 'Contract'}
+                    </span>
+                  </div>
+
+                  <div className="mt-5 grid gap-4 sm:grid-cols-2">
+
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Annual Salary
+                      </p>
+
+                      <p className="mt-1 text-lg font-bold text-slate-900">
                         {formatSalary(
                           contract.annual_salary,
                           contract.currency
                         )}
-                      </div>
+                      </p>
+                    </div>
 
-                      {contract.status && (
-                        <div className="mt-1 text-xs text-slate-500">
-                          {contract.status}
-                        </div>
-                      )}
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Weekly Salary
+                      </p>
+
+                      <p className="mt-1 text-lg font-bold text-slate-900">
+                        {formatSalary(
+                          contract.weekly_salary,
+                          contract.currency
+                        )}
+                      </p>
                     </div>
 
                   </div>
+
+                  {contract.notes && (
+                    <p className="mt-4 text-sm leading-6 text-slate-600">
+                      {contract.notes}
+                    </p>
+                  )}
                 </div>
               ))}
-
             </div>
-          ) : (
-            <p className="mt-4 text-slate-500">
-              No contract history available.
-            </p>
-          )}
-        </section>
-
-        <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-6">
-          <h2 className="text-xl font-semibold">
-            Transfer History
-          </h2>
-
-          {transfers.length > 0 ? (
-            <div className="mt-5 space-y-4">
-
-              {transfers.map((transfer) => {
-                const fee = formatTransferFee(
-                  transfer.fee,
-                  transfer.currency
-                )
-
-                const type = formatTransferType(
-                  transfer.transfer_type
-                )
-
-                return (
-                  <div
-                    key={transfer.id}
-                    className="rounded-xl border border-slate-800 bg-slate-950/40 p-4"
-                  >
-
-                    <div className="text-sm text-slate-500">
-                      {formatDate(transfer.transfer_date)}
-                    </div>
-
-                    <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
-                      <div className="flex items-center gap-3">
-                        {transfer.from_club?.logo_url ? (
-                          <img
-                            src={transfer.from_club.logo_url}
-                            alt={transfer.from_club.name}
-                            className="h-10 w-10 object-contain"
-                          />
-                        ) : (
-                          <div className="h-10 w-10 rounded bg-slate-800" />
-                        )}
-
-                        <div>
-                          <div className="font-medium">
-                            {transfer.from_club?.name || 'Unknown'}
-                          </div>
-
-                          <div className="text-xs text-slate-500">
-                            {transfer.from_club?.league || ''}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="text-center text-slate-500">
-                        →
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        {transfer.to_club?.logo_url ? (
-                          <img
-                            src={transfer.to_club.logo_url}
-                            alt={transfer.to_club.name}
-                            className="h-10 w-10 object-contain"
-                          />
-                        ) : (
-                          <div className="h-10 w-10 rounded bg-slate-800" />
-                        )}
-
-                        <div>
-                          <div className="font-medium">
-                            {transfer.to_club?.name || 'Unknown'}
-                          </div>
-
-                          <div className="text-xs text-slate-500">
-                            {transfer.to_club?.league || ''}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="sm:text-right">
-                        <div className="font-medium">
-                          {fee
-                            ? `${type} · ${fee}`
-                            : type}
-                        </div>
-
-                        {transfer.confidence && (
-                          <div className="mt-1 text-xs text-slate-500">
-                            {transfer.confidence}
-                          </div>
-                        )}
-                      </div>
-
-                    </div>
-                  </div>
-                )
-              })}
-
-            </div>
-          ) : (
-            <p className="mt-4 text-slate-500">
-              No transfer history available.
-            </p>
           )}
         </section>
 
       </div>
-    </main>
-  )
+
+      <aside className="space-y-8">
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900">
+            Market Value
+          </h2>
+
+          {currentMarketValue ? (
+            <div className="mt-5">
+              <p className="text-3xl font-bold text-slate-900">
+                {formatMarketValue(
+                  currentMarketValue.market_value,
+                  currentMarketValue.currency
+                )}
+              </p>
+
+              <p className="mt-2 text-sm text-slate-500">
+                Valuation date:{' '}
+                {formatDate(
+                  currentMarketValue.valuation_date
+                )}
+              </p>
+
+              <div className="mt-4">
+                <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
+                  {currentMarketValue.confidence ||
+                    'Estimated'}
+                </span>
+              </div>
+
+              {currentMarketValue.notes && (
+                <p className="mt-4 text-sm leading-6 text-slate-600">
+                  {currentMarketValue.notes}
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="mt-5 text-sm text-slate-500">
+              No market value available.
+            </p>
+          )}
+        </section>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900">
+            Previous Valuations
+          </h2>
+
+          {marketValues.length <= 1 ? (
+            <p className="mt-5 text-sm text-slate-500">
+              No previous valuations available.
+            </p>
+          ) : (
+            <div className="mt-5 space-y-3">
+              {marketValues.slice(1).map((value) => (
+                <div
+                  key={value.id}
+                  className="flex items-center justify-between gap-4 rounded-xl bg-slate-50 p-4"
+                >
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">
+                      {formatDate(value.valuation_date)}
+                    </p>
+
+                    <p className="mt-1 text-xs text-slate-500">
+                      {value.confidence || 'Estimated'}
+                    </p>
+                  </div>
+
+                  <p className="font-bold text-slate-900">
+                    {formatMarketValue(
+                      value.market_value,
+                      value.currency
+                    )}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900">
+            Current Contract
+          </h2>
+
+          {currentContract ? (
+            <div className="mt-5 space-y-4">
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Club
+                </p>
+
+                <p className="mt-1 font-bold text-slate-900">
+                  {currentContract.clubs?.name || '—'}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Annual Salary
+                </p>
+
+                <p className="mt-1 text-2xl font-bold text-slate-900">
+                  {formatSalary(
+                    currentContract.annual_salary,
+                    currentContract.currency
+                  )}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Weekly Salary
+                </p>
+
+                <p className="mt-1 font-semibold text-slate-900">
+                  {formatSalary(
+                    currentContract.weekly_salary,
+                    currentContract.currency
+                  )}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Contract Period
+                </p>
+
+                <p className="mt-1 text-sm text-slate-700">
+                  {formatDate(currentContract.start_date)}
+                  {' — '}
+                  {formatDate(currentContract.end_date)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Verification
+                </p>
+
+                <span className="mt-2 inline-flex rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700">
+                  {currentContract.confidence ||
+                    'Verified'}
+                </span>
+              </div>
+
+            </div>
+          ) : (
+            <p className="mt-5 text-sm text-slate-500">
+              No current contract available.
+            </p>
+          )}
+        </section>
+
+      </aside>
+    </div>
+  </div>
+</main>
+
+
+)
 }
