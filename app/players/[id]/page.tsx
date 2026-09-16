@@ -19,6 +19,14 @@ notes: string | null;
 club_id: string | null;
 };
 
+type Club = {
+id: string;
+name: string;
+league: string | null;
+country: string | null;
+logo_url: string | null;
+};
+
 type Transfer = {
 id: string;
 transfer_date: string | null;
@@ -26,20 +34,8 @@ transfer_type: string | null;
 fee: number | null;
 currency: string | null;
 confidence: string | null;
-from_club: {
-id: string;
-name: string;
-league: string | null;
-country: string | null;
-logo_url: string | null;
-} | null;
-to_club: {
-id: string;
-name: string;
-league: string | null;
-country: string | null;
-logo_url: string | null;
-} | null;
+from_club: Club | null;
+to_club: Club | null;
 };
 
 type MarketValue = {
@@ -332,17 +328,9 @@ WFM<span style={{ color: "#777" }}>•</span> </Link>
 
 const { data: contractData } = await supabase
 .from("contracts")
-.select(`       id,
-      status,
-      confidence,
-      start_date,
-      end_date,
-      annual_salary,
-      weekly_salary,
-      currency,
-      notes,
-      club_id
-    `)
+.select(
+"id, status, confidence, start_date, end_date, annual_salary, weekly_salary, currency, notes, club_id"
+)
 .eq("player_id", id)
 .order("start_date", { ascending: false });
 
@@ -352,27 +340,18 @@ const clubIds = [
 ...new Set(
 contracts
 .map((contract) => contract.club_id)
-.filter(Boolean)
+.filter(
+(clubId): clubId is string => Boolean(clubId)
+)
 ),
 ];
 
-let contractClubs: {
-id: string;
-name: string;
-league: string | null;
-country: string | null;
-logo_url: string | null;
-}[] = [];
+let contractClubs: Club[] = [];
 
 if (clubIds.length > 0) {
 const { data: clubs } = await supabase
 .from("clubs")
-.select(`         id,
-        name,
-        league,
-        country,
-        logo_url
-      `)
+.select("id, name, league, country, logo_url")
 .in("id", clubIds);
 
 ```
@@ -387,27 +366,9 @@ contractClubs.map((club) => [club.id, club])
 
 const { data: transferData } = await supabase
 .from("transfers")
-.select(`       id,
-      transfer_date,
-      transfer_type,
-      fee,
-      currency,
-      confidence,
-      from_club:clubs!transfers_from_club_id_fkey (
-        id,
-        name,
-        league,
-        country,
-        logo_url
-      ),
-      to_club:clubs!transfers_to_club_id_fkey (
-        id,
-        name,
-        league,
-        country,
-        logo_url
-      )
-    `)
+.select(
+"id, transfer_date, transfer_type, fee, currency, confidence, from_club:clubs!transfers_from_club_id_fkey(id, name, league, country, logo_url), to_club:clubs!transfers_to_club_id_fkey(id, name, league, country, logo_url)"
+)
 .eq("player_id", id)
 .order("transfer_date", { ascending: false });
 
@@ -430,13 +391,9 @@ to_club: Array.isArray(transfer.to_club)
 
 const { data: marketValueData } = await supabase
 .from("market_values")
-.select(`       id,
-      valuation_date,
-      market_value,
-      currency,
-      confidence,
-      notes
-    `)
+.select(
+"id, valuation_date, market_value, currency, confidence, notes"
+)
 .eq("player_id", id)
 .order("valuation_date", { ascending: false });
 
@@ -747,11 +704,7 @@ color: "#111",
         <div>
           <div style={labelStyle}>Nationality</div>
           <div style={valueStyle}>
-            <span
-              style={{
-                marginRight: 7,
-              }}
-            >
+            <span style={{ marginRight: 7 }}>
               {getCountryFlag(player.nationality)}
             </span>
             {player.nationality || "—"}
@@ -823,11 +776,7 @@ color: "#111",
           </div>
         </div>
 
-        <div
-          style={{
-            gridColumn: "span 2",
-          }}
-        >
+        <div style={{ gridColumn: "span 2" }}>
           <div style={labelStyle}>Youth Clubs</div>
           <div style={valueStyle}>
             {player.youth_clubs || "—"}
@@ -925,11 +874,7 @@ color: "#111",
               No market value information available.
             </div>
           ) : (
-            <div
-              style={{
-                marginTop: 22,
-              }}
-            >
+            <div style={{ marginTop: 22 }}>
               <div style={labelStyle}>
                 Current Market Value
               </div>
@@ -1032,11 +977,7 @@ color: "#111",
                     Previous Valuations
                   </div>
 
-                  <div
-                    style={{
-                      marginTop: 8,
-                    }}
-                  >
+                  <div style={{ marginTop: 8 }}>
                     {marketValues
                       .slice(1)
                       .map((value) => (
@@ -1213,11 +1154,7 @@ color: "#111",
           No transfer information available.
         </div>
       ) : (
-        <div
-          style={{
-            marginTop: 20,
-          }}
-        >
+        <div style={{ marginTop: 20 }}>
           {transfers.map((transfer) => (
             <div
               key={transfer.id}
@@ -1511,11 +1448,7 @@ color: "#111",
           No previous contracts available.
         </div>
       ) : (
-        <div
-          style={{
-            marginTop: 20,
-          }}
-        >
+        <div style={{ marginTop: 20 }}>
           {contractHistory.map((contract) => {
             const club = contract.club_id
               ? clubMap.get(contract.club_id)
