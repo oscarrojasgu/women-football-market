@@ -42,11 +42,11 @@ const normalizePosition = (position: string | null | undefined) => {
     return "CB";
   }
 
-  if (value.includes("LEFT BACK")) return "LB";
-  if (value.includes("RIGHT BACK")) return "RB";
-
   if (value.includes("LEFT WING BACK")) return "LWB";
   if (value.includes("RIGHT WING BACK")) return "RWB";
+
+  if (value.includes("LEFT BACK")) return "LB";
+  if (value.includes("RIGHT BACK")) return "RB";
 
   if (value.includes("DEFENSIVE MID")) return "DM";
   if (value.includes("CENTRAL MID")) return "CM";
@@ -70,12 +70,39 @@ const normalizePosition = (position: string | null | undefined) => {
   return null;
 };
 
+const getMarkerOffset = (
+  primary: string | null,
+  secondary: string | null
+) => {
+  if (!primary || !secondary || primary === secondary) {
+    return { top: "0px", left: "0px" };
+  }
+
+  const primaryPosition = positions[primary];
+  const secondaryPosition = positions[secondary];
+
+  if (!primaryPosition || !secondaryPosition) {
+    return { top: "0px", left: "0px" };
+  }
+
+  const sameTop = primaryPosition.top === secondaryPosition.top;
+  const sameLeft = primaryPosition.left === secondaryPosition.left;
+
+  if (sameTop && sameLeft) {
+    return { top: "0px", left: "52px" };
+  }
+
+  return { top: "0px", left: "0px" };
+};
+
 export default function PositionMap({
   primaryPosition,
   secondaryPosition,
 }: PositionMapProps) {
   const primary = normalizePosition(primaryPosition);
   const secondary = normalizePosition(secondaryPosition);
+
+  const secondaryOffset = getMarkerOffset(primary, secondary);
 
   return (
     <div
@@ -189,7 +216,7 @@ export default function PositionMap({
         }}
       />
 
-      {/* POSITION MARKERS */}
+      {/* PRIMARY POSITION */}
       {primary && positions[primary] && (
         <div
           style={{
@@ -216,6 +243,7 @@ export default function PositionMap({
         </div>
       )}
 
+      {/* SECONDARY POSITION */}
       {secondary &&
         secondary !== primary &&
         positions[secondary] && (
@@ -225,6 +253,8 @@ export default function PositionMap({
               top: positions[secondary].top,
               left: positions[secondary].left,
               transform: "translate(-50%, -50%)",
+              marginTop: secondaryOffset.top,
+              marginLeft: secondaryOffset.left,
               width: 34,
               height: 34,
               borderRadius: "50%",
@@ -237,7 +267,7 @@ export default function PositionMap({
               justifyContent: "center",
               fontSize: 10,
               fontWeight: 800,
-              zIndex: 2,
+              zIndex: 4,
             }}
           >
             {positions[secondary].label}
