@@ -15,17 +15,19 @@ const positions: Record<
   RB: { top: "70%", left: "85%", label: "RB" },
   RWB: { top: "61%", left: "86%", label: "RWB" },
 
-  DM: { top: "55%", left: "50%", label: "DM" },
-  CDM: { top: "55%", left: "50%", label: "CDM" },
+  DM: { top: "56%", left: "50%", label: "DM" },
+  CDM: { top: "56%", left: "50%", label: "CDM" },
   CM: { top: "45%", left: "50%", label: "CM" },
-  LM: { top: "43%", left: "20%", label: "LM" },
-  RM: { top: "43%", left: "80%", label: "RM" },
+
+  LM: { top: "44%", left: "17%", label: "LM" },
+  RM: { top: "44%", left: "83%", label: "RM" },
 
   CAM: { top: "34%", left: "50%", label: "CAM" },
   AM: { top: "34%", left: "50%", label: "AM" },
 
-  LW: { top: "24%", left: "22%", label: "LW" },
-  RW: { top: "24%", left: "78%", label: "RW" },
+  LW: { top: "25%", left: "22%", label: "LW" },
+  RW: { top: "25%", left: "78%", label: "RW" },
+
   CF: { top: "20%", left: "50%", label: "CF" },
   ST: { top: "13%", left: "50%", label: "ST" },
   FW: { top: "13%", left: "50%", label: "FW" },
@@ -70,29 +72,57 @@ const normalizePosition = (position: string | null | undefined) => {
   return null;
 };
 
-const getMarkerOffset = (
+const getNumericPosition = (position: string) => {
+  const data = positions[position];
+
+  return {
+    top: parseFloat(data.top),
+    left: parseFloat(data.left),
+  };
+};
+
+const getSecondaryOffset = (
   primary: string | null,
   secondary: string | null
 ) => {
   if (!primary || !secondary || primary === secondary) {
-    return { top: "0px", left: "0px" };
+    return { x: 0, y: 0 };
   }
 
-  const primaryPosition = positions[primary];
-  const secondaryPosition = positions[secondary];
+  const primaryPoint = getNumericPosition(primary);
+  const secondaryPoint = getNumericPosition(secondary);
 
-  if (!primaryPosition || !secondaryPosition) {
-    return { top: "0px", left: "0px" };
+  const dx = secondaryPoint.left - primaryPoint.left;
+  const dy = secondaryPoint.top - primaryPoint.top;
+
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  if (distance >= 18) {
+    return { x: 0, y: 0 };
   }
 
-  const sameTop = primaryPosition.top === secondaryPosition.top;
-  const sameLeft = primaryPosition.left === secondaryPosition.left;
-
-  if (sameTop && sameLeft) {
-    return { top: "0px", left: "52px" };
+  if (Math.abs(dx) < 4 && Math.abs(dy) < 4) {
+    return { x: 24, y: 0 };
   }
 
-  return { top: "0px", left: "0px" };
+  if (Math.abs(dx) < 8) {
+    return {
+      x: 22,
+      y: dy > 0 ? 0 : 0,
+    };
+  }
+
+  if (Math.abs(dy) < 8) {
+    return {
+      x: 0,
+      y: dy > 0 ? 20 : -20,
+    };
+  }
+
+  return {
+    x: dx > 0 ? 12 : -12,
+    y: dy > 0 ? 12 : -12,
+  };
 };
 
 export default function PositionMap({
@@ -102,7 +132,7 @@ export default function PositionMap({
   const primary = normalizePosition(primaryPosition);
   const secondary = normalizePosition(secondaryPosition);
 
-  const secondaryOffset = getMarkerOffset(primary, secondary);
+  const secondaryOffset = getSecondaryOffset(primary, secondary);
 
   return (
     <div
@@ -252,9 +282,7 @@ export default function PositionMap({
               position: "absolute",
               top: positions[secondary].top,
               left: positions[secondary].left,
-              transform: "translate(-50%, -50%)",
-              marginTop: secondaryOffset.top,
-              marginLeft: secondaryOffset.left,
+              transform: `translate(calc(-50% + ${secondaryOffset.x}px), calc(-50% + ${secondaryOffset.y}px))`,
               width: 34,
               height: 34,
               borderRadius: "50%",
