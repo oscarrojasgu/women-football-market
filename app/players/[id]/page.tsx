@@ -1085,6 +1085,7 @@ export default async function PlayerPage({
               )}
             </div>
           </div>
+          <div>
 
         {/* CURRENT CLUB */}
 
