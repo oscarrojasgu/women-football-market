@@ -47,53 +47,57 @@ type MarketValue = {
   notes: string | null;
 };
 
-const getCountryFlag = (country: string | null) => {
-  if (!country) return "🌐";
+const getCountryFlag = (nationality: string | null) => {
+  if (!nationality) return "🌐";
 
-  const flags: Record<string, string> = {
-    "United States": "🇺🇸",
-    USA: "🇺🇸",
-    "United States of America": "🇺🇸",
-    Canada: "🇨🇦",
-    Mexico: "🇲🇽",
-    Brazil: "🇧🇷",
-    Colombia: "🇨🇴",
-    Argentina: "🇦🇷",
-    Chile: "🇨🇱",
-    Ecuador: "🇪🇨",
-    Paraguay: "🇵🇾",
-    Uruguay: "🇺🇾",
-    Venezuela: "🇻🇪",
-    England: "🏴",
-    Germany: "🇩🇪",
-    France: "🇫🇷",
-    Spain: "🇪🇸",
-    Italy: "🇮🇹",
-    Netherlands: "🇳🇱",
-    Sweden: "🇸🇪",
-    Norway: "🇳🇴",
-    Denmark: "🇩🇰",
-    Finland: "🇫🇮",
-    Iceland: "🇮🇸",
-    Ireland: "🇮🇪",
-    Switzerland: "🇨🇭",
-    Austria: "🇦🇹",
-    Belgium: "🇧🇪",
-    Portugal: "🇵🇹",
-    Japan: "🇯🇵",
-    "South Korea": "🇰🇷",
-    Australia: "🇦🇺",
-    China: "🇨🇳",
-    Nigeria: "🇳🇬",
-    Ghana: "🇬🇭",
-    Zambia: "🇿🇲",
-    Malawi: "🇲🇼",
-    "South Africa": "🇿🇦",
-    Jamaica: "🇯🇲",
-    Haiti: "🇭🇹",
-  };
+  const value = nationality.trim().toUpperCase();
 
-  return flags[country] || "🌐";
+  if (
+    value === "USA" ||
+    value === "US" ||
+    value === "UNITED STATES" ||
+    value === "UNITED STATES OF AMERICA"
+  ) {
+    return "🇺🇸";
+  }
+
+  if (value === "CANADA" || value === "CAN") {
+    return "🇨🇦";
+  }
+
+  if (value === "MEXICO" || value === "MEX") {
+    return "🇲🇽";
+  }
+
+  if (value === "ENGLAND" || value === "ENG") {
+    return "🏴";
+  }
+
+  if (value === "FRANCE" || value === "FRA") {
+    return "🇫🇷";
+  }
+
+  if (value === "SPAIN" || value === "ESP") {
+    return "🇪🇸";
+  }
+
+  if (value === "GERMANY" || value === "GER") {
+    return "🇩🇪";
+  }
+
+  if (value === "BRAZIL" || value === "BRA") {
+    return "🇧🇷";
+  }
+
+  if (value === "COLOMBIA" || value === "COL") {
+    return "🇨🇴";
+  }
+
+  if (value === "ARGENTINA" || value === "ARG") {
+    return "🇦🇷";
+  }
+
+  return "🌐";
 };
 
 const formatDate = (date: string | null) => {
