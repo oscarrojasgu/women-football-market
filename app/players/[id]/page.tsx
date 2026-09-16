@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { supabase } from "../../lib/supabase";
+import PositionMap from "../../components/PositionMap";
 
 type PlayerPageProps = {
   params: Promise<{ id: string }>;
