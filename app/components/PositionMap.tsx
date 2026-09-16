@@ -5,18 +5,18 @@ type PositionMapProps = {
 
 const positions = [
   { key: "GK", label: "GK", top: "88%", left: "50%" },
-  { key: "LB", label: "LB", top: "69%", left: "18%" },
+  { key: "LB", label: "LB", top: "69%", left: "20%" },
   { key: "CB", label: "CB", top: "71%", left: "40%" },
   { key: "RCB", label: "CB", top: "71%", left: "60%" },
-  { key: "RB", label: "RB", top: "69%", left: "82%" },
+  { key: "RB", label: "RB", top: "69%", left: "80%" },
   { key: "DM", label: "DM", top: "55%", left: "50%" },
   { key: "LM", label: "LM", top: "45%", left: "20%" },
   { key: "CM", label: "CM", top: "45%", left: "40%" },
   { key: "RCM", label: "CM", top: "45%", left: "60%" },
   { key: "RM", label: "RM", top: "45%", left: "80%" },
   { key: "AM", label: "AM", top: "34%", left: "50%" },
-  { key: "LW", label: "LW", top: "23%", left: "22%" },
-  { key: "RW", label: "RW", top: "23%", left: "78%" },
+  { key: "LW", label: "LW", top: "23%", left: "23%" },
+  { key: "RW", label: "RW", top: "23%", left: "77%" },
   { key: "CF", label: "CF", top: "15%", left: "50%" },
   { key: "ST", label: "ST", top: "9%", left: "50%" },
 ];
@@ -28,36 +28,27 @@ function normalizePosition(position?: string | null) {
 
   const aliases: Record<string, string> = {
     GOALKEEPER: "GK",
-
     "CENTRAL DEFENDER": "CB",
     CENTERBACK: "CB",
     CENTREBACK: "CB",
     "CENTRE BACK": "CB",
     "CENTER BACK": "CB",
-
     "LEFT BACK": "LB",
     "LEFT-BACK": "LB",
-
     "RIGHT BACK": "RB",
     "RIGHT-BACK": "RB",
-
     "DEFENSIVE MIDFIELDER": "DM",
     "DEFENSIVE MIDFIELD": "DM",
-
     MIDFIELDER: "CM",
     "CENTRAL MIDFIELDER": "CM",
     "CENTRAL MIDFIELD": "CM",
-
     "ATTACKING MIDFIELDER": "AM",
     "ATTACKING MIDFIELD": "AM",
-
     "LEFT MIDFIELDER": "LM",
     "RIGHT MIDFIELDER": "RM",
-
     "LEFT WINGER": "LW",
     WINGER: "LW",
     "RIGHT WINGER": "RW",
-
     FORWARD: "CF",
     STRIKER: "ST",
     "CENTER FORWARD": "CF",
@@ -78,8 +69,8 @@ export default function PositionMap({
     <div
       style={{
         width: "100%",
-        maxWidth: 270,
-        marginTop: 14,
+        maxWidth: 190,
+        marginTop: 10,
       }}
     >
       <div
@@ -87,30 +78,29 @@ export default function PositionMap({
           position: "relative",
           width: "100%",
           aspectRatio: "4 / 5",
-          borderRadius: 12,
+          borderRadius: 9,
           overflow: "hidden",
           background: "#171717",
           border: "1px solid #292929",
-          boxShadow: "0 4px 14px rgba(0,0,0,0.08)",
         }}
       >
         <div
           style={{
             position: "absolute",
-            inset: 10,
+            inset: 7,
             border: "1px solid rgba(245,244,239,0.35)",
-            borderRadius: 3,
+            borderRadius: 2,
           }}
         />
 
         <div
           style={{
             position: "absolute",
-            left: 10,
-            right: 10,
+            left: 7,
+            right: 7,
             top: "50%",
             height: 1,
-            background: "rgba(245,244,239,0.35)",
+            background: "rgba(245,244,239,0.3)",
           }}
         />
 
@@ -119,9 +109,9 @@ export default function PositionMap({
             position: "absolute",
             left: "50%",
             top: "50%",
-            width: 48,
-            height: 48,
-            border: "1px solid rgba(245,244,239,0.35)",
+            width: 34,
+            height: 34,
+            border: "1px solid rgba(245,244,239,0.3)",
             borderRadius: "50%",
             transform: "translate(-50%, -50%)",
           }}
@@ -132,9 +122,9 @@ export default function PositionMap({
             position: "absolute",
             left: "25%",
             right: "25%",
-            top: 10,
+            top: 7,
             height: "17%",
-            border: "1px solid rgba(245,244,239,0.35)",
+            border: "1px solid rgba(245,244,239,0.3)",
             borderTop: "none",
           }}
         />
@@ -144,33 +134,9 @@ export default function PositionMap({
             position: "absolute",
             left: "25%",
             right: "25%",
-            bottom: 10,
+            bottom: 7,
             height: "17%",
-            border: "1px solid rgba(245,244,239,0.35)",
-            borderBottom: "none",
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
-            left: "37%",
-            right: "37%",
-            top: 10,
-            height: "7%",
-            border: "1px solid rgba(245,244,239,0.25)",
-            borderTop: "none",
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
-            left: "37%",
-            right: "37%",
-            bottom: 10,
-            height: "7%",
-            border: "1px solid rgba(245,244,239,0.25)",
+            border: "1px solid rgba(245,244,239,0.3)",
             borderBottom: "none",
           }}
         />
@@ -189,21 +155,20 @@ export default function PositionMap({
                 top: position.top,
                 left: position.left,
                 transform: "translate(-50%, -50%)",
-                width: isPrimary ? 38 : 32,
-                height: isPrimary ? 38 : 32,
+                width: isPrimary ? 29 : 25,
+                height: isPrimary ? 29 : 25,
                 borderRadius: "50%",
                 background: isPrimary ? "#f5f4ef" : "#111",
                 color: isPrimary ? "#111" : "#f5f4ef",
                 border: isPrimary
-                  ? "2px solid #111"
+                  ? "1px solid #111"
                   : "1px solid #f5f4ef",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 9,
+                fontSize: 7,
                 fontWeight: 800,
-                letterSpacing: "0.02em",
-                boxShadow: "0 3px 8px rgba(0,0,0,0.3)",
+                boxShadow: "0 2px 5px rgba(0,0,0,0.3)",
                 zIndex: 3,
               }}
             >
@@ -216,10 +181,9 @@ export default function PositionMap({
       <div
         style={{
           display: "flex",
-          alignItems: "center",
-          gap: 16,
-          marginTop: 9,
-          fontSize: 11,
+          gap: 12,
+          marginTop: 7,
+          fontSize: 10,
           color: "#777",
         }}
       >
@@ -227,16 +191,15 @@ export default function PositionMap({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 6,
+            gap: 5,
           }}
         >
           <span
             style={{
-              width: 9,
-              height: 9,
+              width: 7,
+              height: 7,
               borderRadius: "50%",
               background: "#111",
-              border: "1px solid #111",
               display: "inline-block",
             }}
           />
@@ -248,13 +211,13 @@ export default function PositionMap({
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 6,
+              gap: 5,
             }}
           >
             <span
               style={{
-                width: 9,
-                height: 9,
+                width: 7,
+                height: 7,
                 borderRadius: "50%",
                 background: "#f5f4ef",
                 border: "1px solid #111",
