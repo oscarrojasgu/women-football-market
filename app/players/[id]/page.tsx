@@ -616,9 +616,9 @@ export default async function PlayerPage({
                 border: "1px solid #333",
               }}
             >
-              {player.image_url ? (
-                <img
-                  src={player.image_url}
+              {player.photo_url ? (
+  <img
+    src={player.photo_url}
                   alt={player.full_name}
                   style={{
                     width: "100%",
