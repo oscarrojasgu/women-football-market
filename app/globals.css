@@ -441,17 +441,131 @@ footer small {
 }
 
 @media (max-width: 650px) {
+  html {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    width: 100%;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  nav {
+    min-height: 64px;
+    height: auto;
+    padding: max(12px, env(safe-area-inset-top)) 16px 12px;
+  }
+
+  .logo {
+    font-size: 21px;
+    letter-spacing: -0.8px;
+    margin-right: 12px;
+  }
+
+  .logo span {
+    font-size: 23px;
+  }
+
+  .login {
+    min-height: 42px;
+    padding: 8px 13px;
+    border-radius: 9px;
+  }
+
+  .hero {
+    padding: 42px 16px 38px;
+  }
+
+  .hero h1 {
+    font-size: clamp(40px, 13vw, 54px);
+    letter-spacing: -2.5px;
+    line-height: 0.98;
+    margin: 14px 0 16px;
+  }
+
+  .hero p {
+    font-size: 16px;
+    line-height: 1.45;
+  }
+
+  .search {
+    width: 100%;
+    max-width: none;
+    height: 54px;
+    margin-top: 26px;
+    padding: 0 14px;
+    border-radius: 10px;
+  }
+
+  .search span {
+    font-size: 23px;
+  }
+
+  .search input {
+    min-width: 0;
+    font-size: 16px;
+    padding: 0 9px;
+  }
+
   .stats {
     grid-template-columns: 1fr;
   }
 
   .stats div {
+    padding: 18px 16px;
     border-right: 0;
     border-bottom: 1px solid #d9d7d0;
   }
 
+  .stats div:nth-child(2),
+  .stats div:nth-child(3),
+  .stats div:nth-child(4) {
+    border-top: 0;
+  }
+
   .stats div:last-child {
     border-bottom: 0;
+  }
+
+  .stats strong {
+    font-size: 23px;
+  }
+
+  .content {
+    padding: 34px 16px;
+  }
+
+  .sectionhead {
+    margin-bottom: 20px;
+  }
+
+  .sectionhead h2 {
+    font-size: 30px;
+    letter-spacing: -0.8px;
+  }
+
+  .outline {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+  }
+
+  .table {
+    border-radius: 12px;
+  }
+
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    padding: 16px;
+    min-height: 64px;
+  }
+
+  .row span:nth-child(n + 3) {
+    display: none;
   }
 
   .cards {
@@ -459,14 +573,37 @@ footer small {
   }
 
   .cards article {
-    border-right: 0;
-    border-bottom: 1px solid #d9d7d0;
+    padding: 28px 16px;
   }
 
-  .cards article:last-child {
-    border-bottom: 0;
+  .cards h3 {
+    font-size: 23px;
+  }
+
+  footer {
+    padding: 40px 16px max(36px, calc(24px + env(safe-area-inset-bottom)));
   }
 }
+
+@media (max-width: 380px) {
+  .logo {
+    font-size: 19px;
+  }
+
+  .logo span {
+    font-size: 21px;
+  }
+
+  .login {
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+
+  .hero h1 {
+    font-size: 39px;
+  }
+}
+
 html {
   background: #f5f4ef;
 }
