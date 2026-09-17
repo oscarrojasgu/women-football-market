@@ -1,4 +1,15 @@
 /* Exact Transfers-style horizontal scrolling for mobile data boxes. */
+
+/* Club summary cards: match the Home page stat-card treatment. */
+main section[style*="grid-template-columns: repeat(4, 1fr)"] > div,
+main > div[style*="grid-template-columns: repeat(5, 1fr)"] > div {
+  background: transparent !important;
+  border: 1px solid #e3e3e3 !important;
+  border-radius: 14px !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+}
+
 @media (max-width: 650px) {
   main > div:has(> div[style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.3fr"]) {
     overflow-x: auto !important;
@@ -26,24 +37,36 @@
     min-width: 760px;
   }
 
-  /* Club profile summary: two compact columns, not half-screen cards. */
+  /* Clubs page: use the same compact single-column stat layout as Home. */
+  main section[style*="grid-template-columns: repeat(4, 1fr)"] {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    padding: 0 20px 45px !important;
+    box-sizing: border-box !important;
+  }
+  main section[style*="grid-template-columns: repeat(4, 1fr)"] > div {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 20px !important;
+  }
+
+  /* Club profile: use the same compact single-column stat layout as Home. */
   main > div[style*="padding: 35px 24px 70px"] {
-    padding: 34px 16px 70px !important;
+    padding: 34px 20px 70px !important;
   }
   main > div[style*="grid-template-columns: repeat(5, 1fr)"] {
-    grid-template-columns: 150px 150px !important;
-    justify-content: start !important;
-    gap: 10px !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
   }
   main > div[style*="grid-template-columns: repeat(5, 1fr)"] > div {
+    width: 100% !important;
+    max-width: none !important;
     min-width: 0 !important;
-    width: 150px !important;
-    max-width: 150px !important;
+    padding: 20px !important;
     box-sizing: border-box !important;
-    padding: 16px 12px !important;
   }
 
   /* Club profile — Current Players: internal horizontal scrolling. */
