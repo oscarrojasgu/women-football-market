@@ -1,0 +1,81 @@
+/* Targeted iPhone layout fixes. Desktop and tablet remain unchanged. */
+@media (max-width: 650px) {
+  /* Keep search and filter controls inside the phone viewport. */
+  .content input,
+  .content select {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Keep the main search field from touching the edges of the phone. */
+  .search {
+    width: calc(100% - 8px) !important;
+    margin-left: 4px;
+    margin-right: 4px;
+  }
+
+  /* Home-page summary cards: use two compact columns on iPhone. */
+  .stats {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .stats div {
+    min-width: 0;
+    padding: 18px 14px !important;
+    border-right: 1px solid #d9d7d0;
+    border-bottom: 1px solid #d9d7d0;
+  }
+
+  .stats div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .stats div:nth-child(3),
+  .stats div:nth-child(4) {
+    border-top: 0 !important;
+  }
+
+  .stats div:last-child {
+    border-bottom: 0;
+  }
+
+  /* Inline data grids used by Players, Salaries, Contracts and player pages.
+     The grid itself becomes the horizontal scroll area, so the page does not. */
+  main [style*="grid-template-columns: 1.8fr 1.5fr"],
+  main [style*="grid-template-columns: 1.7fr 1.5fr"],
+  main [style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr"],
+  main [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  main [style*="grid-template-columns: 1.8fr 1.5fr"] {
+    grid-template-columns: 170px 140px 100px 110px 120px 95px !important;
+  }
+
+  main [style*="grid-template-columns: 1.7fr 1.5fr"] {
+    grid-template-columns: 165px 140px 95px 110px 110px 95px !important;
+  }
+
+  main [style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr"] {
+    grid-template-columns: 180px 135px 95px 110px 120px 95px !important;
+  }
+
+  main [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] {
+    grid-template-columns: 190px 110px 110px 110px !important;
+  }
+
+  /* Do not allow long names, club names or values to shrink the phone layout. */
+  main [style*="grid-template-columns: 1.8fr 1.5fr"] > *,
+  main [style*="grid-template-columns: 1.7fr 1.5fr"] > *,
+  main [style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr"] > *,
+  main [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] > * {
+    min-width: 0;
+  }
+}
