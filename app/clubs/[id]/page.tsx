@@ -576,7 +576,7 @@ export default function ClubProfilePage() {
         style={{
           maxWidth: 1200,
           margin: "0 auto",
-          padding: "35px 24px 70px",
+          padding: "32px 24px 60px",
         }}
       >
         <div
@@ -732,6 +732,7 @@ export default function ClubProfilePage() {
               overflow: "hidden",
             }}
           >
+            <div style={{ overflowX: "auto" }}>
             <div
               style={{
                 display: "grid",
@@ -922,6 +923,7 @@ export default function ClubProfilePage() {
                 No active players found.
               </div>
             )}
+            </div>
           </div>
         </section>
 
@@ -943,6 +945,7 @@ export default function ClubProfilePage() {
               overflow: "hidden",
             }}
           >
+            <div style={{ overflowX: "auto" }}>
             <div
               style={{
                 display: "grid",
@@ -1076,6 +1079,7 @@ export default function ClubProfilePage() {
                 found.
               </div>
             )}
+            </div>
           </div>
         </section>
       </div>
