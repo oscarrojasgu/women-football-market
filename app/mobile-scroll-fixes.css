@@ -1,5 +1,33 @@
 /* Exact Transfers-style horizontal scrolling for mobile data boxes. */
 @media (max-width: 650px) {
+  /* Top summary boxes: match the Home page's compact two-column layout. */
+  main section[style*="grid-template-columns: repeat(4, 1fr)"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  main section[style*="grid-template-columns: repeat(4, 1fr)"] > div {
+    min-width: 0 !important;
+    padding: 18px 14px !important;
+  }
+
+  /* Salaries top summary boxes: use the same compact two-column layout as Home. */
+  main section[style*="grid-template-columns: repeat(3, 1fr)"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  main section[style*="grid-template-columns: repeat(3, 1fr)"] > div {
+    min-width: 0 !important;
+    padding: 18px 14px !important;
+  }
+
   /* Players: the database box itself is the horizontal scroll container. */
   main > div:has(> div[style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.3fr"]) {
     overflow-x: auto !important;
