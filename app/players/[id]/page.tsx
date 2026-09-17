@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "../../lib/supabase";
@@ -81,19 +79,23 @@ type MarketValue = {
   confidence: string | null;
   source_id: string | null;
   notes: string | null;
+  created_at: string | null;
   market_value_usd: number | null;
   exchange_rate_to_usd: number | null;
   conversion_date: string | null;
 };
 
 type PlayerPageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{
+    id: string;
+  }>;
 };
 
 const countryCodes: Record<string, string> = {
   usa: "us",
-  "united states": "us",
   us: "us",
+  "united states": "us",
+  "united states of america": "us",
 
   canada: "ca",
   mexico: "mx",
@@ -166,10 +168,9 @@ const countryCodes: Record<string, string> = {
 
   jamaica: "jm",
   "trinidad and tobago": "tt",
-  puerto rico: "pr",
+  "puerto rico": "pr",
   "dominican republic": "do",
 
-  switzerland: "ch",
   "bosnia and herzegovina": "ba",
   "north macedonia": "mk",
   albania: "al",
@@ -177,12 +178,12 @@ const countryCodes: Record<string, string> = {
   estonia: "ee",
   latvia: "lv",
   lithuania: "lt",
-
-  "united states of america": "us",
 };
 
 function getCountryCode(nationality: string | null) {
-  if (!nationality) return null;
+  if (!nationality) {
+    return null;
+  }
 
   const normalized = nationality
     .trim()
@@ -193,11 +194,15 @@ function getCountryCode(nationality: string | null) {
 }
 
 function formatDate(value: string | null) {
-  if (!value) return "—";
+  if (!value) {
+    return "—";
+  }
 
   const date = new Date(`${value}T00:00:00`);
 
-  if (Number.isNaN(date.getTime())) return value;
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
 
   return date.toLocaleDateString("en-US", {
     month: "short",
@@ -218,11 +223,6 @@ function formatUSD(value: number | null) {
   }).format(value);
 }
 
-const EUR_TO_USD = 1.17;
-const GBP_TO_USD = 1.35;
-const CAD_TO_USD = 0.73;
-const AUD_TO_USD = 0.66;
-
 function formatMarketValue(
   value: number | null,
   currency: string | null,
@@ -238,19 +238,17 @@ function formatMarketValue(
 
   const normalizedCurrency = (currency ?? "USD").toUpperCase();
 
-  let converted = value;
+  const conversionRates: Record<string, number> = {
+    USD: 1,
+    EUR: 1.17,
+    GBP: 1.35,
+    CAD: 0.73,
+    AUD: 0.66,
+  };
 
-  if (normalizedCurrency === "EUR") {
-    converted = value * EUR_TO_USD;
-  } else if (normalizedCurrency === "GBP") {
-    converted = value * GBP_TO_USD;
-  } else if (normalizedCurrency === "CAD") {
-    converted = value * CAD_TO_USD;
-  } else if (normalizedCurrency === "AUD") {
-    converted = value * AUD_TO_USD;
-  }
+  const rate = conversionRates[normalizedCurrency] ?? 1;
 
-  return formatUSD(converted);
+  return formatUSD(value * rate);
 }
 
 function formatTransferFee(
@@ -261,31 +259,60 @@ function formatTransferFee(
     return "Undisclosed";
   }
 
-  const normalizedCurrency = (currency ?? "USD").toUpperCase();
-
   if (fee === 0) {
     return "Free";
   }
 
-  return `${new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: normalizedCurrency,
-    maximumFractionDigits: 0,
-  }).format(fee)}`;
+  const normalizedCurrency = (currency ?? "USD").toUpperCase();
+
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: normalizedCurrency,
+      maximumFractionDigits: 0,
+    }).format(fee);
+  } catch {
+    return `${fee.toLocaleString()} ${normalizedCurrency}`;
+  }
 }
 
-function formatTransferType(value: string | null) {
-  if (!value) return "Transfer";
+function formatLabel(value: string | null) {
+  if (!value) {
+    return "—";
+  }
 
   return value
     .replace(/_/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function formatConfidence(value: string | null) {
-  if (!value) return "Unknown";
+function calculateAge(dateOfBirth: string | null) {
+  if (!dateOfBirth) {
+    return null;
+  }
 
-  return value.charAt(0).toUpperCase() + value.slice(1);
+  const birthDate = new Date(`${dateOfBirth}T00:00:00`);
+
+  if (Number.isNaN(birthDate.getTime())) {
+    return null;
+  }
+
+  const today = new Date();
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+
+  const monthDifference =
+    today.getMonth() - birthDate.getMonth();
+
+  if (
+    monthDifference < 0 ||
+    (monthDifference === 0 &&
+      today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+
+  return age;
 }
 
 function getConfidenceStyle(value: string | null) {
@@ -322,18 +349,30 @@ function getConfidenceStyle(value: string | null) {
   };
 }
 
-function salaryStatus(contract: Contract | null) {
-  if (!contract) return "Not publicly available";
+function getSalaryStatus(contract: Contract | null) {
+  if (!contract) {
+    return "Not publicly available";
+  }
 
   if (
     contract.annual_salary_usd !== null ||
     contract.weekly_salary_usd !== null
   ) {
-    const confidence = (contract.confidence ?? "").toLowerCase();
+    const confidence = (
+      contract.confidence ?? ""
+    ).toLowerCase();
 
-    if (confidence === "reported") return "Reported";
-    if (confidence === "verified") return "Verified";
-    if (confidence === "estimated") return "Estimated";
+    if (confidence === "reported") {
+      return "Reported";
+    }
+
+    if (confidence === "verified") {
+      return "Verified";
+    }
+
+    if (confidence === "estimated") {
+      return "Estimated";
+    }
 
     return "Available";
   }
@@ -341,7 +380,7 @@ function salaryStatus(contract: Contract | null) {
   return "Not publicly available";
 }
 
-function salaryStatusClass(status: string) {
+function getSalaryStatusStyle(status: string) {
   if (status === "Reported") {
     return {
       background: "#dbeafe",
@@ -373,33 +412,6 @@ function salaryStatusClass(status: string) {
   };
 }
 
-function calculateAge(dateOfBirth: string | null) {
-  if (!dateOfBirth) return null;
-
-  const birthDate = new Date(`${dateOfBirth}T00:00:00`);
-
-  if (Number.isNaN(birthDate.getTime())) return null;
-
-  const today = new Date();
-
-  let age = today.getFullYear() - birthDate.getFullYear();
-
-  const monthDifference =
-    today.getMonth() - birthDate.getMonth();
-
-  if (
-    monthDifference < 0 ||
-    (monthDifference === 0 &&
-      today.getDate() < birthDate.getDate())
-  ) {
-    age--;
-  }
-
-  return age;
-}
-
-const pageBackground = "#f5f7fa";
-
 const cardStyle: React.CSSProperties = {
   background: "#ffffff",
   border: "1px solid #e5e7eb",
@@ -408,22 +420,23 @@ const cardStyle: React.CSSProperties = {
 };
 
 const sectionTitleStyle: React.CSSProperties = {
-  fontSize: 18,
+  margin: 0,
+  marginBottom: 18,
+  fontSize: 19,
   fontWeight: 800,
   color: "#111827",
-  marginBottom: 16,
 };
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 12,
-  fontWeight: 700,
+  fontSize: 11,
+  fontWeight: 800,
   color: "#6b7280",
   textTransform: "uppercase",
-  letterSpacing: "0.04em",
+  letterSpacing: "0.05em",
 };
 
 const valueStyle: React.CSSProperties = {
-  marginTop: 4,
+  marginTop: 5,
   fontSize: 15,
   fontWeight: 600,
   color: "#111827",
@@ -434,11 +447,12 @@ export default async function PlayerPage({
 }: PlayerPageProps) {
   const { id } = await params;
 
-  const { data: player, error: playerError } = await supabase
-    .from("players")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const { data: player, error: playerError } =
+    await supabase
+      .from("players")
+      .select("*")
+      .eq("id", id)
+      .single();
 
   if (playerError || !player) {
     notFound();
@@ -455,34 +469,51 @@ export default async function PlayerPage({
       .from("contracts")
       .select("*")
       .eq("player_id", id)
-      .order("start_date", { ascending: false }),
+      .order("start_date", {
+        ascending: false,
+        nullsFirst: false,
+      }),
 
     supabase
       .from("transfers")
       .select("*")
       .eq("player_id", id)
-      .order("transfer_date", { ascending: false }),
+      .order("transfer_date", {
+        ascending: false,
+        nullsFirst: false,
+      }),
 
     supabase
       .from("market_values")
       .select("*")
       .eq("player_id", id)
-      .order("valuation_date", { ascending: false }),
+      .order("valuation_date", {
+        ascending: false,
+        nullsFirst: false,
+      }),
   ]);
 
-  const contracts = (contractsResult.data ?? []) as Contract[];
-  const transfers = (transfersResult.data ?? []) as Transfer[];
+  const contracts = (contractsResult.data ??
+    []) as Contract[];
+
+  const transfers = (transfersResult.data ??
+    []) as Transfer[];
+
   const marketValues = (marketValuesResult.data ??
     []) as MarketValue[];
 
   const clubIds = Array.from(
     new Set(
       [
-        ...contracts.map((contract) => contract.club_id),
-        ...transfers.flatMap((transfer) => [
-          transfer.from_club_id,
-          transfer.to_club_id,
-        ]),
+        ...contracts.map(
+          (contract) => contract.club_id
+        ),
+        ...transfers.map(
+          (transfer) => transfer.from_club_id
+        ),
+        ...transfers.map(
+          (transfer) => transfer.to_club_id
+        ),
       ].filter(Boolean) as string[]
     )
   );
@@ -490,25 +521,41 @@ export default async function PlayerPage({
   const sourceIds = Array.from(
     new Set(
       [
-        ...contracts.map((contract) => contract.source_id),
-        ...transfers.map((transfer) => transfer.source_id),
-        ...marketValues.map((marketValue) => marketValue.source_id),
+        ...contracts.map(
+          (contract) => contract.source_id
+        ),
+        ...transfers.map(
+          (transfer) => transfer.source_id
+        ),
+        ...marketValues.map(
+          (marketValue) => marketValue.source_id
+        ),
       ].filter(Boolean) as string[]
     )
   );
 
-  const [clubsResult, sourcesResult] = await Promise.all([
-    clubIds.length
-      ? supabase.from("clubs").select("*").in("id", clubIds)
-      : Promise.resolve({ data: [] }),
+  const [clubsResult, sourcesResult] =
+    await Promise.all([
+      clubIds.length > 0
+        ? supabase
+            .from("clubs")
+            .select("*")
+            .in("id", clubIds)
+        : Promise.resolve({ data: [] }),
 
-    sourceIds.length
-      ? supabase.from("sources").select("*").in("id", sourceIds)
-      : Promise.resolve({ data: [] }),
-  ]);
+      sourceIds.length > 0
+        ? supabase
+            .from("sources")
+            .select("*")
+            .in("id", sourceIds)
+        : Promise.resolve({ data: [] }),
+    ]);
 
-  const clubs = (clubsResult.data ?? []) as Club[];
-  const sources = (sourcesResult.data ?? []) as Source[];
+  const clubs = (clubsResult.data ??
+    []) as Club[];
+
+  const sources = (sourcesResult.data ??
+    []) as Source[];
 
   const clubMap = new Map(
     clubs.map((club) => [club.id, club])
@@ -521,12 +568,13 @@ export default async function PlayerPage({
   const activeContract =
     contracts.find(
       (contract) =>
-        (contract.status ?? "").toLowerCase() === "active" &&
-        contract.club_id
+        (contract.status ?? "").toLowerCase() ===
+          "active" && contract.club_id !== null
     ) ??
     contracts.find(
       (contract) =>
-        (contract.status ?? "").toLowerCase() === "active"
+        (contract.status ?? "").toLowerCase() ===
+        "active"
     ) ??
     contracts[0] ??
     null;
@@ -535,25 +583,39 @@ export default async function PlayerPage({
     ? clubMap.get(activeContract.club_id) ?? null
     : null;
 
-  const latestMarketValue = marketValues[0] ?? null;
+  const latestMarketValue =
+    marketValues.length > 0
+      ? marketValues[0]
+      : null;
 
-  const age = calculateAge(typedPlayer.date_of_birth);
+  const age = calculateAge(
+    typedPlayer.date_of_birth
+  );
 
-  const countryCode = getCountryCode(typedPlayer.nationality);
+  const countryCode = getCountryCode(
+    typedPlayer.nationality
+  );
 
-  const currentSalaryStatus = salaryStatus(activeContract);
-  const currentSalaryStyle =
-    salaryStatusClass(currentSalaryStatus);
+  const currentSalaryStatus =
+    getSalaryStatus(activeContract);
 
-  const currentSource = activeContract?.source_id
-    ? sourceMap.get(activeContract.source_id) ?? null
-    : null;
+  const salaryStatusStyle =
+    getSalaryStatusStyle(
+      currentSalaryStatus
+    );
+
+  const currentSource =
+    activeContract?.source_id
+      ? sourceMap.get(
+          activeContract.source_id
+        ) ?? null
+      : null;
 
   return (
     <main
       style={{
         minHeight: "100vh",
-        background: pageBackground,
+        background: "#f5f7fa",
         color: "#111827",
       }}
     >
@@ -687,14 +749,21 @@ export default async function PlayerPage({
                 >
                   {typedPlayer.full_name
                     .split(" ")
-                    .map((part) => part[0])
+                    .map(
+                      (part) => part[0]
+                    )
                     .slice(0, 2)
                     .join("")}
                 </span>
               )}
             </div>
 
-            <div style={{ flex: 1, minWidth: 250 }}>
+            <div
+              style={{
+                flex: 1,
+                minWidth: 250,
+              }}
+            >
               <h1
                 style={{
                   margin: 0,
@@ -734,14 +803,20 @@ export default async function PlayerPage({
                         height={20}
                         alt={`${typedPlayer.nationality} flag`}
                         style={{
+                          width: 28,
+                          height: 20,
                           objectFit: "cover",
                           borderRadius: 2,
-                          border: "1px solid #d1d5db",
+                          border:
+                            "1px solid #d1d5db",
+                          display: "block",
                         }}
                       />
                     ) : null}
 
-                    <span>{typedPlayer.nationality}</span>
+                    <span>
+                      {typedPlayer.nationality}
+                    </span>
                   </span>
                 )}
 
@@ -770,7 +845,11 @@ export default async function PlayerPage({
                   }}
                 >
                   Current Club:{" "}
-                  <strong style={{ color: "#111827" }}>
+                  <strong
+                    style={{
+                      color: "#111827",
+                    }}
+                  >
                     {currentClub.name}
                   </strong>
                 </div>
@@ -799,28 +878,38 @@ export default async function PlayerPage({
             }}
           >
             <div>
-              <div style={labelStyle}>Nationality</div>
+              <div style={labelStyle}>
+                Nationality
+              </div>
               <div style={valueStyle}>
                 {typedPlayer.nationality ?? "—"}
               </div>
             </div>
 
             <div>
-              <div style={labelStyle}>Date of Birth</div>
+              <div style={labelStyle}>
+                Date of Birth
+              </div>
               <div style={valueStyle}>
-                {formatDate(typedPlayer.date_of_birth)}
+                {formatDate(
+                  typedPlayer.date_of_birth
+                )}
               </div>
             </div>
 
             <div>
-              <div style={labelStyle}>Age</div>
+              <div style={labelStyle}>
+                Age
+              </div>
               <div style={valueStyle}>
                 {age !== null ? age : "—"}
               </div>
             </div>
 
             <div>
-              <div style={labelStyle}>Position</div>
+              <div style={labelStyle}>
+                Position
+              </div>
               <div style={valueStyle}>
                 {typedPlayer.position ?? "—"}
               </div>
@@ -831,19 +920,24 @@ export default async function PlayerPage({
                 Secondary Position
               </div>
               <div style={valueStyle}>
-                {typedPlayer.secondary_position ?? "—"}
+                {typedPlayer.secondary_position ??
+                  "—"}
               </div>
             </div>
 
             <div>
-              <div style={labelStyle}>Preferred Foot</div>
+              <div style={labelStyle}>
+                Preferred Foot
+              </div>
               <div style={valueStyle}>
                 {typedPlayer.preferred_foot ?? "—"}
               </div>
             </div>
 
             <div>
-              <div style={labelStyle}>Height</div>
+              <div style={labelStyle}>
+                Height
+              </div>
               <div style={valueStyle}>
                 {typedPlayer.height_cm
                   ? `${typedPlayer.height_cm} cm`
@@ -852,21 +946,27 @@ export default async function PlayerPage({
             </div>
 
             <div>
-              <div style={labelStyle}>Birthplace</div>
+              <div style={labelStyle}>
+                Birthplace
+              </div>
               <div style={valueStyle}>
                 {typedPlayer.birthplace ?? "—"}
               </div>
             </div>
 
             <div>
-              <div style={labelStyle}>Agency</div>
+              <div style={labelStyle}>
+                Agency
+              </div>
               <div style={valueStyle}>
                 {typedPlayer.agency ?? "—"}
               </div>
             </div>
 
             <div>
-              <div style={labelStyle}>Current Club Since</div>
+              <div style={labelStyle}>
+                Current Club Since
+              </div>
               <div style={valueStyle}>
                 {formatDate(
                   typedPlayer.current_club_since
@@ -883,7 +983,9 @@ export default async function PlayerPage({
             marginBottom: 20,
           }}
         >
-          <h2 style={sectionTitleStyle}>Position Map</h2>
+          <h2 style={sectionTitleStyle}>
+            Position Map
+          </h2>
 
           <PositionMap
             position={typedPlayer.position ?? ""}
@@ -900,10 +1002,12 @@ export default async function PlayerPage({
             marginBottom: 20,
           }}
         >
-          <h2 style={sectionTitleStyle}>Market Value</h2>
+          <h2 style={sectionTitleStyle}>
+            Market Value
+          </h2>
 
           {latestMarketValue ? (
-            <div>
+            <>
               <div
                 style={{
                   fontSize: 34,
@@ -932,10 +1036,10 @@ export default async function PlayerPage({
               </div>
 
               {latestMarketValue.confidence && (
-                <div
+                <span
                   style={{
-                    marginTop: 12,
                     display: "inline-block",
+                    marginTop: 12,
                     padding: "5px 9px",
                     borderRadius: 6,
                     background:
@@ -956,12 +1060,12 @@ export default async function PlayerPage({
                     fontWeight: 800,
                   }}
                 >
-                  {formatConfidence(
+                  {formatLabel(
                     latestMarketValue.confidence
                   )}
-                </div>
+                </span>
               )}
-            </div>
+            </>
           ) : (
             <div
               style={{
@@ -986,172 +1090,214 @@ export default async function PlayerPage({
           </h2>
 
           {currentClub || activeContract ? (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "repeat(auto-fit, minmax(220px, 1fr))",
-                gap: 24,
-              }}
-            >
-              <div>
-                <div style={labelStyle}>Club</div>
-
-                <div
-                  style={{
-                    marginTop: 8,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                  }}
-                >
-                  {currentClub?.logo_url ? (
-                    <img
-                      src={currentClub.logo_url}
-                      alt={currentClub.name}
-                      width={38}
-                      height={38}
-                      style={{
-                        objectFit: "contain",
-                      }}
-                    />
-                  ) : null}
-
-                  <span
-                    style={{
-                      fontSize: 17,
-                      fontWeight: 800,
-                    }}
-                  >
-                    {currentClub?.name ??
-                      "Club not available"}
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>
-                  Contract Dates
-                </div>
-
-                <div style={valueStyle}>
-                  {activeContract ? (
-                    <>
-                      {formatDate(
-                        activeContract.start_date
-                      )}{" "}
-                      —{" "}
-                      {formatDate(
-                        activeContract.end_date
-                      )}
-                    </>
-                  ) : (
-                    "—"
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>Status</div>
-
-                <div style={valueStyle}>
-                  {activeContract?.status
-                    ? formatConfidence(
-                        activeContract.status
-                      )
-                    : "—"}
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>
-                  Salary Status
-                </div>
-
-                <div style={{ marginTop: 7 }}>
-                  <span
-                    style={{
-                      display: "inline-block",
-                      padding: "6px 10px",
-                      borderRadius: 7,
-                      background:
-                        currentSalaryStyle.background,
-                      color: currentSalaryStyle.color,
-                      border:
-                        `1px solid ${currentSalaryStyle.border}`,
-                      fontSize: 12,
-                      fontWeight: 800,
-                    }}
-                  >
-                    {currentSalaryStatus}
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>
-                  Annual Salary
-                </div>
-
-                <div
-                  style={{
-                    marginTop: 6,
-                    fontSize: 21,
-                    fontWeight: 900,
-                    color: "#111827",
-                  }}
-                >
-                  {formatUSD(
-                    activeContract?.annual_salary_usd ??
-                      null
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>
-                  Weekly Salary
-                </div>
-
-                <div
-                  style={{
-                    marginTop: 6,
-                    fontSize: 18,
-                    fontWeight: 800,
-                    color: "#111827",
-                  }}
-                >
-                  {formatUSD(
-                    activeContract?.weekly_salary_usd ??
-                      null
-                  )}
-                </div>
-              </div>
-
-              {currentSource?.url && (
+            <>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns:
+                    "repeat(auto-fit, minmax(210px, 1fr))",
+                  gap: 24,
+                }}
+              >
                 <div>
                   <div style={labelStyle}>
-                    Salary Source
+                    Club
                   </div>
 
-                  <div style={{ marginTop: 7 }}>
-                    <a
-                      href={currentSource.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  <div
+                    style={{
+                      marginTop: 8,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                    }}
+                  >
+                    {currentClub?.logo_url && (
+                      <img
+                        src={currentClub.logo_url}
+                        alt={currentClub.name}
+                        width={38}
+                        height={38}
+                        style={{
+                          objectFit: "contain",
+                        }}
+                      />
+                    )}
+
+                    <span
                       style={{
-                        color: "#2563eb",
-                        fontWeight: 700,
-                        textDecoration: "none",
+                        fontSize: 17,
+                        fontWeight: 800,
                       }}
                     >
-                      {currentSource.publisher ??
-                        "View source"}
-                    </a>
+                      {currentClub?.name ??
+                        "Club not available"}
+                    </span>
                   </div>
                 </div>
-              )}
-            </div>
+
+                <div>
+                  <div style={labelStyle}>
+                    Contract Dates
+                  </div>
+
+                  <div style={valueStyle}>
+                    {activeContract
+                      ? `${formatDate(
+                          activeContract.start_date
+                        )} — ${formatDate(
+                          activeContract.end_date
+                        )}`
+                      : "—"}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={labelStyle}>
+                    Contract Status
+                  </div>
+
+                  <div style={valueStyle}>
+                    {formatLabel(
+                      activeContract?.status ?? null
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={labelStyle}>
+                    Salary Status
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: 7,
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "inline-block",
+                        padding: "6px 10px",
+                        borderRadius: 7,
+                        background:
+                          salaryStatusStyle.background,
+                        color:
+                          salaryStatusStyle.color,
+                        border:
+                          `1px solid ${salaryStatusStyle.border}`,
+                        fontSize: 12,
+                        fontWeight: 800,
+                      }}
+                    >
+                      {currentSalaryStatus}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={labelStyle}>
+                    Annual Salary
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: 6,
+                      fontSize: 21,
+                      fontWeight: 900,
+                      color: "#111827",
+                    }}
+                  >
+                    {formatUSD(
+                      activeContract?.annual_salary_usd ??
+                        null
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={labelStyle}>
+                    Weekly Salary
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: 6,
+                      fontSize: 18,
+                      fontWeight: 800,
+                      color: "#111827",
+                    }}
+                  >
+                    {formatUSD(
+                      activeContract?.weekly_salary_usd ??
+                        null
+                    )}
+                  </div>
+                </div>
+
+                {currentSource?.publisher && (
+                  <div>
+                    <div style={labelStyle}>
+                      Salary Source
+                    </div>
+
+                    <div
+                      style={{
+                        marginTop: 7,
+                      }}
+                    >
+                      {currentSource.url ? (
+                        <a
+                          href={currentSource.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            color: "#2563eb",
+                            fontWeight: 700,
+                            textDecoration: "none",
+                          }}
+                        >
+                          {currentSource.publisher}
+                        </a>
+                      ) : (
+                        <span
+                          style={{
+                            fontWeight: 700,
+                          }}
+                        >
+                          {currentSource.publisher}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {activeContract &&
+                activeContract.annual_salary_usd ===
+                  null &&
+                activeContract.weekly_salary_usd ===
+                  null && (
+                  <div
+                    style={{
+                      marginTop: 20,
+                      padding: 14,
+                      borderRadius: 9,
+                      background: "#fffbeb",
+                      border:
+                        "1px solid #fde68a",
+                      color: "#92400e",
+                      fontSize: 13,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    The contract is publicly
+                    documented, but an individual
+                    salary figure is not currently
+                    publicly available from a
+                    defensible source.
+                  </div>
+                )}
+            </>
           ) : (
             <div
               style={{
@@ -1163,28 +1309,6 @@ export default async function PlayerPage({
               available.
             </div>
           )}
-
-          {activeContract &&
-            activeContract.annual_salary_usd === null &&
-            activeContract.weekly_salary_usd === null && (
-              <div
-                style={{
-                  marginTop: 20,
-                  padding: 14,
-                  borderRadius: 9,
-                  background: "#fffbeb",
-                  border: "1px solid #fde68a",
-                  color: "#92400e",
-                  fontSize: 13,
-                  lineHeight: 1.5,
-                }}
-              >
-                The contract is publicly documented, but
-                an individual salary figure is not
-                currently publicly available from a
-                defensible source.
-              </div>
-            )}
         </section>
 
         <section
@@ -1207,20 +1331,27 @@ export default async function PlayerPage({
               }}
             >
               {transfers.map((transfer) => {
-                const fromClub = transfer.from_club_id
-                  ? clubMap.get(transfer.from_club_id)
-                  : null;
+                const fromClub =
+                  transfer.from_club_id
+                    ? clubMap.get(
+                        transfer.from_club_id
+                      )
+                    : null;
 
-                const toClub = transfer.to_club_id
-                  ? clubMap.get(transfer.to_club_id)
-                  : null;
+                const toClub =
+                  transfer.to_club_id
+                    ? clubMap.get(
+                        transfer.to_club_id
+                      )
+                    : null;
 
                 return (
                   <div
                     key={transfer.id}
                     style={{
                       padding: 16,
-                      border: "1px solid #e5e7eb",
+                      border:
+                        "1px solid #e5e7eb",
                       borderRadius: 10,
                       background: "#fafafa",
                     }}
@@ -1238,6 +1369,7 @@ export default async function PlayerPage({
                         <div style={labelStyle}>
                           Date
                         </div>
+
                         <div style={valueStyle}>
                           {formatDate(
                             transfer.transfer_date
@@ -1249,7 +1381,8 @@ export default async function PlayerPage({
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "center",
+                          justifyContent:
+                            "center",
                           gap: 12,
                           flexWrap: "wrap",
                         }}
@@ -1323,7 +1456,7 @@ export default async function PlayerPage({
                           fontWeight: 700,
                         }}
                       >
-                        {formatTransferType(
+                        {formatLabel(
                           transfer.transfer_type
                         )}
                       </span>
@@ -1351,7 +1484,7 @@ export default async function PlayerPage({
                             fontWeight: 700,
                           }}
                         >
-                          {formatConfidence(
+                          {formatLabel(
                             transfer.confidence
                           )}
                         </span>
@@ -1368,7 +1501,8 @@ export default async function PlayerPage({
                 fontSize: 15,
               }}
             >
-              No transfer history is currently available.
+              No transfer history is currently
+              available.
             </div>
           )}
         </section>
@@ -1393,7 +1527,7 @@ export default async function PlayerPage({
                 style={{
                   width: "100%",
                   borderCollapse: "collapse",
-                  minWidth: 760,
+                  minWidth: 820,
                 }}
               >
                 <thead>
@@ -1462,9 +1596,12 @@ export default async function PlayerPage({
 
                 <tbody>
                   {contracts.map((contract) => {
-                    const club = contract.club_id
-                      ? clubMap.get(contract.club_id)
-                      : null;
+                    const club =
+                      contract.club_id
+                        ? clubMap.get(
+                            contract.club_id
+                          )
+                        : null;
 
                     const confidenceStyle =
                       getConfidenceStyle(
@@ -1481,7 +1618,8 @@ export default async function PlayerPage({
                       >
                         <td
                           style={{
-                            padding: "14px 8px",
+                            padding:
+                              "14px 8px",
                             fontWeight: 800,
                           }}
                         >
@@ -1491,7 +1629,8 @@ export default async function PlayerPage({
 
                         <td
                           style={{
-                            padding: "14px 8px",
+                            padding:
+                              "14px 8px",
                             color: "#4b5563",
                           }}
                         >
@@ -1506,7 +1645,8 @@ export default async function PlayerPage({
 
                         <td
                           style={{
-                            padding: "14px 8px",
+                            padding:
+                              "14px 8px",
                             fontWeight: 800,
                           }}
                         >
@@ -1517,7 +1657,8 @@ export default async function PlayerPage({
 
                         <td
                           style={{
-                            padding: "14px 8px",
+                            padding:
+                              "14px 8px",
                             fontWeight: 700,
                           }}
                         >
@@ -1528,27 +1669,29 @@ export default async function PlayerPage({
 
                         <td
                           style={{
-                            padding: "14px 8px",
+                            padding:
+                              "14px 8px",
                             color: "#4b5563",
                           }}
                         >
-                          {contract.status
-                            ? formatConfidence(
-                                contract.status
-                              )
-                            : "—"}
+                          {formatLabel(
+                            contract.status
+                          )}
                         </td>
 
                         <td
                           style={{
-                            padding: "14px 8px",
+                            padding:
+                              "14px 8px",
                           }}
                         >
                           {contract.confidence ? (
                             <span
                               style={{
-                                display: "inline-block",
-                                padding: "5px 8px",
+                                display:
+                                  "inline-block",
+                                padding:
+                                  "5px 8px",
                                 borderRadius: 6,
                                 background:
                                   confidenceStyle.background,
@@ -1560,7 +1703,7 @@ export default async function PlayerPage({
                                 fontWeight: 800,
                               }}
                             >
-                              {formatConfidence(
+                              {formatLabel(
                                 contract.confidence
                               )}
                             </span>
@@ -1581,7 +1724,8 @@ export default async function PlayerPage({
                 fontSize: 15,
               }}
             >
-              No contract history is currently available.
+              No contract history is currently
+              available.
             </div>
           )}
         </section>
