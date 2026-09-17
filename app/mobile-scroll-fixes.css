@@ -33,8 +33,9 @@ main > div[style*="grid-template-columns: repeat(5, 1fr)"] > div {
     min-width: 810px !important;
   }
 
+  /* Clubs and Salaries tables use the same wide scroll area as Transfers. */
   main table {
-    min-width: 760px;
+    min-width: 900px !important;
   }
 
   /* Clubs page: use the same compact single-column stat layout as Home. */
@@ -77,8 +78,8 @@ main > div[style*="grid-template-columns: repeat(5, 1fr)"] > div {
     overscroll-behavior-x: contain;
   }
   main section > div:has(> div[style*="grid-template-columns: 2fr 1fr 1fr 1fr"]) > div[style*="grid-template-columns: 2fr 1fr 1fr 1fr"] {
-    width: 700px !important;
-    min-width: 700px !important;
+    width: 900px !important;
+    min-width: 900px !important;
   }
 
   /* Club profile — Transfer Activity: internal horizontal scrolling. */
