@@ -1,6 +1,7 @@
 import './globals.css'
 import './mobile-tables.css'
 import './mobile-layout-fixes.css'
+import './mobile-scroll-fixes.css'
 import type { ReactNode } from 'react'
 import MobileNav from './components/MobileNav'
 
