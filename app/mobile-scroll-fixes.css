@@ -31,10 +31,22 @@
     min-width: 760px;
   }
 
-  /* Club profile: compact five-card summary like the Home page on iPhone. */
+  /* Club profile: use the same compact two-column summary layout as Home. */
+  main > div[style*="padding: 35px 24px 70px"] {
+    padding: 34px 16px 70px !important;
+  }
+
   main > div[style*="grid-template-columns: repeat(5, 1fr)"] {
-    grid-template-columns: 1fr 1fr !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
     gap: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  main > div[style*="grid-template-columns: repeat(5, 1fr)"] > div {
+    min-width: 0 !important;
+    padding: 18px 14px !important;
   }
 
   /* Player detail: transfer history uses the same scroll-container model. */
