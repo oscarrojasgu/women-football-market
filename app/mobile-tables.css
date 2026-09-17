@@ -1,0 +1,33 @@
+/* Mobile data tables: keep the full information available and scroll inside each table */
+@media (max-width: 650px) {
+  .table {
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .table .thead,
+  .table .row {
+    min-width: 760px;
+  }
+
+  .table .thead {
+    display: grid !important;
+  }
+
+  .table .row {
+    display: grid !important;
+    grid-template-columns: 1.8fr 1.5fr 1.1fr 1.1fr 1.3fr 1fr !important;
+    gap: 18px !important;
+  }
+
+  .table .row span:nth-child(n + 3) {
+    display: block !important;
+  }
+
+  .table .row span,
+  .table .thead > * {
+    min-width: 0;
+  }
+}
