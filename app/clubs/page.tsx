@@ -290,22 +290,25 @@ export default function ClubsPage() {
           margin: '0 auto',
           padding: '32px 24px 60px',
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '12px',
+          gridTemplateColumns:
+            'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: 14,
+          marginBottom: 24,
         }}
       >
         <div
           style={{
             background: '#fff',
             border: '1px solid #e5e5e5',
-            borderRadius: '14px',
-            padding: '22px',
+            borderRadius: 12,
+            padding: '18px 20px',
           }}
         >
           <div
             style={{
-              fontSize: '12px',
-              color: '#888',
+              fontSize: 12,
+              color: '#777',
+              marginBottom: 6,
               fontWeight: 700,
               letterSpacing: '0.8px',
             }}
@@ -315,8 +318,7 @@ export default function ClubsPage() {
 
           <div
             style={{
-              marginTop: '8px',
-              fontSize: '30px',
+              fontSize: 26,
               fontWeight: 800,
             }}
           >
@@ -328,14 +330,15 @@ export default function ClubsPage() {
           style={{
             background: '#fff',
             border: '1px solid #e5e5e5',
-            borderRadius: '14px',
-            padding: '22px',
+            borderRadius: 12,
+            padding: '18px 20px',
           }}
         >
           <div
             style={{
-              fontSize: '12px',
-              color: '#888',
+              fontSize: 12,
+              color: '#777',
+              marginBottom: 6,
               fontWeight: 700,
               letterSpacing: '0.8px',
             }}
@@ -345,8 +348,7 @@ export default function ClubsPage() {
 
           <div
             style={{
-              marginTop: '8px',
-              fontSize: '30px',
+              fontSize: 26,
               fontWeight: 800,
             }}
           >
@@ -358,14 +360,15 @@ export default function ClubsPage() {
           style={{
             background: '#fff',
             border: '1px solid #e5e5e5',
-            borderRadius: '14px',
-            padding: '22px',
+            borderRadius: 12,
+            padding: '18px 20px',
           }}
         >
           <div
             style={{
-              fontSize: '12px',
-              color: '#888',
+              fontSize: 12,
+              color: '#777',
+              marginBottom: 6,
               fontWeight: 700,
               letterSpacing: '0.8px',
             }}
@@ -375,8 +378,7 @@ export default function ClubsPage() {
 
           <div
             style={{
-              marginTop: '8px',
-              fontSize: '30px',
+              fontSize: 26,
               fontWeight: 800,
             }}
           >
@@ -388,14 +390,15 @@ export default function ClubsPage() {
           style={{
             background: '#fff',
             border: '1px solid #e5e5e5',
-            borderRadius: '14px',
-            padding: '22px',
+            borderRadius: 12,
+            padding: '18px 20px',
           }}
         >
           <div
             style={{
-              fontSize: '12px',
-              color: '#888',
+              fontSize: 12,
+              color: '#777',
+              marginBottom: 6,
               fontWeight: 700,
               letterSpacing: '0.8px',
             }}
@@ -405,8 +408,7 @@ export default function ClubsPage() {
 
           <div
             style={{
-              marginTop: '8px',
-              fontSize: '30px',
+              fontSize: 26,
               fontWeight: 800,
             }}
           >
