@@ -572,7 +572,7 @@ export default function ClubProfilePage() {
         </div>
       </section>
 
-      <div
+      <section
         style={{
           maxWidth: 1200,
           margin: "0 auto",
@@ -1058,6 +1058,7 @@ export default function ClubProfilePage() {
             </div>
           </div>
         </section>
+      </section>
 
       <footer
         style={{
