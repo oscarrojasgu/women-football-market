@@ -583,9 +583,9 @@ export default function ClubProfilePage() {
           style={{
             display: "grid",
             gridTemplateColumns:
-              "repeat(5, 1fr)",
-            gap: 16,
-            marginBottom: 32,
+              "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: 14,
+            marginBottom: 24,
           }}
         >
           <div style={statCard}>
@@ -1104,21 +1104,18 @@ const statCard = {
   background: "#fff",
   border: "1px solid #e5e5e5",
   borderRadius: 12,
-  padding: 20,
+  padding: "18px 20px",
 }
 
 const statLabel = {
   fontSize: 12,
   color: "#777",
-  textTransform: "uppercase" as const,
-  letterSpacing: 0.5,
-  fontWeight: 700,
+  marginBottom: 6,
 }
 
 const statValue = {
-  fontSize: 24,
-  fontWeight: 800,
-  marginTop: 8,
+  fontSize: 26,
+  fontWeight: 750,
 }
 
 const statSubtext = {
