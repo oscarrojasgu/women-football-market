@@ -614,6 +614,41 @@ footer small {
     width: 100%;
     min-height: 42px;
   }
+
+  /* Player profile: stack Position Map and Market Value on phones */
+  main > div > div > div[style*="minmax(190px, 230px)"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 24px !important;
+  }
+
+  main > div > div > div[style*="minmax(190px, 230px)"] > div:first-child {
+    width: 100%;
+    min-width: 0;
+  }
+
+  main > div > div > div[style*="minmax(190px, 230px)"] > div:first-child > div {
+    width: 100% !important;
+    max-width: 300px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  main > div > div > div[style*="minmax(190px, 230px)"] > div:nth-child(2) {
+    width: 100%;
+    min-width: 0;
+    min-height: 0 !important;
+    padding: 18px !important;
+  }
+
+  main > div > div > div[style*="minmax(190px, 230px)"] > div:nth-child(2) h2 {
+    font-size: 19px !important;
+  }
+
+  main > div > div > div[style*="minmax(190px, 230px)"] > div:nth-child(2) div[style*="fontSize: 30"] {
+    font-size: 28px !important;
+    line-height: 1.05;
+    white-space: nowrap;
+  }
 }
 
 @media (max-width: 380px) {
