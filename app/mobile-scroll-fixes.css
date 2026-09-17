@@ -1,0 +1,59 @@
+/* Exact Transfers-style horizontal scrolling for mobile data boxes. */
+@media (max-width: 650px) {
+  /* Players: the database box itself is the horizontal scroll container. */
+  main > div:has(> div[style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.3fr"]) {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  main > div:has(> div[style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.3fr"]) > div[style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.3fr"] {
+    width: 735px !important;
+    min-width: 735px !important;
+  }
+
+  /* Contracts: the database box itself is the horizontal scroll container. */
+  main > div:has(> div[style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.3fr 1fr"]) {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  main > div:has(> div[style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.3fr 1fr"]) > div[style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.3fr 1fr"] {
+    width: 810px !important;
+    min-width: 810px !important;
+  }
+
+  /* Club database already has the correct wrapper; keep the table readable. */
+  main table {
+    min-width: 760px;
+  }
+
+  /* Player detail: transfer history uses the same scroll-container model. */
+  main div:has(> div[style*="grid-template-columns: 120px 1fr auto 1fr"]) {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  main div:has(> div[style*="grid-template-columns: 120px 1fr auto 1fr"]) > div[style*="grid-template-columns: 120px 1fr auto 1fr"] {
+    width: 555px !important;
+    min-width: 555px !important;
+  }
+
+  /* Player detail: contract history uses the same scroll-container model. */
+  main div:has(> div[style*="grid-template-columns: 1.5fr repeat(3, 1fr)"]) {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  main div:has(> div[style*="grid-template-columns: 1.5fr repeat(3, 1fr)"]) > div[style*="grid-template-columns: 1.5fr repeat(3, 1fr)"] {
+    width: 555px !important;
+    min-width: 555px !important;
+  }
+}
