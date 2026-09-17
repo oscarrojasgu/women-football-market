@@ -43,6 +43,9 @@ type MarketValue = {
   valuation_date: string | null;
   market_value: number | null;
   currency: string | null;
+  market_value_usd: number | null;
+  exchange_rate_to_usd: number | null;
+  conversion_date: string | null;
   confidence: string | null;
   notes: string | null;
 };
@@ -57,127 +60,86 @@ const getCountryCode = (nationality: string | null) => {
     US: "us",
     "UNITED STATES": "us",
     "UNITED STATES OF AMERICA": "us",
-
     CAN: "ca",
     CANADA: "ca",
-
     MEX: "mx",
     MEXICO: "mx",
-
     ENG: "gb-eng",
     ENGLAND: "gb-eng",
-
     FRA: "fr",
     FRANCE: "fr",
-
     ESP: "es",
     SPAIN: "es",
-
     GER: "de",
     GERMANY: "de",
-
     BRA: "br",
     BRAZIL: "br",
-
     COL: "co",
     COLOMBIA: "co",
-
     ARG: "ar",
     ARGENTINA: "ar",
-
     CHI: "cl",
     CHILE: "cl",
-
     ITA: "it",
     ITALY: "it",
-
     NED: "nl",
     NETHERLANDS: "nl",
-
     POR: "pt",
     PORTUGAL: "pt",
-
     SWE: "se",
     SWEDEN: "se",
-
     NOR: "no",
     NORWAY: "no",
-
     DEN: "dk",
     DENMARK: "dk",
-
     JPN: "jp",
     JAPAN: "jp",
-
     KOR: "kr",
     "SOUTH KOREA": "kr",
-
     AUS: "au",
     AUSTRALIA: "au",
-
     NZL: "nz",
     "NEW ZEALAND": "nz",
-
     NIG: "ng",
     NIGERIA: "ng",
-
     GHA: "gh",
     GHANA: "gh",
-
     RSA: "za",
     "SOUTH AFRICA": "za",
-
     IRL: "ie",
     IRELAND: "ie",
-
     SCO: "gb-sct",
     SCOTLAND: "gb-sct",
-
     WAL: "gb-wls",
     WALES: "gb-wls",
-
     SUI: "ch",
     SWITZERLAND: "ch",
-
     AUT: "at",
     AUSTRIA: "at",
-
     BEL: "be",
     BELGIUM: "be",
-
     POL: "pl",
     POLAND: "pl",
-
     UKR: "ua",
     UKRAINE: "ua",
-
     CZE: "cz",
     "CZECH REPUBLIC": "cz",
-
     JAM: "jm",
     JAMAICA: "jm",
-
     CRC: "cr",
     "COSTA RICA": "cr",
-
     PAN: "pa",
     PANAMA: "pa",
-
     PUR: "pr",
     "PUERTO RICO": "pr",
-
     PAR: "py",
     PARAGUAY: "py",
-
     URU: "uy",
     URUGUAY: "uy",
-
     ECU: "ec",
     ECUADOR: "ec",
-
     PER: "pe",
     PERU: "pe",
-
     VEN: "ve",
     VENEZUELA: "ve",
   };
@@ -208,56 +170,27 @@ const formatSalary = (
   }).format(amount);
 };
 
-/*
- * Market values are stored in their original currency in Supabase,
- * but WFM displays market values in USD.
- *
- * These rates are intentionally centralized here so they can later
- * be replaced with a live exchange-rate service.
- */
-const EUR_TO_USD = 1.17;
-const GBP_TO_USD = 1.35;
-const CAD_TO_USD = 0.73;
-const AUD_TO_USD = 0.66;
-
-const formatMarketValue = (
-  amount: number | null,
-  currency: string | null
-) => {
+const formatMarketValue = (amount: number | null) => {
   if (amount === null || amount === undefined) return "—";
-
-  const normalizedCurrency = (currency || "USD").trim().toUpperCase();
-
-  let usdAmount = amount;
-
-  switch (normalizedCurrency) {
-    case "EUR":
-      usdAmount = amount * EUR_TO_USD;
-      break;
-
-    case "GBP":
-      usdAmount = amount * GBP_TO_USD;
-      break;
-
-    case "CAD":
-      usdAmount = amount * CAD_TO_USD;
-      break;
-
-    case "AUD":
-      usdAmount = amount * AUD_TO_USD;
-      break;
-
-    case "USD":
-    default:
-      usdAmount = amount;
-      break;
-  }
 
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,
-  }).format(usdAmount);
+  }).format(amount);
+};
+
+const formatOriginalMarketValue = (
+  amount: number | null,
+  currency: string | null
+) => {
+  if (amount === null || amount === undefined) return "—";
+
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency || "USD",
+    maximumFractionDigits: 0,
+  }).format(amount);
 };
 
 const formatTransferFee = (
@@ -528,7 +461,7 @@ export default async function PlayerPage({
   const { data: marketValueData } = await supabase
     .from("market_values")
     .select(
-      "id, valuation_date, market_value, currency, confidence, notes"
+      "id, valuation_date, market_value, currency, market_value_usd, exchange_rate_to_usd, conversion_date, confidence, notes"
     )
     .eq("player_id", id)
     .order("valuation_date", { ascending: false });
@@ -1054,6 +987,19 @@ export default async function PlayerPage({
                     }}
                   >
                     {formatMarketValue(
+                      marketValues[0].market_value_usd
+                    )}
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: 6,
+                      fontSize: 11,
+                      color: "#888",
+                    }}
+                  >
+                    Original valuation:{" "}
+                    {formatOriginalMarketValue(
                       marketValues[0].market_value,
                       marketValues[0].currency
                     )}
@@ -1172,14 +1118,32 @@ export default async function PlayerPage({
 
                               <div
                                 style={{
-                                  fontSize: 12,
-                                  fontWeight: 700,
+                                  textAlign: "right",
                                 }}
                               >
-                                {formatMarketValue(
-                                  value.market_value,
-                                  value.currency
-                                )}
+                                <div
+                                  style={{
+                                    fontSize: 12,
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  {formatMarketValue(
+                                    value.market_value_usd
+                                  )}
+                                </div>
+
+                                <div
+                                  style={{
+                                    marginTop: 2,
+                                    fontSize: 10,
+                                    color: "#999",
+                                  }}
+                                >
+                                  {formatOriginalMarketValue(
+                                    value.market_value,
+                                    value.currency
+                                  )}
+                                </div>
                               </div>
                             </div>
                           ))}
