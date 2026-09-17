@@ -1,4 +1,5 @@
 import './globals.css'
+import './mobile-tables.css'
 import type { ReactNode } from 'react'
 import MobileNav from './components/MobileNav'
 
