@@ -154,8 +154,8 @@
   }
 
   main section > div:has(> div[style*="grid-template-columns: 1.7fr 1.5fr 1fr 1.2fr 1.2fr 1fr"]) > div[style*="grid-template-columns: 1.7fr 1.5fr 1fr 1.2fr 1.2fr 1fr"] {
-    width: 785px !important;
-    min-width: 785px !important;
+    width: 900px !important;
+    min-width: 900px !important;
   }
 
   /* Salaries search box: keep the desktop 300px size there, but fit the phone. */
