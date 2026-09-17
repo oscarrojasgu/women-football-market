@@ -670,8 +670,7 @@ export default function ClubProfilePage() {
           <div
             style={{
               display: "flex",
-              justifyContent:
-                "space-between",
+              justifyContent: "space-between",
               alignItems: "center",
               marginBottom: 16,
             }}
@@ -692,16 +691,13 @@ export default function ClubProfilePage() {
                   color: "#666",
                 }}
               >
-                Active roster and known contract
-                information.
+                Active roster and known contract information.
               </p>
             </div>
 
             <select
               value={sortBy}
-              onChange={(e) =>
-                setSortBy(e.target.value)
-              }
+              onChange={(e) => setSortBy(e.target.value)}
               style={{
                 border: "1px solid #ddd",
                 borderRadius: 8,
@@ -710,17 +706,9 @@ export default function ClubProfilePage() {
                 fontSize: 14,
               }}
             >
-              <option value="salary">
-                Sort by Salary
-              </option>
-
-              <option value="name">
-                Sort by Name
-              </option>
-
-              <option value="position">
-                Sort by Position
-              </option>
+              <option value="salary">Sort by Salary</option>
+              <option value="name">Sort by Name</option>
+              <option value="position">Sort by Position</option>
             </select>
           </div>
 
@@ -733,196 +721,183 @@ export default function ClubProfilePage() {
             }}
           >
             <div style={{ overflowX: "auto" }}>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "2fr 1fr 1fr 1fr",
-                padding: "14px 18px",
-                background: "#fafafa",
-                borderBottom:
-                  "1px solid #eee",
-                fontSize: 12,
-                fontWeight: 700,
-                color: "#666",
-                textTransform:
-                  "uppercase",
-                letterSpacing: 0.5,
-              }}
-            >
-              <div>Player</div>
-              <div>Status</div>
-              <div>End Date</div>
-              <div>Annual Salary</div>
-            </div>
-
-            {sortedContracts.map(
-              (contract, index) => {
-                const player =
-                  contract.player
-
-                return (
-                  <div
-                    key={contract.id}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns:
-                        "2fr 1fr 1fr 1fr",
-                      padding:
-                        "16px 18px",
-                      borderBottom:
-                        "1px solid #eee",
-                      alignItems:
-                        "center",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display:
-                          "flex",
-                        alignItems:
-                          "center",
-                        gap: 12,
-                      }}
-                    >
-                      {player?.photo_url ? (
-                        <img
-                          src={
-                            player.photo_url
-                          }
-                          alt={
-                            player.full_name
-                          }
-                          style={{
-  width: 42,
-  height: 42,
-  borderRadius: "50%",
-  objectFit: "contain",
-  objectPosition: "center",
-  display: "block",
-  flexShrink: 0,
-  background: "#f3f3f3",
-}}
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            width: 42,
-                            height: 42,
-                            borderRadius:
-                              "50%",
-                            background:
-                              "#eee",
-                          }}
-                        />
-                      )}
-
-                      <div>
-                        {player ? (
-                          <Link
-                            href={`/players/${player.id}`}
-                            style={{
-                              color:
-                                "#111",
-                              textDecoration:
-                                "none",
-                              fontWeight:
-                                700,
-                            }}
-                          >
-                            {
-                              player.full_name
-                            }
-                          </Link>
-                        ) : (
-                          <div>
-                            Unknown Player
-                          </div>
-                        )}
-
-                        <div
-                          style={{
-                            color:
-                              "#777",
-                            fontSize: 13,
-                            marginTop: 3,
-                          }}
-                        >
-                          {[
-                            player?.nationality,
-                            player?.position,
-                          ]
-                            .filter(
-                              Boolean
-                            )
-                            .join(
-                              " · "
-                            )}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        fontSize: 13,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {contract.status ||
-                        "Unknown"}
-                    </div>
-
-                    <div
-                      style={{
-                        fontSize: 14,
-                        color: "#555",
-                      }}
-                    >
-                      {formatDate(
-                        contract.end_date
-                      )}
-                    </div>
-
-                    <div
-                      style={{
-                        fontWeight: 700,
-                      }}
-                    >
-                      {formatSalary(
-                        contract.annual_salary,
-                        contract.currency
-                      )}
-
-                      {contract.annual_salary !== null && (
-  <div
-    style={{
-      fontSize: 11,
-      color: "#888",
-      marginTop: 3,
-    }}
-  >
-    #{salaryRecords.findIndex(
-      (record) => record.id === contract.id
-    ) + 1} roster salary
-  </div>
-)}
-                    </div>
-                  </div>
-                )
-              }
-            )}
-
-            {sortedContracts.length ===
-              0 && (
-              <div
+              <table
                 style={{
-                  padding: 30,
-                  color: "#777",
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  minWidth: 900,
                 }}
               >
-                No active players found.
-              </div>
-            )}
+                <thead>
+                  <tr
+                    style={{
+                      borderBottom: "1px solid #e5e5e5",
+                      textAlign: "left",
+                    }}
+                  >
+                    {["Player", "Status", "End Date", "Annual Salary"].map(
+                      (heading) => (
+                        <th
+                          key={heading}
+                          style={{
+                            padding: "15px 16px",
+                            fontSize: 11,
+                            letterSpacing: 1,
+                            textTransform: "uppercase",
+                            color: "#888",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {heading}
+                        </th>
+                      )
+                    )}
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {sortedContracts.map((contract) => {
+                    const player = contract.player
+
+                    return (
+                      <tr
+                        key={contract.id}
+                        style={{
+                          borderBottom: "1px solid #eee",
+                        }}
+                      >
+                        <td
+                          style={{
+                            padding: "16px",
+                            fontWeight: 650,
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 12,
+                            }}
+                          >
+                            {player?.photo_url ? (
+                              <img
+                                src={player.photo_url}
+                                alt={player.full_name}
+                                style={{
+                                  width: 42,
+                                  height: 42,
+                                  borderRadius: "50%",
+                                  objectFit: "contain",
+                                  objectPosition: "center",
+                                  display: "block",
+                                  flexShrink: 0,
+                                  background: "#f3f3f3",
+                                }}
+                              />
+                            ) : (
+                              <div
+                                style={{
+                                  width: 42,
+                                  height: 42,
+                                  borderRadius: "50%",
+                                  background: "#eee",
+                                  flexShrink: 0,
+                                }}
+                              />
+                            )}
+
+                            <div>
+                              {player ? (
+                                <Link
+                                  href={`/players/${player.id}`}
+                                  style={{
+                                    color: "#111",
+                                    textDecoration: "none",
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  {player.full_name}
+                                </Link>
+                              ) : (
+                                <div>Unknown Player</div>
+                              )}
+
+                              <div
+                                style={{
+                                  color: "#777",
+                                  fontSize: 13,
+                                  marginTop: 3,
+                                }}
+                              >
+                                {[player?.nationality, player?.position]
+                                  .filter(Boolean)
+                                  .join(" · ")}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td
+                          style={{
+                            padding: "16px",
+                            fontSize: 13,
+                            fontWeight: 600,
+                          }}
+                        >
+                          {contract.status || "Unknown"}
+                        </td>
+
+                        <td
+                          style={{
+                            padding: "16px",
+                            fontSize: 14,
+                            color: "#555",
+                          }}
+                        >
+                          {formatDate(contract.end_date)}
+                        </td>
+
+                        <td
+                          style={{
+                            padding: "16px",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {formatSalary(
+                            contract.annual_salary,
+                            contract.currency
+                          )}
+
+                          {contract.annual_salary !== null && (
+                            <div
+                              style={{
+                                fontSize: 11,
+                                color: "#888",
+                                marginTop: 3,
+                              }}
+                            >
+                              #{salaryRecords.findIndex(
+                                (record) => record.id === contract.id
+                              ) + 1} roster salary
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+
+              {sortedContracts.length === 0 && (
+                <div
+                  style={{
+                    padding: 30,
+                    color: "#777",
+                  }}
+                >
+                  No active players found.
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -946,143 +921,143 @@ export default function ClubProfilePage() {
             }}
           >
             <div style={{ overflowX: "auto" }}>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "1.5fr 1.5fr 1.5fr 1fr 1fr",
-                padding: "14px 18px",
-                background: "#fafafa",
-                borderBottom:
-                  "1px solid #eee",
-                fontSize: 12,
-                fontWeight: 700,
-                color: "#666",
-                textTransform:
-                  "uppercase",
-              }}
-            >
-              <div>Player</div>
-              <div>From</div>
-              <div>To</div>
-              <div>Date</div>
-              <div>Fee</div>
-            </div>
-
-            {transfers.map(
-              (transfer) => (
-                <div
-                  key={transfer.id}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns:
-                      "1.5fr 1.5fr 1.5fr 1fr 1fr",
-                    padding:
-                      "16px 18px",
-                    borderBottom:
-                      "1px solid #eee",
-                    alignItems:
-                      "center",
-                  }}
-                >
-                  <Link
-                    href={`/players/${transfer.player?.id}`}
-                    style={{
-                      color: "#111",
-                      textDecoration:
-                        "none",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {transfer.player
-                      ?.full_name ||
-                      "Unknown Player"}
-                  </Link>
-
-                  {transfer.from_club ? (
-                    <Link
-                      href={`/clubs/${transfer.from_club.id}`}
-                      style={{
-                        color:
-                          "#111",
-                        textDecoration:
-                          "none",
-                      }}
-                    >
-                      {
-                        transfer
-                          .from_club
-                          .name
-                      }
-                    </Link>
-                  ) : (
-                    <div>
-                      Unknown
-                    </div>
-                  )}
-
-                  {transfer.to_club ? (
-                    <Link
-                      href={`/clubs/${transfer.to_club.id}`}
-                      style={{
-                        color:
-                          "#111",
-                        textDecoration:
-                          "none",
-                      }}
-                    >
-                      {
-                        transfer
-                          .to_club
-                          .name
-                      }
-                    </Link>
-                  ) : (
-                    <div>
-                      Unknown
-                    </div>
-                  )}
-
-                  <div>
-                    {formatDate(
-                      transfer.transfer_date
-                    )}
-                  </div>
-
-                  <div
-                    style={{
-                      fontWeight: 600,
-                    }}
-                  >
-                    {transfer.fee !==
-                    null
-                      ? formatSalary(
-                          transfer.fee,
-                          transfer.currency
-                        )
-                      : transfer.transfer_type ||
-                        "Unknown"}
-                  </div>
-                </div>
-              )
-            )}
-
-            {transfers.length ===
-              0 && (
-              <div
+              <table
                 style={{
-                  padding: 30,
-                  color: "#777",
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  minWidth: 900,
                 }}
               >
-                No transfer activity
-                found.
-              </div>
-            )}
+                <thead>
+                  <tr
+                    style={{
+                      borderBottom: "1px solid #e5e5e5",
+                      textAlign: "left",
+                    }}
+                  >
+                    {["Player", "From", "", "To", "Date", "Fee"].map(
+                      (heading, index) => (
+                        <th
+                          key={`${heading}-${index}`}
+                          style={{
+                            padding: "15px 16px",
+                            fontSize: 11,
+                            letterSpacing: 1,
+                            textTransform: "uppercase",
+                            color: "#888",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {heading}
+                        </th>
+                      )
+                    )}
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {transfers.map((transfer) => (
+                    <tr
+                      key={transfer.id}
+                      style={{
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      <td
+                        style={{
+                          padding: "16px",
+                          fontWeight: 650,
+                        }}
+                      >
+                        <Link
+                          href={`/players/${transfer.player?.id}`}
+                          style={{
+                            color: "#111",
+                            textDecoration: "none",
+                          }}
+                        >
+                          {transfer.player?.full_name || "Unknown Player"}
+                        </Link>
+                      </td>
+
+                      <td style={{ padding: "16px" }}>
+                        {transfer.from_club ? (
+                          <Link
+                            href={`/clubs/${transfer.from_club.id}`}
+                            style={{
+                              color: "#111",
+                              textDecoration: "none",
+                            }}
+                          >
+                            {transfer.from_club.name}
+                          </Link>
+                        ) : (
+                          "Unknown"
+                        )}
+                      </td>
+
+                      <td
+                        style={{
+                          padding: "16px",
+                          color: "#999",
+                          textAlign: "center",
+                        }}
+                      >
+                        →
+                      </td>
+
+                      <td style={{ padding: "16px" }}>
+                        {transfer.to_club ? (
+                          <Link
+                            href={`/clubs/${transfer.to_club.id}`}
+                            style={{
+                              color: "#111",
+                              textDecoration: "none",
+                            }}
+                          >
+                            {transfer.to_club.name}
+                          </Link>
+                        ) : (
+                          "Unknown"
+                        )}
+                      </td>
+
+                      <td
+                        style={{
+                          padding: "16px",
+                        }}
+                      >
+                        {formatDate(transfer.transfer_date)}
+                      </td>
+
+                      <td
+                        style={{
+                          padding: "16px",
+                          fontWeight: 650,
+                        }}
+                      >
+                        {transfer.fee !== null
+                          ? formatSalary(transfer.fee, transfer.currency)
+                          : transfer.transfer_type || "Unknown"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {transfers.length === 0 && (
+                <div
+                  style={{
+                    padding: 30,
+                    color: "#777",
+                  }}
+                >
+                  No transfer activity found.
+                </div>
+              )}
             </div>
           </div>
         </section>
-      </div>
 
       <footer
         style={{
