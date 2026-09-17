@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "../../lib/supabase";
-import PositionMap from "../../../components/PositionMap";
 
 type Player = {
   id: string;
@@ -412,6 +411,43 @@ function getSalaryStatusStyle(status: string) {
   };
 }
 
+function getPositionColor(position: string) {
+  const normalized = position.toLowerCase();
+
+  if (
+    normalized.includes("goalkeeper") ||
+    normalized === "gk"
+  ) {
+    return "#f59e0b";
+  }
+
+  if (
+    normalized.includes("defender") ||
+    normalized.includes("back") ||
+    normalized.includes("center back") ||
+    normalized.includes("centre back")
+  ) {
+    return "#3b82f6";
+  }
+
+  if (
+    normalized.includes("midfielder") ||
+    normalized.includes("midfield")
+  ) {
+    return "#10b981";
+  }
+
+  if (
+    normalized.includes("forward") ||
+    normalized.includes("striker") ||
+    normalized.includes("winger")
+  ) {
+    return "#ef4444";
+  }
+
+  return "#6b7280";
+}
+
 const cardStyle: React.CSSProperties = {
   background: "#ffffff",
   border: "1px solid #e5e7eb",
@@ -569,7 +605,8 @@ export default async function PlayerPage({
     contracts.find(
       (contract) =>
         (contract.status ?? "").toLowerCase() ===
-          "active" && contract.club_id !== null
+          "active" &&
+        contract.club_id !== null
     ) ??
     contracts.find(
       (contract) =>
@@ -610,6 +647,12 @@ export default async function PlayerPage({
           activeContract.source_id
         ) ?? null
       : null;
+
+  const primaryPosition =
+    typedPlayer.position ?? "";
+
+  const secondaryPosition =
+    typedPlayer.secondary_position ?? "";
 
   return (
     <main
@@ -820,18 +863,21 @@ export default async function PlayerPage({
                   </span>
                 )}
 
-                {typedPlayer.position && (
+                {primaryPosition && (
                   <span
                     style={{
                       padding: "5px 9px",
                       borderRadius: 6,
-                      background: "#eff6ff",
-                      color: "#1d4ed8",
+                      background:
+                        getPositionColor(
+                          primaryPosition
+                        ),
+                      color: "#ffffff",
                       fontSize: 13,
                       fontWeight: 800,
                     }}
                   >
-                    {typedPlayer.position}
+                    {primaryPosition}
                   </span>
                 )}
               </div>
@@ -911,7 +957,7 @@ export default async function PlayerPage({
                 Position
               </div>
               <div style={valueStyle}>
-                {typedPlayer.position ?? "—"}
+                {primaryPosition || "—"}
               </div>
             </div>
 
@@ -920,8 +966,7 @@ export default async function PlayerPage({
                 Secondary Position
               </div>
               <div style={valueStyle}>
-                {typedPlayer.secondary_position ??
-                  "—"}
+                {secondaryPosition || "—"}
               </div>
             </div>
 
@@ -984,15 +1029,67 @@ export default async function PlayerPage({
           }}
         >
           <h2 style={sectionTitleStyle}>
-            Position Map
+            Position
           </h2>
 
-          <PositionMap
-            position={typedPlayer.position ?? ""}
-            secondaryPosition={
-              typedPlayer.secondary_position ?? ""
-            }
-          />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              flexWrap: "wrap",
+            }}
+          >
+            {primaryPosition && (
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  background:
+                    getPositionColor(
+                      primaryPosition
+                    ),
+                  color: "#ffffff",
+                  fontSize: 14,
+                  fontWeight: 800,
+                }}
+              >
+                {primaryPosition}
+              </span>
+            )}
+
+            {secondaryPosition && (
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  background: "#f3f4f6",
+                  color: "#374151",
+                  border:
+                    "1px solid #d1d5db",
+                  fontSize: 14,
+                  fontWeight: 700,
+                }}
+              >
+                Also: {secondaryPosition}
+              </span>
+            )}
+
+            {!primaryPosition &&
+              !secondaryPosition && (
+                <span
+                  style={{
+                    color: "#6b7280",
+                  }}
+                >
+                  Position not available
+                </span>
+              )}
+          </div>
         </section>
 
         <section
@@ -1253,7 +1350,8 @@ export default async function PlayerPage({
                           style={{
                             color: "#2563eb",
                             fontWeight: 700,
-                            textDecoration: "none",
+                            textDecoration:
+                              "none",
                           }}
                         >
                           {currentSource.publisher}
