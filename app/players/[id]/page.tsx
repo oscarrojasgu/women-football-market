@@ -1,12 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "../../lib/supabase";
-
 import PositionMap from "../../../components/PositionMap";
-
-type PlayerPageProps = {
-  params: Promise<{ id: string }>;
-};
 
 type Player = {
   id: string;
@@ -16,6 +13,7 @@ type Player = {
   position: string | null;
   preferred_foot: string | null;
   agency: string | null;
+  created_at: string;
   photo_url: string | null;
   height_cm: number | null;
   birthplace: string | null;
@@ -32,35 +30,32 @@ type Club = {
   logo_url: string | null;
 };
 
+type Source = {
+  id: string;
+  publisher: string | null;
+  url: string | null;
+  reliability: string | null;
+};
+
 type Contract = {
   id: string;
   player_id: string;
-  club_id: string;
+  club_id: string | null;
   start_date: string | null;
   end_date: string | null;
   annual_salary: number | null;
   weekly_salary: number | null;
   currency: string | null;
-  annual_salary_usd: number | null;
-  weekly_salary_usd: number | null;
   guaranteed: boolean | null;
   option_year: boolean | null;
-  status: string;
-  confidence: string;
-  notes: string | null;
+  status: string | null;
   source_id: string | null;
-};
-
-type ContractWithClub = Contract & {
-  club: Club | null;
-  source: Source | null;
-};
-
-type Source = {
-  id: string;
-  url: string | null;
-  publisher: string | null;
-  reliability: string | null;
+  confidence: string | null;
+  notes: string | null;
+  annual_salary_usd: number | null;
+  weekly_salary_usd: number | null;
+  exchange_rate_to_usd: number | null;
+  conversion_date: string | null;
 };
 
 type Transfer = {
@@ -72,144 +67,147 @@ type Transfer = {
   transfer_type: string | null;
   fee: number | null;
   currency: string | null;
-  confidence: string;
+  source_id: string | null;
+  confidence: string | null;
   notes: string | null;
-};
-
-type TransferWithClubs = Transfer & {
-  from_club: Club | null;
-  to_club: Club | null;
 };
 
 type MarketValue = {
   id: string;
   player_id: string;
-  valuation_date: string;
-  market_value: number;
+  valuation_date: string | null;
+  market_value: number | null;
   currency: string | null;
-  confidence: string;
+  confidence: string | null;
+  source_id: string | null;
+  notes: string | null;
   market_value_usd: number | null;
   exchange_rate_to_usd: number | null;
   conversion_date: string | null;
-  notes: string | null;
-  source_id: string | null;
 };
 
-const EUR_TO_USD = 1.17;
-const GBP_TO_USD = 1.35;
-const CAD_TO_USD = 0.73;
-const AUD_TO_USD = 0.66;
+type PlayerPageProps = {
+  params: Promise<{ id: string }>;
+};
 
-function getCountryCode(nationality: string | null): string | null {
+const countryCodes: Record<string, string> = {
+  usa: "us",
+  "united states": "us",
+  us: "us",
+
+  canada: "ca",
+  mexico: "mx",
+
+  brazil: "br",
+  argentina: "ar",
+  colombia: "co",
+  chile: "cl",
+  peru: "pe",
+  ecuador: "ec",
+  venezuela: "ve",
+  "costa rica": "cr",
+  panama: "pa",
+
+  england: "gb-eng",
+  scotland: "gb-sct",
+  wales: "gb-wls",
+  "northern ireland": "gb-nir",
+  "united kingdom": "gb",
+
+  france: "fr",
+  germany: "de",
+  spain: "es",
+  italy: "it",
+  portugal: "pt",
+  netherlands: "nl",
+  belgium: "be",
+  switzerland: "ch",
+  austria: "at",
+  norway: "no",
+  sweden: "se",
+  denmark: "dk",
+  finland: "fi",
+  iceland: "is",
+  ireland: "ie",
+  poland: "pl",
+  czechia: "cz",
+  "czech republic": "cz",
+  croatia: "hr",
+  serbia: "rs",
+  slovenia: "si",
+  slovakia: "sk",
+  romania: "ro",
+  hungary: "hu",
+  ukraine: "ua",
+  russia: "ru",
+  turkey: "tr",
+  greece: "gr",
+
+  australia: "au",
+  "new zealand": "nz",
+  japan: "jp",
+  "south korea": "kr",
+  korea: "kr",
+  china: "cn",
+  india: "in",
+  philippines: "ph",
+  thailand: "th",
+  vietnam: "vn",
+
+  nigeria: "ng",
+  ghana: "gh",
+  cameroon: "cm",
+  "south africa": "za",
+  zambia: "zm",
+  "ivory coast": "ci",
+  "cote d'ivoire": "ci",
+  morocco: "ma",
+  egypt: "eg",
+
+  jamaica: "jm",
+  "trinidad and tobago": "tt",
+  puerto rico: "pr",
+  "dominican republic": "do",
+
+  switzerland: "ch",
+  "bosnia and herzegovina": "ba",
+  "north macedonia": "mk",
+  albania: "al",
+  bulgaria: "bg",
+  estonia: "ee",
+  latvia: "lv",
+  lithuania: "lt",
+
+  "united states of america": "us",
+};
+
+function getCountryCode(nationality: string | null) {
   if (!nationality) return null;
 
-  const normalized = nationality.trim().toLowerCase();
+  const normalized = nationality
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
 
-  const countries: Record<string, string> = {
-    usa: "us",
-    "united states": "us",
-    "united states of america": "us",
-    us: "us",
-
-    canada: "ca",
-    mexico: "mx",
-    brazil: "br",
-    argentina: "ar",
-    colombia: "co",
-    chile: "cl",
-    peru: "pe",
-    uruguay: "uy",
-    ecuador: "ec",
-    venezuela: "ve",
-    costa rica: "cr",
-    panama: "pa",
-
-    england: "gb-eng",
-    "england": "gb-eng",
-    "united kingdom": "gb",
-    uk: "gb",
-    scotland: "gb-sct",
-    wales: "gb-wls",
-    ireland: "ie",
-    "republic of ireland": "ie",
-    france: "fr",
-    germany: "de",
-    spain: "es",
-    italy: "it",
-    portugal: "pt",
-    netherlands: "nl",
-    belgium: "be",
-    switzerland: "ch",
-    austria: "at",
-    norway: "no",
-    sweden: "se",
-    denmark: "dk",
-    finland: "fi",
-    iceland: "is",
-    poland: "pl",
-    ukraine: "ua",
-    "czech republic": "cz",
-    czechia: "cz",
-    croatia: "hr",
-    serbia: "rs",
-    slovenia: "si",
-    romania: "ro",
-    hungary: "hu",
-    greece: "gr",
-    turkey: "tr",
-
-    australia: "au",
-    japan: "jp",
-    "south korea": "kr",
-    korea: "kr",
-    china: "cn",
-    philippines: "ph",
-    thailand: "th",
-    vietnam: "vn",
-    india: "in",
-    newzealand: "nz",
-    "new zealand": "nz",
-
-    nigeria: "ng",
-    ghana: "gh",
-    zambia: "zm",
-    south africa: "za",
-    cameroon: "cm",
-    morocco: "ma",
-    egypt: "eg",
-    tunisia: "tn",
-    algeria: "dz",
-    mali: "ml",
-    senegal: "sn",
-    ivorycoast: "ci",
-    "ivory coast": "ci",
-
-    jamaica: "jm",
-    haiti: "ht",
-    "trinidad and tobago": "tt",
-    bermuda: "bm",
-    puerto rico: "pr",
-  };
-
-  return countries[normalized] ?? null;
+  return countryCodes[normalized] ?? null;
 }
 
-function formatDate(date: string | null): string {
-  if (!date) return "—";
+function formatDate(value: string | null) {
+  if (!value) return "—";
 
-  const parsed = new Date(`${date}T00:00:00`);
+  const date = new Date(`${value}T00:00:00`);
 
-  if (Number.isNaN(parsed.getTime())) return date;
+  if (Number.isNaN(date.getTime())) return value;
 
-  return parsed.toLocaleDateString("en-US", {
+  return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
   });
 }
 
-function formatUSD(amount: number | null): string {
-  if (amount === null || amount === undefined || Number.isNaN(Number(amount))) {
+function formatUSD(value: number | null) {
+  if (value === null || value === undefined) {
     return "Not publicly available";
   }
 
@@ -217,130 +215,182 @@ function formatUSD(amount: number | null): string {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,
-  }).format(Number(amount));
+  }).format(value);
 }
 
+const EUR_TO_USD = 1.17;
+const GBP_TO_USD = 1.35;
+const CAD_TO_USD = 0.73;
+const AUD_TO_USD = 0.66;
+
 function formatMarketValue(
-  amount: number | null,
-  currency: string | null
-): string {
-  if (amount === null || amount === undefined) return "—";
-
-  const numericAmount = Number(amount);
-
-  if (Number.isNaN(numericAmount)) return "—";
-
-  let usdAmount = numericAmount;
-
-  switch ((currency ?? "USD").toUpperCase()) {
-    case "EUR":
-      usdAmount = numericAmount * EUR_TO_USD;
-      break;
-    case "GBP":
-      usdAmount = numericAmount * GBP_TO_USD;
-      break;
-    case "CAD":
-      usdAmount = numericAmount * CAD_TO_USD;
-      break;
-    case "AUD":
-      usdAmount = numericAmount * AUD_TO_USD;
-      break;
-    case "USD":
-    default:
-      usdAmount = numericAmount;
-      break;
+  value: number | null,
+  currency: string | null,
+  usdValue: number | null
+) {
+  if (usdValue !== null && usdValue !== undefined) {
+    return formatUSD(usdValue);
   }
 
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(usdAmount);
+  if (value === null || value === undefined) {
+    return "Not available";
+  }
+
+  const normalizedCurrency = (currency ?? "USD").toUpperCase();
+
+  let converted = value;
+
+  if (normalizedCurrency === "EUR") {
+    converted = value * EUR_TO_USD;
+  } else if (normalizedCurrency === "GBP") {
+    converted = value * GBP_TO_USD;
+  } else if (normalizedCurrency === "CAD") {
+    converted = value * CAD_TO_USD;
+  } else if (normalizedCurrency === "AUD") {
+    converted = value * AUD_TO_USD;
+  }
+
+  return formatUSD(converted);
 }
 
 function formatTransferFee(
-  amount: number | null,
+  fee: number | null,
   currency: string | null
-): string {
-  if (amount === null || amount === undefined) return "Free";
+) {
+  if (fee === null || fee === undefined) {
+    return "Undisclosed";
+  }
 
-  const numericAmount = Number(amount);
+  const normalizedCurrency = (currency ?? "USD").toUpperCase();
 
-  if (Number.isNaN(numericAmount)) return "—";
+  if (fee === 0) {
+    return "Free";
+  }
 
-  const code = (currency ?? "USD").toUpperCase();
-
-  return new Intl.NumberFormat("en-US", {
+  return `${new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: code,
+    currency: normalizedCurrency,
     maximumFractionDigits: 0,
-  }).format(numericAmount);
+  }).format(fee)}`;
 }
 
-function formatTransferType(type: string | null): string {
-  if (!type) return "Transfer";
+function formatTransferType(value: string | null) {
+  if (!value) return "Transfer";
 
-  const normalized = type.toLowerCase();
-
-  if (normalized === "free") return "Free Transfer";
-  if (normalized === "loan") return "Loan";
-  if (normalized === "permanent") return "Permanent Transfer";
-  if (normalized === "transfer") return "Transfer";
-
-  return type.charAt(0).toUpperCase() + type.slice(1);
+  return value
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function formatConfidence(confidence: string | null): string {
-  if (!confidence) return "Unknown";
+function formatConfidence(value: string | null) {
+  if (!value) return "Unknown";
 
-  switch (confidence.toLowerCase()) {
-    case "verified":
-      return "Verified";
-    case "reported":
-      return "Reported";
-    case "reliable":
-      return "Reliable";
-    case "estimated":
-      return "Estimated";
-    case "estimate":
-      return "Estimated";
-    default:
-      return confidence.charAt(0).toUpperCase() + confidence.slice(1);
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function getConfidenceStyle(value: string | null) {
+  const normalized = (value ?? "").toLowerCase();
+
+  if (normalized === "verified") {
+    return {
+      background: "#dcfce7",
+      color: "#166534",
+      border: "#86efac",
+    };
   }
-}
 
-function getConfidenceStyle(confidence: string | null): string {
-  switch ((confidence ?? "").toLowerCase()) {
-    case "verified":
-      return "bg-emerald-100 text-emerald-700";
-    case "reported":
-      return "bg-blue-100 text-blue-700";
-    case "reliable":
-      return "bg-blue-100 text-blue-700";
-    case "estimated":
-    case "estimate":
-      return "bg-amber-100 text-amber-700";
-    default:
-      return "bg-gray-100 text-gray-600";
+  if (normalized === "reported") {
+    return {
+      background: "#dbeafe",
+      color: "#1d4ed8",
+      border: "#93c5fd",
+    };
   }
+
+  if (normalized === "estimated") {
+    return {
+      background: "#fef3c7",
+      color: "#92400e",
+      border: "#fcd34d",
+    };
+  }
+
+  return {
+    background: "#f3f4f6",
+    color: "#4b5563",
+    border: "#d1d5db",
+  };
 }
 
-function calculateAge(dateOfBirth: string | null): number | null {
+function salaryStatus(contract: Contract | null) {
+  if (!contract) return "Not publicly available";
+
+  if (
+    contract.annual_salary_usd !== null ||
+    contract.weekly_salary_usd !== null
+  ) {
+    const confidence = (contract.confidence ?? "").toLowerCase();
+
+    if (confidence === "reported") return "Reported";
+    if (confidence === "verified") return "Verified";
+    if (confidence === "estimated") return "Estimated";
+
+    return "Available";
+  }
+
+  return "Not publicly available";
+}
+
+function salaryStatusClass(status: string) {
+  if (status === "Reported") {
+    return {
+      background: "#dbeafe",
+      color: "#1d4ed8",
+      border: "#93c5fd",
+    };
+  }
+
+  if (status === "Verified") {
+    return {
+      background: "#dcfce7",
+      color: "#166534",
+      border: "#86efac",
+    };
+  }
+
+  if (status === "Estimated") {
+    return {
+      background: "#fef3c7",
+      color: "#92400e",
+      border: "#fcd34d",
+    };
+  }
+
+  return {
+    background: "#f3f4f6",
+    color: "#4b5563",
+    border: "#d1d5db",
+  };
+}
+
+function calculateAge(dateOfBirth: string | null) {
   if (!dateOfBirth) return null;
 
-  const birth = new Date(`${dateOfBirth}T00:00:00`);
+  const birthDate = new Date(`${dateOfBirth}T00:00:00`);
 
-  if (Number.isNaN(birth.getTime())) return null;
+  if (Number.isNaN(birthDate.getTime())) return null;
 
   const today = new Date();
 
-  let age = today.getFullYear() - birth.getFullYear();
+  let age = today.getFullYear() - birthDate.getFullYear();
 
-  const monthDifference = today.getMonth() - birth.getMonth();
+  const monthDifference =
+    today.getMonth() - birthDate.getMonth();
 
   if (
     monthDifference < 0 ||
-    (monthDifference === 0 && today.getDate() < birth.getDate())
+    (monthDifference === 0 &&
+      today.getDate() < birthDate.getDate())
   ) {
     age--;
   }
@@ -348,43 +398,43 @@ function calculateAge(dateOfBirth: string | null): number | null {
   return age;
 }
 
-function salaryStatus(contract: ContractWithClub | null): string {
-  if (!contract || contract.annual_salary_usd === null) {
-    return "Not publicly available";
-  }
+const pageBackground = "#f5f7fa";
 
-  return formatConfidence(contract.confidence);
-}
+const cardStyle: React.CSSProperties = {
+  background: "#ffffff",
+  border: "1px solid #e5e7eb",
+  borderRadius: 14,
+  boxShadow: "0 2px 8px rgba(15, 23, 42, 0.05)",
+};
 
-function salaryStatusClass(contract: ContractWithClub | null): string {
-  if (!contract || contract.annual_salary_usd === null) {
-    return "bg-gray-100 text-gray-600";
-  }
+const sectionTitleStyle: React.CSSProperties = {
+  fontSize: 18,
+  fontWeight: 800,
+  color: "#111827",
+  marginBottom: 16,
+};
 
-  return getConfidenceStyle(contract.confidence);
-}
+const labelStyle: React.CSSProperties = {
+  fontSize: 12,
+  fontWeight: 700,
+  color: "#6b7280",
+  textTransform: "uppercase",
+  letterSpacing: "0.04em",
+};
 
-const cardStyle =
-  "rounded-2xl border border-gray-200 bg-white shadow-sm";
-
-const sectionTitleStyle =
-  "text-lg font-bold tracking-tight text-gray-900";
-
-const labelStyle =
-  "text-xs font-semibold uppercase tracking-wide text-gray-500";
-
-const valueStyle =
-  "mt-1 text-sm font-medium text-gray-900";
+const valueStyle: React.CSSProperties = {
+  marginTop: 4,
+  fontSize: 15,
+  fontWeight: 600,
+  color: "#111827",
+};
 
 export default async function PlayerPage({
   params,
 }: PlayerPageProps) {
   const { id } = await params;
 
-  const {
-    data: player,
-    error: playerError,
-  } = await supabase
+  const { data: player, error: playerError } = await supabase
     .from("players")
     .select("*")
     .eq("id", id)
@@ -397,9 +447,9 @@ export default async function PlayerPage({
   const typedPlayer = player as Player;
 
   const [
-    contractsResponse,
-    transfersResponse,
-    marketValuesResponse,
+    contractsResult,
+    transfersResult,
+    marketValuesResult,
   ] = await Promise.all([
     supabase
       .from("contracts")
@@ -420,11 +470,10 @@ export default async function PlayerPage({
       .order("valuation_date", { ascending: false }),
   ]);
 
-  const contracts = (contractsResponse.data ?? []) as Contract[];
-
-  const transfers = (transfersResponse.data ?? []) as Transfer[];
-
-  const marketValues = (marketValuesResponse.data ?? []) as MarketValue[];
+  const contracts = (contractsResult.data ?? []) as Contract[];
+  const transfers = (transfersResult.data ?? []) as Transfer[];
+  const marketValues = (marketValuesResult.data ??
+    []) as MarketValue[];
 
   const clubIds = Array.from(
     new Set(
@@ -434,23 +483,8 @@ export default async function PlayerPage({
           transfer.from_club_id,
           transfer.to_club_id,
         ]),
-      ].filter(Boolean)
+      ].filter(Boolean) as string[]
     )
-  );
-
-  let clubs: Club[] = [];
-
-  if (clubIds.length > 0) {
-    const { data: clubsData } = await supabase
-      .from("clubs")
-      .select("*")
-      .in("id", clubIds);
-
-    clubs = (clubsData ?? []) as Club[];
-  }
-
-  const clubMap = new Map<string, Club>(
-    clubs.map((club) => [club.id, club])
   );
 
   const sourceIds = Array.from(
@@ -459,98 +493,123 @@ export default async function PlayerPage({
         ...contracts.map((contract) => contract.source_id),
         ...transfers.map((transfer) => transfer.source_id),
         ...marketValues.map((marketValue) => marketValue.source_id),
-      ].filter(Boolean)
+      ].filter(Boolean) as string[]
     )
   );
 
-  let sources: Source[] = [];
+  const [clubsResult, sourcesResult] = await Promise.all([
+    clubIds.length
+      ? supabase.from("clubs").select("*").in("id", clubIds)
+      : Promise.resolve({ data: [] }),
 
-  if (sourceIds.length > 0) {
-    const { data: sourcesData } = await supabase
-      .from("sources")
-      .select("*")
-      .in("id", sourceIds);
+    sourceIds.length
+      ? supabase.from("sources").select("*").in("id", sourceIds)
+      : Promise.resolve({ data: [] }),
+  ]);
 
-    sources = (sourcesData ?? []) as Source[];
-  }
+  const clubs = (clubsResult.data ?? []) as Club[];
+  const sources = (sourcesResult.data ?? []) as Source[];
 
-  const sourceMap = new Map<string, Source>(
+  const clubMap = new Map(
+    clubs.map((club) => [club.id, club])
+  );
+
+  const sourceMap = new Map(
     sources.map((source) => [source.id, source])
   );
 
-  const contractsWithClubs: ContractWithClub[] = contracts.map(
-    (contract) => ({
-      ...contract,
-      club: clubMap.get(contract.club_id) ?? null,
-      source: contract.source_id
-        ? sourceMap.get(contract.source_id) ?? null
-        : null,
-    })
-  );
-
-  const transfersWithClubs: TransferWithClubs[] = transfers.map(
-    (transfer) => ({
-      ...transfer,
-      from_club: transfer.from_club_id
-        ? clubMap.get(transfer.from_club_id) ?? null
-        : null,
-      to_club: transfer.to_club_id
-        ? clubMap.get(transfer.to_club_id) ?? null
-        : null,
-    })
-  );
-
   const activeContract =
-    contractsWithClubs.find(
+    contracts.find(
       (contract) =>
-        contract.status?.toLowerCase() === "active" &&
+        (contract.status ?? "").toLowerCase() === "active" &&
         contract.club_id
     ) ??
-    contractsWithClubs.find(
-      (contract) => contract.status?.toLowerCase() === "active"
+    contracts.find(
+      (contract) =>
+        (contract.status ?? "").toLowerCase() === "active"
     ) ??
-    contractsWithClubs[0] ??
+    contracts[0] ??
     null;
 
-  const currentClub = activeContract?.club ?? null;
+  const currentClub = activeContract?.club_id
+    ? clubMap.get(activeContract.club_id) ?? null
+    : null;
 
-  const currentMarketValue = marketValues[0] ?? null;
-  const previousMarketValue = marketValues[1] ?? null;
+  const latestMarketValue = marketValues[0] ?? null;
 
   const age = calculateAge(typedPlayer.date_of_birth);
+
   const countryCode = getCountryCode(typedPlayer.nationality);
 
-  const annualSalary =
-    activeContract?.annual_salary_usd ?? null;
+  const currentSalaryStatus = salaryStatus(activeContract);
+  const currentSalaryStyle =
+    salaryStatusClass(currentSalaryStatus);
 
-  const weeklySalary =
-    activeContract?.weekly_salary_usd ?? null;
-
-  const hasSalary =
-    annualSalary !== null || weeklySalary !== null;
+  const currentSource = activeContract?.source_id
+    ? sourceMap.get(activeContract.source_id) ?? null
+    : null;
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <nav className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+    <main
+      style={{
+        minHeight: "100vh",
+        background: pageBackground,
+        color: "#111827",
+      }}
+    >
+      <nav
+        style={{
+          background: "#111827",
+          color: "#ffffff",
+          padding: "14px 24px",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 1200,
+            margin: "0 auto",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 20,
+          }}
+        >
           <Link
             href="/"
-            className="text-xl font-black tracking-tight text-gray-900"
+            style={{
+              color: "#ffffff",
+              textDecoration: "none",
+              fontSize: 20,
+              fontWeight: 900,
+            }}
           >
             Women&apos;s Football Market
           </Link>
 
-          <div className="flex items-center gap-5 text-sm font-semibold text-gray-600">
+          <div
+            style={{
+              display: "flex",
+              gap: 20,
+              fontSize: 14,
+              fontWeight: 700,
+            }}
+          >
             <Link
               href="/"
-              className="transition hover:text-gray-900"
+              style={{
+                color: "#d1d5db",
+                textDecoration: "none",
+              }}
             >
               Home
             </Link>
 
             <Link
               href="/players"
-              className="transition hover:text-gray-900"
+              style={{
+                color: "#ffffff",
+                textDecoration: "none",
+              }}
             >
               Players
             </Link>
@@ -558,696 +617,974 @@ export default async function PlayerPage({
         </div>
       </nav>
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <Link
-            href="/players"
-            className="text-sm font-semibold text-gray-500 transition hover:text-gray-900"
+      <div
+        style={{
+          maxWidth: 1200,
+          margin: "0 auto",
+          padding: "28px 20px 60px",
+        }}
+      >
+        <Link
+          href="/players"
+          style={{
+            display: "inline-flex",
+            marginBottom: 20,
+            color: "#2563eb",
+            textDecoration: "none",
+            fontSize: 14,
+            fontWeight: 700,
+          }}
+        >
+          ← Back to Players
+        </Link>
+
+        <section
+          style={{
+            ...cardStyle,
+            padding: 24,
+            marginBottom: 20,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 24,
+              flexWrap: "wrap",
+            }}
           >
-            ← Back to Players
-          </Link>
-        </div>
+            <div
+              style={{
+                width: 120,
+                height: 120,
+                borderRadius: 16,
+                overflow: "hidden",
+                background: "#e5e7eb",
+                border: "1px solid #d1d5db",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              {typedPlayer.photo_url ? (
+                <img
+                  src={typedPlayer.photo_url}
+                  alt={typedPlayer.full_name}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <span
+                  style={{
+                    fontSize: 40,
+                    fontWeight: 900,
+                    color: "#9ca3af",
+                  }}
+                >
+                  {typedPlayer.full_name
+                    .split(" ")
+                    .map((part) => part[0])
+                    .slice(0, 2)
+                    .join("")}
+                </span>
+              )}
+            </div>
 
-        <section className={`${cardStyle} overflow-hidden`}>
-          <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 px-6 py-8 text-white sm:px-8">
-            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-5">
-                {typedPlayer.photo_url ? (
-                  <img
-                    src={typedPlayer.photo_url}
-                    alt={typedPlayer.full_name}
-                    className="h-28 w-28 rounded-full border-4 border-white/20 object-cover shadow-lg"
-                  />
-                ) : (
-                  <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-white/20 bg-white/10 text-3xl font-black">
-                    {typedPlayer.full_name
-                      .split(" ")
-                      .map((part) => part[0])
-                      .slice(0, 2)
-                      .join("")}
-                  </div>
-                )}
+            <div style={{ flex: 1, minWidth: 250 }}>
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: 34,
+                  lineHeight: 1.1,
+                  fontWeight: 900,
+                  color: "#111827",
+                }}
+              >
+                {typedPlayer.full_name}
+              </h1>
 
-                <div>
-                  <div className="mb-2 flex flex-wrap items-center gap-3">
-                    <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
-                      {typedPlayer.full_name}
-                    </h1>
-
+              <div
+                style={{
+                  marginTop: 10,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  flexWrap: "wrap",
+                }}
+              >
+                {typedPlayer.nationality && (
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 7,
+                      fontSize: 15,
+                      fontWeight: 700,
+                    }}
+                  >
                     {countryCode ? (
                       <img
                         src={`https://flagcdn.com/w40/${countryCode}.png`}
                         srcSet={`https://flagcdn.com/w80/${countryCode}.png 2x`}
-                        width="40"
-                        height="30"
-                        alt={typedPlayer.nationality ?? "Nationality"}
-                        className="h-6 w-8 rounded object-cover shadow-sm"
+                        width={28}
+                        height={20}
+                        alt={`${typedPlayer.nationality} flag`}
+                        style={{
+                          objectFit: "cover",
+                          borderRadius: 2,
+                          border: "1px solid #d1d5db",
+                        }}
                       />
                     ) : null}
-                  </div>
 
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-300">
-                    {typedPlayer.position ? (
-                      <span>{typedPlayer.position}</span>
-                    ) : null}
+                    <span>{typedPlayer.nationality}</span>
+                  </span>
+                )}
 
-                    {age !== null ? (
-                      <span>{age} years old</span>
-                    ) : null}
-
-                    {typedPlayer.nationality ? (
-                      <span>{typedPlayer.nationality}</span>
-                    ) : null}
-                  </div>
-                </div>
+                {typedPlayer.position && (
+                  <span
+                    style={{
+                      padding: "5px 9px",
+                      borderRadius: 6,
+                      background: "#eff6ff",
+                      color: "#1d4ed8",
+                      fontSize: 13,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {typedPlayer.position}
+                  </span>
+                )}
               </div>
 
-              {currentClub ? (
-                <div className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 backdrop-blur">
-                  {currentClub.logo_url ? (
-                    <img
-                      src={currentClub.logo_url}
-                      alt={currentClub.name}
-                      className="h-12 w-12 object-contain"
-                    />
-                  ) : null}
-
-                  <div>
-                    <div className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                      Current Club
-                    </div>
-                    <div className="font-bold text-white">
-                      {currentClub.name}
-                    </div>
-                  </div>
+              {currentClub && (
+                <div
+                  style={{
+                    marginTop: 12,
+                    fontSize: 15,
+                    color: "#4b5563",
+                  }}
+                >
+                  Current Club:{" "}
+                  <strong style={{ color: "#111827" }}>
+                    {currentClub.name}
+                  </strong>
                 </div>
-              ) : null}
+              )}
             </div>
           </div>
         </section>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-3">
-          <section className={`${cardStyle} p-6 lg:col-span-2`}>
-            <h2 className={sectionTitleStyle}>
-              Player Information
-            </h2>
+        <section
+          style={{
+            ...cardStyle,
+            padding: 24,
+            marginBottom: 20,
+          }}
+        >
+          <h2 style={sectionTitleStyle}>
+            Player Information
+          </h2>
 
-            <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(auto-fit, minmax(180px, 1fr))",
+              gap: 22,
+            }}
+          >
+            <div>
+              <div style={labelStyle}>Nationality</div>
+              <div style={valueStyle}>
+                {typedPlayer.nationality ?? "—"}
+              </div>
+            </div>
+
+            <div>
+              <div style={labelStyle}>Date of Birth</div>
+              <div style={valueStyle}>
+                {formatDate(typedPlayer.date_of_birth)}
+              </div>
+            </div>
+
+            <div>
+              <div style={labelStyle}>Age</div>
+              <div style={valueStyle}>
+                {age !== null ? age : "—"}
+              </div>
+            </div>
+
+            <div>
+              <div style={labelStyle}>Position</div>
+              <div style={valueStyle}>
+                {typedPlayer.position ?? "—"}
+              </div>
+            </div>
+
+            <div>
+              <div style={labelStyle}>
+                Secondary Position
+              </div>
+              <div style={valueStyle}>
+                {typedPlayer.secondary_position ?? "—"}
+              </div>
+            </div>
+
+            <div>
+              <div style={labelStyle}>Preferred Foot</div>
+              <div style={valueStyle}>
+                {typedPlayer.preferred_foot ?? "—"}
+              </div>
+            </div>
+
+            <div>
+              <div style={labelStyle}>Height</div>
+              <div style={valueStyle}>
+                {typedPlayer.height_cm
+                  ? `${typedPlayer.height_cm} cm`
+                  : "—"}
+              </div>
+            </div>
+
+            <div>
+              <div style={labelStyle}>Birthplace</div>
+              <div style={valueStyle}>
+                {typedPlayer.birthplace ?? "—"}
+              </div>
+            </div>
+
+            <div>
+              <div style={labelStyle}>Agency</div>
+              <div style={valueStyle}>
+                {typedPlayer.agency ?? "—"}
+              </div>
+            </div>
+
+            <div>
+              <div style={labelStyle}>Current Club Since</div>
+              <div style={valueStyle}>
+                {formatDate(
+                  typedPlayer.current_club_since
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          style={{
+            ...cardStyle,
+            padding: 24,
+            marginBottom: 20,
+          }}
+        >
+          <h2 style={sectionTitleStyle}>Position Map</h2>
+
+          <PositionMap
+            position={typedPlayer.position ?? ""}
+            secondaryPosition={
+              typedPlayer.secondary_position ?? ""
+            }
+          />
+        </section>
+
+        <section
+          style={{
+            ...cardStyle,
+            padding: 24,
+            marginBottom: 20,
+          }}
+        >
+          <h2 style={sectionTitleStyle}>Market Value</h2>
+
+          {latestMarketValue ? (
+            <div>
+              <div
+                style={{
+                  fontSize: 34,
+                  fontWeight: 900,
+                  color: "#111827",
+                }}
+              >
+                {formatMarketValue(
+                  latestMarketValue.market_value,
+                  latestMarketValue.currency,
+                  latestMarketValue.market_value_usd
+                )}
+              </div>
+
+              <div
+                style={{
+                  marginTop: 6,
+                  fontSize: 13,
+                  color: "#6b7280",
+                }}
+              >
+                Valuation date:{" "}
+                {formatDate(
+                  latestMarketValue.valuation_date
+                )}
+              </div>
+
+              {latestMarketValue.confidence && (
+                <div
+                  style={{
+                    marginTop: 12,
+                    display: "inline-block",
+                    padding: "5px 9px",
+                    borderRadius: 6,
+                    background:
+                      getConfidenceStyle(
+                        latestMarketValue.confidence
+                      ).background,
+                    color:
+                      getConfidenceStyle(
+                        latestMarketValue.confidence
+                      ).color,
+                    border:
+                      `1px solid ${
+                        getConfidenceStyle(
+                          latestMarketValue.confidence
+                        ).border
+                      }`,
+                    fontSize: 12,
+                    fontWeight: 800,
+                  }}
+                >
+                  {formatConfidence(
+                    latestMarketValue.confidence
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div
+              style={{
+                fontSize: 15,
+                color: "#6b7280",
+              }}
+            >
+              No market value is currently available.
+            </div>
+          )}
+        </section>
+
+        <section
+          style={{
+            ...cardStyle,
+            padding: 24,
+            marginBottom: 20,
+          }}
+        >
+          <h2 style={sectionTitleStyle}>
+            Current Club & Contract
+          </h2>
+
+          {currentClub || activeContract ? (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(auto-fit, minmax(220px, 1fr))",
+                gap: 24,
+              }}
+            >
               <div>
-                <div className={labelStyle}>Nationality</div>
-                <div className={valueStyle}>
-                  {typedPlayer.nationality || "—"}
+                <div style={labelStyle}>Club</div>
+
+                <div
+                  style={{
+                    marginTop: 8,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                  }}
+                >
+                  {currentClub?.logo_url ? (
+                    <img
+                      src={currentClub.logo_url}
+                      alt={currentClub.name}
+                      width={38}
+                      height={38}
+                      style={{
+                        objectFit: "contain",
+                      }}
+                    />
+                  ) : null}
+
+                  <span
+                    style={{
+                      fontSize: 17,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {currentClub?.name ??
+                      "Club not available"}
+                  </span>
                 </div>
               </div>
 
               <div>
-                <div className={labelStyle}>Position</div>
-                <div className={valueStyle}>
-                  {typedPlayer.position || "—"}
+                <div style={labelStyle}>
+                  Contract Dates
+                </div>
+
+                <div style={valueStyle}>
+                  {activeContract ? (
+                    <>
+                      {formatDate(
+                        activeContract.start_date
+                      )}{" "}
+                      —{" "}
+                      {formatDate(
+                        activeContract.end_date
+                      )}
+                    </>
+                  ) : (
+                    "—"
+                  )}
                 </div>
               </div>
 
               <div>
-                <div className={labelStyle}>Secondary Position</div>
-                <div className={valueStyle}>
-                  {typedPlayer.secondary_position || "—"}
-                </div>
-              </div>
+                <div style={labelStyle}>Status</div>
 
-              <div>
-                <div className={labelStyle}>Date of Birth</div>
-                <div className={valueStyle}>
-                  {formatDate(typedPlayer.date_of_birth)}
-                </div>
-              </div>
-
-              <div>
-                <div className={labelStyle}>Age</div>
-                <div className={valueStyle}>
-                  {age !== null ? `${age} years` : "—"}
-                </div>
-              </div>
-
-              <div>
-                <div className={labelStyle}>Height</div>
-                <div className={valueStyle}>
-                  {typedPlayer.height_cm
-                    ? `${typedPlayer.height_cm} cm`
+                <div style={valueStyle}>
+                  {activeContract?.status
+                    ? formatConfidence(
+                        activeContract.status
+                      )
                     : "—"}
                 </div>
               </div>
 
               <div>
-                <div className={labelStyle}>Birthplace</div>
-                <div className={valueStyle}>
-                  {typedPlayer.birthplace || "—"}
-                </div>
-              </div>
-
-              <div>
-                <div className={labelStyle}>Preferred Foot</div>
-                <div className={valueStyle}>
-                  {typedPlayer.preferred_foot || "—"}
-                </div>
-              </div>
-
-              <div>
-                <div className={labelStyle}>Agency</div>
-                <div className={valueStyle}>
-                  {typedPlayer.agency || "—"}
-                </div>
-              </div>
-
-              <div className="sm:col-span-2 lg:col-span-3">
-                <div className={labelStyle}>Youth Clubs</div>
-                <div className={valueStyle}>
-                  {typedPlayer.youth_clubs || "—"}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className={`${cardStyle} p-6`}>
-            <h2 className={sectionTitleStyle}>
-              Position Map
-            </h2>
-
-            <div className="mt-4">
-              <PositionMap
-                position={typedPlayer.position ?? ""}
-                secondaryPosition={
-                  typedPlayer.secondary_position ?? ""
-                }
-              />
-            </div>
-          </section>
-        </div>
-
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          <section className={`${cardStyle} p-6`}>
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className={sectionTitleStyle}>
-                  Market Value
-                </h2>
-                <p className="mt-1 text-xs text-gray-500">
-                  Transfer-market valuation · USD
-                </p>
-              </div>
-
-              {currentMarketValue ? (
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-bold ${getConfidenceStyle(
-                    currentMarketValue.confidence
-                  )}`}
-                >
-                  {formatConfidence(currentMarketValue.confidence)}
-                </span>
-              ) : null}
-            </div>
-
-            {currentMarketValue ? (
-              <div className="mt-6">
-                <div className="text-4xl font-black tracking-tight text-gray-900">
-                  {formatMarketValue(
-                    currentMarketValue.market_value_usd ??
-                      currentMarketValue.market_value,
-                    currentMarketValue.market_value_usd !== null
-                      ? "USD"
-                      : currentMarketValue.currency
-                  )}
-                </div>
-
-                <div className="mt-2 text-sm text-gray-500">
-                  Valuation date:{" "}
-                  {formatDate(currentMarketValue.valuation_date)}
-                </div>
-
-                {previousMarketValue ? (
-                  <div className="mt-5 border-t border-gray-100 pt-4">
-                    <div className={labelStyle}>
-                      Previous Valuation
-                    </div>
-
-                    <div className="mt-1 text-lg font-bold text-gray-900">
-                      {formatMarketValue(
-                        previousMarketValue.market_value_usd ??
-                          previousMarketValue.market_value,
-                        previousMarketValue.market_value_usd !== null
-                          ? "USD"
-                          : previousMarketValue.currency
-                      )}
-                    </div>
-
-                    <div className="text-xs text-gray-500">
-                      {formatDate(
-                        previousMarketValue.valuation_date
-                      )}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            ) : (
-              <div className="mt-6 rounded-xl bg-gray-50 p-5 text-sm text-gray-500">
-                No market value currently available.
-              </div>
-            )}
-          </section>
-
-          <section className={`${cardStyle} p-6`}>
-            <h2 className={sectionTitleStyle}>
-              Current Club
-            </h2>
-
-            {currentClub ? (
-              <div className="mt-5 flex items-center gap-4">
-                {currentClub.logo_url ? (
-                  <img
-                    src={currentClub.logo_url}
-                    alt={currentClub.name}
-                    className="h-16 w-16 object-contain"
-                  />
-                ) : (
-                  <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-gray-100 text-xl font-black text-gray-400">
-                    {currentClub.name.charAt(0)}
-                  </div>
-                )}
-
-                <div>
-                  <div className="text-xl font-black text-gray-900">
-                    {currentClub.name}
-                  </div>
-
-                  <div className="mt-1 text-sm text-gray-500">
-                    {currentClub.country || "—"}
-                    {currentClub.league
-                      ? ` · ${currentClub.league}`
-                      : ""}
-                  </div>
-
-                  {typedPlayer.current_club_since ? (
-                    <div className="mt-1 text-xs text-gray-500">
-                      Since{" "}
-                      {formatDate(
-                        typedPlayer.current_club_since
-                      )}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            ) : (
-              <div className="mt-5 rounded-xl bg-gray-50 p-5 text-sm text-gray-500">
-                Current club not available.
-              </div>
-            )}
-          </section>
-        </div>
-
-        <section className={`${cardStyle} mt-6 p-6`}>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className={sectionTitleStyle}>
-                Contract
-              </h2>
-              <p className="mt-1 text-xs text-gray-500">
-                Current contract and publicly available compensation
-              </p>
-            </div>
-
-            {activeContract ? (
-              <span
-                className={`rounded-full px-3 py-1 text-xs font-bold ${getConfidenceStyle(
-                  activeContract.confidence
-                )}`}
-              >
-                {formatConfidence(activeContract.confidence)}
-              </span>
-            ) : null}
-          </div>
-
-          {activeContract ? (
-            <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-xl bg-gray-50 p-4">
-                <div className={labelStyle}>
-                  Annual Salary
-                </div>
-
-                <div className="mt-2 text-2xl font-black text-gray-900">
-                  {formatUSD(annualSalary)}
-                </div>
-              </div>
-
-              <div className="rounded-xl bg-gray-50 p-4">
-                <div className={labelStyle}>
-                  Weekly Salary
-                </div>
-
-                <div className="mt-2 text-2xl font-black text-gray-900">
-                  {formatUSD(weeklySalary)}
-                </div>
-              </div>
-
-              <div className="rounded-xl bg-gray-50 p-4">
-                <div className={labelStyle}>
+                <div style={labelStyle}>
                   Salary Status
                 </div>
 
-                <div className="mt-3">
+                <div style={{ marginTop: 7 }}>
                   <span
-                    className={`inline-flex rounded-full px-3 py-1.5 text-xs font-bold ${salaryStatusClass(
-                      activeContract
-                    )}`}
+                    style={{
+                      display: "inline-block",
+                      padding: "6px 10px",
+                      borderRadius: 7,
+                      background:
+                        currentSalaryStyle.background,
+                      color: currentSalaryStyle.color,
+                      border:
+                        `1px solid ${currentSalaryStyle.border}`,
+                      fontSize: 12,
+                      fontWeight: 800,
+                    }}
                   >
-                    {salaryStatus(activeContract)}
+                    {currentSalaryStatus}
                   </span>
                 </div>
               </div>
 
-              <div className="rounded-xl bg-gray-50 p-4">
-                <div className={labelStyle}>
-                  Contract Status
+              <div>
+                <div style={labelStyle}>
+                  Annual Salary
                 </div>
 
-                <div className="mt-2 text-lg font-bold text-gray-900">
-                  {activeContract.status || "—"}
+                <div
+                  style={{
+                    marginTop: 6,
+                    fontSize: 21,
+                    fontWeight: 900,
+                    color: "#111827",
+                  }}
+                >
+                  {formatUSD(
+                    activeContract?.annual_salary_usd ??
+                      null
+                  )}
                 </div>
               </div>
+
+              <div>
+                <div style={labelStyle}>
+                  Weekly Salary
+                </div>
+
+                <div
+                  style={{
+                    marginTop: 6,
+                    fontSize: 18,
+                    fontWeight: 800,
+                    color: "#111827",
+                  }}
+                >
+                  {formatUSD(
+                    activeContract?.weekly_salary_usd ??
+                      null
+                  )}
+                </div>
+              </div>
+
+              {currentSource?.url && (
+                <div>
+                  <div style={labelStyle}>
+                    Salary Source
+                  </div>
+
+                  <div style={{ marginTop: 7 }}>
+                    <a
+                      href={currentSource.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: "#2563eb",
+                        fontWeight: 700,
+                        textDecoration: "none",
+                      }}
+                    >
+                      {currentSource.publisher ??
+                        "View source"}
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
-            <div className="mt-6 rounded-xl bg-gray-50 p-5 text-sm text-gray-500">
-              No contract information currently available.
+            <div
+              style={{
+                color: "#6b7280",
+                fontSize: 15,
+              }}
+            >
+              No current contract information is
+              available.
             </div>
           )}
 
-          {activeContract ? (
-            <div className="mt-6 grid gap-5 border-t border-gray-100 pt-5 sm:grid-cols-2 lg:grid-cols-4">
-              <div>
-                <div className={labelStyle}>
-                  Club
-                </div>
-                <div className={valueStyle}>
-                  {activeContract.club?.name || "—"}
-                </div>
+          {activeContract &&
+            activeContract.annual_salary_usd === null &&
+            activeContract.weekly_salary_usd === null && (
+              <div
+                style={{
+                  marginTop: 20,
+                  padding: 14,
+                  borderRadius: 9,
+                  background: "#fffbeb",
+                  border: "1px solid #fde68a",
+                  color: "#92400e",
+                  fontSize: 13,
+                  lineHeight: 1.5,
+                }}
+              >
+                The contract is publicly documented, but
+                an individual salary figure is not
+                currently publicly available from a
+                defensible source.
               </div>
-
-              <div>
-                <div className={labelStyle}>
-                  Start Date
-                </div>
-                <div className={valueStyle}>
-                  {formatDate(activeContract.start_date)}
-                </div>
-              </div>
-
-              <div>
-                <div className={labelStyle}>
-                  End Date
-                </div>
-                <div className={valueStyle}>
-                  {formatDate(activeContract.end_date)}
-                </div>
-              </div>
-
-              <div>
-                <div className={labelStyle}>
-                  Guaranteed
-                </div>
-                <div className={valueStyle}>
-                  {activeContract.guaranteed === null
-                    ? "—"
-                    : activeContract.guaranteed
-                    ? "Yes"
-                    : "No"}
-                </div>
-              </div>
-            </div>
-          ) : null}
-
-          {activeContract?.notes ? (
-            <div className="mt-5 rounded-xl border border-gray-100 bg-white p-4">
-              <div className={labelStyle}>Salary / Contract Note</div>
-              <p className="mt-2 text-sm leading-6 text-gray-600">
-                {activeContract.notes}
-              </p>
-            </div>
-          ) : null}
-
-          {activeContract?.source?.url ? (
-            <div className="mt-5 border-t border-gray-100 pt-4">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
-                <span>Salary source:</span>
-
-                <a
-                  href={activeContract.source.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold text-gray-900 underline decoration-gray-300 underline-offset-2 transition hover:decoration-gray-900"
-                >
-                  {activeContract.source.publisher ||
-                    "View source"}
-                </a>
-              </div>
-            </div>
-          ) : null}
-
-          {!hasSalary && activeContract ? (
-            <div className="mt-5 rounded-xl border border-amber-100 bg-amber-50 p-4 text-sm text-amber-800">
-              The contract is publicly documented, but an
-              individual salary figure is not currently publicly
-              available from a defensible source.
-            </div>
-          ) : null}
+            )}
         </section>
 
-        <section className={`${cardStyle} mt-6 p-6`}>
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className={sectionTitleStyle}>
-                Transfer History
-              </h2>
-              <p className="mt-1 text-xs text-gray-500">
-                Recorded club movements
-              </p>
-            </div>
+        <section
+          style={{
+            ...cardStyle,
+            padding: 24,
+            marginBottom: 20,
+          }}
+        >
+          <h2 style={sectionTitleStyle}>
+            Transfer History
+          </h2>
 
-            <div className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-600">
-              {transfersWithClubs.length}{" "}
-              {transfersWithClubs.length === 1
-                ? "transfer"
-                : "transfers"}
-            </div>
-          </div>
+          {transfers.length > 0 ? (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 12,
+              }}
+            >
+              {transfers.map((transfer) => {
+                const fromClub = transfer.from_club_id
+                  ? clubMap.get(transfer.from_club_id)
+                  : null;
 
-          {transfersWithClubs.length > 0 ? (
-            <div className="mt-6 overflow-x-auto">
-              <div className="min-w-[720px]">
-                <div className="grid grid-cols-[120px_1fr_80px_1fr_140px] gap-4 border-b border-gray-200 px-3 pb-3 text-xs font-bold uppercase tracking-wide text-gray-400">
-                  <div>Date</div>
-                  <div>From</div>
-                  <div></div>
-                  <div>To</div>
-                  <div>Fee</div>
-                </div>
+                const toClub = transfer.to_club_id
+                  ? clubMap.get(transfer.to_club_id)
+                  : null;
 
-                <div className="divide-y divide-gray-100">
-                  {transfersWithClubs.map((transfer) => (
+                return (
+                  <div
+                    key={transfer.id}
+                    style={{
+                      padding: 16,
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 10,
+                      background: "#fafafa",
+                    }}
+                  >
                     <div
-                      key={transfer.id}
-                      className="grid grid-cols-[120px_1fr_80px_1fr_140px] items-center gap-4 px-3 py-4"
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "140px 1fr 140px",
+                        gap: 18,
+                        alignItems: "center",
+                      }}
                     >
-                      <div className="text-sm font-medium text-gray-600">
-                        {formatDate(transfer.transfer_date)}
-                      </div>
-
-                      <div className="font-semibold text-gray-900">
-                        {transfer.from_club?.name || "—"}
-                      </div>
-
-                      <div className="text-center text-gray-400">
-                        →
-                      </div>
-
-                      <div className="font-semibold text-gray-900">
-                        {transfer.to_club?.name || "—"}
-                      </div>
-
                       <div>
-                        <div className="font-bold text-gray-900">
+                        <div style={labelStyle}>
+                          Date
+                        </div>
+                        <div style={valueStyle}>
+                          {formatDate(
+                            transfer.transfer_date
+                          )}
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 12,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontWeight: 800,
+                          }}
+                        >
+                          {fromClub?.name ??
+                            "Unknown"}
+                        </span>
+
+                        <span
+                          style={{
+                            color: "#9ca3af",
+                            fontSize: 20,
+                          }}
+                        >
+                          →
+                        </span>
+
+                        <span
+                          style={{
+                            fontWeight: 800,
+                          }}
+                        >
+                          {toClub?.name ??
+                            "Unknown"}
+                        </span>
+                      </div>
+
+                      <div
+                        style={{
+                          textAlign: "right",
+                        }}
+                      >
+                        <div style={labelStyle}>
+                          Fee
+                        </div>
+
+                        <div
+                          style={{
+                            marginTop: 4,
+                            fontWeight: 800,
+                          }}
+                        >
                           {formatTransferFee(
                             transfer.fee,
                             transfer.currency
                           )}
                         </div>
-
-                        <div className="mt-1 text-xs text-gray-500">
-                          {formatTransferType(
-                            transfer.transfer_type
-                          )}
-                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="mt-6 rounded-xl bg-gray-50 p-5 text-sm text-gray-500">
-              No transfer history currently available.
-            </div>
-          )}
-        </section>
 
-        <section className={`${cardStyle} mt-6 p-6`}>
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className={sectionTitleStyle}>
-                Contract History
-              </h2>
-              <p className="mt-1 text-xs text-gray-500">
-                Historical and current contracts
-              </p>
-            </div>
+                    <div
+                      style={{
+                        marginTop: 12,
+                        display: "flex",
+                        gap: 8,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <span
+                        style={{
+                          padding: "5px 8px",
+                          borderRadius: 6,
+                          background: "#eff6ff",
+                          color: "#1d4ed8",
+                          fontSize: 12,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {formatTransferType(
+                          transfer.transfer_type
+                        )}
+                      </span>
 
-            <div className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-600">
-              {contractsWithClubs.length}{" "}
-              {contractsWithClubs.length === 1
-                ? "contract"
-                : "contracts"}
-            </div>
-          </div>
-
-          {contractsWithClubs.length > 0 ? (
-            <div className="mt-6 space-y-4">
-              {contractsWithClubs.map((contract) => {
-                const contractAnnualSalary =
-                  contract.annual_salary_usd;
-
-                const contractWeeklySalary =
-                  contract.weekly_salary_usd;
-
-                const salaryAvailable =
-                  contractAnnualSalary !== null ||
-                  contractWeeklySalary !== null;
-
-                return (
-                  <div
-                    key={contract.id}
-                    className="rounded-xl border border-gray-200 p-5"
-                  >
-                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                      <div>
-                        <div className="text-lg font-black text-gray-900">
-                          {contract.club?.name || "Unknown Club"}
-                        </div>
-
-                        <div className="mt-1 text-sm text-gray-500">
-                          {formatDate(contract.start_date)}{" "}
-                          →{" "}
-                          {formatDate(contract.end_date)}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2">
+                      {transfer.confidence && (
                         <span
-                          className={`rounded-full px-3 py-1 text-xs font-bold ${getConfidenceStyle(
-                            contract.confidence
-                          )}`}
+                          style={{
+                            padding: "5px 8px",
+                            borderRadius: 6,
+                            background:
+                              getConfidenceStyle(
+                                transfer.confidence
+                              ).background,
+                            color:
+                              getConfidenceStyle(
+                                transfer.confidence
+                              ).color,
+                            border:
+                              `1px solid ${
+                                getConfidenceStyle(
+                                  transfer.confidence
+                                ).border
+                              }`,
+                            fontSize: 12,
+                            fontWeight: 700,
+                          }}
                         >
                           {formatConfidence(
-                            contract.confidence
+                            transfer.confidence
                           )}
                         </span>
-
-                        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-600">
-                          {contract.status}
-                        </span>
-                      </div>
+                      )}
                     </div>
-
-                    <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                      <div>
-                        <div className={labelStyle}>
-                          Annual Salary
-                        </div>
-                        <div className={valueStyle}>
-                          {formatUSD(
-                            contractAnnualSalary
-                          )}
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className={labelStyle}>
-                          Weekly Salary
-                        </div>
-                        <div className={valueStyle}>
-                          {formatUSD(
-                            contractWeeklySalary
-                          )}
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className={labelStyle}>
-                          Guaranteed
-                        </div>
-                        <div className={valueStyle}>
-                          {contract.guaranteed === null
-                            ? "—"
-                            : contract.guaranteed
-                            ? "Yes"
-                            : "No"}
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className={labelStyle}>
-                          Option Year
-                        </div>
-                        <div className={valueStyle}>
-                          {contract.option_year === null
-                            ? "—"
-                            : contract.option_year
-                            ? "Yes"
-                            : "No"}
-                        </div>
-                      </div>
-                    </div>
-
-                    {!salaryAvailable ? (
-                      <div className="mt-4 rounded-lg bg-gray-50 p-3 text-xs text-gray-500">
-                        Salary not publicly available.
-                      </div>
-                    ) : null}
-
-                    {contract.source?.url ? (
-                      <div className="mt-4 border-t border-gray-100 pt-4 text-xs text-gray-500">
-                        Source:{" "}
-                        <a
-                          href={contract.source.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="font-semibold text-gray-900 underline decoration-gray-300 underline-offset-2 hover:decoration-gray-900"
-                        >
-                          {contract.source.publisher ||
-                            "View source"}
-                        </a>
-                      </div>
-                    ) : null}
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="mt-6 rounded-xl bg-gray-50 p-5 text-sm text-gray-500">
-              No contract history currently available.
+            <div
+              style={{
+                color: "#6b7280",
+                fontSize: 15,
+              }}
+            >
+              No transfer history is currently available.
             </div>
           )}
         </section>
 
-        <footer className="py-10 text-center text-xs text-gray-400">
-          Women&apos;s Football Market · Player data and valuations
-        </footer>
+        <section
+          style={{
+            ...cardStyle,
+            padding: 24,
+          }}
+        >
+          <h2 style={sectionTitleStyle}>
+            Contract History
+          </h2>
+
+          {contracts.length > 0 ? (
+            <div
+              style={{
+                overflowX: "auto",
+              }}
+            >
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  minWidth: 760,
+                }}
+              >
+                <thead>
+                  <tr
+                    style={{
+                      borderBottom:
+                        "1px solid #e5e7eb",
+                      textAlign: "left",
+                    }}
+                  >
+                    <th
+                      style={{
+                        padding: "10px 8px",
+                        ...labelStyle,
+                      }}
+                    >
+                      Club
+                    </th>
+
+                    <th
+                      style={{
+                        padding: "10px 8px",
+                        ...labelStyle,
+                      }}
+                    >
+                      Dates
+                    </th>
+
+                    <th
+                      style={{
+                        padding: "10px 8px",
+                        ...labelStyle,
+                      }}
+                    >
+                      Annual Salary
+                    </th>
+
+                    <th
+                      style={{
+                        padding: "10px 8px",
+                        ...labelStyle,
+                      }}
+                    >
+                      Weekly Salary
+                    </th>
+
+                    <th
+                      style={{
+                        padding: "10px 8px",
+                        ...labelStyle,
+                      }}
+                    >
+                      Status
+                    </th>
+
+                    <th
+                      style={{
+                        padding: "10px 8px",
+                        ...labelStyle,
+                      }}
+                    >
+                      Confidence
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {contracts.map((contract) => {
+                    const club = contract.club_id
+                      ? clubMap.get(contract.club_id)
+                      : null;
+
+                    const confidenceStyle =
+                      getConfidenceStyle(
+                        contract.confidence
+                      );
+
+                    return (
+                      <tr
+                        key={contract.id}
+                        style={{
+                          borderBottom:
+                            "1px solid #f0f0f0",
+                        }}
+                      >
+                        <td
+                          style={{
+                            padding: "14px 8px",
+                            fontWeight: 800,
+                          }}
+                        >
+                          {club?.name ??
+                            "Unknown club"}
+                        </td>
+
+                        <td
+                          style={{
+                            padding: "14px 8px",
+                            color: "#4b5563",
+                          }}
+                        >
+                          {formatDate(
+                            contract.start_date
+                          )}{" "}
+                          —{" "}
+                          {formatDate(
+                            contract.end_date
+                          )}
+                        </td>
+
+                        <td
+                          style={{
+                            padding: "14px 8px",
+                            fontWeight: 800,
+                          }}
+                        >
+                          {formatUSD(
+                            contract.annual_salary_usd
+                          )}
+                        </td>
+
+                        <td
+                          style={{
+                            padding: "14px 8px",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {formatUSD(
+                            contract.weekly_salary_usd
+                          )}
+                        </td>
+
+                        <td
+                          style={{
+                            padding: "14px 8px",
+                            color: "#4b5563",
+                          }}
+                        >
+                          {contract.status
+                            ? formatConfidence(
+                                contract.status
+                              )
+                            : "—"}
+                        </td>
+
+                        <td
+                          style={{
+                            padding: "14px 8px",
+                          }}
+                        >
+                          {contract.confidence ? (
+                            <span
+                              style={{
+                                display: "inline-block",
+                                padding: "5px 8px",
+                                borderRadius: 6,
+                                background:
+                                  confidenceStyle.background,
+                                color:
+                                  confidenceStyle.color,
+                                border:
+                                  `1px solid ${confidenceStyle.border}`,
+                                fontSize: 11,
+                                fontWeight: 800,
+                              }}
+                            >
+                              {formatConfidence(
+                                contract.confidence
+                              )}
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div
+              style={{
+                color: "#6b7280",
+                fontSize: 15,
+              }}
+            >
+              No contract history is currently available.
+            </div>
+          )}
+        </section>
       </div>
     </main>
   );
