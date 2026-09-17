@@ -588,78 +588,50 @@ export default function ClubProfilePage() {
             marginBottom: 24,
           }}
         >
-          <div style={statCard}>
-            <div style={statLabel}>
-              Players
-            </div>
-            <div style={statValue}>
-              {currentContracts.length}
-            </div>
-          </div>
-
-          <div style={statCard}>
-            <div style={statLabel}>
-              Contracts
-            </div>
-            <div style={statValue}>
-              {contracts.length}
-            </div>
-          </div>
-
-          <div style={statCard}>
-            <div style={statLabel}>
-              Known Payroll
-            </div>
-
-            <div style={statValue}>
-              {formatSalary(
-                totalKnownPayroll,
-                "USD"
-              )}
-            </div>
-
-            <div style={statSubtext}>
-              {salaryRecords.length} of{" "}
-              {currentContracts.length} players
-              with salary data
-            </div>
-          </div>
-
-          <div style={statCard}>
-            <div style={statLabel}>
-              Transfers
-            </div>
-
-            <div style={statValue}>
-              {transfers.length}
-            </div>
-
-            <div style={statSubtext}>
-              {incomingTransfers.length} incoming
-              {" · "}
-              {outgoingTransfers.length} outgoing
-            </div>
-          </div>
-
-          <div style={statCard}>
-            <div style={statLabel}>
-              Highest Salary
-            </div>
-
-            <div style={statValue}>
-              {highestPaidPlayer
+          {[
+            ["Players", currentContracts.length.toString()],
+            ["Contracts", contracts.length.toString()],
+            ["Known Payroll", formatSalary(totalKnownPayroll, "USD")],
+            ["Transfers", transfers.length.toString()],
+            [
+              "Highest Salary",
+              highestPaidPlayer
                 ? formatSalary(
                     highestPaidPlayer.annual_salary,
                     highestPaidPlayer.currency
                   )
-                : "Unknown"}
-            </div>
+                : "Unknown",
+            ],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              style={{
+                background: "#fff",
+                border: "1px solid #e5e5e5",
+                borderRadius: 12,
+                padding: "18px 20px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "#777",
+                  marginBottom: 6,
+                }}
+              >
+                {label}
+              </div>
 
-            <div style={statSubtext}>
-              {highestPaidPlayer?.player?.full_name ||
-                "No salary data"}
+              <div
+                style={{
+                  fontSize: 26,
+                  fontWeight: 750,
+                }}
+              >
+                {value}
+              </div>
             </div>
-          </div>
+          ))}
         </div>
 
         <section
