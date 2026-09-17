@@ -208,6 +208,58 @@ const formatSalary = (
   }).format(amount);
 };
 
+/*
+ * Market values are stored in their original currency in Supabase,
+ * but WFM displays market values in USD.
+ *
+ * These rates are intentionally centralized here so they can later
+ * be replaced with a live exchange-rate service.
+ */
+const EUR_TO_USD = 1.17;
+const GBP_TO_USD = 1.35;
+const CAD_TO_USD = 0.73;
+const AUD_TO_USD = 0.66;
+
+const formatMarketValue = (
+  amount: number | null,
+  currency: string | null
+) => {
+  if (amount === null || amount === undefined) return "—";
+
+  const normalizedCurrency = (currency || "USD").trim().toUpperCase();
+
+  let usdAmount = amount;
+
+  switch (normalizedCurrency) {
+    case "EUR":
+      usdAmount = amount * EUR_TO_USD;
+      break;
+
+    case "GBP":
+      usdAmount = amount * GBP_TO_USD;
+      break;
+
+    case "CAD":
+      usdAmount = amount * CAD_TO_USD;
+      break;
+
+    case "AUD":
+      usdAmount = amount * AUD_TO_USD;
+      break;
+
+    case "USD":
+    default:
+      usdAmount = amount;
+      break;
+  }
+
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(usdAmount);
+};
+
 const formatTransferFee = (
   amount: number | null,
   currency: string | null
@@ -959,7 +1011,7 @@ export default async function PlayerPage({
                       color: "#888",
                     }}
                   >
-                    Transfer-market valuation
+                    Transfer-market valuation · USD
                   </div>
                 </div>
 
@@ -1001,7 +1053,7 @@ export default async function PlayerPage({
                       color: "#111",
                     }}
                   >
-                    {formatSalary(
+                    {formatMarketValue(
                       marketValues[0].market_value,
                       marketValues[0].currency
                     )}
@@ -1124,7 +1176,7 @@ export default async function PlayerPage({
                                   fontWeight: 700,
                                 }}
                               >
-                                {formatSalary(
+                                {formatMarketValue(
                                   value.market_value,
                                   value.currency
                                 )}
