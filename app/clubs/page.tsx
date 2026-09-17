@@ -289,11 +289,6 @@ export default function ClubsPage() {
           maxWidth: '1200px',
           margin: '0 auto',
           padding: '32px 24px 60px',
-          display: 'grid',
-          gridTemplateColumns:
-            'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: 14,
-          marginBottom: 24,
         }}
       >
         <div
@@ -707,7 +702,8 @@ export default function ClubsPage() {
         </div>
       </section>
 
-      {/* FOOTER */}
+      </section>
+
       <footer
         style={{
           borderTop: '1px solid #e5e5e5',
