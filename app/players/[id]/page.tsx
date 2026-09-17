@@ -50,6 +50,22 @@ type MarketValue = {
   notes: string | null;
 };
 
+type PlayerStat = {
+  id: string;
+  season: string;
+  competition: string;
+  appearances: number | null;
+  starts: number | null;
+  minutes: number | null;
+  goals: number | null;
+  assists: number | null;
+  yellow_cards: number | null;
+  red_cards: number | null;
+  confidence: string | null;
+  notes: string | null;
+  club: Club | null;
+};
+
 const getCountryCode = (nationality: string | null) => {
   if (!nationality) return null;
 
@@ -238,6 +254,12 @@ const calculateAge = (dateOfBirth: string | null) => {
   }
 
   return age;
+};
+
+const formatNumber = (value: number | null) => {
+  if (value === null || value === undefined) return "—";
+
+  return new Intl.NumberFormat("en-US").format(value);
 };
 
 const labelStyle = {
@@ -469,6 +491,35 @@ export default async function PlayerPage({
   const marketValues: MarketValue[] =
     marketValueData || [];
 
+  const { data: playerStatsData } = await supabase
+    .from("player_stats")
+    .select(
+      "id, season, competition, appearances, starts, minutes, goals, assists, yellow_cards, red_cards, confidence, notes, club:clubs(id, name, league, country, logo_url)"
+    )
+    .eq("player_id", id)
+    .order("season", { ascending: false })
+    .order("competition", { ascending: true });
+
+  const playerStats: PlayerStat[] = (playerStatsData || []).map(
+    (stat: any) => ({
+      id: stat.id,
+      season: stat.season,
+      competition: stat.competition,
+      appearances: stat.appearances,
+      starts: stat.starts,
+      minutes: stat.minutes,
+      goals: stat.goals,
+      assists: stat.assists,
+      yellow_cards: stat.yellow_cards,
+      red_cards: stat.red_cards,
+      confidence: stat.confidence,
+      notes: stat.notes,
+      club: Array.isArray(stat.club)
+        ? stat.club[0] || null
+        : stat.club || null,
+    })
+  );
+
   const currentContract =
     contracts.find(
       (contract) =>
@@ -484,6 +535,49 @@ export default async function PlayerPage({
   const contractHistory = contracts.filter(
     (contract) => contract.id !== currentContract?.id
   );
+
+  const totalAppearances = playerStats.reduce(
+    (total, stat) => total + (stat.appearances || 0),
+    0
+  );
+
+  const totalStarts = playerStats.reduce(
+    (total, stat) => total + (stat.starts || 0),
+    0
+  );
+
+  const totalMinutes = playerStats.reduce(
+    (total, stat) => total + (stat.minutes || 0),
+    0
+  );
+
+  const totalGoals = playerStats.reduce(
+    (total, stat) => total + (stat.goals || 0),
+    0
+  );
+
+  const totalAssists = playerStats.reduce(
+    (total, stat) => total + (stat.assists || 0),
+    0
+  );
+
+  const totalYellowCards = playerStats.reduce(
+    (total, stat) => total + (stat.yellow_cards || 0),
+    0
+  );
+
+  const totalRedCards = playerStats.reduce(
+    (total, stat) => total + (stat.red_cards || 0),
+    0
+  );
+
+  const statsBySeason = new Map<string, PlayerStat[]>();
+
+  playerStats.forEach((stat) => {
+    const existing = statsBySeason.get(stat.season) || [];
+    existing.push(stat);
+    statsBySeason.set(stat.season, existing);
+  });
 
   const age = calculateAge(player.date_of_birth);
   const countryCode = getCountryCode(player.nationality);
@@ -1154,6 +1248,680 @@ export default async function PlayerPage({
               )}
             </div>
           </div>
+        </div>
+
+        <div
+          style={{
+            marginTop: 16,
+            padding: "22px",
+            border: "1px solid #ddd",
+            borderRadius: 10,
+            background: "#fff",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              gap: 20,
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <h2
+                style={{
+                  margin: 0,
+                  fontSize: 18,
+                  fontWeight: 750,
+                }}
+              >
+                Player Stats
+              </h2>
+
+              <div
+                style={{
+                  marginTop: 4,
+                  fontSize: 11,
+                  color: "#888",
+                }}
+              >
+                Club and competition statistics by season
+              </div>
+            </div>
+
+            {playerStats.length > 0 && (
+              <div
+                style={{
+                  fontSize: 11,
+                  color: "#888",
+                }}
+              >
+                {playerStats.length} stat record
+                {playerStats.length !== 1 ? "s" : ""}
+              </div>
+            )}
+          </div>
+
+          {playerStats.length === 0 ? (
+            <div
+              style={{
+                marginTop: 22,
+                color: "#888",
+                fontSize: 14,
+              }}
+            >
+              No player statistics available.
+            </div>
+          ) : (
+            <>
+              <div
+                style={{
+                  marginTop: 22,
+                  display: "grid",
+                  gridTemplateColumns:
+                    "repeat(7, minmax(90px, 1fr))",
+                  border: "1px solid #e5e5e5",
+                  borderRadius: 8,
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    padding: "14px 12px",
+                    background: "#f7f7f7",
+                    borderRight: "1px solid #e5e5e5",
+                  }}
+                >
+                  <div style={labelStyle}>Appearances</div>
+                  <div
+                    style={{
+                      marginTop: 5,
+                      fontSize: 19,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {formatNumber(totalAppearances)}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    padding: "14px 12px",
+                    background: "#f7f7f7",
+                    borderRight: "1px solid #e5e5e5",
+                  }}
+                >
+                  <div style={labelStyle}>Starts</div>
+                  <div
+                    style={{
+                      marginTop: 5,
+                      fontSize: 19,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {formatNumber(totalStarts)}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    padding: "14px 12px",
+                    background: "#f7f7f7",
+                    borderRight: "1px solid #e5e5e5",
+                  }}
+                >
+                  <div style={labelStyle}>Minutes</div>
+                  <div
+                    style={{
+                      marginTop: 5,
+                      fontSize: 19,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {formatNumber(totalMinutes)}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    padding: "14px 12px",
+                    background: "#f7f7f7",
+                    borderRight: "1px solid #e5e5e5",
+                  }}
+                >
+                  <div style={labelStyle}>Goals</div>
+                  <div
+                    style={{
+                      marginTop: 5,
+                      fontSize: 19,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {formatNumber(totalGoals)}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    padding: "14px 12px",
+                    background: "#f7f7f7",
+                    borderRight: "1px solid #e5e5e5",
+                  }}
+                >
+                  <div style={labelStyle}>Assists</div>
+                  <div
+                    style={{
+                      marginTop: 5,
+                      fontSize: 19,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {formatNumber(totalAssists)}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    padding: "14px 12px",
+                    background: "#f7f7f7",
+                    borderRight: "1px solid #e5e5e5",
+                  }}
+                >
+                  <div style={labelStyle}>Yellow</div>
+                  <div
+                    style={{
+                      marginTop: 5,
+                      fontSize: 19,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {formatNumber(totalYellowCards)}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    padding: "14px 12px",
+                    background: "#f7f7f7",
+                  }}
+                >
+                  <div style={labelStyle}>Red</div>
+                  <div
+                    style={{
+                      marginTop: 5,
+                      fontSize: 19,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {formatNumber(totalRedCards)}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ marginTop: 28 }}>
+                {Array.from(statsBySeason.entries()).map(
+                  ([season, seasonStats]) => {
+                    const statsByClub = new Map<
+                      string,
+                      PlayerStat[]
+                    >();
+
+                    seasonStats.forEach((stat) => {
+                      const clubKey =
+                        stat.club?.id || "no-club";
+
+                      const existing =
+                        statsByClub.get(clubKey) || [];
+
+                      existing.push(stat);
+                      statsByClub.set(clubKey, existing);
+                    });
+
+                    return (
+                      <div
+                        key={season}
+                        style={{
+                          marginTop:
+                            season ===
+                            Array.from(
+                              statsBySeason.keys()
+                            )[0]
+                              ? 0
+                              : 28,
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 12,
+                            marginBottom: 12,
+                          }}
+                        >
+                          <h3
+                            style={{
+                              margin: 0,
+                              fontSize: 17,
+                              fontWeight: 800,
+                            }}
+                          >
+                            {season}
+                          </h3>
+
+                          <div
+                            style={{
+                              height: 1,
+                              flex: 1,
+                              background: "#e5e5e5",
+                            }}
+                          />
+                        </div>
+
+                        {Array.from(
+                          statsByClub.entries()
+                        ).map(
+                          ([clubKey, clubStats]) => {
+                            const club =
+                              clubStats[0]?.club || null;
+
+                            return (
+                              <div
+                                key={`${season}-${clubKey}`}
+                                style={{
+                                  border: "1px solid #e1e1e1",
+                                  borderRadius: 9,
+                                  overflow: "hidden",
+                                  marginBottom: 14,
+                                  background: "#fff",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 12,
+                                    padding:
+                                      "13px 16px",
+                                    background:
+                                      "#f7f7f7",
+                                    borderBottom:
+                                      "1px solid #e5e5e5",
+                                  }}
+                                >
+                                  {club?.logo_url ? (
+                                    <img
+                                      src={
+                                        club.logo_url
+                                      }
+                                      alt={
+                                        club.name
+                                      }
+                                      style={{
+                                        width: 34,
+                                        height: 34,
+                                        objectFit:
+                                          "contain",
+                                      }}
+                                    />
+                                  ) : (
+                                    <div
+                                      style={{
+                                        width: 34,
+                                        height: 34,
+                                        borderRadius: 6,
+                                        background:
+                                          "#fff",
+                                        border:
+                                          "1px solid #ddd",
+                                        display:
+                                          "flex",
+                                        alignItems:
+                                          "center",
+                                        justifyContent:
+                                          "center",
+                                        fontSize: 13,
+                                        fontWeight: 800,
+                                      }}
+                                    >
+                                      {club?.name
+                                        ? club.name.charAt(
+                                            0
+                                          )
+                                        : "?"}
+                                    </div>
+                                  )}
+
+                                  <div>
+                                    <div
+                                      style={{
+                                        fontSize: 14,
+                                        fontWeight: 750,
+                                      }}
+                                    >
+                                      {club?.name ||
+                                        "Club unknown"}
+                                    </div>
+
+                                    {club &&
+                                      (club.league ||
+                                        club.country) && (
+                                        <div
+                                          style={{
+                                            marginTop: 2,
+                                            fontSize: 10,
+                                            color:
+                                              "#888",
+                                          }}
+                                        >
+                                          {club.league ||
+                                            "League unknown"}
+                                          {club.country
+                                            ? ` · ${club.country}`
+                                            : ""}
+                                        </div>
+                                      )}
+                                  </div>
+                                </div>
+
+                                <div
+                                  style={{
+                                    overflowX:
+                                      "auto",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      minWidth: 850,
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        display:
+                                          "grid",
+                                        gridTemplateColumns:
+                                          "1.5fr repeat(8, minmax(70px, 1fr))",
+                                        padding:
+                                          "10px 16px",
+                                        background:
+                                          "#fff",
+                                        borderBottom:
+                                          "1px solid #eee",
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          ...labelStyle,
+                                          fontSize: 9,
+                                        }}
+                                      >
+                                        Competition
+                                      </div>
+
+                                      <div
+                                        style={{
+                                          ...labelStyle,
+                                          fontSize: 9,
+                                          textAlign:
+                                            "center",
+                                        }}
+                                      >
+                                        Apps
+                                      </div>
+
+                                      <div
+                                        style={{
+                                          ...labelStyle,
+                                          fontSize: 9,
+                                          textAlign:
+                                            "center",
+                                        }}
+                                      >
+                                        Starts
+                                      </div>
+
+                                      <div
+                                        style={{
+                                          ...labelStyle,
+                                          fontSize: 9,
+                                          textAlign:
+                                            "center",
+                                        }}
+                                      >
+                                        Min
+                                      </div>
+
+                                      <div
+                                        style={{
+                                          ...labelStyle,
+                                          fontSize: 9,
+                                          textAlign:
+                                            "center",
+                                        }}
+                                      >
+                                        Goals
+                                      </div>
+
+                                      <div
+                                        style={{
+                                          ...labelStyle,
+                                          fontSize: 9,
+                                          textAlign:
+                                            "center",
+                                        }}
+                                      >
+                                        Assists
+                                      </div>
+
+                                      <div
+                                        style={{
+                                          ...labelStyle,
+                                          fontSize: 9,
+                                          textAlign:
+                                            "center",
+                                        }}
+                                      >
+                                        YC
+                                      </div>
+
+                                      <div
+                                        style={{
+                                          ...labelStyle,
+                                          fontSize: 9,
+                                          textAlign:
+                                            "center",
+                                        }}
+                                      >
+                                        RC
+                                      </div>
+
+                                      <div
+                                        style={{
+                                          ...labelStyle,
+                                          fontSize: 9,
+                                          textAlign:
+                                            "center",
+                                        }}
+                                      >
+                                        Confidence
+                                      </div>
+                                    </div>
+
+                                    {clubStats.map(
+                                      (stat) => (
+                                        <div
+                                          key={
+                                            stat.id
+                                          }
+                                          style={{
+                                            display:
+                                              "grid",
+                                            gridTemplateColumns:
+                                              "1.5fr repeat(8, minmax(70px, 1fr))",
+                                            padding:
+                                              "13px 16px",
+                                            borderBottom:
+                                              "1px solid #f0f0f0",
+                                            alignItems:
+                                              "center",
+                                          }}
+                                        >
+                                          <div
+                                            style={{
+                                              fontSize: 12,
+                                              fontWeight:
+                                                650,
+                                            }}
+                                          >
+                                            {
+                                              stat.competition
+                                            }
+                                          </div>
+
+                                          <div
+                                            style={{
+                                              fontSize: 12,
+                                              textAlign:
+                                                "center",
+                                            }}
+                                          >
+                                            {formatNumber(
+                                              stat.appearances
+                                            )}
+                                          </div>
+
+                                          <div
+                                            style={{
+                                              fontSize: 12,
+                                              textAlign:
+                                                "center",
+                                            }}
+                                          >
+                                            {formatNumber(
+                                              stat.starts
+                                            )}
+                                          </div>
+
+                                          <div
+                                            style={{
+                                              fontSize: 12,
+                                              textAlign:
+                                                "center",
+                                            }}
+                                          >
+                                            {formatNumber(
+                                              stat.minutes
+                                            )}
+                                          </div>
+
+                                          <div
+                                            style={{
+                                              fontSize: 12,
+                                              fontWeight:
+                                                700,
+                                              textAlign:
+                                                "center",
+                                            }}
+                                          >
+                                            {formatNumber(
+                                              stat.goals
+                                            )}
+                                          </div>
+
+                                          <div
+                                            style={{
+                                              fontSize: 12,
+                                              fontWeight:
+                                                700,
+                                              textAlign:
+                                                "center",
+                                            }}
+                                          >
+                                            {formatNumber(
+                                              stat.assists
+                                            )}
+                                          </div>
+
+                                          <div
+                                            style={{
+                                              fontSize: 12,
+                                              textAlign:
+                                                "center",
+                                            }}
+                                          >
+                                            {formatNumber(
+                                              stat.yellow_cards
+                                            )}
+                                          </div>
+
+                                          <div
+                                            style={{
+                                              fontSize: 12,
+                                              textAlign:
+                                                "center",
+                                            }}
+                                          >
+                                            {formatNumber(
+                                              stat.red_cards
+                                            )}
+                                          </div>
+
+                                          <div
+                                            style={{
+                                              fontSize: 10,
+                                              color:
+                                                "#777",
+                                              textAlign:
+                                                "center",
+                                            }}
+                                          >
+                                            {formatConfidence(
+                                              stat.confidence
+                                            )}
+                                          </div>
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
+                                </div>
+
+                                {clubStats.some(
+                                  (stat) =>
+                                    stat.notes
+                                ) && (
+                                  <div
+                                    style={{
+                                      padding:
+                                        "10px 16px",
+                                      fontSize: 10,
+                                      color: "#888",
+                                      borderTop:
+                                        "1px solid #eee",
+                                    }}
+                                  >
+                                    {clubStats
+                                      .filter(
+                                        (stat) =>
+                                          stat.notes
+                                      )
+                                      .map(
+                                        (stat) =>
+                                          stat.notes
+                                      )
+                                      .join(" · ")}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         <div
