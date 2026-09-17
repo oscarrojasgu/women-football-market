@@ -583,6 +583,37 @@ footer small {
   footer {
     padding: 40px 16px max(36px, calc(24px + env(safe-area-inset-bottom)));
   }
+
+  /* Player statistics filters: two equal columns on iPhone */
+  .content select {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100%;
+    min-height: 42px;
+    padding: 8px 30px 8px 10px !important;
+  }
+
+  .content select + * {
+    max-width: 100%;
+  }
+
+  .content div[style*="padding: 14px"] {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 10px !important;
+    width: 100%;
+  }
+
+  .content div[style*="padding: 14px"] > div {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .content div[style*="padding: 14px"] button {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 42px;
+  }
 }
 
 @media (max-width: 380px) {
