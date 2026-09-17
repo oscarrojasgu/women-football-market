@@ -2,15 +2,18 @@
 @media (max-width: 650px) {
   /* Keep search and filter controls inside the phone viewport. */
   .content input,
-  .content select {
+  .content select,
+  main input,
+  main select {
     box-sizing: border-box !important;
     min-width: 0 !important;
     max-width: 100% !important;
   }
 
-  /* Keep the main search field from touching the edges of the phone. */
+  /* Main search field. */
   .search {
     width: calc(100% - 8px) !important;
+    max-width: calc(100% - 8px) !important;
     margin-left: 4px;
     margin-right: 4px;
   }
@@ -40,12 +43,63 @@
     border-bottom: 0;
   }
 
-  /* Inline data grids used by Players, Salaries, Contracts and player pages.
-     The grid itself becomes the horizontal scroll area, so the page does not. */
+  /* Search/filter bars: search gets the full row, filters share the next row. */
+  main [style*="grid-template-columns: 2fr 1fr 1fr"] {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  main [style*="grid-template-columns: 2fr 1fr 1fr"] > :first-child {
+    grid-column: 1 / -1;
+  }
+
+  /* Transfers search/filter bar. */
+  main [style*="grid-template-columns: minmax(240px, 1fr) 180px 180px"] {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  main [style*="grid-template-columns: minmax(240px, 1fr) 180px 180px"] > :first-child {
+    grid-column: 1 / -1;
+  }
+
+  /* All filter inputs/selects stay inside their actual phone columns. */
+  main [style*="grid-template-columns: 2fr 1fr 1fr"] input,
+  main [style*="grid-template-columns: 2fr 1fr 1fr"] select,
+  main [style*="grid-template-columns: minmax(240px, 1fr) 180px 180px"] input,
+  main [style*="grid-template-columns: minmax(240px, 1fr) 180px 180px"] select {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Player statistics filter controls. */
+  main [style*="padding: 14px"] > div {
+    min-width: 0 !important;
+    flex: 1 1 140px;
+  }
+
+  main [style*="padding: 14px"] select {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Data grids behave like the Transfers table: the individual box slides
+     horizontally instead of squeezing all columns into the phone width. */
   main [style*="grid-template-columns: 1.8fr 1.5fr"],
   main [style*="grid-template-columns: 1.7fr 1.5fr"],
   main [style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr"],
-  main [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] {
+  main [style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.3fr"],
+  main [style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.3fr 1fr"],
+  main [style*="grid-template-columns: 2fr 1fr 1fr 1fr"],
+  main [style*="grid-template-columns: 1.5fr 1.5fr 1.5fr 1fr 1fr"],
+  main [style*="grid-template-columns: 1.5fr repeat(3, 1fr)"],
+  main [style*="grid-template-columns: 120px 1fr auto 1fr"] {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
@@ -55,6 +109,7 @@
     overscroll-behavior-x: contain;
   }
 
+  /* Fixed column widths keep every field readable while the box slides. */
   main [style*="grid-template-columns: 1.8fr 1.5fr"] {
     grid-template-columns: 170px 140px 100px 110px 120px 95px !important;
   }
@@ -67,15 +122,46 @@
     grid-template-columns: 180px 135px 95px 110px 120px 95px !important;
   }
 
+  main [style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.3fr"] {
+    grid-template-columns: 180px 140px 95px 110px 120px !important;
+  }
+
+  main [style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.3fr 1fr"] {
+    grid-template-columns: 180px 140px 95px 110px 120px 95px !important;
+  }
+
   main [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] {
     grid-template-columns: 190px 110px 110px 110px !important;
   }
 
-  /* Do not allow long names, club names or values to shrink the phone layout. */
+  main [style*="grid-template-columns: 1.5fr 1.5fr 1.5fr 1fr 1fr"] {
+    grid-template-columns: 170px 170px 170px 110px 110px !important;
+  }
+
+  main [style*="grid-template-columns: 1.5fr repeat(3, 1fr)"] {
+    grid-template-columns: 180px 125px 125px 125px !important;
+  }
+
+  main [style*="grid-template-columns: 120px 1fr auto 1fr"] {
+    grid-template-columns: 120px 190px 55px 190px !important;
+  }
+
+  /* Do not allow names, clubs or values to shrink the scrollable columns. */
   main [style*="grid-template-columns: 1.8fr 1.5fr"] > *,
   main [style*="grid-template-columns: 1.7fr 1.5fr"] > *,
   main [style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr"] > *,
-  main [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] > * {
-    min-width: 0;
+  main [style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.3fr"] > *,
+  main [style*="grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.3fr 1fr"] > *,
+  main [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] > *,
+  main [style*="grid-template-columns: 1.5fr 1.5fr 1.5fr 1fr 1fr"] > *,
+  main [style*="grid-template-columns: 1.5fr repeat(3, 1fr)"] > *,
+  main [style*="grid-template-columns: 120px 1fr auto 1fr"] > * {
+    min-width: 0 !important;
+  }
+
+  /* Player profile information stays readable without forcing the page wider. */
+  main [style*="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr))"] {
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }
