@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { CSSProperties } from "react";
 import { supabase } from "../../lib/supabase";
 
 type Player = {
@@ -448,14 +449,14 @@ function getPositionColor(position: string) {
   return "#6b7280";
 }
 
-const cardStyle: React.CSSProperties = {
+const cardStyle: CSSProperties = {
   background: "#ffffff",
   border: "1px solid #e5e7eb",
   borderRadius: 14,
   boxShadow: "0 2px 8px rgba(15, 23, 42, 0.05)",
 };
 
-const sectionTitleStyle: React.CSSProperties = {
+const sectionTitleStyle: CSSProperties = {
   margin: 0,
   marginBottom: 18,
   fontSize: 19,
@@ -463,7 +464,7 @@ const sectionTitleStyle: React.CSSProperties = {
   color: "#111827",
 };
 
-const labelStyle: React.CSSProperties = {
+const labelStyle: CSSProperties = {
   fontSize: 11,
   fontWeight: 800,
   color: "#6b7280",
@@ -471,7 +472,7 @@ const labelStyle: React.CSSProperties = {
   letterSpacing: "0.05em",
 };
 
-const valueStyle: React.CSSProperties = {
+const valueStyle: CSSProperties = {
   marginTop: 5,
   fontSize: 15,
   fontWeight: 600,
