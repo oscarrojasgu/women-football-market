@@ -311,15 +311,17 @@ export default function SalariesPage() {
           margin: '0 auto',
           padding: '32px 24px 60px',
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '12px',
+          gridTemplateColumns:
+            'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: 14,
+          marginBottom: 24,
         }}
       >
         <div
           style={{
             border: '1px solid #e3e3e3',
-            borderRadius: '14px',
-            padding: '20px',
+            borderRadius: '12px',
+            padding: '18px 20px',
             background: '#fff',
           }}
         >
@@ -330,7 +332,7 @@ export default function SalariesPage() {
               color: '#777',
               textTransform: 'uppercase',
               letterSpacing: '0.8px',
-              marginBottom: '9px',
+              marginBottom: '6px',
             }}
           >
             Salary records
@@ -339,7 +341,7 @@ export default function SalariesPage() {
           <strong
             style={{
               display: 'block',
-              fontSize: '24px',
+              fontSize: '26px',
             }}
           >
             {records.length}
@@ -349,8 +351,8 @@ export default function SalariesPage() {
         <div
           style={{
             border: '1px solid #e3e3e3',
-            borderRadius: '14px',
-            padding: '20px',
+            borderRadius: '12px',
+            padding: '18px 20px',
             background: '#fff',
           }}
         >
@@ -361,7 +363,7 @@ export default function SalariesPage() {
               color: '#777',
               textTransform: 'uppercase',
               letterSpacing: '0.8px',
-              marginBottom: '9px',
+              marginBottom: '6px',
             }}
           >
             Highest annual salary
@@ -370,7 +372,7 @@ export default function SalariesPage() {
           <strong
             style={{
               display: 'block',
-              fontSize: '24px',
+              fontSize: '26px',
             }}
           >
             {formatSalary(
@@ -383,8 +385,8 @@ export default function SalariesPage() {
         <div
           style={{
             border: '1px solid #e3e3e3',
-            borderRadius: '14px',
-            padding: '20px',
+            borderRadius: '12px',
+            padding: '18px 20px',
             background: '#fff',
           }}
         >
@@ -395,7 +397,7 @@ export default function SalariesPage() {
               color: '#777',
               textTransform: 'uppercase',
               letterSpacing: '0.8px',
-              marginBottom: '9px',
+              marginBottom: '6px',
             }}
           >
             Average annual salary
@@ -404,7 +406,7 @@ export default function SalariesPage() {
           <strong
             style={{
               display: 'block',
-              fontSize: '24px',
+              fontSize: '26px',
             }}
           >
             {formatSalary(
