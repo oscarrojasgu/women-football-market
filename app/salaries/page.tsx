@@ -309,7 +309,7 @@ export default function SalariesPage() {
         style={{
           maxWidth: '1200px',
           margin: '0 auto',
-          padding: '35px 20px',
+          padding: '32px 24px 60px',
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
           gap: '12px',
@@ -422,7 +422,7 @@ export default function SalariesPage() {
         style={{
           maxWidth: '1200px',
           margin: '0 auto',
-          padding: '0 20px 70px',
+          padding: '0 24px 60px',
         }}
       >
         <div
@@ -503,6 +503,7 @@ export default function SalariesPage() {
             background: '#fff',
           }}
         >
+          <div style={{ overflowX: 'auto' }}>
           <div
             style={{
               display: 'grid',
@@ -632,6 +633,7 @@ export default function SalariesPage() {
                 No salary records found.
               </div>
             )}
+          </div>
         </div>
       </section>
 
