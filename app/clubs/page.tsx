@@ -288,7 +288,7 @@ export default function ClubsPage() {
         style={{
           maxWidth: '1200px',
           margin: '0 auto',
-          padding: '35px 20px',
+          padding: '32px 24px 60px',
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '12px',
@@ -420,7 +420,7 @@ export default function ClubsPage() {
         style={{
           maxWidth: '1200px',
           margin: '0 auto',
-          padding: '0 20px 60px',
+          padding: '0 24px 60px',
         }}
       >
         <div
@@ -493,6 +493,7 @@ export default function ClubsPage() {
             <table
               style={{
                 width: '100%',
+                minWidth: 900,
                 borderCollapse: 'collapse',
               }}
             >
