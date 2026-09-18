@@ -667,6 +667,7 @@ export default function PlayerStatistics({
                 </button>
 
                 {clubOpenByClub[group.clubId] !== false && (
+                  <>
                 <div
                   style={{
                     marginTop: 14,
@@ -1044,6 +1045,8 @@ export default function PlayerStatistics({
                     )}
                   </div>
                 )}
+                  </div>
+                  </>
                 )}
               </div>
             ))}
