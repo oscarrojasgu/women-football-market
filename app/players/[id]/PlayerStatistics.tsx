@@ -135,6 +135,7 @@ export default function PlayerStatistics({
   const [competitionFilter, setCompetitionFilter] =
     useState("All");
   const [clubFilter, setClubFilter] = useState("All");
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -795,19 +796,42 @@ export default function PlayerStatistics({
                       overflowX: "auto",
                     }}
                   >
-                    <div
+                    <button
+                      type="button"
+                      onClick={() => setAdvancedOpen((open) => !open)}
+                      aria-expanded={advancedOpen}
                       style={{
-                        marginBottom: 10,
-                        fontSize: 11,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        width: "100%",
+                        marginBottom: advancedOpen ? 10 : 0,
+                        padding: "0 0 10px",
+                        border: "none",
+                        borderBottom: "1px solid #eee",
+                        background: "transparent",
                         color: "#888",
+                        fontSize: 11,
                         fontWeight: 600,
                         textTransform: "uppercase",
                         letterSpacing: "0.04em",
+                        textAlign: "left",
+                        cursor: "pointer",
                       }}
                     >
-                      Advanced Statistics
-                    </div>
+                      <span>Advanced Statistics</span>
+                      <span
+                        style={{
+                          fontSize: 14,
+                          color: "#555",
+                          lineHeight: 1,
+                        }}
+                      >
+                        {advancedOpen ? "−" : "+"}
+                      </span>
+                    </button>
 
+                    {advancedOpen && (
                     <table
                       style={{
                         width: "100%",
@@ -963,8 +987,9 @@ export default function PlayerStatistics({
                         ))}
                       </tbody>
                     </table>
+                    )}
 
-                    {group.stats.some((stat) => stat.notes) && (
+                    {advancedOpen && group.stats.some((stat) => stat.notes) && (
                       <div
                         style={{
                           marginTop: 10,
