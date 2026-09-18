@@ -13,6 +13,8 @@ export default function PlayerActions() {
 
   const [open, setOpen] = useState<"claim" | "update" | null>(null);
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [fieldName, setFieldName] = useState("");
   const [newValue, setNewValue] = useState("");
   const [evidenceUrl, setEvidenceUrl] = useState("");
@@ -30,21 +32,44 @@ export default function PlayerActions() {
 
   if (!playerId) return null;
 
-  const sendSignIn = async () => {
+  const authenticate = async () => {
     setBusy(true);
     setMessage("");
-    const { error } = await supabase.auth.signInWithOtp({
+
+    if (authMode === "signup") {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      setBusy(false);
+      if (error) {
+        setMessage(error.message);
+        return;
+      }
+
+      setUserId(data.user?.id || null);
+      setMessage(
+        data.user
+          ? "Account created. You can now submit your verification request."
+          : "Account created. If email confirmation is enabled, check your email before signing in."
+      );
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      options: {
-        emailRedirectTo: window.location.href,
-      },
+      password,
     });
+
     setBusy(false);
-    setMessage(
-      error
-        ? error.message
-        : "Check your email for the secure WFM sign-in link."
-    );
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setUserId(data.user?.id || null);
+    setMessage("Signed in successfully.");
   };
 
   const claimProfile = async () => {
@@ -249,8 +274,22 @@ export default function PlayerActions() {
                     lineHeight: 1.5,
                   }}
                 >
-                  Sign in with your email to submit information. WFM uses a
-                  secure passwordless sign-in link.
+                  Create an account or sign in with your email and password. Your account lets you submit claims and corrections, but does not automatically verify anything.
+                </div>
+
+                <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+                  <button
+                    onClick={() => setAuthMode("signin")}
+                    style={{ flex: 1, padding: 9, border: "1px solid #ccc", borderRadius: 8, background: authMode === "signin" ? "#111" : "#fff", color: authMode === "signin" ? "#fff" : "#111", fontWeight: 700 }}
+                  >
+                    Sign in
+                  </button>
+                  <button
+                    onClick={() => setAuthMode("signup")}
+                    style={{ flex: 1, padding: 9, border: "1px solid #ccc", borderRadius: 8, background: authMode === "signup" ? "#111" : "#fff", color: authMode === "signup" ? "#fff" : "#111", fontWeight: 700 }}
+                  >
+                    Create account
+                  </button>
                 </div>
 
                 <label
@@ -281,9 +320,21 @@ export default function PlayerActions() {
                   }}
                 />
 
+                <label style={{ display: "block", marginTop: 14, fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#777" }}>
+                  Password
+                </label>
+
+                <input
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  type="password"
+                  placeholder="Create a password"
+                  style={{ width: "100%", marginTop: 6, padding: 11, border: "1px solid #ccc", borderRadius: 8, fontSize: 14 }}
+                />
+
                 <button
-                  onClick={sendSignIn}
-                  disabled={busy || !email}
+                  onClick={authenticate}
+                  disabled={busy || !email || !password}
                   style={{
                     width: "100%",
                     marginTop: 12,
@@ -293,10 +344,10 @@ export default function PlayerActions() {
                     background: "#111",
                     color: "#fff",
                     fontWeight: 700,
-                    opacity: busy || !email ? 0.55 : 1,
+                    opacity: busy || !email || !password ? 0.55 : 1,
                   }}
                 >
-                  {busy ? "Sending..." : "Send sign-in link"}
+                  {busy ? (authMode === "signup" ? "Creating..." : "Signing in...") : (authMode === "signup" ? "Create account" : "Sign in")}
                 </button>
               </div>
             ) : open === "claim" ? (
