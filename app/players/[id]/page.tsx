@@ -568,6 +568,7 @@ export default async function PlayerPage({
 
   return (
     <main
+      className="player-page"
       style={{
         minHeight: "100vh",
         background: "#f5f4ef",
