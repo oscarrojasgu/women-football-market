@@ -62,11 +62,25 @@ export default function VerificationDashboard() {
       return;
     }
 
-    const { data: admin } = await supabase
+    let { data: admin } = await supabase
       .from("wfm_admins")
       .select("user_id, email, role")
       .eq("user_id", currentUser.id)
       .maybeSingle();
+
+    // First-time owner bootstrap. The database function only succeeds for
+    // the WFM owner email configured in Supabase.
+    if (!admin) {
+      await supabase.rpc("bootstrap_wfm_owner");
+
+      const result = await supabase
+        .from("wfm_admins")
+        .select("user_id, email, role")
+        .eq("user_id", currentUser.id)
+        .maybeSingle();
+
+      admin = result.data;
+    }
 
     setAuthorized(!!admin);
     setLoading(false);
