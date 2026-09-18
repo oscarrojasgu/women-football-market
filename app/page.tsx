@@ -365,7 +365,7 @@ export default function Home() {
             href="/clubs"
             style={{ color: '#111', textDecoration: 'none' }}
           >
-            Contracts
+            Clubs
           </Link>
         </div>
 
