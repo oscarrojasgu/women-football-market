@@ -423,7 +423,7 @@ export default function Home() {
               fontWeight: 800,
             }}
           >
-            The women’s football market.
+            The Women’s Football Market.
             <br />
             <em
               style={{
@@ -446,7 +446,7 @@ export default function Home() {
           >
             A modern football intelligence platform for players, clubs,
             scouts, agents and fans — with the data and transparency to
-            understand the women’s game.
+            understand the Women’s game.
           </p>
 
           <div
@@ -1091,7 +1091,7 @@ export default function Home() {
             margin: '10px 0',
           }}
         >
-          Built for women’s football.
+          Built for Women’s Football.
         </p>
 
         <small
