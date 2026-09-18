@@ -137,6 +137,7 @@ export default function PlayerStatistics({
   const [clubFilter, setClubFilter] = useState("All");
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [firstClubOpen, setFirstClubOpen] = useState(true);
+  const [secondClubOpen, setSecondClubOpen] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -577,22 +578,28 @@ export default function PlayerStatistics({
                 }}
               >
                 <div
-                  role={index === 0 ? "button" : undefined}
-                  tabIndex={index === 0 ? 0 : undefined}
+                  role={index < 2 ? "button" : undefined}
+                  tabIndex={index < 2 ? 0 : undefined}
                   onClick={
                     index === 0
                       ? () => setFirstClubOpen((open) => !open)
-                      : undefined
+                      : index === 1
+                        ? () => setSecondClubOpen((open) => !open)
+                        : undefined
                   }
                   onKeyDown={
-                    index === 0
+                    index < 2
                       ? (event) => {
                           if (
                             event.key === "Enter" ||
                             event.key === " "
                           ) {
                             event.preventDefault();
-                            setFirstClubOpen((open) => !open);
+                            if (index === 0) {
+                              setFirstClubOpen((open) => !open);
+                            } else {
+                              setSecondClubOpen((open) => !open);
+                            }
                           }
                         }
                       : undefined
@@ -601,7 +608,7 @@ export default function PlayerStatistics({
                     display: "flex",
                     alignItems: "center",
                     gap: 12,
-                    cursor: index === 0 ? "pointer" : "default",
+                    cursor: index < 2 ? "pointer" : "default",
                   }}
                 >
                   {group.club?.logo_url ? (
@@ -660,7 +667,7 @@ export default function PlayerStatistics({
                       </div>
                     )}
                   </div>
-                  {index === 0 && (
+                  {index < 2 && (
                     <span
                       style={{
                         marginLeft: "auto",
@@ -669,7 +676,13 @@ export default function PlayerStatistics({
                         lineHeight: 1,
                       }}
                     >
-                      {firstClubOpen ? "−" : "+"}
+                      {index === 0
+                        ? firstClubOpen
+                          ? "−"
+                          : "+"
+                        : secondClubOpen
+                          ? "−"
+                          : "+"}
                     </span>
                   )}
                 </div>
@@ -679,7 +692,9 @@ export default function PlayerStatistics({
                     display:
                       index === 0 && !firstClubOpen
                         ? "none"
-                        : "block",
+                        : index === 1 && !secondClubOpen
+                          ? "none"
+                          : "block",
                     marginTop: 14,
                     overflowX: "auto",
                   }}
