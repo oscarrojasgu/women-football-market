@@ -63,6 +63,42 @@ type PlayerStat = {
   assists: number | null;
   yellow_cards: number | null;
   red_cards: number | null;
+  shots: number | null;
+  shots_on_target: number | null;
+  key_passes: number | null;
+  chances_created: number | null;
+  crosses: number | null;
+  tackles: number | null;
+  tackles_won: number | null;
+  interceptions: number | null;
+  clearances: number | null;
+  blocks: number | null;
+  recoveries: number | null;
+  dispossessions: number | null;
+  dribbles_attempted: number | null;
+  dribbles_completed: number | null;
+  fouls_committed: number | null;
+  fouls_drawn: number | null;
+  offsides: number | null;
+  passes_attempted: number | null;
+  passes_completed: number | null;
+  progressive_passes: number | null;
+  progressive_carries: number | null;
+  duels_won: number | null;
+  duels_lost: number | null;
+  aerials_won: number | null;
+  aerials_lost: number | null;
+  xg: number | null;
+  xa: number | null;
+  sca: number | null;
+  gca: number | null;
+  saves: number | null;
+  shots_on_target_faced: number | null;
+  goals_against: number | null;
+  clean_sheets: number | null;
+  penalty_kicks_saved: number | null;
+  penalty_kicks_faced: number | null;
+  own_goals: number | null;
   confidence: string | null;
   notes: string | null;
 };
@@ -428,7 +464,7 @@ export default async function PlayerPage({
   const { data: playerStatsData } = await supabase
     .from("player_stats")
     .select(
-      "id, club_id, season, competition, appearances, starts, minutes, goals, assists, yellow_cards, red_cards, confidence, notes"
+      "id, club_id, season, competition, appearances, starts, minutes, goals, assists, yellow_cards, red_cards, shots, shots_on_target, key_passes, chances_created, crosses, tackles, tackles_won, interceptions, clearances, blocks, recoveries, dispossessions, dribbles_attempted, dribbles_completed, fouls_committed, fouls_drawn, offsides, passes_attempted, passes_completed, progressive_passes, progressive_carries, duels_won, duels_lost, aerials_won, aerials_lost, xg, xa, sca, gca, saves, shots_on_target_faced, goals_against, clean_sheets, penalty_kicks_saved, penalty_kicks_faced, own_goals, confidence, notes"
     )
     .eq("player_id", id)
     .order("season", { ascending: false })
