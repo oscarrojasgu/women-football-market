@@ -56,6 +56,9 @@ const normalizePosition = (position: string | null | undefined) => {
   }
 
   if (
+    value === "DEFENDER" ||
+    value === "DEFENCE" ||
+    value === "DEFENSE" ||
     value === "CENTER BACK" ||
     value === "CENTRE BACK" ||
     value === "CENTER-BACK" ||
@@ -107,6 +110,8 @@ const normalizePosition = (position: string | null | undefined) => {
   }
 
   if (
+    value === "MIDFIELDER" ||
+    value === "MIDFIELD" ||
     value === "CENTRAL MIDFIELDER" ||
     value === "CENTRAL MIDFIELD" ||
     value === "CENTRAL MID" ||
