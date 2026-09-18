@@ -259,6 +259,7 @@ alter table photo_permissions enable row level security;
 alter table wfm_admins enable row level security;
 
 -- Current admin-only photo-permission policy.
+drop policy if exists "WFM admins can manage photo permissions" on public.photo_permissions;
 create policy "WFM admins can manage photo permissions"
 on public.photo_permissions
 for all
@@ -267,6 +268,7 @@ using (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.ui
 with check (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
 
 -- Current admin self-read policy.
+drop policy if exists "Admins can view their own admin record" on public.wfm_admins;
 create policy "Admins can view their own admin record"
 on public.wfm_admins
 for select
