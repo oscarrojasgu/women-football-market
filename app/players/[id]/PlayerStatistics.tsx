@@ -798,7 +798,12 @@ export default function PlayerStatistics({
                   >
                     <button
                       type="button"
-                      onClick={() =>\n                        setAdvancedOpenByClub((current) => ({\n                          ...current,\n                          [group.clubId]: !current[group.clubId],\n                        }))
+                      onClick={() =>
+                        setAdvancedOpenByClub((current) => ({
+                          ...current,
+                          [group.clubId]: !current[group.clubId],
+                        }))
+                      }
                       aria-expanded={Boolean(advancedOpenByClub[group.clubId])}
                       style={{
                         display: "flex",
