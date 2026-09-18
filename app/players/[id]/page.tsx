@@ -733,8 +733,8 @@ export default async function PlayerPage({
                   style={{
                     width: "100%",
                     height: "100%",
-                    objectFit: "cover",
-                    objectPosition: "center 20%",
+                    objectFit: "contain",
+                    objectPosition: "center center",
                     display: "block",
                     imageRendering: "auto",
                   }}
