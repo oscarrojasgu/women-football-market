@@ -510,7 +510,7 @@ footer small {
   }
 
   .stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .stats div {
@@ -569,7 +569,7 @@ footer small {
   }
 
   .cards {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .cards article {
@@ -597,54 +597,54 @@ footer small {
     max-width: 100%;
   }
 
-  .content div[style*="padding: 14px"] {
+  .player-page .content div[style*="padding: 14px"] {
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
     gap: 10px !important;
     width: 100%;
   }
 
-  .content div[style*="padding: 14px"] > div {
+  .player-page .content div[style*="padding: 14px"] > div {
     min-width: 0;
     width: 100%;
   }
 
-  .content div[style*="padding: 14px"] button {
+  .player-page .content div[style*="padding: 14px"] button {
     grid-column: 1 / -1;
     width: 100%;
     min-height: 42px;
   }
 
   /* Player profile: stack Position Map and Market Value on phones */
-  main > div > div > div[style*="minmax(190px, 230px)"] {
+  .player-page > div > div > div[style*="minmax(190px, 230px)"] {
     grid-template-columns: minmax(0, 1fr) !important;
     gap: 24px !important;
   }
 
-  main > div > div > div[style*="minmax(190px, 230px)"] > div:first-child {
+  .player-page > div > div > div[style*="minmax(190px, 230px)"] > div:first-child {
     width: 100%;
     min-width: 0;
   }
 
-  main > div > div > div[style*="minmax(190px, 230px)"] > div:first-child > div {
+  .player-page > div > div > div[style*="minmax(190px, 230px)"] > div:first-child > div {
     width: 100% !important;
     max-width: 300px !important;
     margin-left: auto !important;
     margin-right: auto !important;
   }
 
-  main > div > div > div[style*="minmax(190px, 230px)"] > div:nth-child(2) {
+  .player-page > div > div > div[style*="minmax(190px, 230px)"] > div:nth-child(2) {
     width: 100%;
     min-width: 0;
     min-height: 0 !important;
     padding: 18px !important;
   }
 
-  main > div > div > div[style*="minmax(190px, 230px)"] > div:nth-child(2) h2 {
+  .player-page > div > div > div[style*="minmax(190px, 230px)"] > div:nth-child(2) h2 {
     font-size: 19px !important;
   }
 
-  main > div > div > div[style*="minmax(190px, 230px)"] > div:nth-child(2) div[style*="fontSize: 30"] {
+  .player-page > div > div > div[style*="minmax(190px, 230px)"] > div:nth-child(2) div[style*="fontSize: 30"] {
     font-size: 28px !important;
     line-height: 1.05;
     white-space: nowrap;
