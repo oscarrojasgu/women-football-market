@@ -4,6 +4,7 @@ import './mobile-layout-fixes.css'
 import './mobile-scroll-fixes.css'
 import type { ReactNode } from 'react'
 import MobileNav from './components/MobileNav'
+import PlayerActions from './components/PlayerActions'
 
 export const metadata = {
   title: 'Women’s Football Market',
@@ -16,6 +17,7 @@ export default function RootLayout({children}:{children:ReactNode}) {
       <body>
         <MobileNav />
         {children}
+        <PlayerActions />
       </body>
     </html>
   )
