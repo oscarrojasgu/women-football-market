@@ -711,9 +711,10 @@ export default async function PlayerPage({
             }}
           >
             <div
+              className="player-photo-frame"
               style={{
-                width: 210,
-                height: 210,
+                width: 180,
+                height: 240,
                 flexShrink: 0,
                 borderRadius: 10,
                 overflow: "hidden",
