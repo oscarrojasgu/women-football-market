@@ -750,8 +750,8 @@ export default function PlayerStatistics({
                   </table>
                 </div>
 
-                {group.stats.map((stat) => {
-                  const hasAdvanced =
+                {group.stats.some(
+                  (stat) =>
                     stat.shots !== null ||
                     stat.shots_on_target !== null ||
                     stat.key_passes !== null ||
@@ -766,6 +766,9 @@ export default function PlayerStatistics({
                     stat.dispossessions !== null ||
                     stat.dribbles_attempted !== null ||
                     stat.dribbles_completed !== null ||
+                    stat.fouls_committed !== null ||
+                    stat.fouls_drawn !== null ||
+                    stat.offsides !== null ||
                     stat.passes_attempted !== null ||
                     stat.passes_completed !== null ||
                     stat.progressive_passes !== null ||
@@ -781,191 +784,209 @@ export default function PlayerStatistics({
                     stat.saves !== null ||
                     stat.shots_on_target_faced !== null ||
                     stat.goals_against !== null ||
-                    stat.clean_sheets !== null;
-
-                  if (!hasAdvanced) return null;
-
-                  return (
+                    stat.clean_sheets !== null ||
+                    stat.penalty_kicks_saved !== null ||
+                    stat.penalty_kicks_faced !== null ||
+                    stat.own_goals !== null
+                ) && (
+                  <div
+                    style={{
+                      marginTop: 18,
+                      overflowX: "auto",
+                    }}
+                  >
                     <div
-                      key={`${stat.id}-advanced`}
                       style={{
-                        marginTop: 16,
-                        padding: "16px",
-                        border: "1px solid #eee",
-                        borderRadius: 8,
-                        background: "#fafafa",
+                        marginBottom: 10,
+                        fontSize: 11,
+                        color: "#888",
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.04em",
                       }}
                     >
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          gap: 15,
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        <div>
-                          <h3 style={sectionTitleStyle}>
-                            {stat.season} · {stat.competition} · Advanced
-                            Statistics
-                          </h3>
-                          <div style={sectionSubTitleStyle}>
-                            Only statistics available from the underlying source are populated.
-                          </div>
-                        </div>
+                      Advanced Statistics
+                    </div>
 
-                        <div
-                          style={{
-                            fontSize: 10,
-                            color: "#888",
-                            paddingTop: 2,
-                          }}
-                        >
-                          {displayConfidence(stat.confidence)}
-                        </div>
-                      </div>
-
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns:
-                            "repeat(auto-fit, minmax(120px, 1fr))",
-                          gap: 10,
-                          marginTop: 14,
-                        }}
-                      >
-                        {[
-                          ["Shots", formatStat(stat.shots)],
-                          ["Shots on Target", formatStat(stat.shots_on_target)],
-                          ["Key Passes", formatStat(stat.key_passes)],
-                          ["Chances Created", formatStat(stat.chances_created)],
-                          ["Crosses", formatStat(stat.crosses)],
-                          ["Dribbles", stat.dribbles_attempted === null && stat.dribbles_completed === null ? "—" : `${formatStat(stat.dribbles_completed)} / ${formatStat(stat.dribbles_attempted)}`],
-                          ["Passes", stat.passes_attempted === null && stat.passes_completed === null ? "—" : `${formatStat(stat.passes_completed)} / ${formatStat(stat.passes_attempted)}`],
-                          ["Progressive Passes", formatStat(stat.progressive_passes)],
-                          ["Progressive Carries", formatStat(stat.progressive_carries)],
-                          ["Tackles", formatStat(stat.tackles)],
-                          ["Tackles Won", formatStat(stat.tackles_won)],
-                          ["Interceptions", formatStat(stat.interceptions)],
-                          ["Clearances", formatStat(stat.clearances)],
-                          ["Blocks", formatStat(stat.blocks)],
-                          ["Recoveries", formatStat(stat.recoveries)],
-                          ["Dispossessions", formatStat(stat.dispossessions)],
-                          ["Duels Won", formatStat(stat.duels_won)],
-                          ["Duels Lost", formatStat(stat.duels_lost)],
-                          ["Aerials Won", formatStat(stat.aerials_won)],
-                          ["Aerials Lost", formatStat(stat.aerials_lost)],
-                          ["xG", formatDecimal(stat.xg)],
-                          ["xA", formatDecimal(stat.xa)],
-                          ["SCA", formatStat(stat.sca)],
-                          ["GCA", formatStat(stat.gca)],
-                          ["Fouls Committed", formatStat(stat.fouls_committed)],
-                          ["Fouls Drawn", formatStat(stat.fouls_drawn)],
-                          ["Offsides", formatStat(stat.offsides)],
-                          ["Own Goals", formatStat(stat.own_goals)],
-                        ].map(([label, value]) => (
-                          <div
-                            key={label}
-                            style={{
-                              padding: "10px",
-                              border: "1px solid #eee",
-                              borderRadius: 7,
-                              background: "#fff",
-                            }}
-                          >
-                            <div style={labelStyle}>{label}</div>
-                            <div
+                    <table
+                      style={{
+                        width: "100%",
+                        minWidth: 1900,
+                        borderCollapse: "collapse",
+                      }}
+                    >
+                      <thead>
+                        <tr>
+                          {[
+                            "Season",
+                            "Competition",
+                            "Shots",
+                            "SOT",
+                            "Key Passes",
+                            "Chances",
+                            "Crosses",
+                            "Dribbles",
+                            "Passes",
+                            "Prog. Passes",
+                            "Prog. Carries",
+                            "Tackles",
+                            "Tackles Won",
+                            "Interceptions",
+                            "Clearances",
+                            "Blocks",
+                            "Recoveries",
+                            "Dispossessions",
+                            "Duels Won",
+                            "Duels Lost",
+                            "Aerials Won",
+                            "Aerials Lost",
+                            "xG",
+                            "xA",
+                            "SCA",
+                            "GCA",
+                            "Fouls",
+                            "Drawn",
+                            "Offsides",
+                            "Own Goals",
+                            "Saves",
+                            "SoTA Faced",
+                            "GA",
+                            "Clean Sheets",
+                            "PK Faced",
+                            "PK Saved",
+                          ].map((heading, index) => (
+                            <th
+                              key={heading}
                               style={{
-                                fontSize: 14,
-                                fontWeight: 700,
-                                color: "#111",
+                                padding: "9px 8px",
+                                borderBottom: "1px solid #ddd",
+                                fontSize: 10,
+                                color: "#888",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.04em",
+                                textAlign:
+                                  index < 2 ? "left" : "right",
+                                fontWeight: 600,
+                                whiteSpace: "nowrap",
                               }}
                             >
-                              {value}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                              {heading}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
 
-                      {(stat.saves !== null ||
-                        stat.shots_on_target_faced !== null ||
-                        stat.goals_against !== null ||
-                        stat.clean_sheets !== null ||
-                        stat.penalty_kicks_faced !== null ||
-                        stat.penalty_kicks_saved !== null) && (
-                        <div
-                          style={{
-                            marginTop: 14,
-                            paddingTop: 14,
-                            borderTop: "1px solid #eee",
-                          }}
-                        >
-                          <h4
-                            style={{
-                              margin: 0,
-                              fontSize: 12,
-                              fontWeight: 750,
-                            }}
-                          >
-                            Goalkeeping
-                          </h4>
+                      <tbody>
+                        {group.stats.map((stat) => (
+                          <tr key={`${stat.id}-advanced`}>
+                            <td
+                              style={{
+                                padding: "11px 8px",
+                                borderBottom: "1px solid #f0f0f0",
+                                fontSize: 12,
+                                fontWeight: 600,
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {stat.season}
+                            </td>
 
-                          <div
-                            style={{
-                              display: "grid",
-                              gridTemplateColumns:
-                                "repeat(auto-fit, minmax(120px, 1fr))",
-                              gap: 10,
-                              marginTop: 10,
-                            }}
-                          >
+                            <td
+                              style={{
+                                padding: "11px 8px",
+                                borderBottom: "1px solid #f0f0f0",
+                                fontSize: 12,
+                                color: "#444",
+                                minWidth: 180,
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {stat.competition}
+                            </td>
+
                             {[
-                              ["Saves", formatStat(stat.saves)],
-                              ["Shots on Target Faced", formatStat(stat.shots_on_target_faced)],
-                              ["Goals Against", formatStat(stat.goals_against)],
-                              ["Clean Sheets", formatStat(stat.clean_sheets)],
-                              ["PK Faced", formatStat(stat.penalty_kicks_faced)],
-                              ["PK Saved", formatStat(stat.penalty_kicks_saved)],
-                            ].map(([label, value]) => (
-                              <div
-                                key={label}
+                              formatStat(stat.shots),
+                              formatStat(stat.shots_on_target),
+                              formatStat(stat.key_passes),
+                              formatStat(stat.chances_created),
+                              formatStat(stat.crosses),
+                              stat.dribbles_attempted === null &&
+                              stat.dribbles_completed === null
+                                ? "—"
+                                : `${formatStat(stat.dribbles_completed)} / ${formatStat(stat.dribbles_attempted)}`,
+                              stat.passes_attempted === null &&
+                              stat.passes_completed === null
+                                ? "—"
+                                : `${formatStat(stat.passes_completed)} / ${formatStat(stat.passes_attempted)}`,
+                              formatStat(stat.progressive_passes),
+                              formatStat(stat.progressive_carries),
+                              formatStat(stat.tackles),
+                              formatStat(stat.tackles_won),
+                              formatStat(stat.interceptions),
+                              formatStat(stat.clearances),
+                              formatStat(stat.blocks),
+                              formatStat(stat.recoveries),
+                              formatStat(stat.dispossessions),
+                              formatStat(stat.duels_won),
+                              formatStat(stat.duels_lost),
+                              formatStat(stat.aerials_won),
+                              formatStat(stat.aerials_lost),
+                              formatDecimal(stat.xg),
+                              formatDecimal(stat.xa),
+                              formatStat(stat.sca),
+                              formatStat(stat.gca),
+                              formatStat(stat.fouls_committed),
+                              formatStat(stat.fouls_drawn),
+                              formatStat(stat.offsides),
+                              formatStat(stat.own_goals),
+                              formatStat(stat.saves),
+                              formatStat(stat.shots_on_target_faced),
+                              formatStat(stat.goals_against),
+                              formatStat(stat.clean_sheets),
+                              formatStat(stat.penalty_kicks_faced),
+                              formatStat(stat.penalty_kicks_saved),
+                            ].map((value, index) => (
+                              <td
+                                key={index}
                                 style={{
-                                  padding: "10px",
-                                  border: "1px solid #eee",
-                                  borderRadius: 7,
-                                  background: "#fff",
+                                  padding: "11px 8px",
+                                  borderBottom: "1px solid #f0f0f0",
+                                  fontSize: 12,
+                                  textAlign: "right",
+                                  whiteSpace: "nowrap",
                                 }}
                               >
-                                <div style={labelStyle}>{label}</div>
-                                <div
-                                  style={{
-                                    fontSize: 14,
-                                    fontWeight: 700,
-                                  }}
-                                >
-                                  {value}
-                                </div>
-                              </div>
+                                {value}
+                              </td>
                             ))}
-                          </div>
-                        </div>
-                      )}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
 
-                      {stat.notes && (
-                        <div
-                          style={{
-                            marginTop: 12,
-                            fontSize: 10,
-                            color: "#888",
-                            lineHeight: 1.45,
-                          }}
-                        >
-                          {stat.notes}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                    {group.stats.some((stat) => stat.notes) && (
+                      <div
+                        style={{
+                          marginTop: 10,
+                          fontSize: 10,
+                          color: "#888",
+                          lineHeight: 1.45,
+                        }}
+                      >
+                        {group.stats
+                          .filter((stat) => stat.notes)
+                          .map((stat) => (
+                            <div key={`${stat.id}-note`}>
+                              <strong>
+                                {stat.season} · {stat.competition}:
+                              </strong>{" "}
+                              {stat.notes}
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>
