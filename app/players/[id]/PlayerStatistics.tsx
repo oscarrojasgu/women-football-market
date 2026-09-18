@@ -1044,7 +1044,6 @@ export default function PlayerStatistics({
                       </div>
                     )}
                   </div>
-                  </div>
                 </div>
               </div>
             ))}
