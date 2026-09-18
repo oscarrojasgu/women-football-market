@@ -165,7 +165,6 @@ export default function Home() {
         supabase
           .from('contracts')
           .select(`
-          .select(`
             player_id,
             annual_salary,
             weekly_salary,
