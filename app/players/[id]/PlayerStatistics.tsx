@@ -136,8 +136,9 @@ export default function PlayerStatistics({
     useState("All");
   const [clubFilter, setClubFilter] = useState("All");
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [firstClubOpen, setFirstClubOpen] = useState(true);
-  const [secondClubOpen, setSecondClubOpen] = useState(true);
+  const [firstClubOpen, setFirstClubOpen] = useState(false);
+  const [secondClubOpen, setSecondClubOpen] = useState(false);
+  const [thirdClubOpen, setThirdClubOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -578,17 +579,19 @@ export default function PlayerStatistics({
                 }}
               >
                 <div
-                  role={index < 2 ? "button" : undefined}
-                  tabIndex={index < 2 ? 0 : undefined}
+                  role={index < 3 ? "button" : undefined}
+                  tabIndex={index < 3 ? 0 : undefined}
                   onClick={
                     index === 0
                       ? () => setFirstClubOpen((open) => !open)
                       : index === 1
                         ? () => setSecondClubOpen((open) => !open)
-                        : undefined
+                        : index === 2
+                          ? () => setThirdClubOpen((open) => !open)
+                          : undefined
                   }
                   onKeyDown={
-                    index < 2
+                    index < 3
                       ? (event) => {
                           if (
                             event.key === "Enter" ||
@@ -597,8 +600,10 @@ export default function PlayerStatistics({
                             event.preventDefault();
                             if (index === 0) {
                               setFirstClubOpen((open) => !open);
-                            } else {
+                            } else if (index === 1) {
                               setSecondClubOpen((open) => !open);
+                            } else {
+                              setThirdClubOpen((open) => !open);
                             }
                           }
                         }
@@ -608,7 +613,7 @@ export default function PlayerStatistics({
                     display: "flex",
                     alignItems: "center",
                     gap: 12,
-                    cursor: index < 2 ? "pointer" : "default",
+                    cursor: index < 3 ? "pointer" : "default",
                   }}
                 >
                   {group.club?.logo_url ? (
@@ -667,7 +672,7 @@ export default function PlayerStatistics({
                       </div>
                     )}
                   </div>
-                  {index < 2 && (
+                  {index < 3 && (
                     <span
                       style={{
                         marginLeft: "auto",
@@ -680,9 +685,13 @@ export default function PlayerStatistics({
                         ? firstClubOpen
                           ? "−"
                           : "+"
-                        : secondClubOpen
-                          ? "−"
-                          : "+"}
+                        : index === 1
+                          ? secondClubOpen
+                            ? "−"
+                            : "+"
+                          : thirdClubOpen
+                            ? "−"
+                            : "+"}
                     </span>
                   )}
                 </div>
@@ -694,7 +703,9 @@ export default function PlayerStatistics({
                         ? "none"
                         : index === 1 && !secondClubOpen
                           ? "none"
-                          : "block",
+                          : index === 2 && !thirdClubOpen
+                            ? "none"
+                            : "block",
                     marginTop: 14,
                     overflowX: "auto",
                   }}
