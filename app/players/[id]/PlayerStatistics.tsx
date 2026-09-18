@@ -119,6 +119,20 @@ const displayConfidence = (value: string | null) => {
   return value.charAt(0).toUpperCase() + value.slice(1);
 };
 
+const countryCodeMap: Record<string, string> = {
+  Australia: "au",
+  Brazil: "br",
+  Malawi: "mw",
+  "Puerto Rico": "pr",
+  "United States": "us",
+  Zambia: "zm",
+};
+
+const getCountryFlagUrl = (country: string) => {
+  const code = countryCodeMap[country.trim()];
+  return code ? `https://flagcdn.com/w80/${code}.png` : null;
+};
+
 export default function PlayerStatistics({
   stats,
   clubs,
@@ -1197,16 +1211,37 @@ export default function PlayerStatistics({
                         width: 38,
                         height: 38,
                         borderRadius: 7,
-                        background: "#f5f4ef",
+                        background: "#fff",
+                        border: "1px solid #eee",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontWeight: 800,
-                        fontSize: 15,
+                        overflow: "hidden",
                         flexShrink: 0,
                       }}
                     >
-                      {stat.country.charAt(0)}
+                      {getCountryFlagUrl(stat.country) ? (
+                        <img
+                          src={getCountryFlagUrl(stat.country)!}
+                          alt={`${stat.country} flag`}
+                          style={{
+                            width: 32,
+                            height: 22,
+                            objectFit: "cover",
+                            display: "block",
+                          }}
+                        />
+                      ) : (
+                        <span
+                          style={{
+                            fontWeight: 800,
+                            fontSize: 15,
+                            color: "#555",
+                          }}
+                        >
+                          {stat.country.charAt(0)}
+                        </span>
+                      )}
                     </div>
 
                     <div style={{ minWidth: 0 }}>
