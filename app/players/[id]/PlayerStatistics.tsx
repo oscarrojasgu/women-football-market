@@ -666,11 +666,12 @@ export default function PlayerStatistics({
                   </span>
                 </button>
 
-                {clubOpenByClub[group.clubId] !== false && (
-                  <div
+                <div
                   style={{
-                    marginTop: 14,
-                    overflowX: "auto",
+                    display:
+                      clubOpenByClub[group.clubId] === false
+                        ? "none"
+                        : "block",
                   }}
                 >
                   <table
@@ -1044,7 +1045,7 @@ export default function PlayerStatistics({
                     )}
                   </div>
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>
