@@ -97,7 +97,7 @@ export default function VerificationDashboard() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: window.location.href,
+        emailRedirectTo: "https://women-football-market.vercel.app/admin/verification",
         shouldCreateUser: true,
       },
     });
