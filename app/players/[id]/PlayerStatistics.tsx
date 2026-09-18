@@ -667,8 +667,7 @@ export default function PlayerStatistics({
                 </button>
 
                 {clubOpenByClub[group.clubId] !== false && (
-                  <>
-                <div
+                  <div
                   style={{
                     marginTop: 14,
                     overflowX: "auto",
@@ -1044,9 +1043,7 @@ export default function PlayerStatistics({
                       </div>
                     )}
                   </div>
-                )}
                   </div>
-                  </>
                 )}
               </div>
             ))}
