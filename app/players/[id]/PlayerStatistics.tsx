@@ -135,8 +135,7 @@ export default function PlayerStatistics({
   const [competitionFilter, setCompetitionFilter] =
     useState("All");
   const [clubFilter, setClubFilter] = useState("All");
-  const [clubOpenByClub, setClubOpenByClub] = useState<Record<string, boolean>>({});
-  const [advancedOpenByClub, setAdvancedOpenByClub] = useState<Record<string, boolean>>({});
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -576,26 +575,11 @@ export default function PlayerStatistics({
                   borderTop: "1px solid #eee",
                 }}
               >
-                <button
-                  type="button"
-                  onClick={() =>
-                    setClubOpenByClub((current) => ({
-                      ...current,
-                      [group.clubId]: current[group.clubId] === false,
-                    }))
-                  }
-                  aria-expanded={clubOpenByClub[group.clubId] !== false}
+                <div
                   style={{
                     display: "flex",
                     alignItems: "center",
                     gap: 12,
-                    width: "100%",
-                    padding: 0,
-                    border: "none",
-                    background: "transparent",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    color: "inherit",
                   }}
                 >
                   {group.club?.logo_url ? (
@@ -654,24 +638,12 @@ export default function PlayerStatistics({
                       </div>
                     )}
                   </div>
-                  <span
-                    style={{
-                      marginLeft: "auto",
-                      fontSize: 18,
-                      color: "#666",
-                      lineHeight: 1,
-                    }}
-                  >
-                    {clubOpenByClub[group.clubId] === false ? "+" : "−"}
-                  </span>
-                </button>
+                </div>
 
                 <div
                   style={{
-                    display:
-                      clubOpenByClub[group.clubId] === false
-                        ? "none"
-                        : "block",
+                    marginTop: 14,
+                    overflowX: "auto",
                   }}
                 >
                   <table
@@ -826,19 +798,14 @@ export default function PlayerStatistics({
                   >
                     <button
                       type="button"
-                      onClick={() =>
-                        setAdvancedOpenByClub((current) => ({
-                          ...current,
-                          [group.clubId]: !current[group.clubId],
-                        }))
-                      }
-                      aria-expanded={Boolean(advancedOpenByClub[group.clubId])}
+                      onClick={() => setAdvancedOpen((open) => !open)}
+                      aria-expanded={advancedOpen}
                       style={{
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
                         width: "100%",
-                        marginBottom: advancedOpenByClub[group.clubId] ? 10 : 0,
+                        marginBottom: advancedOpen ? 10 : 0,
                         padding: "0 0 10px",
                         border: "none",
                         borderBottom: "1px solid #eee",
@@ -860,11 +827,11 @@ export default function PlayerStatistics({
                           lineHeight: 1,
                         }}
                       >
-                        {advancedOpenByClub[group.clubId] ? "−" : "+"}
+                        {advancedOpen ? "−" : "+"}
                       </span>
                     </button>
 
-                    {advancedOpenByClub[group.clubId] && (
+                    {advancedOpen && (
                     <table
                       style={{
                         width: "100%",
@@ -1022,7 +989,7 @@ export default function PlayerStatistics({
                     </table>
                     )}
 
-                    {advancedOpenByClub[group.clubId] && group.stats.some((stat) => stat.notes) && (
+                    {advancedOpen && group.stats.some((stat) => stat.notes) && (
                       <div
                         style={{
                           marginTop: 10,
@@ -1044,7 +1011,7 @@ export default function PlayerStatistics({
                       </div>
                     )}
                   </div>
-                </div>
+                )}
               </div>
             ))}
           </div>
