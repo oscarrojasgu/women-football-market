@@ -1140,7 +1140,7 @@ export default async function PlayerPage({
                       color: "#777",
                     }}
                   >
-                    Source: Third-party
+                    Source: Soccerdonna
                   </div>
 
                   {marketValues[0].notes && (
