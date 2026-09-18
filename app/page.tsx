@@ -138,23 +138,33 @@ export default function Home() {
   const [q, setQ] = useState('')
   const [databasePlayers, setDatabasePlayers] = useState<Player[]>([])
   const [contracts, setContracts] = useState<ContractInfo[]>([])
+  const [databaseStats, setDatabaseStats] = useState({
+    players: 0,
+    clubs: 0,
+    contracts: 0,
+    transfers: 0,
+  })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function loadPlayers() {
       const [
-        { data: playerData, error: playerError },
-        { data: contractData, error: contractError },
+        { data: playerData, error: playerError, count: playerCount },
+        { data: contractData, error: contractError, count: contractCount },
+        { count: clubCount, error: clubError },
+        { count: transferCount, error: transferError },
       ] = await Promise.all([
         supabase
           .from('players')
           .select(
-            'id, full_name, date_of_birth, nationality, position, preferred_foot, agency'
+            'id, full_name, date_of_birth, nationality, position, preferred_foot, agency',
+            { count: 'exact' }
           )
           .order('full_name', { ascending: true }),
 
         supabase
           .from('contracts')
+          .select(`
           .select(`
             player_id,
             annual_salary,
@@ -169,7 +179,11 @@ export default function Home() {
               league,
               logo_url
             )
-          `),
+          `, { count: 'exact' }),
+
+        supabase.from('clubs').select('id', { count: 'exact', head: true }),
+
+        supabase.from('transfers').select('id', { count: 'exact', head: true }),
       ])
 
       if (playerError) {
@@ -179,6 +193,21 @@ export default function Home() {
       if (contractError) {
         console.error('Error loading contracts:', contractError)
       }
+
+      if (clubError) {
+        console.error('Error loading clubs:', clubError)
+      }
+
+      if (transferError) {
+        console.error('Error loading transfers:', transferError)
+      }
+
+      setDatabaseStats({
+        players: playerCount || 0,
+        clubs: clubCount || 0,
+        contracts: contractCount || 0,
+        transfers: transferCount || 0,
+      })
 
       setDatabasePlayers(playerData || [])
       setContracts((contractData || []) as unknown as ContractInfo[])
@@ -336,7 +365,7 @@ export default function Home() {
             href="/clubs"
             style={{ color: '#111', textDecoration: 'none' }}
           >
-            Clubs
+            Contracts
           </Link>
         </div>
 
@@ -395,7 +424,7 @@ export default function Home() {
               fontWeight: 800,
             }}
           >
-            Know the market.
+            The women’s football market.
             <br />
             <em
               style={{
@@ -403,7 +432,7 @@ export default function Home() {
                 color: '#c9ff3d',
               }}
             >
-              Know the player.
+              Built differently.
             </em>
           </h1>
 
@@ -416,8 +445,9 @@ export default function Home() {
               color: '#c7c7c7',
             }}
           >
-            Track women’s football salaries, contracts, transfers and player
-            movement — in one place.
+            A modern football intelligence platform for players, clubs,
+            scouts, agents and fans — with the data and transparency to
+            understand the women’s game.
           </p>
 
           <div
@@ -498,37 +528,7 @@ export default function Home() {
               fontSize: '22px',
             }}
           >
-            8,700+
-          </strong>
-        </div>
-
-        <div
-          style={{
-            border: '1px solid #e3e3e3',
-            borderRadius: '14px',
-            padding: '20px',
-          }}
-        >
-          <b
-            style={{
-              display: 'block',
-              fontSize: '12px',
-              color: '#777',
-              textTransform: 'uppercase',
-              letterSpacing: '0.8px',
-              marginBottom: '9px',
-            }}
-          >
-            Leagues
-          </b>
-
-          <strong
-            style={{
-              display: 'block',
-              fontSize: '22px',
-            }}
-          >
-            23
+            {loading ? '—' : databaseStats.players.toLocaleString()}
           </strong>
         </div>
 
@@ -558,7 +558,7 @@ export default function Home() {
               fontSize: '22px',
             }}
           >
-            1,900+
+            {loading ? '—' : databaseStats.clubs.toLocaleString()}
           </strong>
         </div>
 
@@ -579,7 +579,7 @@ export default function Home() {
               marginBottom: '9px',
             }}
           >
-            Contract data
+            Clubs
           </b>
 
           <strong
@@ -588,7 +588,37 @@ export default function Home() {
               fontSize: '22px',
             }}
           >
-            Growing daily
+            {loading ? '—' : databaseStats.contracts.toLocaleString()}
+          </strong>
+        </div>
+
+        <div
+          style={{
+            border: '1px solid #e3e3e3',
+            borderRadius: '14px',
+            padding: '20px',
+          }}
+        >
+          <b
+            style={{
+              display: 'block',
+              fontSize: '12px',
+              color: '#777',
+              textTransform: 'uppercase',
+              letterSpacing: '0.8px',
+              marginBottom: '9px',
+            }}
+          >
+            Transfers
+          </b>
+
+          <strong
+            style={{
+              display: 'block',
+              fontSize: '22px',
+            }}
+          >
+            {loading ? '—' : databaseStats.transfers.toLocaleString()}
           </strong>
         </div>
       </section>
