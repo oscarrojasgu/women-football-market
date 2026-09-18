@@ -1252,6 +1252,131 @@ export default async function PlayerPage({
               fontWeight: 750,
             }}
           >
+            Contract
+          </h2>
+
+          {!currentContract ? (
+            <div
+              style={{
+                marginTop: 20,
+                color: "#888",
+                fontSize: 14,
+              }}
+            >
+              No contract information available.
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(auto-fit, minmax(150px, 1fr))",
+                gap: 22,
+                marginTop: 22,
+              }}
+            >
+              <div>
+                <div style={labelStyle}>Club</div>
+
+                <div style={valueStyle}>
+                  {currentClub?.name || "—"}
+                </div>
+              </div>
+
+              <div>
+                <div style={labelStyle}>Status</div>
+
+                <div style={valueStyle}>
+                  {currentContract.status || "—"}
+                </div>
+              </div>
+
+              <div>
+                <div style={labelStyle}>Start</div>
+
+                <div style={valueStyle}>
+                  {formatDate(
+                    currentContract.start_date
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <div style={labelStyle}>Expiry</div>
+
+                <div style={valueStyle}>
+                  {formatDate(
+                    currentContract.end_date
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <div style={labelStyle}>Annual Salary</div>
+
+                <div style={valueStyle}>
+                  {formatSalary(
+                    currentContract.annual_salary,
+                    currentContract.currency
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <div style={labelStyle}>Weekly Salary</div>
+
+                <div style={valueStyle}>
+                  {formatSalary(
+                    currentContract.weekly_salary,
+                    currentContract.currency
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <div style={labelStyle}>Confidence</div>
+
+                <div style={valueStyle}>
+                  {formatConfidence(
+                    currentContract.confidence
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {currentContract?.notes && (
+            <div
+              style={{
+                marginTop: 22,
+                paddingTop: 18,
+                borderTop: "1px solid #eee",
+                fontSize: 12,
+                color: "#777",
+                lineHeight: 1.5,
+              }}
+            >
+              {currentContract.notes}
+            </div>
+          )}
+        </div>
+
+        <div
+          style={{
+            marginTop: 16,
+            padding: "22px",
+            border: "1px solid #ddd",
+            borderRadius: 10,
+            background: "#fff",
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              fontSize: 18,
+              fontWeight: 750,
+            }}
+          >
             Current Club
           </h2>
 
@@ -1498,131 +1623,6 @@ export default async function PlayerPage({
           stats={playerStats}
           clubs={profileClubs}
         />
-
-        <div
-          style={{
-            marginTop: 16,
-            padding: "22px",
-            border: "1px solid #ddd",
-            borderRadius: 10,
-            background: "#fff",
-          }}
-        >
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 18,
-              fontWeight: 750,
-            }}
-          >
-            Contract
-          </h2>
-
-          {!currentContract ? (
-            <div
-              style={{
-                marginTop: 20,
-                color: "#888",
-                fontSize: 14,
-              }}
-            >
-              No contract information available.
-            </div>
-          ) : (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "repeat(auto-fit, minmax(150px, 1fr))",
-                gap: 22,
-                marginTop: 22,
-              }}
-            >
-              <div>
-                <div style={labelStyle}>Club</div>
-
-                <div style={valueStyle}>
-                  {currentClub?.name || "—"}
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>Status</div>
-
-                <div style={valueStyle}>
-                  {currentContract.status || "—"}
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>Start</div>
-
-                <div style={valueStyle}>
-                  {formatDate(
-                    currentContract.start_date
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>Expiry</div>
-
-                <div style={valueStyle}>
-                  {formatDate(
-                    currentContract.end_date
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>Annual Salary</div>
-
-                <div style={valueStyle}>
-                  {formatSalary(
-                    currentContract.annual_salary,
-                    currentContract.currency
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>Weekly Salary</div>
-
-                <div style={valueStyle}>
-                  {formatSalary(
-                    currentContract.weekly_salary,
-                    currentContract.currency
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>Confidence</div>
-
-                <div style={valueStyle}>
-                  {formatConfidence(
-                    currentContract.confidence
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {currentContract?.notes && (
-            <div
-              style={{
-                marginTop: 22,
-                paddingTop: 18,
-                borderTop: "1px solid #eee",
-                fontSize: 12,
-                color: "#777",
-                lineHeight: 1.5,
-              }}
-            >
-              {currentContract.notes}
-            </div>
-          )}
-        </div>
 
         <div
           style={{
