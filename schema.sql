@@ -243,7 +243,6 @@ create table if not exists wfm_admins (
   created_at timestamptz not null default now()
 );
 
--- Public site should only expose deliberately public records; admin write access is controlled separately.
 alter table players enable row level security;
 alter table clubs enable row level security;
 alter table sources enable row level security;
@@ -258,3 +257,18 @@ alter table verification_submissions enable row level security;
 alter table player_claims enable row level security;
 alter table photo_permissions enable row level security;
 alter table wfm_admins enable row level security;
+
+-- Current admin-only photo-permission policy.
+create policy "WFM admins can manage photo permissions"
+on public.photo_permissions
+for all
+to authenticated
+using (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())))
+with check (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+
+-- Current admin self-read policy.
+create policy "Admins can view their own admin record"
+on public.wfm_admins
+for select
+to authenticated
+using ((select auth.uid()) = user_id);
