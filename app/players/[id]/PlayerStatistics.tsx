@@ -136,6 +136,7 @@ export default function PlayerStatistics({
     useState("All");
   const [clubFilter, setClubFilter] = useState("All");
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [firstClubOpen, setFirstClubOpen] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -566,7 +567,7 @@ export default function PlayerStatistics({
           </div>
         ) : (
           <div style={{ marginTop: 22 }}>
-            {groupedStats.map((group) => (
+            {groupedStats.map((group, index) => (
               <div
                 key={group.clubId}
                 style={{
@@ -576,10 +577,31 @@ export default function PlayerStatistics({
                 }}
               >
                 <div
+                  role={index === 0 ? "button" : undefined}
+                  tabIndex={index === 0 ? 0 : undefined}
+                  onClick={
+                    index === 0
+                      ? () => setFirstClubOpen((open) => !open)
+                      : undefined
+                  }
+                  onKeyDown={
+                    index === 0
+                      ? (event) => {
+                          if (
+                            event.key === "Enter" ||
+                            event.key === " "
+                          ) {
+                            event.preventDefault();
+                            setFirstClubOpen((open) => !open);
+                          }
+                        }
+                      : undefined
+                  }
                   style={{
                     display: "flex",
                     alignItems: "center",
                     gap: 12,
+                    cursor: index === 0 ? "pointer" : "default",
                   }}
                 >
                   {group.club?.logo_url ? (
@@ -638,10 +660,26 @@ export default function PlayerStatistics({
                       </div>
                     )}
                   </div>
+                  {index === 0 && (
+                    <span
+                      style={{
+                        marginLeft: "auto",
+                        fontSize: 18,
+                        color: "#666",
+                        lineHeight: 1,
+                      }}
+                    >
+                      {firstClubOpen ? "−" : "+"}
+                    </span>
+                  )}
                 </div>
 
                 <div
                   style={{
+                    display:
+                      index === 0 && !firstClubOpen
+                        ? "none"
+                        : "block",
                     marginTop: 14,
                     overflowX: "auto",
                   }}
