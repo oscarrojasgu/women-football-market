@@ -615,6 +615,12 @@ footer small {
     min-height: 42px;
   }
 
+  .player-photo-frame {
+    width: 150px !important;
+    height: 200px !important;
+    margin: 0 auto;
+  }
+
   /* Player profile: stack Position Map and Market Value on phones */
   .player-page > div > div > div[style*="minmax(190px, 230px)"] {
     grid-template-columns: minmax(0, 1fr) !important;
