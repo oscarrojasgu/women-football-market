@@ -36,6 +36,7 @@ export default function VerificationDashboard() {
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -90,24 +91,48 @@ export default function VerificationDashboard() {
     }
   }
 
-  async function sendLogin() {
+  async function signIn() {
     setBusy(true);
     setMessage("");
 
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
-      options: {
-        emailRedirectTo: "https://women-football-market.vercel.app/admin/verification",
-        shouldCreateUser: true,
-      },
+      password,
     });
 
     setBusy(false);
-    setMessage(
-      error
-        ? error.message
-        : "Check your email for the secure WFM owner sign-in link."
-    );
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    await checkSession();
+  }
+
+  async function createOwnerAccount() {
+    setBusy(true);
+    setMessage("");
+
+    if (email.toLowerCase() !== "oscarrojasgu@hotmail.com") {
+      setBusy(false);
+      setMessage("Owner account creation is restricted to the WFM owner email.");
+      return;
+    }
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    setBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    await checkSession();
   }
 
   async function loadQueue() {
@@ -353,12 +378,29 @@ export default function VerificationDashboard() {
             style={styles.input}
           />
 
+          <label style={styles.label}>Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="Enter your password"
+            style={styles.input}
+          />
+
           <button
-            onClick={sendLogin}
-            disabled={busy || !email}
+            onClick={signIn}
+            disabled={busy || !email || !password}
             style={styles.primaryButton}
           >
-            {busy ? "Sending..." : "Send owner sign-in link"}
+            {busy ? "Signing in..." : "Sign in"}
+          </button>
+
+          <button
+            onClick={createOwnerAccount}
+            disabled={busy || !email || !password}
+            style={{ ...styles.secondaryButton, width: "100%", marginTop: 8 }}
+          >
+            {busy ? "Creating..." : "Create owner account"}
           </button>
 
           {message && <div style={styles.message}>{message}</div>}
