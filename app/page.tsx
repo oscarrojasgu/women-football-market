@@ -579,7 +579,7 @@ export default function Home() {
               marginBottom: '9px',
             }}
           >
-            Clubs
+            Contracts
           </b>
 
           <strong
