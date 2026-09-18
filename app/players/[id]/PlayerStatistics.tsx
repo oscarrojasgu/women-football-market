@@ -135,7 +135,7 @@ export default function PlayerStatistics({
   const [competitionFilter, setCompetitionFilter] =
     useState("All");
   const [clubFilter, setClubFilter] = useState("All");
-  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [advancedOpenByClub, setAdvancedOpenByClub] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -798,14 +798,14 @@ export default function PlayerStatistics({
                   >
                     <button
                       type="button"
-                      onClick={() => setAdvancedOpen((open) => !open)}
-                      aria-expanded={advancedOpen}
+                      onClick={() =>\n                        setAdvancedOpenByClub((current) => ({\n                          ...current,\n                          [group.clubId]: !current[group.clubId],\n                        }))
+                      aria-expanded={Boolean(advancedOpenByClub[group.clubId])}
                       style={{
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
                         width: "100%",
-                        marginBottom: advancedOpen ? 10 : 0,
+                        marginBottom: advancedOpenByClub[group.clubId] ? 10 : 0,
                         padding: "0 0 10px",
                         border: "none",
                         borderBottom: "1px solid #eee",
@@ -827,11 +827,11 @@ export default function PlayerStatistics({
                           lineHeight: 1,
                         }}
                       >
-                        {advancedOpen ? "−" : "+"}
+                        {advancedOpenByClub[group.clubId] ? "−" : "+"}
                       </span>
                     </button>
 
-                    {advancedOpen && (
+                    {advancedOpenByClub[group.clubId] && (
                     <table
                       style={{
                         width: "100%",
@@ -989,7 +989,7 @@ export default function PlayerStatistics({
                     </table>
                     )}
 
-                    {advancedOpen && group.stats.some((stat) => stat.notes) && (
+                    {advancedOpenByClub[group.clubId] && group.stats.some((stat) => stat.notes) && (
                       <div
                         style={{
                           marginTop: 10,
