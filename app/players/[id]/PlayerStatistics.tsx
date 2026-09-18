@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { supabase } from "../../lib/supabase";
 
 type PlayerStat = {
   id: string;
@@ -14,6 +16,42 @@ type PlayerStat = {
   assists: number | null;
   yellow_cards: number | null;
   red_cards: number | null;
+  shots: number | null;
+  shots_on_target: number | null;
+  key_passes: number | null;
+  chances_created: number | null;
+  crosses: number | null;
+  tackles: number | null;
+  tackles_won: number | null;
+  interceptions: number | null;
+  clearances: number | null;
+  blocks: number | null;
+  recoveries: number | null;
+  dispossessions: number | null;
+  dribbles_attempted: number | null;
+  dribbles_completed: number | null;
+  fouls_committed: number | null;
+  fouls_drawn: number | null;
+  offsides: number | null;
+  passes_attempted: number | null;
+  passes_completed: number | null;
+  progressive_passes: number | null;
+  progressive_carries: number | null;
+  duels_won: number | null;
+  duels_lost: number | null;
+  aerials_won: number | null;
+  aerials_lost: number | null;
+  xg: number | null;
+  xa: number | null;
+  sca: number | null;
+  gca: number | null;
+  saves: number | null;
+  shots_on_target_faced: number | null;
+  goals_against: number | null;
+  clean_sheets: number | null;
+  penalty_kicks_saved: number | null;
+  penalty_kicks_faced: number | null;
+  own_goals: number | null;
   confidence: string | null;
   notes: string | null;
 };
@@ -26,27 +64,126 @@ type Club = {
   logo_url: string | null;
 };
 
+type NationalTeamStat = {
+  id: string;
+  country: string;
+  level: string | null;
+  caps: number | null;
+  starts: number | null;
+  minutes: number | null;
+  goals: number | null;
+  assists: number | null;
+  yellow_cards: number | null;
+  red_cards: number | null;
+  debut_date: string | null;
+  last_appearance_date: string | null;
+  competitions: string | null;
+  confidence: string | null;
+  notes: string | null;
+};
+
 type PlayerStatisticsProps = {
   stats: PlayerStat[];
   clubs: Club[];
 };
 
 const formatStat = (value: number | null) => {
-  if (value === null || value === undefined) {
-    return "—";
-  }
-
+  if (value === null || value === undefined) return "—";
   return value.toLocaleString("en-US");
+};
+
+const formatDecimal = (value: number | null) => {
+  if (value === null || value === undefined) return "—";
+  return Number.isInteger(value)
+    ? value.toLocaleString("en-US")
+    : value.toLocaleString("en-US", {
+        maximumFractionDigits: 2,
+      });
+};
+
+const formatDate = (date: string | null) => {
+  if (!date) return "—";
+
+  return new Date(`${date}T00:00:00`).toLocaleDateString(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }
+  );
+};
+
+const displayConfidence = (value: string | null) => {
+  if (!value) return "Unknown";
+  return value.charAt(0).toUpperCase() + value.slice(1);
 };
 
 export default function PlayerStatistics({
   stats,
   clubs,
 }: PlayerStatisticsProps) {
+  const pathname = usePathname();
+  const playerId = pathname.split("/").filter(Boolean).pop() || "";
+
+  const [fullStats, setFullStats] = useState<PlayerStat[]>(stats);
+  const [nationalTeamStats, setNationalTeamStats] =
+    useState<NationalTeamStat[]>([]);
+  const [loadingAdvanced, setLoadingAdvanced] = useState(true);
+
   const [seasonFilter, setSeasonFilter] = useState("All");
   const [competitionFilter, setCompetitionFilter] =
     useState("All");
   const [clubFilter, setClubFilter] = useState("All");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadStats = async () => {
+      if (!playerId) {
+        setLoadingAdvanced(false);
+        return;
+      }
+
+      setLoadingAdvanced(true);
+
+      const [clubStatsResult, nationalResult] =
+        await Promise.all([
+          supabase
+            .from("player_stats")
+            .select("*")
+            .eq("player_id", playerId)
+            .order("season", { ascending: false })
+            .order("competition", { ascending: true }),
+          supabase
+            .from("national_team_stats")
+            .select("*")
+            .eq("player_id", playerId)
+            .order("level", { ascending: true })
+            .order("country", { ascending: true }),
+        ]);
+
+      if (cancelled) return;
+
+      if (!clubStatsResult.error && clubStatsResult.data) {
+        setFullStats(clubStatsResult.data as PlayerStat[]);
+      }
+
+      if (!nationalResult.error && nationalResult.data) {
+        setNationalTeamStats(
+          nationalResult.data as NationalTeamStat[]
+        );
+      }
+
+      setLoadingAdvanced(false);
+    };
+
+    loadStats();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [playerId]);
 
   const clubMap = useMemo(() => {
     return new Map(clubs.map((club) => [club.id, club]));
@@ -54,26 +191,28 @@ export default function PlayerStatistics({
 
   const seasons = useMemo(() => {
     return Array.from(
-      new Set(stats.map((stat) => stat.season).filter(Boolean))
+      new Set(
+        fullStats.map((stat) => stat.season).filter(Boolean)
+      )
     ).sort((a, b) =>
       b.localeCompare(a, undefined, { numeric: true })
     );
-  }, [stats]);
+  }, [fullStats]);
 
   const competitions = useMemo(() => {
     return Array.from(
       new Set(
-        stats
+        fullStats
           .map((stat) => stat.competition)
           .filter(Boolean)
       )
     ).sort((a, b) => a.localeCompare(b));
-  }, [stats]);
+  }, [fullStats]);
 
   const statClubs = useMemo(() => {
     const ids = Array.from(
       new Set(
-        stats
+        fullStats
           .map((stat) => stat.club_id)
           .filter(
             (clubId): clubId is string => Boolean(clubId)
@@ -85,10 +224,10 @@ export default function PlayerStatistics({
       .map((clubId) => clubMap.get(clubId))
       .filter((club): club is Club => Boolean(club))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [stats, clubMap]);
+  }, [fullStats, clubMap]);
 
   const filteredStats = useMemo(() => {
-    return stats.filter((stat) => {
+    return fullStats.filter((stat) => {
       const matchesSeason =
         seasonFilter === "All" ||
         stat.season === seasonFilter;
@@ -108,7 +247,7 @@ export default function PlayerStatistics({
       );
     });
   }, [
-    stats,
+    fullStats,
     seasonFilter,
     competitionFilter,
     clubFilter,
@@ -200,7 +339,27 @@ export default function PlayerStatistics({
     letterSpacing: "0.05em",
   };
 
-  if (stats.length === 0) {
+  const tableCellStyle = {
+    padding: "10px 8px",
+    borderBottom: "1px solid #f0f0f0",
+    fontSize: 12,
+    textAlign: "right" as const,
+    whiteSpace: "nowrap" as const,
+  };
+
+  const sectionTitleStyle = {
+    margin: 0,
+    fontSize: 15,
+    fontWeight: 750,
+  };
+
+  const sectionSubTitleStyle = {
+    marginTop: 3,
+    fontSize: 11,
+    color: "#888",
+  };
+
+  if (fullStats.length === 0 && nationalTeamStats.length === 0) {
     return (
       <div
         style={{
@@ -228,427 +387,849 @@ export default function PlayerStatistics({
             fontSize: 14,
           }}
         >
-          No statistics available.
+          {loadingAdvanced
+            ? "Loading statistics..."
+            : "No statistics available."}
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        marginTop: 16,
-        padding: "22px",
-        border: "1px solid #ddd",
-        borderRadius: 10,
-        background: "#fff",
-      }}
-    >
+    <>
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          gap: 20,
-          flexWrap: "wrap",
+          marginTop: 16,
+          padding: "22px",
+          border: "1px solid #ddd",
+          borderRadius: 10,
+          background: "#fff",
         }}
       >
-        <div>
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 18,
-              fontWeight: 750,
-            }}
-          >
-            Career Statistics
-          </h2>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            gap: 20,
+            flexWrap: "wrap",
+          }}
+        >
+          <div>
+            <h2
+              style={{
+                margin: 0,
+                fontSize: 18,
+                fontWeight: 750,
+              }}
+            >
+              Career Statistics
+            </h2>
+
+            <div
+              style={{
+                marginTop: 4,
+                fontSize: 11,
+                color: "#888",
+              }}
+            >
+              Season-by-season statistics by club and
+              competition
+            </div>
+          </div>
 
           <div
             style={{
-              marginTop: 4,
               fontSize: 11,
               color: "#888",
+              paddingTop: 4,
             }}
           >
-            Season-by-season statistics by club and
-            competition
+            {filteredStats.length} record
+            {filteredStats.length !== 1 ? "s" : ""}
           </div>
         </div>
 
         <div
           style={{
-            fontSize: 11,
-            color: "#888",
-            paddingTop: 4,
+            display: "flex",
+            gap: 12,
+            flexWrap: "wrap",
+            marginTop: 20,
+            padding: 14,
+            border: "1px solid #eee",
+            borderRadius: 8,
+            background: "#fafafa",
           }}
         >
-          {filteredStats.length} record
-          {filteredStats.length !== 1 ? "s" : ""}
+          <div>
+            <label style={labelStyle}>Season</label>
+
+            <select
+              value={seasonFilter}
+              onChange={(event) =>
+                setSeasonFilter(event.target.value)
+              }
+              style={selectStyle}
+            >
+              <option value="All">All</option>
+
+              {seasons.map((season) => (
+                <option key={season} value={season}>
+                  {season}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label style={labelStyle}>Competition</label>
+
+            <select
+              value={competitionFilter}
+              onChange={(event) =>
+                setCompetitionFilter(event.target.value)
+              }
+              style={selectStyle}
+            >
+              <option value="All">All</option>
+
+              {competitions.map((competition) => (
+                <option
+                  key={competition}
+                  value={competition}
+                >
+                  {competition}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label style={labelStyle}>Club</label>
+
+            <select
+              value={clubFilter}
+              onChange={(event) =>
+                setClubFilter(event.target.value)
+              }
+              style={selectStyle}
+            >
+              <option value="All">All</option>
+
+              {statClubs.map((club) => (
+                <option key={club.id} value={club.id}>
+                  {club.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {(seasonFilter !== "All" ||
+            competitionFilter !== "All" ||
+            clubFilter !== "All") && (
+            <button
+              type="button"
+              onClick={() => {
+                setSeasonFilter("All");
+                setCompetitionFilter("All");
+                setClubFilter("All");
+              }}
+              style={{
+                alignSelf: "flex-end",
+                border: "1px solid #ddd",
+                borderRadius: 7,
+                background: "#fff",
+                padding: "8px 12px",
+                fontSize: 12,
+                cursor: "pointer",
+                color: "#555",
+              }}
+            >
+              Reset
+            </button>
+          )}
         </div>
+
+        {filteredStats.length === 0 ? (
+          <div
+            style={{
+              marginTop: 24,
+              padding: "24px 0",
+              color: "#888",
+              fontSize: 13,
+              textAlign: "center",
+            }}
+          >
+            No statistics match the selected filters.
+          </div>
+        ) : (
+          <div style={{ marginTop: 22 }}>
+            {groupedStats.map((group) => (
+              <div
+                key={group.clubId}
+                style={{
+                  marginTop: 20,
+                  paddingTop: 20,
+                  borderTop: "1px solid #eee",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  {group.club?.logo_url ? (
+                    <img
+                      src={group.club.logo_url}
+                      alt={group.club.name}
+                      style={{
+                        width: 38,
+                        height: 38,
+                        objectFit: "contain",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: 7,
+                        background: "#f5f4ef",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: 800,
+                        fontSize: 15,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {(group.club?.name || "?").charAt(0)}
+                    </div>
+                  )}
+
+                  <div>
+                    <div
+                      style={{
+                        fontSize: 15,
+                        fontWeight: 750,
+                      }}
+                    >
+                      {group.club?.name ||
+                        "Club not specified"}
+                    </div>
+
+                    {group.club && (
+                      <div
+                        style={{
+                          marginTop: 3,
+                          fontSize: 11,
+                          color: "#888",
+                        }}
+                      >
+                        {group.club.league ||
+                          "League unknown"}
+                        {group.club.country
+                          ? ` · ${group.club.country}`
+                          : ""}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    marginTop: 14,
+                    overflowX: "auto",
+                  }}
+                >
+                  <table
+                    style={{
+                      width: "100%",
+                      minWidth: 760,
+                      borderCollapse: "collapse",
+                    }}
+                  >
+                    <thead>
+                      <tr>
+                        {[
+                          "Season",
+                          "Competition",
+                          "Apps",
+                          "Starts",
+                          "Minutes",
+                          "Goals",
+                          "Assists",
+                          "YC",
+                          "RC",
+                        ].map((heading, index) => (
+                          <th
+                            key={heading}
+                            style={{
+                              padding: "9px 8px",
+                              borderBottom:
+                                "1px solid #ddd",
+                              fontSize: 10,
+                              color: "#888",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.04em",
+                              textAlign:
+                                index < 2
+                                  ? "left"
+                                  : "right",
+                              fontWeight: 600,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {heading}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {group.stats.map((stat) => (
+                        <tr key={stat.id}>
+                          <td
+                            style={{
+                              padding: "11px 8px",
+                              borderBottom:
+                                "1px solid #f0f0f0",
+                              fontSize: 12,
+                              fontWeight: 600,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {stat.season}
+                          </td>
+
+                          <td
+                            style={{
+                              padding: "11px 8px",
+                              borderBottom:
+                                "1px solid #f0f0f0",
+                              fontSize: 12,
+                              color: "#444",
+                              minWidth: 180,
+                            }}
+                          >
+                            {stat.competition}
+                          </td>
+
+                          {[
+                            stat.appearances,
+                            stat.starts,
+                            stat.minutes,
+                            stat.goals,
+                            stat.assists,
+                            stat.yellow_cards,
+                            stat.red_cards,
+                          ].map((value, index) => (
+                            <td
+                              key={index}
+                              style={{
+                                padding: "11px 8px",
+                                borderBottom:
+                                  "1px solid #f0f0f0",
+                                fontSize: 12,
+                                textAlign: "right",
+                                fontWeight:
+                                  index === 3
+                                    ? 600
+                                    : 400,
+                              }}
+                            >
+                              {formatStat(value)}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {group.stats.map((stat) => {
+                  const hasAdvanced =
+                    stat.shots !== null ||
+                    stat.shots_on_target !== null ||
+                    stat.key_passes !== null ||
+                    stat.chances_created !== null ||
+                    stat.crosses !== null ||
+                    stat.tackles !== null ||
+                    stat.tackles_won !== null ||
+                    stat.interceptions !== null ||
+                    stat.clearances !== null ||
+                    stat.blocks !== null ||
+                    stat.recoveries !== null ||
+                    stat.dispossessions !== null ||
+                    stat.dribbles_attempted !== null ||
+                    stat.dribbles_completed !== null ||
+                    stat.passes_attempted !== null ||
+                    stat.passes_completed !== null ||
+                    stat.progressive_passes !== null ||
+                    stat.progressive_carries !== null ||
+                    stat.duels_won !== null ||
+                    stat.duels_lost !== null ||
+                    stat.aerials_won !== null ||
+                    stat.aerials_lost !== null ||
+                    stat.xg !== null ||
+                    stat.xa !== null ||
+                    stat.sca !== null ||
+                    stat.gca !== null ||
+                    stat.saves !== null ||
+                    stat.shots_on_target_faced !== null ||
+                    stat.goals_against !== null ||
+                    stat.clean_sheets !== null;
+
+                  if (!hasAdvanced) return null;
+
+                  return (
+                    <div
+                      key={`${stat.id}-advanced`}
+                      style={{
+                        marginTop: 16,
+                        padding: "16px",
+                        border: "1px solid #eee",
+                        borderRadius: 8,
+                        background: "#fafafa",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          gap: 15,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <div>
+                          <h3 style={sectionTitleStyle}>
+                            {stat.season} · {stat.competition} · Advanced
+                            Statistics
+                          </h3>
+                          <div style={sectionSubTitleStyle}>
+                            Only statistics available from the underlying source are populated.
+                          </div>
+                        </div>
+
+                        <div
+                          style={{
+                            fontSize: 10,
+                            color: "#888",
+                            paddingTop: 2,
+                          }}
+                        >
+                          {displayConfidence(stat.confidence)}
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns:
+                            "repeat(auto-fit, minmax(120px, 1fr))",
+                          gap: 10,
+                          marginTop: 14,
+                        }}
+                      >
+                        {[
+                          ["Shots", formatStat(stat.shots)],
+                          ["Shots on Target", formatStat(stat.shots_on_target)],
+                          ["Key Passes", formatStat(stat.key_passes)],
+                          ["Chances Created", formatStat(stat.chances_created)],
+                          ["Crosses", formatStat(stat.crosses)],
+                          ["Dribbles", stat.dribbles_attempted === null && stat.dribbles_completed === null ? "—" : `${formatStat(stat.dribbles_completed)} / ${formatStat(stat.dribbles_attempted)}`],
+                          ["Passes", stat.passes_attempted === null && stat.passes_completed === null ? "—" : `${formatStat(stat.passes_completed)} / ${formatStat(stat.passes_attempted)}`],
+                          ["Progressive Passes", formatStat(stat.progressive_passes)],
+                          ["Progressive Carries", formatStat(stat.progressive_carries)],
+                          ["Tackles", formatStat(stat.tackles)],
+                          ["Tackles Won", formatStat(stat.tackles_won)],
+                          ["Interceptions", formatStat(stat.interceptions)],
+                          ["Clearances", formatStat(stat.clearances)],
+                          ["Blocks", formatStat(stat.blocks)],
+                          ["Recoveries", formatStat(stat.recoveries)],
+                          ["Dispossessions", formatStat(stat.dispossessions)],
+                          ["Duels Won", formatStat(stat.duels_won)],
+                          ["Duels Lost", formatStat(stat.duels_lost)],
+                          ["Aerials Won", formatStat(stat.aerials_won)],
+                          ["Aerials Lost", formatStat(stat.aerials_lost)],
+                          ["xG", formatDecimal(stat.xg)],
+                          ["xA", formatDecimal(stat.xa)],
+                          ["SCA", formatStat(stat.sca)],
+                          ["GCA", formatStat(stat.gca)],
+                          ["Fouls Committed", formatStat(stat.fouls_committed)],
+                          ["Fouls Drawn", formatStat(stat.fouls_drawn)],
+                          ["Offsides", formatStat(stat.offsides)],
+                          ["Own Goals", formatStat(stat.own_goals)],
+                        ].map(([label, value]) => (
+                          <div
+                            key={label}
+                            style={{
+                              padding: "10px",
+                              border: "1px solid #eee",
+                              borderRadius: 7,
+                              background: "#fff",
+                            }}
+                          >
+                            <div style={labelStyle}>{label}</div>
+                            <div
+                              style={{
+                                fontSize: 14,
+                                fontWeight: 700,
+                                color: "#111",
+                              }}
+                            >
+                              {value}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {(stat.saves !== null ||
+                        stat.shots_on_target_faced !== null ||
+                        stat.goals_against !== null ||
+                        stat.clean_sheets !== null ||
+                        stat.penalty_kicks_faced !== null ||
+                        stat.penalty_kicks_saved !== null) && (
+                        <div
+                          style={{
+                            marginTop: 14,
+                            paddingTop: 14,
+                            borderTop: "1px solid #eee",
+                          }}
+                        >
+                          <h4
+                            style={{
+                              margin: 0,
+                              fontSize: 12,
+                              fontWeight: 750,
+                            }}
+                          >
+                            Goalkeeping
+                          </h4>
+
+                          <div
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns:
+                                "repeat(auto-fit, minmax(120px, 1fr))",
+                              gap: 10,
+                              marginTop: 10,
+                            }}
+                          >
+                            {[
+                              ["Saves", formatStat(stat.saves)],
+                              ["Shots on Target Faced", formatStat(stat.shots_on_target_faced)],
+                              ["Goals Against", formatStat(stat.goals_against)],
+                              ["Clean Sheets", formatStat(stat.clean_sheets)],
+                              ["PK Faced", formatStat(stat.penalty_kicks_faced)],
+                              ["PK Saved", formatStat(stat.penalty_kicks_saved)],
+                            ].map(([label, value]) => (
+                              <div
+                                key={label}
+                                style={{
+                                  padding: "10px",
+                                  border: "1px solid #eee",
+                                  borderRadius: 7,
+                                  background: "#fff",
+                                }}
+                              >
+                                <div style={labelStyle}>{label}</div>
+                                <div
+                                  style={{
+                                    fontSize: 14,
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  {value}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {stat.notes && (
+                        <div
+                          style={{
+                            marginTop: 12,
+                            fontSize: 10,
+                            color: "#888",
+                            lineHeight: 1.45,
+                          }}
+                        >
+                          {stat.notes}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div
         style={{
-          display: "flex",
-          gap: 12,
-          flexWrap: "wrap",
-          marginTop: 20,
-          padding: 14,
-          border: "1px solid #eee",
-          borderRadius: 8,
-          background: "#fafafa",
+          marginTop: 16,
+          padding: "22px",
+          border: "1px solid #ddd",
+          borderRadius: 10,
+          background: "#fff",
         }}
       >
-        <div>
-          <label style={labelStyle}>Season</label>
-
-          <select
-            value={seasonFilter}
-            onChange={(event) =>
-              setSeasonFilter(event.target.value)
-            }
-            style={selectStyle}
-          >
-            <option value="All">All</option>
-
-            {seasons.map((season) => (
-              <option key={season} value={season}>
-                {season}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label style={labelStyle}>Competition</label>
-
-          <select
-            value={competitionFilter}
-            onChange={(event) =>
-              setCompetitionFilter(event.target.value)
-            }
-            style={selectStyle}
-          >
-            <option value="All">All</option>
-
-            {competitions.map((competition) => (
-              <option
-                key={competition}
-                value={competition}
-              >
-                {competition}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label style={labelStyle}>Club</label>
-
-          <select
-            value={clubFilter}
-            onChange={(event) =>
-              setClubFilter(event.target.value)
-            }
-            style={selectStyle}
-          >
-            <option value="All">All</option>
-
-            {statClubs.map((club) => (
-              <option key={club.id} value={club.id}>
-                {club.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {(seasonFilter !== "All" ||
-          competitionFilter !== "All" ||
-          clubFilter !== "All") && (
-          <button
-            type="button"
-            onClick={() => {
-              setSeasonFilter("All");
-              setCompetitionFilter("All");
-              setClubFilter("All");
-            }}
-            style={{
-              alignSelf: "flex-end",
-              border: "1px solid #ddd",
-              borderRadius: 7,
-              background: "#fff",
-              padding: "8px 12px",
-              fontSize: 12,
-              cursor: "pointer",
-              color: "#555",
-            }}
-          >
-            Reset
-          </button>
-        )}
-      </div>
-
-      {filteredStats.length === 0 ? (
         <div
           style={{
-            marginTop: 24,
-            padding: "24px 0",
-            color: "#888",
-            fontSize: 13,
-            textAlign: "center",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            gap: 20,
+            flexWrap: "wrap",
           }}
         >
-          No statistics match the selected filters.
-        </div>
-      ) : (
-        <div style={{ marginTop: 22 }}>
-          {groupedStats.map((group) => (
-            <div
-              key={group.clubId}
+          <div>
+            <h2
               style={{
-                marginTop: 20,
-                paddingTop: 20,
-                borderTop: "1px solid #eee",
+                margin: 0,
+                fontSize: 18,
+                fontWeight: 750,
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                }}
-              >
-                {group.club?.logo_url ? (
-                  <img
-                    src={group.club.logo_url}
-                    alt={group.club.name}
-                    style={{
-                      width: 38,
-                      height: 38,
-                      objectFit: "contain",
-                    }}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      width: 38,
-                      height: 38,
-                      borderRadius: 7,
-                      background: "#f5f4ef",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontWeight: 800,
-                      fontSize: 15,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {(group.club?.name || "?").charAt(0)}
-                  </div>
-                )}
+              National Team
+            </h2>
 
-                <div>
-                  <div
-                    style={{
-                      fontSize: 15,
-                      fontWeight: 750,
-                    }}
-                  >
-                    {group.club?.name ||
-                      "Club not specified"}
-                  </div>
+            <div
+              style={{
+                marginTop: 4,
+                fontSize: 11,
+                color: "#888",
+              }}
+            >
+              Senior and youth international career records
+            </div>
+          </div>
 
-                  {group.club && (
-                    <div
+          <div
+            style={{
+              fontSize: 11,
+              color: "#888",
+              paddingTop: 4,
+            }}
+          >
+            {nationalTeamStats.length} team
+            {nationalTeamStats.length !== 1 ? "s" : ""}
+          </div>
+        </div>
+
+        {nationalTeamStats.length === 0 ? (
+          <div
+            style={{
+              marginTop: 20,
+              color: "#888",
+              fontSize: 13,
+            }}
+          >
+            {loadingAdvanced
+              ? "Loading national team history..."
+              : "No national team statistics available."}
+          </div>
+        ) : (
+          <div
+            style={{
+              marginTop: 18,
+              overflowX: "auto",
+            }}
+          >
+            <table
+              style={{
+                width: "100%",
+                minWidth: 900,
+                borderCollapse: "collapse",
+              }}
+            >
+              <thead>
+                <tr>
+                  {[
+                    "National Team",
+                    "Level",
+                    "Caps",
+                    "Starts",
+                    "Minutes",
+                    "Goals",
+                    "Assists",
+                    "YC",
+                    "RC",
+                    "Debut",
+                    "Last Appearance",
+                  ].map((heading, index) => (
+                    <th
+                      key={heading}
                       style={{
-                        marginTop: 3,
-                        fontSize: 11,
+                        padding: "9px 8px",
+                        borderBottom: "1px solid #ddd",
+                        fontSize: 10,
                         color: "#888",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.04em",
+                        textAlign:
+                          index < 2 ? "left" : "right",
+                        fontWeight: 600,
+                        whiteSpace: "nowrap",
                       }}
                     >
-                      {group.club.league ||
-                        "League unknown"}
-                      {group.club.country
-                        ? ` · ${group.club.country}`
-                        : ""}
-                    </div>
-                  )}
-                </div>
-              </div>
+                      {heading}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
 
+              <tbody>
+                {nationalTeamStats.map((stat) => (
+                  <tr key={stat.id}>
+                    <td
+                      style={{
+                        padding: "11px 8px",
+                        borderBottom: "1px solid #f0f0f0",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {stat.country}
+                    </td>
+
+                    <td
+                      style={{
+                        padding: "11px 8px",
+                        borderBottom: "1px solid #f0f0f0",
+                        fontSize: 12,
+                        textTransform: "capitalize",
+                        color: "#555",
+                      }}
+                    >
+                      {stat.level || "senior"}
+                    </td>
+
+                    {[
+                      stat.caps,
+                      stat.starts,
+                      stat.minutes,
+                      stat.goals,
+                      stat.assists,
+                      stat.yellow_cards,
+                      stat.red_cards,
+                    ].map((value, index) => (
+                      <td
+                        key={index}
+                        style={{
+                          padding: "11px 8px",
+                          borderBottom:
+                            "1px solid #f0f0f0",
+                          fontSize: 12,
+                          textAlign: "right",
+                          fontWeight:
+                            index === 0 || index === 3
+                              ? 700
+                              : 400,
+                        }}
+                      >
+                        {formatStat(value)}
+                      </td>
+                    ))}
+
+                    <td
+                      style={{
+                        padding: "11px 8px",
+                        borderBottom: "1px solid #f0f0f0",
+                        fontSize: 11,
+                        color: "#666",
+                        whiteSpace: "nowrap",
+                        textAlign: "right",
+                      }}
+                    >
+                      {formatDate(stat.debut_date)}
+                    </td>
+
+                    <td
+                      style={{
+                        padding: "11px 8px",
+                        borderBottom: "1px solid #f0f0f0",
+                        fontSize: 11,
+                        color: "#666",
+                        whiteSpace: "nowrap",
+                        textAlign: "right",
+                      }}
+                    >
+                      {formatDate(
+                        stat.last_appearance_date
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {nationalTeamStats.some(
+              (stat) =>
+                stat.competitions ||
+                stat.notes ||
+                stat.confidence
+            ) && (
               <div
                 style={{
                   marginTop: 14,
-                  overflowX: "auto",
+                  paddingTop: 14,
+                  borderTop: "1px solid #eee",
                 }}
               >
-                <table
-                  style={{
-                    width: "100%",
-                    minWidth: 760,
-                    borderCollapse: "collapse",
-                  }}
-                >
-                  <thead>
-                    <tr>
-                      {[
-                        "Season",
-                        "Competition",
-                        "Apps",
-                        "Starts",
-                        "Minutes",
-                        "Goals",
-                        "Assists",
-                        "YC",
-                        "RC",
-                      ].map((heading, index) => (
-                        <th
-                          key={heading}
-                          style={{
-                            padding: "9px 8px",
-                            borderBottom:
-                              "1px solid #ddd",
-                            fontSize: 10,
-                            color: "#888",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.04em",
-                            textAlign:
-                              index < 2
-                                ? "left"
-                                : "right",
-                            fontWeight: 600,
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {heading}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
+                {nationalTeamStats.map((stat) => (
+                  <div
+                    key={`${stat.id}-details`}
+                    style={{
+                      marginTop: 10,
+                      fontSize: 11,
+                      color: "#777",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    <strong>
+                      {stat.country}
+                      {stat.level
+                        ? ` · ${stat.level}`
+                        : ""}
+                    </strong>
 
-                  <tbody>
-                    {group.stats.map((stat) => (
-                      <tr key={stat.id}>
-                        <td
-                          style={{
-                            padding: "11px 8px",
-                            borderBottom:
-                              "1px solid #f0f0f0",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {stat.season}
-                        </td>
+                    {stat.competitions && (
+                      <span>
+                        {" · Competitions: "}
+                        {stat.competitions}
+                      </span>
+                    )}
 
-                        <td
-                          style={{
-                            padding: "11px 8px",
-                            borderBottom:
-                              "1px solid #f0f0f0",
-                            fontSize: 12,
-                            color: "#444",
-                            minWidth: 180,
-                          }}
-                        >
-                          {stat.competition}
-                        </td>
+                    {stat.confidence && (
+                      <span>
+                        {" · Confidence: "}
+                        {displayConfidence(
+                          stat.confidence
+                        )}
+                      </span>
+                    )}
 
-                        <td
-                          style={{
-                            padding: "11px 8px",
-                            borderBottom:
-                              "1px solid #f0f0f0",
-                            fontSize: 12,
-                            textAlign: "right",
-                          }}
-                        >
-                          {formatStat(stat.appearances)}
-                        </td>
-
-                        <td
-                          style={{
-                            padding: "11px 8px",
-                            borderBottom:
-                              "1px solid #f0f0f0",
-                            fontSize: 12,
-                            textAlign: "right",
-                          }}
-                        >
-                          {formatStat(stat.starts)}
-                        </td>
-
-                        <td
-                          style={{
-                            padding: "11px 8px",
-                            borderBottom:
-                              "1px solid #f0f0f0",
-                            fontSize: 12,
-                            textAlign: "right",
-                          }}
-                        >
-                          {formatStat(stat.minutes)}
-                        </td>
-
-                        <td
-                          style={{
-                            padding: "11px 8px",
-                            borderBottom:
-                              "1px solid #f0f0f0",
-                            fontSize: 12,
-                            textAlign: "right",
-                            fontWeight: 600,
-                          }}
-                        >
-                          {formatStat(stat.goals)}
-                        </td>
-
-                        <td
-                          style={{
-                            padding: "11px 8px",
-                            borderBottom:
-                              "1px solid #f0f0f0",
-                            fontSize: 12,
-                            textAlign: "right",
-                          }}
-                        >
-                          {formatStat(stat.assists)}
-                        </td>
-
-                        <td
-                          style={{
-                            padding: "11px 8px",
-                            borderBottom:
-                              "1px solid #f0f0f0",
-                            fontSize: 12,
-                            textAlign: "right",
-                          }}
-                        >
-                          {formatStat(stat.yellow_cards)}
-                        </td>
-
-                        <td
-                          style={{
-                            padding: "11px 8px",
-                            borderBottom:
-                              "1px solid #f0f0f0",
-                            fontSize: 12,
-                            textAlign: "right",
-                          }}
-                        >
-                          {formatStat(stat.red_cards)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    {stat.notes && (
+                      <div style={{ marginTop: 3 }}>
+                        {stat.notes}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+            )}
+          </div>
+        )}
+      </div>
+    </>
   );
 }
