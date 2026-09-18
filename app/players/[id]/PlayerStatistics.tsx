@@ -135,6 +135,7 @@ export default function PlayerStatistics({
   const [competitionFilter, setCompetitionFilter] =
     useState("All");
   const [clubFilter, setClubFilter] = useState("All");
+  const [clubOpenByClub, setClubOpenByClub] = useState<Record<string, boolean>>({});
   const [advancedOpenByClub, setAdvancedOpenByClub] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -575,11 +576,26 @@ export default function PlayerStatistics({
                   borderTop: "1px solid #eee",
                 }}
               >
-                <div
+                <button
+                  type="button"
+                  onClick={() =>
+                    setClubOpenByClub((current) => ({
+                      ...current,
+                      [group.clubId]: current[group.clubId] === false,
+                    }))
+                  }
+                  aria-expanded={clubOpenByClub[group.clubId] !== false}
                   style={{
                     display: "flex",
                     alignItems: "center",
                     gap: 12,
+                    width: "100%",
+                    padding: 0,
+                    border: "none",
+                    background: "transparent",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    color: "inherit",
                   }}
                 >
                   {group.club?.logo_url ? (
@@ -638,8 +654,19 @@ export default function PlayerStatistics({
                       </div>
                     )}
                   </div>
-                </div>
+                  <span
+                    style={{
+                      marginLeft: "auto",
+                      fontSize: 18,
+                      color: "#666",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {clubOpenByClub[group.clubId] === false ? "+" : "−"}
+                  </span>
+                </button>
 
+                {clubOpenByClub[group.clubId] !== false && (
                 <div
                   style={{
                     marginTop: 14,
@@ -1016,6 +1043,7 @@ export default function PlayerStatistics({
                       </div>
                     )}
                   </div>
+                )}
                 )}
               </div>
             ))}
