@@ -9,6 +9,8 @@ type SalaryRecord = {
   player_id: string
   annual_salary: number | null
   weekly_salary: number | null
+  annual_salary_usd: number | null
+  weekly_salary_usd: number | null
   currency: string | null
   status: string | null
   confidence: string | null
@@ -80,6 +82,8 @@ export default function SalariesPage() {
           player_id,
           annual_salary,
           weekly_salary,
+          annual_salary_usd,
+          weekly_salary_usd,
           currency,
           status,
           confidence,
@@ -133,14 +137,14 @@ export default function SalariesPage() {
   }, [q, records])
 
   const salaryRecords = records.filter(
-    (record) => record.annual_salary !== null
+    (record) => record.annual_salary_usd !== null
   )
 
   const highestSalary =
     salaryRecords.length > 0
       ? Math.max(
           ...salaryRecords.map(
-            (record) => record.annual_salary || 0
+            (record) => record.annual_salary_usd || 0
           )
         )
       : null
@@ -506,15 +510,15 @@ export default function SalariesPage() {
 
                   <span>
                     {formatSalary(
-                      record.annual_salary,
-                      record.currency
+                      record.annual_salary_usd,
+                      'USD'
                     )}
                   </span>
 
                   <span>
                     {formatSalary(
-                      record.weekly_salary,
-                      record.currency
+                      record.weekly_salary_usd,
+                      'USD'
                     )}
                   </span>
 
