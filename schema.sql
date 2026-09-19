@@ -356,3 +356,57 @@ where pc.peer_count >= 5;
 
 grant select on public.player_season_intelligence to anon, authenticated;
 grant select on public.player_peer_benchmarks to anon, authenticated;
+
+
+-- Phase 3 milestone 3 ingestion/update infrastructure.
+create table if not exists data_update_runs (
+  id uuid primary key default gen_random_uuid(),
+  provider text not null,
+  run_type text not null default 'manual' check (run_type in ('manual','scheduled','webhook','backfill')),
+  status text not null default 'running' check (status in ('running','completed','partial','failed')),
+  started_at timestamptz not null default now(),
+  finished_at timestamptz,
+  records_received integer not null default 0,
+  records_inserted integer not null default 0,
+  records_updated integer not null default 0,
+  records_rejected integer not null default 0,
+  error_message text,
+  metadata jsonb not null default '{}'::jsonb
+);
+
+alter table player_stats
+  add column if not exists match_id text,
+  add column if not exists source_event_id text,
+  add column if not exists updated_at timestamptz;
+
+create unique index if not exists player_stats_source_event_uidx
+  on player_stats (source_event_id)
+  where source_event_id is not null;
+
+create unique index if not exists player_stats_natural_key_uidx
+  on player_stats (player_id, club_id, season, competition)
+  where club_id is not null;
+
+create index if not exists player_stats_player_season_idx
+  on player_stats (player_id, season);
+
+create index if not exists player_stats_club_season_idx
+  on player_stats (club_id, season);
+
+create index if not exists player_stats_updated_at_idx
+  on player_stats (updated_at desc);
+
+create index if not exists data_update_runs_started_idx
+  on data_update_runs (started_at desc);
+
+alter table data_update_runs enable row level security;
+
+drop policy if exists "WFM admins can manage data update runs" on data_update_runs;
+create policy "WFM admins can manage data update runs"
+on data_update_runs
+for all
+to authenticated
+using (exists (select 1 from wfm_admins a where a.user_id=(select auth.uid())))
+with check (exists (select 1 from wfm_admins a where a.user_id=(select auth.uid())));
+
+grant select, insert, update on data_update_runs to authenticated;
