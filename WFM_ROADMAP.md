@@ -73,7 +73,11 @@ Make Players, Clubs, Transfers, Contracts, and Salaries feel like one coherent p
 - [x] Clubs directory connects active roster size, known payroll, squad market value, and transfer activity
 - [x] Clubs directory supports sorting by roster, payroll, market value, and name
 - [x] Clubs directory links directly into club profiles
-- [ ] Redesign Contracts around expiry/status intelligence
+- [x] Contracts page redesigned around active status and contract-expiry intelligence
+- [x] Contracts page provides 90-day, 6-month, 1-year, 12+ month, expired, and unknown expiry views
+- [x] Contracts page connects player, club, league, position, salary, expiry date, and confidence
+- [x] Contracts page provides active-contract and known-payroll summary metrics
+- [x] Contracts page supports clearable search and multi-dimensional filtering
 - [ ] Redesign Transfers around a chronological market feed
 - [ ] Redesign Salaries around comparable compensation data
 - [ ] Make player profiles the central destination connecting contracts, salary, transfers, values, statistics, and sources
