@@ -183,8 +183,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <Link href="/players" style={{ color: "#aaa", textDecoration: "none", fontSize: 12 }}>← Players</Link>
           <div className="player-hero-grid" style={{ display: "grid", gridTemplateColumns: "140px minmax(0,1fr) auto", gap: 26, alignItems: "center", marginTop: 22 }}>
-            <div style={{ width: 140, height: 140, borderRadius: 12, overflow: "hidden", background: "#222", border: "1px solid #333" }}>
-              <img src={player.photo_url || "/wfm-player-placeholder.svg"} alt={player.full_name} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 18%" }} />
+            <div style={{ width: 140, height: 170, borderRadius: 12, overflow: "hidden", background: "#222", border: "1px solid #333" }}>
+              <img src={player.photo_url ? `/api/player-image?url=${encodeURIComponent(player.photo_url)}` : "/wfm-player-placeholder.svg"} alt={player.full_name} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 0%" }} />
             </div>
             <div style={{ minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
