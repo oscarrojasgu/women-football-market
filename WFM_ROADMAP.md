@@ -107,13 +107,22 @@ Build comparisons, trends, market-value context, contract context, and salary co
 - [x] Added side-by-side Player Comparison route using shared WFM performance, contract and market-value fields
 - [x] Added responsive/mobile styling for Phase 3 intelligence and comparison views
 
+### Phase 3 milestone 2 completed
+
+- [x] Added database-backed player-season intelligence view aggregating recorded statistics and per-90 metrics
+- [x] Added database-backed league/position peer benchmark view with a minimum five-player eligible peer group
+- [x] Added league and position context to player intelligence
+- [x] Added percentile context for role metrics without converting percentiles into player ratings
+- [x] Added richer recorded market-value history visualization
+- [x] Expanded comparison metrics by attacking, creation, and defensive role outputs
+- [x] Added contract-expiry and salary context to comparison views
+- [x] Kept derived intelligence in database views rather than duplicating source records in a new table
+
 ### Phase 3 next
 
-- [ ] Add league/position context and peer benchmarking where sample sizes support it
-- [ ] Add richer market-value history visualization
-- [ ] Expand comparison metrics by player role
-- [ ] Add contract-expiry and salary context to comparison views
 - [ ] Build deeper scouting-oriented intelligence after the comparison foundation is stable
+- [ ] Add broader competition/league coverage to strengthen peer samples
+- [ ] Add historical contract and salary trend context where source coverage supports it
 
 ## PHASE 4 — Verification
 
