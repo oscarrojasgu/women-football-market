@@ -109,3 +109,443 @@
   .player-overview-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
   .player-main-grid { grid-template-columns: minmax(0,1fr) !important; }
 }
+
+
+/* FINAL PHASE 2 RESPONSIVE PASS
+   Shared iPhone/tablet rules for every Phase 2 route. */
+
+@media (max-width: 650px) {
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  main {
+    min-width: 0 !important;
+  }
+
+  /* Home */
+  main .hero > div {
+    min-width: 0 !important;
+  }
+
+  main .sectionhead {
+    gap: 14px !important;
+  }
+
+  /* Players directory */
+  .players-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 22px 16px 44px !important;
+  }
+
+  .players-page + * {
+    max-width: 100%;
+  }
+
+  .players-page .players-filters {
+    padding: 12px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .players-page .players-filters > div {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .players-page .players-filters input {
+    grid-column: 1 / -1;
+    width: 100% !important;
+    min-height: 44px;
+    font-size: 16px !important;
+  }
+
+  .players-page .players-filters select {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px;
+    font-size: 16px !important;
+    padding-left: 10px !important;
+    padding-right: 8px !important;
+  }
+
+  .players-page .players-filters button {
+    grid-column: 1 / -1;
+    min-height: 42px;
+    width: 100%;
+  }
+
+  .players-page > div:nth-child(2) {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+  }
+
+  .players-page .players-table {
+    border: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  .players-page .players-table > div:first-child {
+    display: none !important;
+  }
+
+  .players-page .player-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 8px 12px !important;
+    padding: 15px !important;
+    margin-bottom: 9px;
+    border: 1px solid #e3e2dd !important;
+    border-radius: 12px;
+    background: #fff;
+    min-width: 0 !important;
+  }
+
+  .players-page .player-row > span {
+    min-width: 0;
+  }
+
+  .players-page .player-row > span:nth-child(1) {
+    grid-column: 1 / -1;
+  }
+
+  .players-page .player-row > span:nth-child(2) {
+    grid-column: 1 / -1;
+    color: #444;
+    font-weight: 700;
+  }
+
+  .players-page .player-row > span:nth-child(3) {
+    grid-column: 1;
+  }
+
+  .players-page .player-row > span:nth-child(4) {
+    grid-column: 1;
+    color: #777;
+  }
+
+  .players-page .player-row > span:nth-child(5) {
+    grid-column: 2;
+    grid-row: 3 / span 2;
+    align-self: center;
+    text-align: right;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+
+  .players-page .player-row small {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  /* Clubs directory */
+  .clubs-page > section:first-child {
+    padding: 38px 16px 34px !important;
+  }
+
+  .clubs-page > section:first-child h1 {
+    font-size: clamp(40px, 13vw, 58px) !important;
+  }
+
+  .clubs-page > section:nth-child(2),
+  .clubs-page > section:nth-child(3) {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .clubs-page > section:nth-child(2) > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .clubs-page > section:nth-child(2) > div > div {
+    padding: 13px 14px !important;
+    min-width: 0;
+  }
+
+  .clubs-page > section:nth-child(2) > div > div > div:last-child {
+    font-size: 19px !important;
+  }
+
+  .clubs-page > section:nth-child(3) > div {
+    border-radius: 12px !important;
+  }
+
+  .clubs-page > section:nth-child(3) > div > div:first-child {
+    padding: 15px !important;
+  }
+
+  .clubs-page > section:nth-child(3) > div > div:first-child > div:first-child {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+  }
+
+  .clubs-page > section:nth-child(3) input,
+  .clubs-page > section:nth-child(3) select {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    font-size: 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  .clubs-page > section:nth-child(3) > div > div:first-child > div:nth-child(2) {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    justify-content: stretch !important;
+  }
+
+  .clubs-page > section:nth-child(3) > div > div:first-child > div:nth-child(3) {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  .clubs-page > section:nth-child(3) table {
+    min-width: 900px !important;
+  }
+
+  .clubs-page > section:nth-child(3) > div:nth-child(2) {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .clubs-page footer {
+    padding-bottom: max(28px, calc(28px + env(safe-area-inset-bottom))) !important;
+  }
+
+  /* Contracts */
+  .contracts-page > section:first-child {
+    padding: 38px 16px 34px !important;
+  }
+
+  .contracts-page > section:first-child h1 {
+    font-size: clamp(38px, 12vw, 54px) !important;
+    overflow-wrap: anywhere;
+  }
+
+  .contracts-page > section:nth-child(2),
+  .contracts-page > section:nth-child(3) {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .contracts-page > section:nth-child(2) > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .contracts-page > section:nth-child(2) > div > div {
+    min-width: 0;
+    padding: 13px 14px !important;
+  }
+
+  .contracts-page > section:nth-child(2) > div > div:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .contracts-page > section:nth-child(3) > div:first-child {
+    padding: 12px !important;
+  }
+
+  .contracts-page > section:nth-child(3) > div:first-child > div:first-child {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .contracts-page > section:nth-child(3) input {
+    grid-column: 1 / -1;
+  }
+
+  .contracts-page > section:nth-child(3) input,
+  .contracts-page > section:nth-child(3) select {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    font-size: 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  .contracts-page > section:nth-child(3) > div:nth-child(3) {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+  }
+
+  .contracts-page > section:nth-child(3) > div:nth-child(3) > div:first-child,
+  .contracts-page > section:nth-child(3) > div:nth-child(3) > a {
+    min-width: 780px !important;
+  }
+
+  /* Transfers */
+  .transfers-page > section:first-child {
+    padding: 38px 16px 34px !important;
+  }
+
+  .transfers-page > section:nth-child(2) {
+    padding: 22px 16px 48px !important;
+  }
+
+  .transfers-page > section:nth-child(2) > div:first-child {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .transfers-page > section:nth-child(2) > div:first-child > div {
+    min-width: 0;
+    padding: 13px 14px !important;
+  }
+
+  .transfers-page > section:nth-child(2) > div:nth-child(2) {
+    padding: 12px !important;
+  }
+
+  .transfers-page > section:nth-child(2) > div:nth-child(2) > div:first-child {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .transfers-page > section:nth-child(2) > div:nth-child(2) input {
+    grid-column: 1 / -1;
+  }
+
+  .transfers-page > section:nth-child(2) > div:nth-child(2) input,
+  .transfers-page > section:nth-child(2) > div:nth-child(2) select {
+    min-height: 44px !important;
+    font-size: 16px !important;
+  }
+
+  .transfers-page > section:nth-child(2) article {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 10px !important;
+    padding: 13px !important;
+  }
+
+  .transfers-page > section:nth-child(2) article > div:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .transfers-page > section:nth-child(2) article > a:nth-child(2) {
+    grid-column: 1 / -1;
+  }
+
+  .transfers-page > section:nth-child(2) article > div:nth-child(3) {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0,1fr) 20px minmax(0,1fr) !important;
+  }
+
+  .transfers-page > section:nth-child(2) article > div:nth-child(4),
+  .transfers-page > section:nth-child(2) article > div:nth-child(5),
+  .transfers-page > section:nth-child(2) article > div:nth-child(6) {
+    min-width: 0;
+  }
+
+  /* Salary page already has cards; make the controls and values safer on small screens. */
+  .salary-page .salary-control-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .salary-page .salary-control-grid input {
+    grid-column: 1 / -1;
+  }
+
+  /* Player profile and statistics */
+  .player-page .player-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .player-page .player-overview-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .player-page .player-main-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .player-page .profile-contract-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .player-page .player-hero-grid {
+    width: 100% !important;
+  }
+
+  .player-page .player-hero-grid h1 {
+    overflow-wrap: anywhere;
+  }
+
+  .player-page table {
+    display: table;
+    width: max-content !important;
+    max-width: none !important;
+  }
+
+  .player-page .player-statistics,
+  .player-page [class*="statistics"] {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Touch targets */
+  .players-page button,
+  .clubs-page button,
+  .contracts-page button,
+  .transfers-page button,
+  .salary-page button,
+  .player-page button {
+    touch-action: manipulation;
+  }
+
+  .players-page a,
+  .clubs-page a,
+  .contracts-page a,
+  .transfers-page a,
+  .salary-page a,
+  .player-page a {
+    -webkit-tap-highlight-color: rgba(0,0,0,.08);
+  }
+}
+
+@media (min-width: 651px) and (max-width: 1000px) {
+  .players-page,
+  .clubs-page,
+  .contracts-page,
+  .transfers-page,
+  .salary-shell,
+  .player-content {
+    max-width: 100% !important;
+  }
+
+  .players-page .players-filters > div {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .players-page .players-filters input {
+    grid-column: 1 / -1;
+  }
+
+  .clubs-page table,
+  .contracts-page table {
+    min-width: 780px;
+  }
+
+  .clubs-page > section:nth-child(3) > div,
+  .contracts-page > section:nth-child(3) > div {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .transfers-page > section:nth-child(2) > div:first-child {
+    grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  }
+
+  .transfers-page > section:nth-child(2) > div:nth-child(2) > div:first-child {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
