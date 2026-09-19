@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
+import PlayerPhoto from '../components/PlayerPhoto'
 
 type Player = {
   id: string;
@@ -450,24 +451,16 @@ export default function PlayersPage() {
                 }}
               >
                 <span style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
-                  <img
-                    src={player.photo_url || "/wfm-player-placeholder.svg"}
+                  <PlayerPhoto
+                    src={player.photo_url}
                     alt={player.full_name}
-                    onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = "/wfm-player-placeholder.svg"; }}
                     width={52}
                     height={64}
-                    loading="eager"
-                    decoding="async"
-                    referrerPolicy="no-referrer"
                     style={{
-                      width: "52px",
-                      height: "64px",
-                      display: "block",
                       borderRadius: "8px",
                       objectFit: "cover",
                       objectPosition: "center",
                       background: "#eee",
-                      flexShrink: 0,
                     }}
                   />
                   <span style={{ minWidth: 0 }}>
