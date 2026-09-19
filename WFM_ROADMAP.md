@@ -91,8 +91,8 @@ Make Players, Clubs, Transfers, Contracts, and Salaries feel like one coherent p
 - [x] Salaries support salary/player/club sorting
 - [x] Salaries provide clear-filters behavior and explicit result counts
 - [x] Dedicated iPhone responsive pass added for Phase 2 salary and transfer views
-- [ ] Make player profiles the central destination connecting contracts, salary, transfers, values, statistics, and sources
-- [ ] Final responsive/mobile pass across every Phase 2 route
+- [x] Make player profiles the central destination connecting contracts, salary, transfers, values, statistics, and sources
+- [x] Final responsive/mobile pass across every Phase 2 route
 
 ## PHASE 3 — Player intelligence
 
