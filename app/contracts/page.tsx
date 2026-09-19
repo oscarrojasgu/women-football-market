@@ -27,6 +27,8 @@ type Contract = {
   end_date: string | null;
   annual_salary: number | null;
   weekly_salary: number | null;
+  annual_salary_usd: number | null;
+  weekly_salary_usd: number | null;
   currency: string | null;
   player: PlayerData | null;
   club: ClubData | null;
@@ -54,6 +56,8 @@ export default function ContractsPage() {
           end_date,
           annual_salary,
           weekly_salary,
+          annual_salary_usd,
+          weekly_salary_usd,
           currency,
           player:players (
             full_name,
@@ -87,6 +91,8 @@ export default function ContractsPage() {
           end_date: contract.end_date,
           annual_salary: contract.annual_salary,
           weekly_salary: contract.weekly_salary,
+          annual_salary_usd: contract.annual_salary_usd,
+          weekly_salary_usd: contract.weekly_salary_usd,
           currency: contract.currency,
           player: Array.isArray(contract.player)
             ? contract.player[0] || null
@@ -503,8 +509,8 @@ export default function ContractsPage() {
                   }}
                 >
                   {formatSalary(
-                    contract.annual_salary,
-                    contract.currency
+                    contract.annual_salary_usd,
+                    "USD"
                   )}
                 </div>
 
