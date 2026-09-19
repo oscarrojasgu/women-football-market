@@ -136,6 +136,9 @@ Important limitation:
 
 - [x] Selected Sportmonks as the first provider candidate because its current API documents women's competitions, player statistics, lineups, squads, and season statistics in the same football API schema. citeturn0search0turn0search4
 - [x] Completed the WFM-side provider integration foundation and kept it behind the existing ingestion pipeline rather than coupling provider logic to the public player pages
+- [x] Added a dedicated match-level stats table so provider match data cannot double-count the existing season-level `player_stats` table
+- [x] Added provider-player mapping with safe exact-name auto-matching during validation
+- [x] Deployed the live `sync-sportmonks-match-stats` Edge Function; it records every run in `data_update_runs`
 - [ ] Add the Sportmonks API token as a server-side Supabase secret and validate the first WFM competition/player mapping against live provider data
 - [ ] Add scheduled ingestion after the provider is validated
 - [ ] Build deeper scouting-oriented intelligence after the comparison foundation is stable
