@@ -461,9 +461,9 @@ export default function PlayersPage() {
                     referrerPolicy="no-referrer"
                     style={{
                       width: "52px",
-                      height: "64px",
+                      height: "52px",
                       display: "block",
-                      borderRadius: "8px",
+                      borderRadius: "50%",
                       objectFit: "cover",
                       objectPosition: "center",
                       background: "#eee",
