@@ -3,8 +3,14 @@ import { supabase } from "../../lib/supabase";
 import PositionMap from "../../components/PositionMap";
 import PlayerStatistics from "./PlayerStatistics";
 
-type PlayerPageProps = {
-  params: Promise<{ id: string }>;
+type PlayerPageProps = { params: Promise<{ id: string }> };
+
+type Club = {
+  id: string;
+  name: string;
+  league: string | null;
+  country: string | null;
+  logo_url: string | null;
 };
 
 type Contract = {
@@ -20,14 +26,6 @@ type Contract = {
   currency: string | null;
   notes: string | null;
   club_id: string | null;
-};
-
-type Club = {
-  id: string;
-  name: string;
-  league: string | null;
-  country: string | null;
-  logo_url: string | null;
 };
 
 type Transfer = {
@@ -47,8 +45,6 @@ type MarketValue = {
   market_value: number | null;
   currency: string | null;
   market_value_usd: number | null;
-  exchange_rate_to_usd: number | null;
-  conversion_date: string | null;
   confidence: string | null;
   notes: string | null;
 };
@@ -105,1443 +101,157 @@ type PlayerStat = {
   notes: string | null;
 };
 
-const getCountryCode = (nationality: string | null) => {
-  if (!nationality) return null;
-
-  const value = nationality.trim().toUpperCase();
-
-  const countries: Record<string, string> = {
-    USA: "us",
-    US: "us",
-    "UNITED STATES": "us",
-    "UNITED STATES OF AMERICA": "us",
-    CAN: "ca",
-    CANADA: "ca",
-    MEX: "mx",
-    MEXICO: "mx",
-    ENG: "gb-eng",
-    ENGLAND: "gb-eng",
-    FRA: "fr",
-    FRANCE: "fr",
-    ESP: "es",
-    SPAIN: "es",
-    GER: "de",
-    GERMANY: "de",
-    BRA: "br",
-    BRAZIL: "br",
-    COL: "co",
-    COLOMBIA: "co",
-    ARG: "ar",
-    ARGENTINA: "ar",
-    CHI: "cl",
-    CHILE: "cl",
-    ITA: "it",
-    ITALY: "it",
-    NED: "nl",
-    NETHERLANDS: "nl",
-    POR: "pt",
-    PORTUGAL: "pt",
-    SWE: "se",
-    SWEDEN: "se",
-    NOR: "no",
-    NORWAY: "no",
-    DEN: "dk",
-    DENMARK: "dk",
-    JPN: "jp",
-    JAPAN: "jp",
-    KOR: "kr",
-    "SOUTH KOREA": "kr",
-    AUS: "au",
-    AUSTRALIA: "au",
-    NZL: "nz",
-    "NEW ZEALAND": "nz",
-    NIG: "ng",
-    NIGERIA: "ng",
-    GHA: "gh",
-    GHANA: "gh",
-    RSA: "za",
-    "SOUTH AFRICA": "za",
-    IRL: "ie",
-    IRELAND: "ie",
-    SCO: "gb-sct",
-    SCOTLAND: "gb-sct",
-    WAL: "gb-wls",
-    WALES: "gb-wls",
-    SUI: "ch",
-    SWITZERLAND: "ch",
-    AUT: "at",
-    AUSTRIA: "at",
-    BEL: "be",
-    BELGIUM: "be",
-    POL: "pl",
-    POLAND: "pl",
-    UKR: "ua",
-    UKRAINE: "ua",
-    CZE: "cz",
-    "CZECH REPUBLIC": "cz",
-    JAM: "jm",
-    JAMAICA: "jm",
-    CRC: "cr",
-    "COSTA RICA": "cr",
-    PAN: "pa",
-    PANAMA: "pa",
-    PUR: "pr",
-    "PUERTO RICO": "pr",
-    PAR: "py",
-    PARAGUAY: "py",
-    URU: "uy",
-    URUGUAY: "uy",
-    ECU: "ec",
-    ECUADOR: "ec",
-    PER: "pe",
-    PERU: "pe",
-    VEN: "ve",
-    VENEZUELA: "ve",
+const flagCode = (nationality: string | null) => {
+  const key = nationality?.trim().toUpperCase();
+  if (!key) return null;
+  const map: Record<string, string> = {
+    USA: "us", "UNITED STATES": "us", US: "us", CAN: "ca", CANADA: "ca",
+    MEX: "mx", MEXICO: "mx", ENG: "gb-eng", ENGLAND: "gb-eng", FRA: "fr", FRANCE: "fr",
+    ESP: "es", SPAIN: "es", GER: "de", GERMANY: "de", BRA: "br", BRAZIL: "br",
+    COL: "co", COLOMBIA: "co", ARG: "ar", ARGENTINA: "ar", CHI: "cl", CHILE: "cl",
+    ITA: "it", ITALY: "it", NED: "nl", NETHERLANDS: "nl", POR: "pt", PORTUGAL: "pt",
+    SWE: "se", SWEDEN: "se", NOR: "no", NORWAY: "no", DEN: "dk", DENMARK: "dk",
+    JPN: "jp", JAPAN: "jp", KOR: "kr", "SOUTH KOREA": "kr", AUS: "au", AUSTRALIA: "au",
+    NZL: "nz", "NEW ZEALAND": "nz", NIG: "ng", NIGERIA: "ng", GHA: "gh", GHANA: "gh",
+    RSA: "za", "SOUTH AFRICA": "za", IRL: "ie", IRELAND: "ie", SUI: "ch", SWITZERLAND: "ch",
+    AUT: "at", AUSTRIA: "at", BEL: "be", BELGIUM: "be", POL: "pl", POLAND: "pl",
+    UKR: "ua", UKRAINE: "ua", CZE: "cz", "CZECH REPUBLIC": "cz", JAM: "jm", JAMAICA: "jm",
+    CRC: "cr", "COSTA RICA": "cr", PAN: "pa", PANAMA: "pa", PUR: "pr", "PUERTO RICO": "pr",
+    PAR: "py", PARAGUAY: "py", URU: "uy", URUGUAY: "uy", ECU: "ec", ECUADOR: "ec",
+    PER: "pe", PERU: "pe", VEN: "ve", VENEZUELA: "ve", ZAM: "zm", ZAMBIA: "zm", MWI: "mw", MALAWI: "mw",
   };
-
-  return countries[value] || null;
+  return map[key] || null;
 };
 
-const formatDate = (date: string | null) => {
-  if (!date) return "—";
-
-  return new Date(`${date}T00:00:00`).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
-
-const formatSalary = (
-  amount: number | null,
-  currency: string | null
-) => {
-  if (amount === null || amount === undefined) return "—";
-
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency || "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
-
-const formatMarketValue = (amount: number | null) => {
-  if (amount === null || amount === undefined) return "—";
-
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
-
-const formatOriginalMarketValue = (
-  amount: number | null,
-  currency: string | null
-) => {
-  if (amount === null || amount === undefined) return "—";
-
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency || "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
-
-const formatTransferFee = (
-  amount: number | null,
-  currency: string | null
-) => {
-  if (amount === null || amount === undefined) return "Free";
-
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency || "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
-
-const formatTransferType = (type: string | null) => {
-  if (!type) return "Transfer";
-
-  return type.charAt(0).toUpperCase() + type.slice(1);
-};
-
-const formatConfidence = (confidence: string | null) => {
-  if (!confidence) return "Unknown";
-
-  return confidence.charAt(0).toUpperCase() + confidence.slice(1);
-};
-
-const calculateAge = (dateOfBirth: string | null) => {
-  if (!dateOfBirth) return null;
-
-  const birthDate = new Date(`${dateOfBirth}T00:00:00`);
-  const today = new Date();
-
-  let age = today.getFullYear() - birthDate.getFullYear();
-
-  const monthDifference =
-    today.getMonth() - birthDate.getMonth();
-
-  if (
-    monthDifference < 0 ||
-    (monthDifference === 0 &&
-      today.getDate() < birthDate.getDate())
-  ) {
-    age--;
-  }
-
+const dateText = (value: string | null) => value ? new Date(`${value}T00:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+const usd = (value: number | null) => value == null ? "—" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
+const original = (value: number | null, currency: string | null) => value == null ? "—" : new Intl.NumberFormat("en-US", { style: "currency", currency: currency || "USD", maximumFractionDigits: 0 }).format(value);
+const titleCase = (value: string | null) => value ? value.charAt(0).toUpperCase() + value.slice(1) : "Unknown";
+const ageOf = (dob: string | null) => {
+  if (!dob) return null;
+  const birth = new Date(`${dob}T00:00:00`);
+  const now = new Date();
+  let age = now.getFullYear() - birth.getFullYear();
+  if (now.getMonth() < birth.getMonth() || (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())) age--;
   return age;
 };
 
-const labelStyle = {
-  fontSize: 10,
-  color: "#888",
-  textTransform: "uppercase" as const,
-  letterSpacing: "0.05em",
-};
+const card = { background: "#fff", border: "1px solid #ddd", borderRadius: 12, padding: 22 };
+const label = { fontSize: 10, color: "#888", textTransform: "uppercase" as const, letterSpacing: "0.06em" };
 
-const valueStyle = {
-  fontWeight: 600,
-  marginTop: 3,
-  fontSize: 14,
-  color: "#111",
-};
-
-export default async function PlayerPage({
-  params,
-}: PlayerPageProps) {
+export default async function PlayerPage({ params }: PlayerPageProps) {
   const { id } = await params;
+  const { data: player, error } = await supabase.from("players").select("*").eq("id", id).single();
 
-  const { data: player, error: playerError } = await supabase
-    .from("players")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (playerError || !player) {
-    return (
-      <main
-        style={{
-          minHeight: "100vh",
-          background: "#f5f4ef",
-        }}
-      >
-        
-
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            padding: "80px 32px",
-          }}
-        >
-          <h1>Player not found</h1>
-
-          <Link
-            href="/players"
-            style={{
-              color: "#111",
-              textDecoration: "underline",
-            }}
-          >
-            Back to players
-          </Link>
-        </div>
-      </main>
-    );
+  if (error || !player) {
+    return <main className="player-page" style={{ minHeight: "100vh", background: "#f5f4ef", padding: "80px 20px" }}><div style={{ maxWidth: 1200, margin: "0 auto" }}><h1>Player not found</h1><Link href="/players">Back to players</Link></div></main>;
   }
 
-  const { data: contractData } = await supabase
-    .from("contracts")
-    .select(
-      "id, status, confidence, start_date, end_date, annual_salary, weekly_salary, annual_salary_usd, weekly_salary_usd, currency, notes, club_id"
-    )
-    .eq("player_id", id)
-    .order("start_date", { ascending: false });
+  const [{ data: contractData }, { data: statsData }, { data: transferData }, { data: valueData }] = await Promise.all([
+    supabase.from("contracts").select("id,status,confidence,start_date,end_date,annual_salary,weekly_salary,annual_salary_usd,weekly_salary_usd,currency,notes,club_id").eq("player_id", id).order("start_date", { ascending: false }),
+    supabase.from("player_stats").select("id,club_id,season,competition,appearances,starts,minutes,goals,assists,yellow_cards,red_cards,shots,shots_on_target,key_passes,chances_created,crosses,tackles,tackles_won,interceptions,clearances,blocks,recoveries,dispossessions,dribbles_attempted,dribbles_completed,fouls_committed,fouls_drawn,offsides,passes_attempted,passes_completed,progressive_passes,progressive_carries,duels_won,duels_lost,aerials_won,aerials_lost,xg,xa,sca,gca,saves,shots_on_target_faced,goals_against,clean_sheets,penalty_kicks_saved,penalty_kicks_faced,own_goals,confidence,notes").eq("player_id", id).order("season", { ascending: false }).order("competition", { ascending: true }),
+    supabase.from("transfers").select("id,transfer_date,transfer_type,fee,currency,confidence,from_club:clubs!transfers_from_club_id_fkey(id,name,league,country,logo_url),to_club:clubs!transfers_to_club_id_fkey(id,name,league,country,logo_url)").eq("player_id", id).order("transfer_date", { ascending: false }),
+    supabase.from("market_values").select("id,valuation_date,market_value,currency,market_value_usd,confidence,notes").eq("player_id", id).order("valuation_date", { ascending: false }),
+  ]);
 
-  const contracts: Contract[] = contractData || [];
+  const contracts = (contractData || []) as Contract[];
+  const stats = (statsData || []) as PlayerStat[];
+  const marketValues = (valueData || []) as MarketValue[];
+  const transfers: Transfer[] = (transferData || []).map((item: any) => ({ ...item, from_club: Array.isArray(item.from_club) ? item.from_club[0] || null : item.from_club || null, to_club: Array.isArray(item.to_club) ? item.to_club[0] || null : item.to_club || null }));
 
-  const { data: playerStatsData } = await supabase
-    .from("player_stats")
-    .select(
-      "id, club_id, season, competition, appearances, starts, minutes, goals, assists, yellow_cards, red_cards, shots, shots_on_target, key_passes, chances_created, crosses, tackles, tackles_won, interceptions, clearances, blocks, recoveries, dispossessions, dribbles_attempted, dribbles_completed, fouls_committed, fouls_drawn, offsides, passes_attempted, passes_completed, progressive_passes, progressive_carries, duels_won, duels_lost, aerials_won, aerials_lost, xg, xa, sca, gca, saves, shots_on_target_faced, goals_against, clean_sheets, penalty_kicks_saved, penalty_kicks_faced, own_goals, confidence, notes"
-    )
-    .eq("player_id", id)
-    .order("season", { ascending: false })
-    .order("competition", { ascending: true });
+  const clubIds = Array.from(new Set(contracts.map(c => c.club_id).concat(stats.map(s => s.club_id)).filter((v): v is string => Boolean(v))));
+  const { data: clubData } = clubIds.length ? await supabase.from("clubs").select("id,name,league,country,logo_url").in("id", clubIds) : { data: [] };
+  const clubs = (clubData || []) as Club[];
+  const clubMap = new Map(clubs.map(c => [c.id, c]));
 
-  const playerStats: PlayerStat[] = playerStatsData || [];
-
-  const contractClubIds = [
-    ...new Set(
-      contracts
-        .map((contract) => contract.club_id)
-        .filter(
-          (clubId): clubId is string => Boolean(clubId)
-        )
-    ),
-  ];
-
-  const statsClubIds = [
-    ...new Set(
-      playerStats
-        .map((stat) => stat.club_id)
-        .filter(
-          (clubId): clubId is string => Boolean(clubId)
-        )
-    ),
-  ];
-
-  const allClubIds = [
-    ...new Set([...contractClubIds, ...statsClubIds]),
-  ];
-
-  let profileClubs: Club[] = [];
-
-  if (allClubIds.length > 0) {
-    const { data: clubs } = await supabase
-      .from("clubs")
-      .select("id, name, league, country, logo_url")
-      .in("id", allClubIds);
-
-    profileClubs = clubs || [];
-  }
-
-  const clubMap = new Map(
-    profileClubs.map((club) => [club.id, club])
-  );
-
-  const { data: transferData } = await supabase
-    .from("transfers")
-    .select(
-      "id, transfer_date, transfer_type, fee, currency, confidence, from_club:clubs!transfers_from_club_id_fkey(id, name, league, country, logo_url), to_club:clubs!transfers_to_club_id_fkey(id, name, league, country, logo_url)"
-    )
-    .eq("player_id", id)
-    .order("transfer_date", { ascending: false });
-
-  const transfers: Transfer[] = (transferData || []).map(
-    (transfer: any) => ({
-      id: transfer.id,
-      transfer_date: transfer.transfer_date,
-      transfer_type: transfer.transfer_type,
-      fee: transfer.fee,
-      currency: transfer.currency,
-      confidence: transfer.confidence,
-      from_club: Array.isArray(transfer.from_club)
-        ? transfer.from_club[0] || null
-        : transfer.from_club || null,
-      to_club: Array.isArray(transfer.to_club)
-        ? transfer.to_club[0] || null
-        : transfer.to_club || null,
-    })
-  );
-
-  const { data: marketValueData } = await supabase
-    .from("market_values")
-    .select(
-      "id, valuation_date, market_value, currency, market_value_usd, exchange_rate_to_usd, conversion_date, confidence, notes"
-    )
-    .eq("player_id", id)
-    .order("valuation_date", { ascending: false });
-
-  const marketValues: MarketValue[] =
-    marketValueData || [];
-
-  const currentContract =
-    contracts.find(
-      (contract) =>
-        contract.status?.toLowerCase() === "active"
-    ) ||
-    contracts[0] ||
-    null;
-
-  const currentClub = currentContract?.club_id
-    ? clubMap.get(currentContract.club_id)
-    : null;
-
-  const contractHistory = contracts.filter(
-    (contract) => contract.id !== currentContract?.id
-  );
-
-  const age = calculateAge(player.date_of_birth);
-  const countryCode = getCountryCode(player.nationality);
+  const currentContract = contracts.find(c => c.status?.toLowerCase() === "active") || contracts[0] || null;
+  const currentClub = currentContract?.club_id ? clubMap.get(currentContract.club_id) || null : null;
+  const currentValue = marketValues[0] || null;
+  const age = ageOf(player.date_of_birth);
+  const code = flagCode(player.nationality);
+  const contractHistory = contracts.filter(c => c.id !== currentContract?.id);
+  const latestTransfer = transfers[0] || null;
 
   return (
-    <main
-      className="player-page"
-      style={{
-        minHeight: "100vh",
-        background: "#f5f4ef",
-        color: "#111",
-      }}
-    >
-      
-
-      <section
-        style={{
-          background: "#111",
-          color: "#fff",
-          padding: "46px 32px 52px",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-          }}
-        >
-          <Link
-            href="/players"
-            style={{
-              color: "#aaa",
-              textDecoration: "none",
-              fontSize: 13,
-            }}
-          >
-            ← Players
-          </Link>
-
-          <div
-            style={{
-              display: "flex",
-              gap: 34,
-              alignItems: "center",
-              marginTop: 28,
-            }}
-          >
-            <div
-              className="player-photo-frame"
-              style={{
-                width: 180,
-                height: 240,
-                flexShrink: 0,
-                borderRadius: 10,
-                overflow: "hidden",
-                background: "#222",
-                border: "1px solid #333",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {player.photo_url ? (
-                <img
-                  src={player.photo_url}
-                  alt={player.full_name}
-                  loading="eager"
-                  decoding="async"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                    objectPosition: "center center",
-                    display: "block",
-                    imageRendering: "auto",
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#777",
-                    fontSize: 13,
-                  }}
-                >
-                  No photo
-                </div>
-              )}
+    <main className="player-page" style={{ minHeight: "100vh", background: "#f5f4ef", color: "#111" }}>
+      <section className="player-hero" style={{ background: "#111", color: "#fff", padding: "34px 20px 40px" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <Link href="/players" style={{ color: "#aaa", textDecoration: "none", fontSize: 12 }}>← Players</Link>
+          <div className="player-hero-grid" style={{ display: "grid", gridTemplateColumns: "140px minmax(0,1fr) auto", gap: 26, alignItems: "center", marginTop: 22 }}>
+            <div style={{ width: 140, height: 140, borderRadius: 12, overflow: "hidden", background: "#222", border: "1px solid #333" }}>
+              <img src={player.photo_url || "/wfm-player-placeholder.svg"} alt={player.full_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
-
-            <div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  fontSize: 14,
-                  color: "#aaa",
-                  marginBottom: 10,
-                }}
-              >
-                {countryCode ? (
-                  <img
-                    src={`https://flagcdn.com/w40/${countryCode}.png`}
-                    alt={player.nationality || "Country flag"}
-                    style={{
-                      width: 24,
-                      height: 16,
-                      objectFit: "cover",
-                      borderRadius: 2,
-                      display: "block",
-                      flexShrink: 0,
-                    }}
-                  />
-                ) : (
-                  <span style={{ fontSize: 16 }}>🌐</span>
-                )}
-
-                <span>
-                  {player.nationality || "Nationality unknown"}
-                </span>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <h1 style={{ margin: 0, fontSize: "clamp(28px,5vw,48px)", lineHeight: 1 }}>{player.full_name}</h1>
+                {code && <img src={`https://flagcdn.com/w40/${code}.png`} alt={player.nationality || "Nationality"} width={28} height={19} style={{ objectFit: "cover", borderRadius: 2 }} />}
               </div>
-
-              <h1
-                style={{
-                  margin: 0,
-                  fontSize: "clamp(34px, 5vw, 58px)",
-                  lineHeight: 1,
-                  letterSpacing: "-0.04em",
-                  fontWeight: 800,
-                }}
-              >
-                {player.full_name}
-              </h1>
-
-              <div
-                style={{
-                  display: "flex",
-                  gap: 18,
-                  flexWrap: "wrap",
-                  marginTop: 20,
-                  color: "#ccc",
-                  fontSize: 14,
-                }}
-              >
-                {player.position && (
-                  <span>{player.position}</span>
-                )}
-
-                {age !== null && (
-                  <span>{age} years old</span>
-                )}
-
-                {currentClub && (
-                  <span>{currentClub.name}</span>
-                )}
-              </div>
+              <div style={{ marginTop: 13, color: "#bbb", fontSize: 15 }}>{player.nationality || "Nationality unknown"} · {player.position || "Position unknown"}{player.secondary_position ? ` / ${player.secondary_position}` : ""}{age !== null ? ` · ${age}` : ""}</div>
+              {currentClub && <Link href={`/clubs/${currentClub.id}`} style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 15, color: "#fff", textDecoration: "none", fontWeight: 700 }}><img src={currentClub.logo_url || "/wfm-club-placeholder.svg"} alt="" width={26} height={26} style={{ objectFit: "contain" }} />{currentClub.name}</Link>}
+            </div>
+            <div className="player-hero-value" style={{ minWidth: 190, textAlign: "right" }}>
+              <div style={{ ...label, color: "#888" }}>Current Market Value</div>
+              <div style={{ fontSize: 30, fontWeight: 800, marginTop: 5 }}>{currentValue?.market_value_usd != null ? usd(currentValue.market_value_usd) : "—"}</div>
+              {currentValue && <div style={{ marginTop: 5, color: "#999", fontSize: 11 }}>{dateText(currentValue.valuation_date)} · {titleCase(currentValue.confidence)}</div>}
             </div>
           </div>
         </div>
       </section>
 
-      <div
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          padding: "36px 32px 80px",
-        }}
-      >
-        <div
-          style={{
-            padding: "22px",
-            border: "1px solid #ddd",
-            borderRadius: 10,
-            background: "#fff",
-          }}
-        >
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 18,
-              fontWeight: 750,
-            }}
-          >
-            Player Information
-          </h2>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "repeat(auto-fit, minmax(150px, 1fr))",
-              gap: "22px 24px",
-              marginTop: 22,
-            }}
-          >
-            <div>
-              <div style={labelStyle}>Nationality</div>
-
-              <div
-                style={{
-                  ...valueStyle,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                }}
-              >
-                {countryCode ? (
-                  <img
-                    src={`https://flagcdn.com/w40/${countryCode}.png`}
-                    alt={player.nationality || "Country flag"}
-                    style={{
-                      width: 24,
-                      height: 16,
-                      objectFit: "cover",
-                      borderRadius: 2,
-                      display: "block",
-                      flexShrink: 0,
-                    }}
-                  />
-                ) : (
-                  <span style={{ fontSize: 16 }}>🌐</span>
-                )}
-
-                <span>{player.nationality || "—"}</span>
-              </div>
-            </div>
-
-            <div>
-              <div style={labelStyle}>Date of Birth</div>
-              <div style={valueStyle}>
-                {formatDate(player.date_of_birth)}
-              </div>
-            </div>
-
-            <div>
-              <div style={labelStyle}>Age</div>
-              <div style={valueStyle}>
-                {age !== null ? age : "—"}
-              </div>
-            </div>
-
-            <div>
-              <div style={labelStyle}>Position</div>
-              <div style={valueStyle}>
-                {player.position || "—"}
-              </div>
-            </div>
-
-            <div>
-              <div style={labelStyle}>Secondary Position</div>
-              <div style={valueStyle}>
-                {player.secondary_position || "—"}
-              </div>
-            </div>
-
-            <div>
-              <div style={labelStyle}>Preferred Foot</div>
-              <div style={valueStyle}>
-                {player.preferred_foot || "—"}
-              </div>
-            </div>
-
-            <div>
-              <div style={labelStyle}>Height</div>
-              <div style={valueStyle}>
-                {player.height_cm
-                  ? `${player.height_cm} cm`
-                  : "—"}
-              </div>
-            </div>
-
-            <div>
-              <div style={labelStyle}>Birthplace</div>
-              <div style={valueStyle}>
-                {player.birthplace || "—"}
-              </div>
-            </div>
-
-            <div>
-              <div style={labelStyle}>Agency</div>
-              <div style={valueStyle}>
-                {player.agency || "—"}
-              </div>
-            </div>
-
-            <div>
-              <div style={labelStyle}>Current Club Since</div>
-              <div style={valueStyle}>
-                {formatDate(player.current_club_since)}
-              </div>
-            </div>
-
-            <div style={{ gridColumn: "span 2" }}>
-              <div style={labelStyle}>Youth Clubs</div>
-              <div style={valueStyle}>
-                {player.youth_clubs || "—"}
-              </div>
-            </div>
-          </div>
-
-          <div
-            style={{
-              marginTop: 24,
-              paddingTop: 20,
-              borderTop: "1px solid #eee",
-              display: "grid",
-              gridTemplateColumns:
-                "minmax(190px, 230px) minmax(0, 1fr)",
-              gap: 28,
-              alignItems: "start",
-            }}
-          >
-            <div>
-              <div style={labelStyle}>Position Map</div>
-
-              <PositionMap
-                primaryPosition={player.position}
-                secondaryPosition={player.secondary_position}
-              />
-            </div>
-
-            <div
-              style={{
-                border: "1px solid #e1e1e1",
-                borderRadius: 9,
-                background: "#fff",
-                padding: 18,
-                minHeight: 190,
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: 15,
-                }}
-              >
-                <div>
-                  <h2
-                    style={{
-                      margin: 0,
-                      fontSize: 17,
-                      fontWeight: 750,
-                    }}
-                  >
-                    Market Value
-                  </h2>
-
-                  <div
-                    style={{
-                      marginTop: 4,
-                      fontSize: 11,
-                      color: "#888",
-                    }}
-                  >
-                    Transfer-market valuation · USD
-                  </div>
-                </div>
-
-                {marketValues.length > 0 && (
-                  <div
-                    style={{
-                      fontSize: 11,
-                      color: "#888",
-                    }}
-                  >
-                    {marketValues.length} valuation
-                    {marketValues.length !== 1 ? "s" : ""}
-                  </div>
-                )}
-              </div>
-
-              {marketValues.length === 0 ? (
-                <div
-                  style={{
-                    marginTop: 24,
-                    color: "#888",
-                    fontSize: 13,
-                  }}
-                >
-                  No market value information available.
-                </div>
-              ) : (
-                <div style={{ marginTop: 22 }}>
-                  <div style={labelStyle}>
-                    Current Market Value
-                  </div>
-
-                  <div
-                    style={{
-                      marginTop: 5,
-                      fontSize: 30,
-                      fontWeight: 800,
-                      letterSpacing: "-0.03em",
-                      color: "#111",
-                    }}
-                  >
-                    {formatMarketValue(
-                      marketValues[0].market_value_usd
-                    )}
-                  </div>
-
-                  <div
-                    style={{
-                      marginTop: 6,
-                      fontSize: 11,
-                      color: "#888",
-                    }}
-                  >
-                    Original valuation:{" "}
-                    {formatOriginalMarketValue(
-                      marketValues[0].market_value,
-                      marketValues[0].currency
-                    )}
-                  </div>
-
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns:
-                        "repeat(2, minmax(100px, 1fr))",
-                      gap: 16,
-                      marginTop: 20,
-                      paddingTop: 14,
-                      borderTop: "1px solid #eee",
-                    }}
-                  >
-                    <div>
-                      <div style={labelStyle}>
-                        Valuation Date
-                      </div>
-
-                      <div
-                        style={{
-                          marginTop: 4,
-                          fontSize: 12,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {formatDate(
-                          marketValues[0].valuation_date
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div style={labelStyle}>
-                        Confidence
-                      </div>
-
-                      <div
-                        style={{
-                          marginTop: 4,
-                          fontSize: 12,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {formatConfidence(
-                          marketValues[0].confidence
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      marginTop: 14,
-                      fontSize: 11,
-                      color: "#777",
-                    }}
-                  >
-                    Source: Soccerdonna
-                  </div>
-
-                  {marketValues[0].notes && (
-                    <div
-                      style={{
-                        marginTop: 6,
-                        fontSize: 11,
-                        color: "#777",
-                        lineHeight: 1.45,
-                      }}
-                    >
-                      {marketValues[0].notes}
-                    </div>
-                  )}
-
-                  {marketValues.length > 1 && (
-                    <div
-                      style={{
-                        marginTop: 16,
-                        paddingTop: 14,
-                        borderTop: "1px solid #eee",
-                      }}
-                    >
-                      <div style={labelStyle}>
-                        Previous Valuations
-                      </div>
-
-                      <div style={{ marginTop: 8 }}>
-                        {marketValues
-                          .slice(1)
-                          .map((value) => (
-                            <div
-                              key={value.id}
-                              style={{
-                                display: "flex",
-                                justifyContent:
-                                  "space-between",
-                                alignItems: "center",
-                                gap: 15,
-                                padding: "8px 0",
-                                borderTop:
-                                  "1px solid #f0f0f0",
-                              }}
-                            >
-                              <div
-                                style={{
-                                  fontSize: 11,
-                                  color: "#777",
-                                }}
-                              >
-                                {formatDate(
-                                  value.valuation_date
-                                )}
-                              </div>
-
-                              <div
-                                style={{
-                                  textAlign: "right",
-                                }}
-                              >
-                                <div
-                                  style={{
-                                    fontSize: 12,
-                                    fontWeight: 700,
-                                  }}
-                                >
-                                  {formatMarketValue(
-                                    value.market_value_usd
-                                  )}
-                                </div>
-
-                                <div
-                                  style={{
-                                    marginTop: 2,
-                                    fontSize: 10,
-                                    color: "#999",
-                                  }}
-                                >
-                                  {formatOriginalMarketValue(
-                                    value.market_value,
-                                    value.currency
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+      <div className="player-content" style={{ maxWidth: 1200, margin: "0 auto", padding: "22px 20px 60px" }}>
+        <div className="player-overview-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 12 }}>
+          <div style={card}><div style={label}>Club</div><div style={{ marginTop: 7, fontWeight: 750 }}>{currentClub?.name || "—"}</div><div style={{ color: "#888", fontSize: 12, marginTop: 3 }}>{currentClub?.league || ""}</div></div>
+          <div style={card}><div style={label}>Contract Expiry</div><div style={{ marginTop: 7, fontWeight: 750 }}>{currentContract?.end_date ? dateText(currentContract.end_date) : "Unknown"}</div><div style={{ color: "#888", fontSize: 12, marginTop: 3 }}>{titleCase(currentContract?.confidence || null)} confidence</div></div>
+          <div style={card}><div style={label}>Annual Salary</div><div style={{ marginTop: 7, fontWeight: 750 }}>{usd(currentContract?.annual_salary_usd ?? null)}</div><div style={{ color: "#888", fontSize: 12, marginTop: 3 }}>{currentContract ? original(currentContract.annual_salary, currentContract.currency) : "No record"}</div></div>
+          <div style={card}><div style={label}>Agency</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.agency || "Not reported"}</div><div style={{ color: "#888", fontSize: 12, marginTop: 3 }}>{player.preferred_foot ? `${player.preferred_foot} foot` : ""}</div></div>
         </div>
 
-        <div
-          style={{
-            marginTop: 16,
-            padding: "22px",
-            border: "1px solid #ddd",
-            borderRadius: 10,
-            background: "#fff",
-          }}
-        >
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 18,
-              fontWeight: 750,
-            }}
-          >
-            Contract
-          </h2>
-
-          {!currentContract ? (
-            <div
-              style={{
-                marginTop: 20,
-                color: "#888",
-                fontSize: 14,
-              }}
-            >
-              No contract information available.
+        <div className="player-main-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,2fr) minmax(280px,1fr)", gap: 16, marginTop: 16 }}>
+          <section style={card}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
+              <div><h2 style={{ margin: 0, fontSize: 19 }}>Player Intelligence</h2><p style={{ margin: "4px 0 0", color: "#888", fontSize: 12 }}>The central record connecting performance, contracts, market value and movement.</p></div>
+              <div style={{ fontSize: 11, color: "#888" }}>{stats.length} club stat record{stats.length === 1 ? "" : "s"} · {transfers.length} transfer{transfers.length === 1 ? "" : "s"}</div>
             </div>
-          ) : (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "repeat(auto-fit, minmax(150px, 1fr))",
-                gap: 22,
-                marginTop: 22,
-              }}
-            >
-              <div>
-                <div style={labelStyle}>Club</div>
-
-                <div style={valueStyle}>
-                  {currentClub?.name || "—"}
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>Status</div>
-
-                <div style={valueStyle}>
-                  {currentContract.status || "—"}
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>Start</div>
-
-                <div style={valueStyle}>
-                  {formatDate(
-                    currentContract.start_date
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>Expiry</div>
-
-                <div style={valueStyle}>
-                  {formatDate(
-                    currentContract.end_date
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>Annual Salary</div>
-
-                <div style={valueStyle}>
-                  {formatSalary(
-                    currentContract.annual_salary_usd,
-                    "USD"
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>Weekly Salary</div>
-
-                <div style={valueStyle}>
-                  {formatSalary(
-                    currentContract.weekly_salary_usd,
-                    "USD"
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <div style={labelStyle}>Confidence</div>
-
-                <div style={valueStyle}>
-                  {formatConfidence(
-                    currentContract.confidence
-                  )}
-                </div>
-              </div>
+            <div style={{ marginTop: 20 }}><div style={label}>Position Map</div><div style={{ marginTop: 8 }}><PositionMap primaryPosition={player.position} secondaryPosition={player.secondary_position} /></div></div>
+            <div className="player-links-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 10, marginTop: 20 }}>
+              <a href="#contract" style={{ textDecoration: "none", color: "#111", border: "1px solid #ddd", borderRadius: 9, padding: 13, background: "#fafafa" }}><div style={label}>Contracts</div><strong>{contracts.length}</strong> record{contracts.length === 1 ? "" : "s"}</a>
+              <a href="#market-value" style={{ textDecoration: "none", color: "#111", border: "1px solid #ddd", borderRadius: 9, padding: 13, background: "#fafafa" }}><div style={label}>Market Value</div><strong>{marketValues.length}</strong> valuation{marketValues.length === 1 ? "" : "s"}</a>
+              <a href="#transfers" style={{ textDecoration: "none", color: "#111", border: "1px solid #ddd", borderRadius: 9, padding: 13, background: "#fafafa" }}><div style={label}>Transfers</div><strong>{transfers.length}</strong> movement{transfers.length === 1 ? "" : "s"}</a>
             </div>
-          )}
+          </section>
 
-          {currentContract?.notes && (
-            <div
-              style={{
-                marginTop: 22,
-                paddingTop: 18,
-                borderTop: "1px solid #eee",
-                fontSize: 12,
-                color: "#777",
-                lineHeight: 1.5,
-              }}
-            >
-              {currentContract.notes}
-            </div>
-          )}
+          <aside style={card}>
+            <h2 style={{ margin: 0, fontSize: 19 }}>Data Coverage</h2>
+            <p style={{ margin: "5px 0 18px", color: "#888", fontSize: 12 }}>What WFM currently knows about this player.</p>
+            {["Player identity", player.photo_url ? "Player photo" : "Player photo placeholder", currentClub ? "Current club" : "Current club unknown", contracts.length ? "Contract history" : "Contract data unavailable", marketValues.length ? "Market value history" : "Market value unavailable", transfers.length ? "Transfer history" : "Transfer history unavailable", stats.length ? "Club statistics" : "Club statistics unavailable"].map((text, index) => <div key={text} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "9px 0", borderBottom: index === 6 ? 0 : "1px solid #eee", fontSize: 12 }}><span>{text}</span><strong style={{ color: index === 1 && !player.photo_url ? "#888" : "#111" }}>{index === 1 && !player.photo_url ? "Placeholder" : "Available"}</strong></div>)}
+          </aside>
         </div>
 
-        <div
-          style={{
-            marginTop: 16,
-            padding: "22px",
-            border: "1px solid #ddd",
-            borderRadius: 10,
-            background: "#fff",
-          }}
-        >
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 18,
-              fontWeight: 750,
-            }}
-          >
-            Current Club
-          </h2>
+        <section id="contract" style={{ ...card, marginTop: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}><div><h2 style={{ margin: 0, fontSize: 19 }}>Contract & Salary</h2><p style={{ margin: "4px 0 0", color: "#888", fontSize: 12 }}>Current terms plus historical contract records. USD values are normalized; original currency remains visible.</p></div><Link href="/contracts" style={{ fontSize: 12, color: "#111" }}>View all contracts →</Link></div>
+          {currentContract ? <div className="profile-contract-card" style={{ marginTop: 18, border: "1px solid #ddd", borderRadius: 10, padding: 16, background: "#fafafa" }}><div className="profile-contract-grid" style={{ display: "grid", gridTemplateColumns: "1.4fr repeat(4,1fr)", gap: 14, alignItems: "center" }}><div><div style={label}>Current club</div><div style={{ marginTop: 5, fontWeight: 750 }}>{currentClub ? <Link href={`/clubs/${currentClub.id}`} style={{ color: "#111" }}>{currentClub.name}</Link> : "Unknown"}</div></div><div><div style={label}>Status</div><div style={{ marginTop: 5, fontWeight: 650 }}>{titleCase(currentContract.status)}</div></div><div><div style={label}>Expires</div><div style={{ marginTop: 5, fontWeight: 650 }}>{dateText(currentContract.end_date)}</div></div><div><div style={label}>Annual USD</div><div style={{ marginTop: 5, fontWeight: 750 }}>{usd(currentContract.annual_salary_usd)}</div></div><div><div style={label}>Weekly USD</div><div style={{ marginTop: 5, fontWeight: 650 }}>{usd(currentContract.weekly_salary_usd)}</div></div></div>{currentContract.annual_salary != null && <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid #e5e5e5", color: "#777", fontSize: 11 }}>Original reported salary: {original(currentContract.annual_salary, currentContract.currency)} · {titleCase(currentContract.confidence)} · Source context retained in the database.</div>}</div> : <div style={{ marginTop: 18, color: "#888", fontSize: 14 }}>No current contract record available.</div>}
+          {contractHistory.length > 0 && <div style={{ marginTop: 20, overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse", minWidth: 650 }}><thead><tr>{["CLUB","START","END","SALARY USD","STATUS","CONFIDENCE"].map(h => <th key={h} style={{ ...label, textAlign: "left", padding: "8px 7px", borderBottom: "1px solid #ddd" }}>{h}</th>)}</tr></thead><tbody>{contractHistory.map(contract => <tr key={contract.id}><td style={{ padding: "10px 7px", borderBottom: "1px solid #eee" }}>{contract.club_id && clubMap.get(contract.club_id) ? <Link href={`/clubs/${contract.club_id}`} style={{ color: "#111", fontWeight: 650 }}>{clubMap.get(contract.club_id)!.name}</Link> : "Unknown"}</td><td style={{ padding: "10px 7px", borderBottom: "1px solid #eee" }}>{dateText(contract.start_date)}</td><td style={{ padding: "10px 7px", borderBottom: "1px solid #eee" }}>{dateText(contract.end_date)}</td><td style={{ padding: "10px 7px", borderBottom: "1px solid #eee", fontWeight: 650 }}>{usd(contract.annual_salary_usd)}</td><td style={{ padding: "10px 7px", borderBottom: "1px solid #eee" }}>{titleCase(contract.status)}</td><td style={{ padding: "10px 7px", borderBottom: "1px solid #eee" }}>{titleCase(contract.confidence)}</td></tr>)}</tbody></table></div>}
+        </section>
 
-          {!currentClub ? (
-            <div
-              style={{
-                marginTop: 20,
-                color: "#888",
-                fontSize: 14,
-              }}
-            >
-              No current club information available.
-            </div>
-          ) : (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 16,
-                marginTop: 20,
-              }}
-            >
-              {currentClub.logo_url ? (
-                <img
-                  src={currentClub.logo_url}
-                  alt={currentClub.name}
-                  style={{
-                    width: 54,
-                    height: 54,
-                    objectFit: "contain",
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: 54,
-                    height: 54,
-                    borderRadius: 8,
-                    background: "#f5f4ef",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontWeight: 800,
-                    fontSize: 18,
-                  }}
-                >
-                  {currentClub.name.charAt(0)}
-                </div>
-              )}
+        <section id="market-value" style={{ ...card, marginTop: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}><div><h2 style={{ margin: 0, fontSize: 19 }}>Market Value History</h2><p style={{ margin: "4px 0 0", color: "#888", fontSize: 12 }}>Valuation timeline with normalized USD and confidence.</p></div></div>
+          {marketValues.length ? <div className="market-value-list" style={{ marginTop: 16, display: "grid", gap: 8 }}>{marketValues.map((value, index) => <div key={value.id} style={{ display: "grid", gridTemplateColumns: "120px 1fr auto auto", gap: 14, alignItems: "center", padding: "12px 0", borderBottom: index === marketValues.length - 1 ? 0 : "1px solid #eee" }}><div style={{ fontSize: 12, color: "#777" }}>{dateText(value.valuation_date)}</div><div><strong>{usd(value.market_value_usd)}</strong>{value.market_value != null && <span style={{ marginLeft: 8, color: "#888", fontSize: 11 }}>Original: {original(value.market_value, value.currency)}</span>}</div><div style={{ fontSize: 11, color: "#777" }}>{titleCase(value.confidence)}</div><div style={{ fontSize: 11, color: "#999", textAlign: "right" }}>{index === 0 ? "Latest" : ""}</div></div>)}</div> : <div style={{ marginTop: 18, color: "#888" }}>No market value records available.</div>}
+        </section>
 
-              <div>
-                <div
-                  style={{
-                    fontSize: 17,
-                    fontWeight: 750,
-                  }}
-                >
-                  {currentClub.name}
-                </div>
+        <section id="transfers" style={{ ...card, marginTop: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}><div><h2 style={{ margin: 0, fontSize: 19 }}>Transfer History</h2><p style={{ margin: "4px 0 0", color: "#888", fontSize: 12 }}>Every recorded movement connected to this player.</p></div><Link href="/transfers" style={{ fontSize: 12, color: "#111" }}>View transfer market →</Link></div>
+          {transfers.length ? <div style={{ marginTop: 16, display: "grid", gap: 8 }}>{transfers.map((transfer, index) => <article key={transfer.id} style={{ display: "grid", gridTemplateColumns: "110px minmax(0,1fr) 150px", gap: 14, alignItems: "center", padding: "14px 0", borderBottom: index === transfers.length - 1 ? 0 : "1px solid #eee" }}><div><div style={label}>Date</div><div style={{ marginTop: 5, fontSize: 12 }}>{dateText(transfer.transfer_date)}</div></div><div><div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}><span style={{ fontWeight: 700 }}>{transfer.from_club?.name || "Previous club"}</span><span style={{ color: "#999" }}>→</span><span style={{ fontWeight: 700 }}>{transfer.to_club?.name || "New club"}</span></div><div style={{ marginTop: 5, color: "#888", fontSize: 11 }}>{titleCase(transfer.transfer_type)} · {titleCase(transfer.confidence)}</div></div><div style={{ textAlign: "right" }}><div style={label}>Fee</div><div style={{ marginTop: 5, fontWeight: 750 }}>{transfer.fee == null ? "Free" : original(transfer.fee, transfer.currency)}</div></div></article>)}</div> : <div style={{ marginTop: 18, color: "#888" }}>No transfer records available.</div>}
+        </section>
 
-                <div
-                  style={{
-                    marginTop: 4,
-                    fontSize: 13,
-                    color: "#777",
-                  }}
-                >
-                  {currentClub.league || "League unknown"}
-                  {currentClub.country
-                    ? ` · ${currentClub.country}`
-                    : ""}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        <section style={{ marginTop: 16 }}><PlayerStatistics stats={stats} clubs={clubs} /></section>
 
-        <div
-          style={{
-            marginTop: 16,
-            padding: "22px",
-            border: "1px solid #ddd",
-            borderRadius: 10,
-            background: "#fff",
-          }}
-        >
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 18,
-              fontWeight: 750,
-            }}
-          >
-            Transfer History
-          </h2>
+        <section style={{ ...card, marginTop: 16 }}>
+          <h2 style={{ margin: 0, fontSize: 19 }}>Player Data Sources</h2>
+          <p style={{ margin: "5px 0 0", color: "#888", fontSize: 12 }}>WFM keeps source and confidence metadata attached to important records rather than presenting estimates as facts.</p>
+          <div style={{ marginTop: 16, padding: 14, background: "#fafafa", border: "1px solid #eee", borderRadius: 9, fontSize: 12, lineHeight: 1.6 }}>Contract, salary, transfer, market-value and statistics records retain their source/confidence fields in the database. Where a value or date is unknown, WFM displays that uncertainty instead of filling the gap with an unsupported assumption.</div>
+        </section>
 
-          {transfers.length === 0 ? (
-            <div
-              style={{
-                marginTop: 20,
-                color: "#888",
-                fontSize: 14,
-              }}
-            >
-              No transfer information available.
-            </div>
-          ) : (
-            <div style={{ marginTop: 20 }}>
-              {transfers.map((transfer) => (
-                <div
-                  key={transfer.id}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns:
-                      "120px 1fr auto 1fr",
-                    gap: 18,
-                    alignItems: "center",
-                    padding: "18px 0",
-                    borderTop: "1px solid #eee",
-                  }}
-                >
-                  <div>
-                    <div style={labelStyle}>Date</div>
-
-                    <div
-                      style={{
-                        marginTop: 4,
-                        fontSize: 13,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {formatDate(
-                        transfer.transfer_date
-                      )}
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                    }}
-                  >
-                    {transfer.from_club?.logo_url && (
-                      <img
-                        src={transfer.from_club.logo_url}
-                        alt=""
-                        style={{
-                          width: 28,
-                          height: 28,
-                          objectFit: "contain",
-                        }}
-                      />
-                    )}
-
-                    <div
-                      style={{
-                        fontSize: 13,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {transfer.from_club?.name || "—"}
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      textAlign: "center",
-                      color: "#888",
-                      fontSize: 12,
-                    }}
-                  >
-                    →
-                  </div>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                    }}
-                  >
-                    {transfer.to_club?.logo_url && (
-                      <img
-                        src={transfer.to_club.logo_url}
-                        alt=""
-                        style={{
-                          width: 28,
-                          height: 28,
-                          objectFit: "contain",
-                        }}
-                      />
-                    )}
-
-                    <div>
-                      <div
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {transfer.to_club?.name || "—"}
-                      </div>
-
-                      <div
-                        style={{
-                          marginTop: 3,
-                          fontSize: 11,
-                          color: "#888",
-                        }}
-                      >
-                        {formatTransferType(
-                          transfer.transfer_type
-                        )}
-                        {" · "}
-                        {formatTransferFee(
-                          transfer.fee,
-                          transfer.currency
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      gridColumn: "1 / -1",
-                      fontSize: 11,
-                      color: "#888",
-                    }}
-                  >
-                    Confidence:{" "}
-                    {formatConfidence(
-                      transfer.confidence
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <PlayerStatistics
-          stats={playerStats}
-          clubs={profileClubs}
-        />
-
-        <div
-          style={{
-            marginTop: 16,
-            padding: "22px",
-            border: "1px solid #ddd",
-            borderRadius: 10,
-            background: "#fff",
-          }}
-        >
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 18,
-              fontWeight: 750,
-            }}
-          >
-            Contract History
-          </h2>
-
-          {contractHistory.length === 0 ? (
-            <div
-              style={{
-                marginTop: 20,
-                color: "#888",
-                fontSize: 14,
-              }}
-            >
-              No previous contracts available.
-            </div>
-          ) : (
-            <div style={{ marginTop: 20 }}>
-              {contractHistory.map((contract) => {
-                const club = contract.club_id
-                  ? clubMap.get(contract.club_id)
-                  : null;
-
-                return (
-                  <div
-                    key={contract.id}
-                    style={{
-                      padding: "18px 0",
-                      borderTop: "1px solid #eee",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns:
-                          "1.5fr repeat(3, 1fr)",
-                        gap: 20,
-                      }}
-                    >
-                      <div>
-                        <div style={labelStyle}>
-                          Club
-                        </div>
-
-                        <div style={valueStyle}>
-                          {club?.name || "—"}
-                        </div>
-                      </div>
-
-                      <div>
-                        <div style={labelStyle}>
-                          Start
-                        </div>
-
-                        <div style={valueStyle}>
-                          {formatDate(
-                            contract.start_date
-                          )}
-                        </div>
-                      </div>
-
-                      <div>
-                        <div style={labelStyle}>
-                          End
-                        </div>
-
-                        <div style={valueStyle}>
-                          {formatDate(
-                            contract.end_date
-                          )}
-                        </div>
-                      </div>
-
-                      <div>
-                        <div style={labelStyle}>
-                          Salary
-                        </div>
-
-                        <div style={valueStyle}>
-                          {formatSalary(
-                            contract.annual_salary_usd,
-                            "USD"
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {contract.notes && (
-                      <div
-                        style={{
-                          marginTop: 12,
-                          fontSize: 11,
-                          color: "#888",
-                        }}
-                      >
-                        {contract.notes}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+        <div style={{ marginTop: 18, fontSize: 11, color: "#999", lineHeight: 1.6 }}>Profile coverage: {player.full_name} · {contracts.length} contract record{contracts.length === 1 ? "" : "s"} · {marketValues.length} market-value record{marketValues.length === 1 ? "" : "s"} · {transfers.length} transfer record{transfers.length === 1 ? "" : "s"} · {stats.length} club-stat record{stats.length === 1 ? "" : "s"}. Latest transfer: {latestTransfer ? dateText(latestTransfer.transfer_date) : "none recorded"}.</div>
       </div>
     </main>
   );
