@@ -19,6 +19,7 @@ type SalaryRecord = {
     full_name: string
     nationality: string | null
     position: string | null
+    photo_url: string | null
   } | null
   club: {
     id: string
@@ -113,7 +114,8 @@ export default function SalariesPage() {
             id,
             full_name,
             nationality,
-            position
+            position,
+            photo_url
           ),
           club:clubs (
             id,
@@ -293,8 +295,33 @@ export default function SalariesPage() {
             {filteredRecords.map((record) => (
               <Link key={record.id} href={`/players/${record.player_id}`} className="salary-row">
                 <span className="salary-player">
-                  <strong>{record.player?.full_name || 'Unknown player'}</strong>
-                  <small>{record.player?.nationality || 'Nationality unknown'}</small>
+                  <img
+                    src={record.player?.photo_url || '/wfm-player-placeholder.svg'}
+                    alt={record.player?.full_name || 'Player'}
+                    onError={(event) => {
+                      event.currentTarget.onerror = null
+                      event.currentTarget.src = '/wfm-player-placeholder.svg'
+                    }}
+                    width={44}
+                    height={54}
+                    loading="eager"
+                    decoding="async"
+                    referrerPolicy="no-referrer"
+                    style={{
+                      width: '44px',
+                      height: '54px',
+                      display: 'block',
+                      borderRadius: '8px',
+                      objectFit: 'cover',
+                      objectPosition: 'center',
+                      background: '#eee',
+                      flex: '0 0 44px',
+                    }}
+                  />
+                  <span>
+                    <strong>{record.player?.full_name || 'Unknown player'}</strong>
+                    <small>{record.player?.nationality || 'Nationality unknown'}</small>
+                  </span>
                 </span>
                 <span className="salary-club">
                   <strong>{record.club?.name || 'Unknown club'}</strong>
