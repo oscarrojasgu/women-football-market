@@ -2,6 +2,7 @@ import Link from "next/link";
 import { supabase } from "../../lib/supabase";
 import PositionMap from "../../components/PositionMap";
 import PlayerStatistics from "./PlayerStatistics";
+import PlayerIntelligence from "./PlayerIntelligence";
 
 type PlayerPageProps = { params: Promise<{ id: string }> };
 
@@ -242,6 +243,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}><div><h2 style={{ margin: 0, fontSize: 19 }}>Transfer History</h2><p style={{ margin: "4px 0 0", color: "#888", fontSize: 12 }}>Every recorded movement connected to this player.</p></div><Link href="/transfers" style={{ fontSize: 12, color: "#111" }}>View transfer market →</Link></div>
           {transfers.length ? <div style={{ marginTop: 16, display: "grid", gap: 8 }}>{transfers.map((transfer, index) => <article key={transfer.id} style={{ display: "grid", gridTemplateColumns: "110px minmax(0,1fr) 150px", gap: 14, alignItems: "center", padding: "14px 0", borderBottom: index === transfers.length - 1 ? 0 : "1px solid #eee" }}><div><div style={label}>Date</div><div style={{ marginTop: 5, fontSize: 12 }}>{dateText(transfer.transfer_date)}</div></div><div><div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}><span style={{ fontWeight: 700 }}>{transfer.from_club?.name || "Previous club"}</span><span style={{ color: "#999" }}>→</span><span style={{ fontWeight: 700 }}>{transfer.to_club?.name || "New club"}</span></div><div style={{ marginTop: 5, color: "#888", fontSize: 11 }}>{titleCase(transfer.transfer_type)} · {titleCase(transfer.confidence)}</div></div><div style={{ textAlign: "right" }}><div style={label}>Fee</div><div style={{ marginTop: 5, fontWeight: 750 }}>{transfer.fee == null ? "Free" : original(transfer.fee, transfer.currency)}</div></div></article>)}</div> : <div style={{ marginTop: 18, color: "#888" }}>No transfer records available.</div>}
         </section>
+
+        <PlayerIntelligence stats={stats} marketValues={marketValues} position={player.position} />
 
         <section style={{ marginTop: 16 }}><PlayerStatistics stats={stats} clubs={clubs} /></section>
 
