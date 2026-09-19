@@ -606,9 +606,9 @@ export default function Home() {
                     decoding="async"
                     style={{
                       width: '48px',
-                      height: '58px',
+                      height: '48px',
                       display: 'block',
-                      borderRadius: '8px',
+                      borderRadius: '50%',
                       objectFit: 'cover',
                       objectPosition: 'center',
                       background: '#eee',
