@@ -449,8 +449,25 @@ export default function PlayersPage() {
                   fontSize: "14px",
                 }}
               >
-                <span>
-                  <b>{player.full_name}</b>
+                <span style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
+                  <img
+                    src={player.photo_url || "/wfm-player-placeholder.svg"}
+                    alt=""
+                    width={52}
+                    height={64}
+                    loading="lazy"
+                    style={{
+                      width: "52px",
+                      height: "64px",
+                      borderRadius: "8px",
+                      objectFit: "cover",
+                      objectPosition: "50% 18%",
+                      background: "#eee",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span style={{ minWidth: 0 }}>
+                    <b>{player.full_name}</b>
                   <small
                     style={{
                       display: "block",
@@ -462,6 +479,7 @@ export default function PlayersPage() {
                     {player.nationality || "Nationality unavailable"}
                     {age ? ` · ${age}` : ""}
                   </small>
+                  </span>
                 </span>
 
                 <span>{contract?.club?.name || "—"}</span>
