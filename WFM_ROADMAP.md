@@ -84,7 +84,13 @@ Make Players, Clubs, Transfers, Contracts, and Salaries feel like one coherent p
 - [x] Transfers support transfer-type, league, year, and confidence filters
 - [x] Transfers provide recent-market, permanent/free/loan, known-fee, and verified summary metrics
 - [x] Transfers provide clear-filters behavior and explicit result counts
-- [ ] Redesign Salaries around comparable compensation data
+- [x] Salaries redesigned around comparable compensation data
+- [x] Salaries normalize annual and weekly figures to USD while retaining original currency context
+- [x] Salaries provide median, average, highest, league coverage, and verified-record summary metrics
+- [x] Salaries support search, league, salary-band, and confidence filters
+- [x] Salaries support salary/player/club sorting
+- [x] Salaries provide clear-filters behavior and explicit result counts
+- [x] Dedicated iPhone responsive pass added for Phase 2 salary and transfer views
 - [ ] Make player profiles the central destination connecting contracts, salary, transfers, values, statistics, and sources
 - [ ] Final responsive/mobile pass across every Phase 2 route
 
