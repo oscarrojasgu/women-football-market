@@ -32,69 +32,6 @@ type ContractInfo = {
     | null
 }
 
-const featuredPlayers = [
-  {
-    name: 'Sophia Wilson',
-    club: 'Kansas City Current',
-    league: 'NWSL',
-    position: 'Forward',
-    age: 25,
-    contract: '2026-12-31',
-    salary: '$842,400',
-    status: 'Verified',
-  },
-  {
-    name: 'Temwa Chawinga',
-    club: 'Kansas City Current',
-    league: 'NWSL',
-    position: 'Forward',
-    age: 27,
-    contract: '2027-12-31',
-    salary: 'Unknown',
-    status: 'Reported',
-  },
-  {
-    name: 'Barbra Banda',
-    club: 'Orlando Pride',
-    league: 'NWSL',
-    position: 'Forward',
-    age: 26,
-    contract: '2027-12-31',
-    salary: 'Unknown',
-    status: 'Reported',
-  },
-  {
-    name: 'Trinity Rodman',
-    club: 'Washington Spirit',
-    league: 'NWSL',
-    position: 'Forward',
-    age: 24,
-    contract: '2026-12-31',
-    salary: 'Unknown',
-    status: 'Reported',
-  },
-  {
-    name: 'Lucy Bronze',
-    club: 'Chelsea FC Women',
-    league: 'WSL',
-    position: 'Defender',
-    age: 34,
-    contract: '2027-06-30',
-    salary: 'Unknown',
-    status: 'Estimated',
-  },
-  {
-    name: 'Aitana Bonmatí',
-    club: 'FC Barcelona Femení',
-    league: 'Liga F',
-    position: 'Midfielder',
-    age: 28,
-    contract: '2028-06-30',
-    salary: 'Unknown',
-    status: 'Reported',
-  },
-]
-
 function calculateAge(dateOfBirth: string | null) {
   if (!dateOfBirth) return null
 
@@ -269,26 +206,7 @@ export default function Home() {
     })
   }, [q, databasePlayers, contracts])
 
-  const filteredFeaturedPlayers = useMemo(() => {
-    if (!q.trim()) return featuredPlayers
-
-    const search = q.toLowerCase()
-
-    return featuredPlayers.filter((player) =>
-      [
-        player.name,
-        player.club,
-        player.league,
-        player.position,
-      ]
-        .join(' ')
-        .toLowerCase()
-        .includes(search)
-    )
-  }, [q])
-
   const hasDatabaseResults = filteredDatabasePlayers.length > 0
-  const hasFeaturedResults = filteredFeaturedPlayers.length > 0
 
   return (
     <main
@@ -300,89 +218,7 @@ export default function Home() {
       }}
     >
       {/* HEADER */}
-      <nav
-  style={{
-    position: 'sticky',
-    top: 0,
-    zIndex: 1000,
-    display: 'flex',
-    alignItems: 'center',
-    padding: '18px 32px',
-    borderBottom: '1px solid #e5e5e5',
-    background: '#fff',
-  }}
->
-        <Link
-          href="/"
-          style={{
-            fontSize: '24px',
-            fontWeight: 800,
-            textDecoration: 'none',
-            color: '#111',
-            marginRight: '40px',
-          }}
-        >
-          WFM<span style={{ color: '#777' }}>•</span>
-        </Link>
-
-        <div
-          style={{
-            display: 'flex',
-            gap: '28px',
-            alignItems: 'center',
-          }}
-        >
-          <Link
-            href="/players"
-            style={{ color: '#111', textDecoration: 'none' }}
-          >
-            Players
-          </Link>
-
-          <Link
-            href="/contracts"
-            style={{ color: '#111', textDecoration: 'none' }}
-          >
-            Contracts
-          </Link>
-
-          <Link
-            href="/transfers"
-            style={{ color: '#111', textDecoration: 'none' }}
-          >
-            Transfers
-          </Link>
-
-          <Link
-            href="/salaries"
-            style={{ color: '#111', textDecoration: 'none' }}
-          >
-            Salaries
-          </Link>
-
-          <Link
-            href="/clubs"
-            style={{ color: '#111', textDecoration: 'none' }}
-          >
-            Clubs
-          </Link>
-        </div>
-
-        <button
-          className="login"
-          style={{
-            marginLeft: 'auto',
-            border: '1px solid #ddd',
-            background: '#fff',
-            borderRadius: '8px',
-            padding: '9px 16px',
-            fontSize: '14px',
-            cursor: 'pointer',
-          }}
-        >
-          Sign in
-        </button>
-      </nav>
+      
 
       {/* HERO — FULL WIDTH */}
       <section
@@ -661,7 +497,7 @@ export default function Home() {
                 letterSpacing: '-0.5px',
               }}
             >
-              {q.trim() ? 'Search results' : 'Market leaders'}
+              {q.trim() ? 'Search results' : 'Players in the database'}
             </h2>
           </div>
 
@@ -692,7 +528,7 @@ export default function Home() {
           >
             {loading
               ? 'Searching database…'
-              : `${filteredDatabasePlayers.length + filteredFeaturedPlayers.length} result${
+              : `${filteredDatabasePlayers.length} result${
                   filteredDatabasePlayers.length +
                     filteredFeaturedPlayers.length !==
                   1
@@ -823,80 +659,8 @@ export default function Home() {
             )
           })}
 
-          {!q.trim() &&
-            filteredFeaturedPlayers.map((player) => (
-              <div
-                className="row"
-                key={`featured-${player.name}`}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns:
-                    '1.8fr 1.5fr 1fr 1.2fr 1.3fr 1fr',
-                  gap: '16px',
-                  padding: '16px 20px',
-                  borderBottom: '1px solid #eeeeee',
-                  alignItems: 'center',
-                  fontSize: '14px',
-                }}
-              >
-                <span>
-                  <b>{player.name}</b>
-
-                  <small
-                    style={{
-                      display: 'block',
-                      marginTop: '4px',
-                      color: '#888',
-                      fontSize: '12px',
-                    }}
-                  >
-                    {player.position} · {player.age}
-                  </small>
-                </span>
-
-                <span>{player.club}</span>
-
-                <span style={{ color: '#666' }}>{player.league}</span>
-
-                <span>{player.contract}</span>
-
-                <span>{player.salary}</span>
-
-                <span>
-                  <i
-                    className={
-                      'badge ' + player.status.toLowerCase()
-                    }
-                    style={{
-                      display: 'inline-block',
-                      fontStyle: 'normal',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      padding: '5px 8px',
-                      borderRadius: '999px',
-                      background:
-                        player.status === 'Verified'
-                          ? '#e9f7ee'
-                          : player.status === 'Reported'
-                            ? '#f3f3f3'
-                            : '#f5f0e8',
-                      color:
-                        player.status === 'Verified'
-                          ? '#237a43'
-                          : player.status === 'Reported'
-                            ? '#666'
-                            : '#806b45',
-                    }}
-                  >
-                    {player.status}
-                  </i>
-                </span>
-              </div>
-            ))}
-
           {q.trim() &&
-            !hasDatabaseResults &&
-            !hasFeaturedResults && (
+            !hasDatabaseResults && (
               <div
                 className="empty"
                 style={{
@@ -924,8 +688,7 @@ export default function Home() {
 
           {!q.trim() &&
             !loading &&
-            !hasDatabaseResults &&
-            filteredFeaturedPlayers.length === 0 && (
+            !hasDatabaseResults && (
               <div
                 className="empty"
                 style={{
