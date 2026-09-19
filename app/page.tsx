@@ -529,9 +529,7 @@ export default function Home() {
             {loading
               ? 'Searching database…'
               : `${filteredDatabasePlayers.length} result${
-                  filteredDatabasePlayers.length +
-                    filteredFeaturedPlayers.length !==
-                  1
+                  filteredDatabasePlayers.length !== 1
                     ? 's'
                     : ''
                 } found`}
