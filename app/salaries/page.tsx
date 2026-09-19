@@ -17,6 +17,8 @@ type SalaryRecord = {
   player: {
     id: string
     full_name: string
+    nationality: string | null
+    position: string | null
   } | null
   club: {
     id: string
@@ -26,56 +28,76 @@ type SalaryRecord = {
   } | null
 }
 
-function formatSalary(
-  amount: number | null,
-  currency: string | null
-) {
-  if (amount === null) return 'Unknown'
-
+function formatUSD(amount: number | null) {
+  if (amount === null || amount === undefined) return 'Unknown'
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: currency || 'USD',
+    currency: 'USD',
     maximumFractionDigits: 0,
   }).format(amount)
 }
 
-function formatConfidence(confidence: string | null) {
-  if (!confidence) return 'Database'
-
-  return confidence.charAt(0).toUpperCase() + confidence.slice(1)
+function formatOriginal(amount: number | null, currency: string | null) {
+  if (amount === null || amount === undefined) return 'Unknown'
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency || 'USD',
+      maximumFractionDigits: 0,
+    }).format(amount)
+  } catch {
+    return `${currency || 'USD'} ${amount.toLocaleString('en-US')}`
+  }
 }
 
-function confidenceStyle(confidence: string | null) {
-  const value = confidence?.toLowerCase()
+function label(value: string | null) {
+  if (!value) return 'Unknown'
+  return value.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
 
-  if (value === 'verified') {
-    return {
-      background: '#e9f7ee',
-      color: '#237a43',
-    }
-  }
+function confidenceTone(value: string | null) {
+  const confidence = value?.toLowerCase()
+  if (confidence === 'verified') return 'verified'
+  if (confidence === 'reported') return 'reported'
+  if (confidence === 'estimated') return 'estimated'
+  if (confidence === 'rumored') return 'rumored'
+  return 'unknown'
+}
 
-  if (value === 'reported') {
-    return {
-      background: '#f3f3f3',
-      color: '#666',
-    }
-  }
+function salaryBand(value: number | null) {
+  if (value === null || value === undefined) return 'Unknown'
+  if (value < 50000) return 'Under $50K'
+  if (value < 100000) return '$50K–$99K'
+  if (value < 200000) return '$100K–$199K'
+  if (value < 300000) return '$200K–$299K'
+  return '$300K+'
+}
 
-  return {
-    background: '#f5f0e8',
-    color: '#806b45',
-  }
+function median(values: number[]) {
+  if (!values.length) return null
+  const sorted = [...values].sort((a, b) => a - b)
+  const middle = Math.floor(sorted.length / 2)
+  return sorted.length % 2 === 0
+    ? Math.round((sorted[middle - 1] + sorted[middle]) / 2)
+    : sorted[middle]
 }
 
 export default function SalariesPage() {
   const [records, setRecords] = useState<SalaryRecord[]>([])
-  const [q, setQ] = useState('')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [search, setSearch] = useState('')
+  const [leagueFilter, setLeagueFilter] = useState('All')
+  const [bandFilter, setBandFilter] = useState('All')
+  const [confidenceFilter, setConfidenceFilter] = useState('All')
+  const [sort, setSort] = useState('salary-desc')
 
   useEffect(() => {
     async function loadSalaries() {
-      const { data, error } = await supabase
+      setLoading(true)
+      setError('')
+
+      const { data, error: salaryError } = await supabase
         .from('contracts')
         .select(`
           id,
@@ -89,7 +111,9 @@ export default function SalariesPage() {
           confidence,
           player:players (
             id,
-            full_name
+            full_name,
+            nationality,
+            position
           ),
           club:clubs (
             id,
@@ -98,505 +122,197 @@ export default function SalariesPage() {
             country
           )
         `)
-        .order('annual_salary', {
-          ascending: false,
-          nullsFirst: false,
-        })
+        .not('annual_salary_usd', 'is', null)
+        .order('annual_salary_usd', { ascending: false })
 
-      if (error) {
-        console.error('Error loading salaries:', error)
+      if (salaryError) {
+        console.error('Error loading salaries:', salaryError)
+        setError("We couldn't load salary data right now.")
+        setRecords([])
+      } else {
+        setRecords((data || []) as unknown as SalaryRecord[])
       }
 
-      setRecords((data || []) as unknown as SalaryRecord[])
       setLoading(false)
     }
 
     loadSalaries()
   }, [])
 
+  const leagueOptions = useMemo(() => {
+    const leagues = records
+      .map((record) => record.club?.league)
+      .filter(Boolean) as string[]
+    return ['All', ...Array.from(new Set(leagues)).sort()]
+  }, [records])
+
+  const confidenceOptions = useMemo(() => {
+    const values = records
+      .map((record) => record.confidence)
+      .filter(Boolean) as string[]
+    return ['All', ...Array.from(new Set(values))]
+  }, [records])
+
   const filteredRecords = useMemo(() => {
-    if (!q.trim()) return records
+    const query = search.trim().toLowerCase()
 
-    const search = q.toLowerCase()
-
-    return records.filter((record) => {
-      return [
+    const filtered = records.filter((record) => {
+      const haystack = [
         record.player?.full_name,
+        record.player?.nationality,
+        record.player?.position,
         record.club?.name,
         record.club?.league,
         record.club?.country,
         record.currency,
         record.status,
         record.confidence,
-      ]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase()
-        .includes(search)
+      ].filter(Boolean).join(' ').toLowerCase()
+
+      const matchesSearch = !query || haystack.includes(query)
+      const matchesLeague = leagueFilter === 'All' || record.club?.league === leagueFilter
+      const matchesBand = bandFilter === 'All' || salaryBand(record.annual_salary_usd) === bandFilter
+      const matchesConfidence = confidenceFilter === 'All' || record.confidence === confidenceFilter
+
+      return matchesSearch && matchesLeague && matchesBand && matchesConfidence
     })
-  }, [q, records])
 
-  const salaryRecords = records.filter(
-    (record) => record.annual_salary_usd !== null
-  )
+    return [...filtered].sort((a, b) => {
+      if (sort === 'salary-asc') return (a.annual_salary_usd || 0) - (b.annual_salary_usd || 0)
+      if (sort === 'player-asc') return (a.player?.full_name || '').localeCompare(b.player?.full_name || '')
+      if (sort === 'club-asc') return (a.club?.name || '').localeCompare(b.club?.name || '')
+      return (b.annual_salary_usd || 0) - (a.annual_salary_usd || 0)
+    })
+  }, [records, search, leagueFilter, bandFilter, confidenceFilter, sort])
 
-  const highestSalary =
-    salaryRecords.length > 0
-      ? Math.max(
-          ...salaryRecords.map(
-            (record) => record.annual_salary_usd || 0
-          )
-        )
-      : null
+  const stats = useMemo(() => {
+    const values = records
+      .map((record) => record.annual_salary_usd)
+      .filter((value): value is number => value !== null && value !== undefined)
 
-  const averageSalary =
-    salaryRecords.length > 0
-      ? salaryRecords.reduce(
-          (total, record) =>
-            total + (record.annual_salary_usd || 0),
-          0
-        ) / salaryRecords.length
-      : null
+    const leagues = new Set(records.map((record) => record.club?.league).filter(Boolean))
+    const verified = records.filter((record) => record.confidence?.toLowerCase() === 'verified').length
+
+    return {
+      count: records.length,
+      average: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null,
+      median: median(values),
+      highest: values.length ? Math.max(...values) : null,
+      leagues: leagues.size,
+      verified,
+    }
+  }, [records])
+
+  const hasFilters = search.trim() !== '' || leagueFilter !== 'All' || bandFilter !== 'All' || confidenceFilter !== 'All'
+
+  function clearFilters() {
+    setSearch('')
+    setLeagueFilter('All')
+    setBandFilter('All')
+    setConfidenceFilter('All')
+  }
 
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        background: '#f5f4ef',
-        color: '#111',
-        fontFamily: 'Arial, sans-serif',
-      }}
-    >
-      {/* HEADER */}
-      
-
-      {/* PAGE HEADER */}
-      <section
-        style={{
-          background: '#111',
-          color: '#fff',
-          padding: '55px 6vw 50px',
-        }}
-      >
-        <div
-          style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-          }}
-        >
-          <div
-            style={{
-              fontSize: '13px',
-              color: '#aaa',
-              fontWeight: 700,
-              letterSpacing: '1.2px',
-              marginBottom: '14px',
-            }}
-          >
-            WOMEN’S FOOTBALL MARKET
-          </div>
-
-          <h1
-            style={{
-              margin: 0,
-              fontSize: '46px',
-              lineHeight: 1.05,
-              letterSpacing: '-1.5px',
-              fontWeight: 800,
-            }}
-          >
-            Salaries
-          </h1>
-
-          <p
-            style={{
-              margin: '18px 0 0',
-              maxWidth: '680px',
-              fontSize: '17px',
-              lineHeight: 1.55,
-              color: '#c7c7c7',
-            }}
-          >
-            Reported and estimated player compensation across
-            women’s football.
+    <main className="salary-page">
+      <section className="salary-hero">
+        <div className="salary-shell">
+          <div className="salary-eyebrow">WOMEN’S FOOTBALL MARKET · LIVE DATABASE</div>
+          <h1>Salaries</h1>
+          <p>
+            Comparable player compensation with normalized USD values, original currency context, and confidence attached to every record.
           </p>
         </div>
       </section>
 
-      {/* STATS */}
-      <section
-        style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '32px 24px 60px',
-          display: 'grid',
-          gridTemplateColumns:
-            'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: 14,
-          marginBottom: 24,
-        }}
-      >
-        <div
-          style={{
-            border: '1px solid #e3e3e3',
-            borderRadius: '12px',
-            padding: '18px 20px',
-            background: '#fff',
-          }}
-        >
-          <b
-            style={{
-              display: 'block',
-              fontSize: '12px',
-              color: '#777',
-              textTransform: 'uppercase',
-              letterSpacing: '0.8px',
-              marginBottom: '6px',
-            }}
-          >
-            Salary records
-          </b>
-
-          <strong
-            style={{
-              display: 'block',
-              fontSize: '26px',
-            }}
-          >
-            {records.length}
-          </strong>
+      <section className="salary-shell salary-content">
+        <div className="salary-stat-grid">
+          <div className="salary-stat"><span>Salary records</span><strong>{stats.count}</strong></div>
+          <div className="salary-stat"><span>Median annual</span><strong>{formatUSD(stats.median)}</strong></div>
+          <div className="salary-stat"><span>Average annual</span><strong>{formatUSD(stats.average)}</strong></div>
+          <div className="salary-stat"><span>Highest annual</span><strong>{formatUSD(stats.highest)}</strong></div>
+          <div className="salary-stat"><span>Leagues covered</span><strong>{stats.leagues}</strong></div>
+          <div className="salary-stat"><span>Verified records</span><strong>{stats.verified}</strong></div>
         </div>
 
-        <div
-          style={{
-            border: '1px solid #e3e3e3',
-            borderRadius: '12px',
-            padding: '18px 20px',
-            background: '#fff',
-          }}
-        >
-          <b
-            style={{
-              display: 'block',
-              fontSize: '12px',
-              color: '#777',
-              textTransform: 'uppercase',
-              letterSpacing: '0.8px',
-              marginBottom: '6px',
-            }}
-          >
-            Highest annual salary
-          </b>
-
-          <strong
-            style={{
-              display: 'block',
-              fontSize: '26px',
-            }}
-          >
-            {formatSalary(
-              highestSalary,
-              'USD'
-            )}
-          </strong>
-        </div>
-
-        <div
-          style={{
-            border: '1px solid #e3e3e3',
-            borderRadius: '12px',
-            padding: '18px 20px',
-            background: '#fff',
-          }}
-        >
-          <b
-            style={{
-              display: 'block',
-              fontSize: '12px',
-              color: '#777',
-              textTransform: 'uppercase',
-              letterSpacing: '0.8px',
-              marginBottom: '6px',
-            }}
-          >
-            Average annual salary
-          </b>
-
-          <strong
-            style={{
-              display: 'block',
-              fontSize: '26px',
-            }}
-          >
-            {formatSalary(
-              averageSalary !== null
-                ? Math.round(averageSalary)
-                : null,
-              salaryRecords[0]?.currency || 'USD'
-            )}
-          </strong>
-        </div>
-      </section>
-
-      {/* SALARY TABLE */}
-      <section
-        style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '0 24px 60px',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            marginBottom: '20px',
-          }}
-        >
-          <div>
-            <div
-              style={{
-                fontSize: '13px',
-                color: '#777',
-                fontWeight: 700,
-                letterSpacing: '1.2px',
-              }}
-            >
-              SALARY DATABASE
-            </div>
-
-            <h2
-              style={{
-                margin: '8px 0 0',
-                fontSize: '30px',
-                lineHeight: 1.1,
-                letterSpacing: '-0.5px',
-              }}
-            >
-              Player salaries
-            </h2>
-          </div>
-
-          <div
-            style={{
-              width: '300px',
-              height: '42px',
-              display: 'flex',
-              alignItems: 'center',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              background: '#fff',
-              padding: '0 13px',
-            }}
-          >
-            <span
-              style={{
-                fontSize: '20px',
-                color: '#777',
-                marginRight: '8px',
-              }}
-            >
-              ⌕
-            </span>
-
+        <div className="salary-controls">
+          <div className="salary-control-grid">
             <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search player, club or league…"
-              style={{
-                width: '100%',
-                border: 'none',
-                outline: 'none',
-                fontSize: '14px',
-                background: 'transparent',
-                color: '#111',
-              }}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search player, club, league, position..."
+              aria-label="Search salary records"
             />
+            <select value={leagueFilter} onChange={(event) => setLeagueFilter(event.target.value)} aria-label="Filter by league">
+              {leagueOptions.map((league) => <option key={league} value={league}>{league === 'All' ? 'All leagues' : league}</option>)}
+            </select>
+            <select value={bandFilter} onChange={(event) => setBandFilter(event.target.value)} aria-label="Filter by salary band">
+              {['All', 'Under $50K', '$50K–$99K', '$100K–$199K', '$200K–$299K', '$300K+'].map((band) => <option key={band} value={band}>{band === 'All' ? 'All salary bands' : band}</option>)}
+            </select>
+            <select value={confidenceFilter} onChange={(event) => setConfidenceFilter(event.target.value)} aria-label="Filter by confidence">
+              {confidenceOptions.map((confidence) => <option key={confidence} value={confidence}>{confidence === 'All' ? 'All confidence' : label(confidence)}</option>)}
+            </select>
+            <select value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort salary records">
+              <option value="salary-desc">Highest salary</option>
+              <option value="salary-asc">Lowest salary</option>
+              <option value="player-asc">Player A–Z</option>
+              <option value="club-asc">Club A–Z</option>
+            </select>
+          </div>
+          <div className="salary-control-footer">
+            <span>Showing <strong>{filteredRecords.length}</strong> of {records.length} salary records</span>
+            {hasFilters && <button type="button" onClick={clearFilters}>Clear filters</button>}
           </div>
         </div>
 
-        <div
-          style={{
-            border: '1px solid #e3e3e3',
-            borderRadius: '14px',
-            overflow: 'hidden',
-            background: '#fff',
-          }}
-        >
-          <div style={{ overflowX: 'auto' }}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns:
-                '1.7fr 1.5fr 1fr 1.2fr 1.2fr 1fr',
-              gap: '16px',
-              padding: '13px 20px',
-              background: '#fafafa',
-              borderBottom: '1px solid #e5e5e5',
-              fontSize: '11px',
-              fontWeight: 700,
-              color: '#777',
-              letterSpacing: '0.8px',
-            }}
-          >
-            <span>PLAYER</span>
-            <span>CLUB</span>
-            <span>LEAGUE</span>
-            <span>ANNUAL</span>
-            <span>WEEKLY</span>
-            <span>CONFIDENCE</span>
-          </div>
+        <div className="salary-note">
+          <strong>How to read the numbers:</strong> Annual and weekly figures use the database’s normalized USD fields. Original salary and currency are retained for source context. A confidence label indicates how firmly the underlying figure is supported.
+        </div>
 
-          {loading && (
-            <div
-              style={{
-                padding: '40px 20px',
-                textAlign: 'center',
-                color: '#777',
-              }}
-            >
-              Loading salary data...
+        {loading ? (
+          <div className="salary-empty">Loading salary data...</div>
+        ) : error ? (
+          <div className="salary-empty">{error}</div>
+        ) : filteredRecords.length === 0 ? (
+          <div className="salary-empty">
+            <strong>No salary records found</strong>
+            <span>Try another search or clear the filters.</span>
+            {hasFilters && <button type="button" onClick={clearFilters}>Clear filters</button>}
+          </div>
+        ) : (
+          <div className="salary-table-wrap">
+            <div className="salary-table-header">
+              <span>PLAYER</span>
+              <span>CLUB</span>
+              <span>POSITION</span>
+              <span>ANNUAL USD</span>
+              <span>WEEKLY USD</span>
+              <span>ORIGINAL</span>
+              <span>CONFIDENCE</span>
             </div>
-          )}
 
-          {!loading &&
-            filteredRecords.map((record) => {
-              const confidence = confidenceStyle(
-                record.confidence
-              )
-
-              return (
-                <Link
-                  key={record.id}
-                  href={`/players/${record.player_id}`}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns:
-                      '1.7fr 1.5fr 1fr 1.2fr 1.2fr 1fr',
-                    gap: '16px',
-                    padding: '16px 20px',
-                    borderBottom: '1px solid #eeeeee',
-                    alignItems: 'center',
-                    color: '#111',
-                    textDecoration: 'none',
-                    fontSize: '14px',
-                  }}
-                >
-                  <span>
-                    <b>
-                      {record.player?.full_name || 'Unknown'}
-                    </b>
-
-                    <small
-                      style={{
-                        display: 'block',
-                        marginTop: '4px',
-                        color: '#888',
-                        fontSize: '12px',
-                      }}
-                    >
-                      {record.status || 'Unknown'}
-                    </small>
-                  </span>
-
-                  <span>
-                    {record.club?.name || 'Unknown'}
-                  </span>
-
-                  <span style={{ color: '#666' }}>
-                    {record.club?.league || 'Unknown'}
-                  </span>
-
-                  <span>
-                    {formatSalary(
-                      record.annual_salary_usd,
-                      'USD'
-                    )}
-                  </span>
-
-                  <span>
-                    {formatSalary(
-                      record.weekly_salary_usd,
-                      'USD'
-                    )}
-                  </span>
-
-                  <span>
-                    <i
-                      style={{
-                        display: 'inline-block',
-                        fontStyle: 'normal',
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        padding: '5px 8px',
-                        borderRadius: '999px',
-                        background: confidence.background,
-                        color: confidence.color,
-                      }}
-                    >
-                      {formatConfidence(record.confidence)}
-                    </i>
-                  </span>
-                </Link>
-              )
-            })}
-
-          {!loading &&
-            filteredRecords.length === 0 && (
-              <div
-                style={{
-                  padding: '40px 20px',
-                  textAlign: 'center',
-                  color: '#777',
-                }}
-              >
-                No salary records found.
-              </div>
-            )}
+            {filteredRecords.map((record) => (
+              <Link key={record.id} href={`/players/${record.player_id}`} className="salary-row">
+                <span className="salary-player">
+                  <strong>{record.player?.full_name || 'Unknown player'}</strong>
+                  <small>{record.player?.nationality || 'Nationality unknown'}</small>
+                </span>
+                <span className="salary-club">
+                  <strong>{record.club?.name || 'Unknown club'}</strong>
+                  <small>{record.club?.league || record.club?.country || 'League unknown'}</small>
+                </span>
+                <span>{record.player?.position || 'Unknown'}</span>
+                <span className="salary-primary">{formatUSD(record.annual_salary_usd)}</span>
+                <span>{formatUSD(record.weekly_salary_usd)}</span>
+                <span className="salary-original">
+                  {formatOriginal(record.annual_salary, record.currency)}
+                  <small>{record.currency || 'USD'}</small>
+                </span>
+                <span><i className={`salary-confidence ${confidenceTone(record.confidence)}`}>{label(record.confidence)}</i></span>
+              </Link>
+            ))}
           </div>
-        </div>
+        )}
       </section>
-
-      {/* FOOTER */}
-      <footer
-        style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '28px 20px 45px',
-          borderTop: '1px solid #e5e5e5',
-        }}
-      >
-        <div
-          style={{
-            fontSize: '22px',
-            fontWeight: 800,
-          }}
-        >
-          WFM<span style={{ color: '#777' }}>•</span>
-        </div>
-
-        <p
-          style={{
-            color: '#777',
-            fontSize: '14px',
-            margin: '10px 0',
-          }}
-        >
-          Built for women’s football.
-        </p>
-
-        <small
-          style={{
-            color: '#999',
-            fontSize: '12px',
-          }}
-        >
-          Salary figures are presented according to their source
-          confidence. Estimates are never presented as confirmed
-          facts.
-        </small>
-      </footer>
     </main>
   )
 }
