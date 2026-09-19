@@ -410,3 +410,63 @@ using (exists (select 1 from wfm_admins a where a.user_id=(select auth.uid())))
 with check (exists (select 1 from wfm_admins a where a.user_id=(select auth.uid())));
 
 grant select, insert, update on data_update_runs to authenticated;
+
+
+-- Phase 3 provider integration
+create table if not exists public.provider_player_mappings (
+  id uuid primary key default gen_random_uuid(),
+  provider text not null,
+  external_player_id text not null,
+  player_id uuid not null references public.players(id) on delete cascade,
+  external_name text,
+  confidence text not null default 'verified',
+  source_id uuid references public.sources(id) on delete set null,
+  notes text,
+  created_at timestamptz not null default now(),
+  unique(provider, external_player_id)
+);
+
+create table if not exists public.player_match_stats (
+  id uuid primary key default gen_random_uuid(),
+  provider text not null,
+  external_match_id text not null,
+  external_player_id text not null,
+  player_id uuid not null references public.players(id) on delete cascade,
+  club_id uuid references public.clubs(id) on delete set null,
+  season text not null,
+  competition text not null,
+  appearances integer not null default 0,
+  starts integer not null default 0,
+  minutes integer not null default 0,
+  goals integer not null default 0,
+  assists integer not null default 0,
+  cards integer not null default 0,
+  shots integer not null default 0,
+  shots_on_target integer not null default 0,
+  key_passes integer not null default 0,
+  tackles integer not null default 0,
+  interceptions integer not null default 0,
+  clearances integer not null default 0,
+  blocks integer not null default 0,
+  recoveries integer not null default 0,
+  dispossessions integer not null default 0,
+  dribbles_attempted integer not null default 0,
+  dribbles_completed integer not null default 0,
+  fouls_committed integer not null default 0,
+  offsides integer not null default 0,
+  passes_attempted integer not null default 0,
+  duels_won integer not null default 0,
+  aerials_won integer not null default 0,
+  own_goals integer not null default 0,
+  match_id text,
+  source_event_id text,
+  source_id uuid references public.sources(id) on delete set null,
+  confidence text not null default 'verified',
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(provider, external_match_id, external_player_id)
+);
+
+alter table public.provider_player_mappings enable row level security;
+alter table public.player_match_stats enable row level security;
