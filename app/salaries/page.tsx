@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import PlayerPhoto from '../components/PlayerPhoto'
 
 type SalaryRecord = {
   id: string
@@ -295,22 +296,12 @@ export default function SalariesPage() {
             {filteredRecords.map((record) => (
               <Link key={record.id} href={`/players/${record.player_id}`} className="salary-row">
                 <span className="salary-player">
-                  <img
-                    src={record.player?.photo_url || '/wfm-player-placeholder.svg'}
+                  <PlayerPhoto
+                    src={record.player?.photo_url}
                     alt={record.player?.full_name || 'Player'}
-                    onError={(event) => {
-                      event.currentTarget.onerror = null
-                      event.currentTarget.src = '/wfm-player-placeholder.svg'
-                    }}
                     width={44}
                     height={54}
-                    loading="eager"
-                    decoding="async"
-                    referrerPolicy="no-referrer"
                     style={{
-                      width: '44px',
-                      height: '54px',
-                      display: 'block',
                       borderRadius: '8px',
                       objectFit: 'cover',
                       objectPosition: 'center',
