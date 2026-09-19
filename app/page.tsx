@@ -12,6 +12,7 @@ type Player = {
   position: string | null
   preferred_foot: string | null
   agency: string | null
+  photo_url: string | null
 }
 
 type ContractInfo = {
@@ -94,7 +95,7 @@ export default function Home() {
         supabase
           .from('players')
           .select(
-            'id, full_name, date_of_birth, nationality, position, preferred_foot, agency',
+            'id, full_name, date_of_birth, nationality, position, preferred_foot, agency, photo_url',
             { count: 'exact' }
           )
           .order('full_name', { ascending: true }),
@@ -591,10 +592,33 @@ export default function Home() {
                   fontSize: '14px',
                 }}
               >
-                <span>
-                  <b>{player.full_name}</b>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                  <img
+                    src={player.photo_url || '/wfm-player-placeholder.svg'}
+                    alt={player.full_name}
+                    onError={(event) => {
+                      event.currentTarget.onerror = null
+                      event.currentTarget.src = '/wfm-player-placeholder.svg'
+                    }}
+                    width={48}
+                    height={58}
+                    loading="eager"
+                    decoding="async"
+                    style={{
+                      width: '48px',
+                      height: '58px',
+                      display: 'block',
+                      borderRadius: '8px',
+                      objectFit: 'cover',
+                      objectPosition: 'center',
+                      background: '#eee',
+                      flex: '0 0 48px',
+                    }}
+                  />
+                  <span style={{ minWidth: 0 }}>
+                    <b>{player.full_name}</b>
 
-                  <small
+                    <small
                     style={{
                       display: 'block',
                       marginTop: '4px',
@@ -605,6 +629,7 @@ export default function Home() {
                     {player.position || 'Unknown'}
                     {age !== null ? ` · ${age}` : ''}
                   </small>
+                  </span>
                 </span>
 
                 <span>
