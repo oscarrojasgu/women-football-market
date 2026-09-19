@@ -458,12 +458,13 @@ export default function PlayersPage() {
                     height={64}
                     loading="eager"
                     decoding="async"
+                    referrerPolicy="no-referrer"
                     style={{
                       width: "52px",
                       height: "64px",
                       display: "block",
                       borderRadius: "8px",
-                      objectFit: "contain",
+                      objectFit: "cover",
                       objectPosition: "center",
                       background: "#eee",
                       flexShrink: 0,
