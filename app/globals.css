@@ -689,3 +689,113 @@ main {
   background: #f5f4ef;
   min-height: 100vh;
 }
+
+
+/* =========================
+   PHASE 2 DESIGN SYSTEM
+========================= */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 76px;
+  width: 100%;
+  background: rgba(250, 249, 245, 0.96);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #d9d7d0;
+}
+
+.site-header .logo {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.site-header .navlinks a {
+  position: relative;
+  padding: 29px 0 27px;
+  font-weight: 600;
+}
+
+.site-header .navlinks a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 21px;
+  height: 2px;
+  background: #111;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.18s ease;
+}
+
+.site-header .navlinks a:hover::after {
+  transform: scaleX(1);
+}
+
+.header-meta {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 9px;
+  border: 1px solid #d9d7d0;
+  border-radius: 999px;
+  color: #666;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.site-header .login {
+  margin-left: 0;
+}
+
+a {
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+::selection {
+  background: #c9ff3d;
+  color: #111;
+}
+
+@media (max-width: 900px) and (min-width: 651px) {
+  .site-header {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .site-header .navlinks {
+    gap: 18px;
+  }
+
+  .site-header .navlinks a {
+    font-size: 13px;
+  }
+
+  .header-status {
+    display: none;
+  }
+}
+
+@media (max-width: 650px) {
+  .site-header {
+    display: none !important;
+  }
+}
