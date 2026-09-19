@@ -66,7 +66,12 @@ Make Players, Clubs, Transfers, Contracts, and Salaries feel like one coherent p
 - [x] Player directory has position and nationality filters
 - [x] Player directory has clear-filters behavior and explicit result counts
 - [x] Player directory links directly into player profiles
-- [ ] Redesign Clubs as a connected club intelligence directory
+- [x] Clubs directory redesigned as a connected club intelligence view
+- [x] Clubs directory supports search across club, league, country, and organization type
+- [x] Clubs directory supports league, country, and organization-type filters
+- [x] Clubs directory connects active roster size, known payroll, squad market value, and transfer activity
+- [x] Clubs directory supports sorting by roster, payroll, market value, and name
+- [x] Clubs directory links directly into club profiles
 - [ ] Redesign Contracts around expiry/status intelligence
 - [ ] Redesign Transfers around a chronological market feed
 - [ ] Redesign Salaries around comparable compensation data
