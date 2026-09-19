@@ -19,6 +19,8 @@ type ContractInfo = {
   player_id: string;
   annual_salary: number | null;
   weekly_salary: number | null;
+  annual_salary_usd: number | null;
+  weekly_salary_usd: number | null;
   currency: string | null;
   status: string | null;
   club: {
@@ -70,6 +72,8 @@ export default function PlayersPage() {
             player_id,
             annual_salary,
             weekly_salary,
+            annual_salary_usd,
+            weekly_salary_usd,
             currency,
             status,
             club:clubs (
@@ -89,6 +93,8 @@ export default function PlayersPage() {
         player_id: contract.player_id,
         annual_salary: contract.annual_salary,
         weekly_salary: contract.weekly_salary,
+        annual_salary_usd: contract.annual_salary_usd,
+        weekly_salary_usd: contract.weekly_salary_usd,
         currency: contract.currency,
         status: contract.status,
         club: Array.isArray(contract.club)
@@ -676,8 +682,8 @@ export default function PlayersPage() {
                       }}
                     >
                       {formatSalary(
-                        contract?.annual_salary ?? null,
-                        contract?.currency ?? null
+                        contract?.annual_salary_usd ?? null,
+                        "USD"
                       )}
                     </div>
 
@@ -688,9 +694,9 @@ export default function PlayersPage() {
                         marginTop: "3px",
                       }}
                     >
-                      {contract?.weekly_salary
-                        ? `${contract.currency || "USD"} ${Number(
-                            contract.weekly_salary
+                      {contract?.weekly_salary_usd
+                        ? `$${Number(
+                            contract.weekly_salary_usd
                           ).toLocaleString(
                             "en-US",
                             {
