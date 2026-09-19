@@ -123,7 +123,7 @@ export default function PlayersPage() {
       .map((player) => player.nationality)
       .filter(Boolean) as string[];
 
-    return ["All", ...Array.from(new Set(values))];
+    return ["All", ...Array.from(new Set(values)).sort()];
   }, [players]);
 
   const getContract = (playerId: string) => {
@@ -145,13 +145,10 @@ export default function PlayersPage() {
     return players.filter((player) => {
       const playerName =
         player.full_name?.toLowerCase() || "";
-
       const playerNationality =
         player.nationality?.toLowerCase() || "";
-
       const playerPosition =
         player.position?.toLowerCase() || "";
-
       const playerAgency =
         player.agency?.toLowerCase() || "";
 
@@ -161,22 +158,24 @@ export default function PlayersPage() {
 
       const clubName =
         contract?.club?.name?.toLowerCase() || "";
+      const league =
+        contract?.club?.league?.toLowerCase() || "";
 
       const matchesSearch =
         !query ||
-        playerName.includes(query) ||
-        playerNationality.includes(query) ||
-        playerPosition.includes(query) ||
-        playerAgency.includes(query) ||
-        clubName.includes(query);
+        [
+          playerName,
+          playerNationality,
+          playerPosition,
+          playerAgency,
+          clubName,
+          league,
+        ].some((value) => value.includes(query));
 
       const matchesPosition =
-        position === "All" ||
-        player.position === position;
-
+        position === "All" || player.position === position;
       const matchesNationality =
-        nationality === "All" ||
-        player.nationality === nationality;
+        nationality === "All" || player.nationality === nationality;
 
       return (
         matchesSearch &&
@@ -184,35 +183,19 @@ export default function PlayersPage() {
         matchesNationality
       );
     });
-  }, [
-    players,
-    contracts,
-    search,
-    position,
-    nationality,
-  ]);
+  }, [players, contracts, search, position, nationality]);
 
   function calculateAge(dateOfBirth: string | null) {
     if (!dateOfBirth) return null;
 
-    const birthDate = new Date(
-      `${dateOfBirth}T00:00:00`
-    );
-
+    const birthDate = new Date(`${dateOfBirth}T00:00:00`);
     const today = new Date();
-
-    let age =
-      today.getFullYear() -
-      birthDate.getFullYear();
-
-    const monthDifference =
-      today.getMonth() -
-      birthDate.getMonth();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
 
     if (
       monthDifference < 0 ||
-      (monthDifference === 0 &&
-        today.getDate() < birthDate.getDate())
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
     ) {
       age--;
     }
@@ -220,29 +203,31 @@ export default function PlayersPage() {
     return age;
   }
 
-  function formatSalary(
-    salary: number | null,
-    currency: string | null
-  ) {
+  function formatSalary(salary: number | null) {
     if (salary === null || salary === undefined) {
       return "Not available";
     }
 
-    return `${currency || "USD"} ${Number(
-      salary
-    ).toLocaleString("en-US", {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       maximumFractionDigits: 0,
-    })}`;
+    }).format(salary);
+  }
+
+  const filtersActive =
+    search.trim() !== "" ||
+    position !== "All" ||
+    nationality !== "All";
+
+  function clearFilters() {
+    setSearch("");
+    setPosition("All");
+    setNationality("All");
   }
 
   return (
     <>
-      {/* HEADER */}
-
-      
-
-      {/* BLACK PAGE HERO */}
-
       <section
         style={{
           background: "#111",
@@ -250,12 +235,7 @@ export default function PlayersPage() {
           padding: "55px 6vw 50px",
         }}
       >
-        <div
-          style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-          }}
-        >
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <div
             style={{
               fontSize: "12px",
@@ -289,15 +269,14 @@ export default function PlayersPage() {
               marginBottom: 0,
             }}
           >
-            Explore women&apos;s football players, clubs,
-            positions and market data.
+            Explore the player database by position, nationality, club,
+            league and compensation.
           </p>
         </div>
       </section>
 
-      {/* MAIN */}
-
       <main
+        className="players-page"
         style={{
           maxWidth: "1200px",
           margin: "0 auto",
@@ -306,45 +285,41 @@ export default function PlayersPage() {
           background: "#f5f4ef",
         }}
       >
-        {/* FILTERS */}
-
         <div
+          className="players-filters"
           style={{
             padding: "20px",
             border: "1px solid #e5e5e5",
             borderRadius: "14px",
-            marginBottom: "30px",
+            marginBottom: "22px",
             background: "#fff",
           }}
         >
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "2fr 1fr 1fr",
+              gridTemplateColumns: "2fr 1fr 1fr auto",
               gap: "12px",
             }}
           >
             <input
               type="text"
-              placeholder="Search player or club..."
+              placeholder="Search player, club, league or agency..."
               value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
+              onChange={(e) => setSearch(e.target.value)}
               style={{
                 padding: "14px 16px",
                 border: "1px solid #ddd",
                 borderRadius: "9px",
                 fontSize: "15px",
                 background: "#fff",
+                minWidth: 0,
               }}
             />
 
             <select
               value={position}
-              onChange={(e) =>
-                setPosition(e.target.value)
-              }
+              onChange={(e) => setPosition(e.target.value)}
               style={{
                 padding: "14px 16px",
                 border: "1px solid #ddd",
@@ -355,18 +330,14 @@ export default function PlayersPage() {
             >
               {positions.map((item) => (
                 <option key={item} value={item}>
-                  {item === "All"
-                    ? "All Positions"
-                    : item}
+                  {item === "All" ? "All Positions" : item}
                 </option>
               ))}
             </select>
 
             <select
               value={nationality}
-              onChange={(e) =>
-                setNationality(e.target.value)
-              }
+              onChange={(e) => setNationality(e.target.value)}
               style={{
                 padding: "14px 16px",
                 border: "1px solid #ddd",
@@ -377,36 +348,58 @@ export default function PlayersPage() {
             >
               {nationalities.map((item) => (
                 <option key={item} value={item}>
-                  {item === "All"
-                    ? "All Nationalities"
-                    : item}
+                  {item === "All" ? "All Nationalities" : item}
                 </option>
               ))}
             </select>
+
+            <button
+              type="button"
+              onClick={clearFilters}
+              disabled={!filtersActive}
+              style={{
+                padding: "0 15px",
+                border: "1px solid #ddd",
+                borderRadius: "9px",
+                background: filtersActive ? "#111" : "#f5f5f5",
+                color: filtersActive ? "#fff" : "#aaa",
+                fontSize: "13px",
+                fontWeight: 700,
+                cursor: filtersActive ? "pointer" : "default",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Clear filters
+            </button>
           </div>
         </div>
 
-        {/* RESULTS COUNT */}
-
         <div
           style={{
-            fontSize: "14px",
-            color: "#666",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "12px",
             marginBottom: "12px",
           }}
         >
-          {loading
-            ? "Loading players..."
-            : `${filteredPlayers.length} player${
-                filteredPlayers.length === 1
-                  ? ""
-                  : "s"
-              } found`}
+          <div style={{ fontSize: "14px", color: "#666" }}>
+            {loading
+              ? "Loading players..."
+              : `${filteredPlayers.length} player${
+                  filteredPlayers.length === 1 ? "" : "s"
+                } found`}
+          </div>
+
+          {filtersActive && !loading && (
+            <div style={{ fontSize: "12px", color: "#888" }}>
+              Filters applied
+            </div>
+          )}
         </div>
 
-        {/* PLAYER DATABASE */}
-
         <div
+          className="players-table"
           style={{
             border: "1px solid #e3e3e3",
             borderRadius: "14px",
@@ -414,13 +407,10 @@ export default function PlayersPage() {
             background: "#fff",
           }}
         >
-          {/* HEADER ROW */}
-
           <div
             style={{
               display: "grid",
-              gridTemplateColumns:
-                "2fr 1.5fr 1fr 1.2fr 1.3fr",
+              gridTemplateColumns: "2fr 1.5fr 1fr 1.2fr 1.3fr",
               gap: "12px",
               padding: "15px 20px",
               background: "#fafafa",
@@ -428,287 +418,86 @@ export default function PlayersPage() {
               fontSize: "11px",
               fontWeight: 700,
               color: "#777",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              alignItems: "center",
+              letterSpacing: "0.8px",
             }}
           >
-            <div>Player</div>
-            <div>Club</div>
-            <div>Position</div>
-            <div>Nationality</div>
-            <div>Salary</div>
+            <span>PLAYER</span>
+            <span>CLUB</span>
+            <span>POSITION</span>
+            <span>LEAGUE</span>
+            <span>ANNUAL SALARY</span>
           </div>
 
-          {/* PLAYER ROWS */}
+          {filteredPlayers.map((player) => {
+            const age = calculateAge(player.date_of_birth);
+            const contract = getContract(player.id);
 
-          {loading ? (
+            return (
+              <Link
+                href={`/players/${player.id}`}
+                className="player-row"
+                key={player.id}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "2fr 1.5fr 1fr 1.2fr 1.3fr",
+                  gap: "12px",
+                  padding: "16px 20px",
+                  borderBottom: "1px solid #eee",
+                  alignItems: "center",
+                  color: "#111",
+                  textDecoration: "none",
+                  fontSize: "14px",
+                }}
+              >
+                <span>
+                  <b>{player.full_name}</b>
+                  <small
+                    style={{
+                      display: "block",
+                      marginTop: "4px",
+                      color: "#888",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {player.nationality || "Nationality unavailable"}
+                    {age ? ` · ${age}` : ""}
+                  </small>
+                </span>
+
+                <span>{contract?.club?.name || "—"}</span>
+                <span>{player.position || "—"}</span>
+                <span style={{ color: "#666" }}>
+                  {contract?.club?.league || "—"}
+                </span>
+                <span style={{ fontWeight: 700 }}>
+                  {formatSalary(contract?.annual_salary_usd ?? null)}
+                </span>
+              </Link>
+            );
+          })}
+
+          {!loading && filteredPlayers.length === 0 && (
             <div
               style={{
-                padding: "40px 20px",
+                padding: "55px 20px",
                 textAlign: "center",
                 color: "#777",
               }}
             >
-              Loading players...
+              <strong
+                style={{
+                  display: "block",
+                  color: "#222",
+                  fontSize: "16px",
+                  marginBottom: "7px",
+                }}
+              >
+                No players found
+              </strong>
+              <span style={{ fontSize: "13px" }}>
+                Try changing your search or filters.
+              </span>
             </div>
-          ) : filteredPlayers.length === 0 ? (
-            <div
-              style={{
-                padding: "40px 20px",
-                textAlign: "center",
-                color: "#777",
-              }}
-            >
-              No players found.
-            </div>
-          ) : (
-            filteredPlayers.map((player) => {
-              const contract = getContract(player.id);
-              const age = calculateAge(
-                player.date_of_birth
-              );
-
-              return (
-                <Link
-                  key={player.id}
-                  href={`/players/${player.id}`}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns:
-                      "2fr 1.5fr 1fr 1.2fr 1.3fr",
-                    gap: "12px",
-                    padding: "18px 20px",
-                    borderBottom:
-                      "1px solid #eee",
-                    alignItems: "center",
-                    textDecoration: "none",
-                    color: "inherit",
-                  }}
-                >
-                  {/* PLAYER */}
-
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "12px",
-                      minWidth: 0,
-                    }}
-                  >
-                    {player.photo_url ? (
-                      <img
-                        src={player.photo_url}
-                        alt={player.full_name}
-                        style={{
-  width: "44px",
-  height: "44px",
-  borderRadius: "50%",
-  objectFit: "cover",
-  objectPosition: "center top",
-  flexShrink: 0,
-  display: "block",
-}}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: "44px",
-                          height: "44px",
-                          borderRadius: "50%",
-                          background: "#eee",
-                          flexShrink: 0,
-                        }}
-                      />
-                    )}
-
-                    <div
-                      style={{
-                        minWidth: 0,
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontWeight: 700,
-                          fontSize: "15px",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {player.full_name}
-                      </div>
-
-                      <div
-                        style={{
-                          fontSize: "12px",
-                          color: "#777",
-                          marginTop: "3px",
-                        }}
-                      >
-                        {age !== null
-                          ? `${age} years old`
-                          : "Age unavailable"}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* CLUB */}
-
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "9px",
-                      minWidth: 0,
-                    }}
-                  >
-                    {contract?.club?.logo_url ? (
-                      <img
-                        src={
-                          contract.club.logo_url
-                        }
-                        alt={contract.club.name}
-                        style={{
-                          width: "32px",
-                          height: "32px",
-                          objectFit: "contain",
-                          flexShrink: 0,
-                        }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "7px",
-                          background: "#eee",
-                          flexShrink: 0,
-                        }}
-                      />
-                    )}
-
-                    <div
-                      style={{
-                        minWidth: 0,
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: "14px",
-                          fontWeight: 600,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {contract?.club?.name ||
-                          "No club"}
-                      </div>
-
-                      <div
-                        style={{
-                          fontSize: "11px",
-                          color: "#888",
-                          marginTop: "2px",
-                        }}
-                      >
-                        {contract?.club?.league ||
-                          ""}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* POSITION */}
-
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {player.position || "—"}
-                    </div>
-
-                    {player.preferred_foot && (
-                      <div
-                        style={{
-                          fontSize: "11px",
-                          color: "#888",
-                          marginTop: "3px",
-                        }}
-                      >
-                        {player.preferred_foot} foot
-                      </div>
-                    )}
-                  </div>
-
-                  {/* NATIONALITY */}
-
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {player.nationality || "—"}
-                    </div>
-
-                    {player.agency && (
-                      <div
-                        style={{
-                          fontSize: "11px",
-                          color: "#888",
-                          marginTop: "3px",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {player.agency}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* SALARY */}
-
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {formatSalary(
-                        contract?.annual_salary_usd ?? null,
-                        "USD"
-                      )}
-                    </div>
-
-                    <div
-                      style={{
-                        fontSize: "11px",
-                        color: "#888",
-                        marginTop: "3px",
-                      }}
-                    >
-                      {contract?.weekly_salary_usd
-                        ? `$${Number(
-                            contract.weekly_salary_usd
-                          ).toLocaleString(
-                            "en-US",
-                            {
-                              maximumFractionDigits: 0,
-                            }
-                          )} / wk`
-                        : "Weekly salary unavailable"}
-                    </div>
-                  </div>
-                </Link>
-              );
-            })
           )}
         </div>
       </main>
