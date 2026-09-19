@@ -118,8 +118,24 @@ Build comparisons, trends, market-value context, contract context, and salary co
 - [x] Added contract-expiry and salary context to comparison views
 - [x] Kept derived intelligence in database views rather than duplicating source records in a new table
 
+### Phase 3 milestone 3 completed
+
+- [x] Added tracked data-update runs with provider, run type, status, record counts, timing, and error metadata
+- [x] Added stat ingestion fields for match/source-event provenance and update timestamps
+- [x] Added duplicate-safe player-stat upsert keys for player/club/season/competition
+- [x] Added a secured Supabase Edge Function for validated player-stat ingestion
+- [x] Added repository configuration for the ingestion function
+- [x] Kept ingestion separate from the public player-facing database workflow so future providers can feed the same pipeline
+- [x] Verified the live ingestion function is deployed and active
+- [x] Verified the live database contains the update-run table and new player-stat tracking fields
+
+Important limitation:
+- [ ] A real external statistics provider/API has not been selected or connected yet, so the system does not claim to automatically import every match. Once a provider is selected, Supabase Cron can call the ingestion function on a schedule and the existing intelligence views will reflect accepted updates automatically.
+
 ### Phase 3 next
 
+- [ ] Connect the first reliable women’s-football statistics provider/API
+- [ ] Add scheduled ingestion after the provider is validated
 - [ ] Build deeper scouting-oriented intelligence after the comparison foundation is stable
 - [ ] Add broader competition/league coverage to strengthen peer samples
 - [ ] Add historical contract and salary trend context where source coverage supports it
