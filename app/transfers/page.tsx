@@ -271,7 +271,7 @@ export default function TransfersPage() {
   }
 
   return (
-    <main style={{ minHeight: "100vh", background: "#f5f4ef", color: "#111" }}>
+    <main className="transfers-page" style={{ minHeight: "100vh", background: "#f5f4ef", color: "#111" }}>
       <section style={{ background: "#111", color: "#fff", padding: "54px 24px 48px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ fontSize: 11, letterSpacing: 2.2, fontWeight: 800, color: "#aaa", marginBottom: 12 }}>
