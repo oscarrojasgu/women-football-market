@@ -309,9 +309,9 @@ export default function SalariesPage() {
                     referrerPolicy="no-referrer"
                     style={{
                       width: '44px',
-                      height: '54px',
+                      height: '44px',
                       display: 'block',
-                      borderRadius: '8px',
+                      borderRadius: '50%',
                       objectFit: 'cover',
                       objectPosition: 'center',
                       background: '#eee',
