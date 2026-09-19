@@ -51,23 +51,41 @@ Security cleanup completed:
 - Added admin-only RLS management for photo permissions.
 - Supabase security review has no remaining public SECURITY DEFINER execution warning.
 
-## Phase 2 — UX redesign
+## PHASE 2 — UX redesign
 
 Make Players, Clubs, Transfers, Contracts, and Salaries feel like one coherent product.
 
-## Phase 3 — Player intelligence
+### Phase 2 completed foundation
+
+- [x] Global shared desktop navigation
+- [x] Active navigation state
+- [x] Centralized mobile navigation remains the responsive navigation layer
+- [x] Homepage player search uses database records only; no hardcoded sample players
+- [x] Compensation displays use normalized USD conversion fields where available
+- [x] Player directory has unified search across player, club, league, nationality, position, and agency
+- [x] Player directory has position and nationality filters
+- [x] Player directory has clear-filters behavior and explicit result counts
+- [x] Player directory links directly into player profiles
+- [ ] Redesign Clubs as a connected club intelligence directory
+- [ ] Redesign Contracts around expiry/status intelligence
+- [ ] Redesign Transfers around a chronological market feed
+- [ ] Redesign Salaries around comparable compensation data
+- [ ] Make player profiles the central destination connecting contracts, salary, transfers, values, statistics, and sources
+- [ ] Final responsive/mobile pass across every Phase 2 route
+
+## PHASE 3 — Player intelligence
 
 Build comparisons, trends, market-value context, contract context, and salary context.
 
-## Phase 4 — Verification
+## PHASE 4 — Verification
 
 Enable players, agents, clubs, and eventually journalists/scouts to contribute and verify information.
 
-## Phase 5 — Scouting tools
+## PHASE 5 — Scouting tools
 
 Build advanced filters, saved searches, player comparison, and shortlists.
 
-## Phase 6 — Global women’s football
+## PHASE 6 — Global women’s football
 
 Systematically expand beyond the initial NWSL coverage and build global league coverage.
 
