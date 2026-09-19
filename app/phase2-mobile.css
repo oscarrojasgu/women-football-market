@@ -77,8 +77,8 @@
   .player-page { overflow-x: hidden; }
   .player-hero { padding: 24px 16px 30px !important; }
   .player-hero > div { width: 100%; }
-  .player-hero-grid { grid-template-columns: 82px minmax(0,1fr) !important; gap: 14px !important; align-items: start !important; }
-  .player-hero-grid > div:first-child { width: 82px !important; height: 82px !important; border-radius: 10px !important; }
+  .player-hero-grid { grid-template-columns: 110px minmax(0,1fr) !important; gap: 14px !important; align-items: start !important; }
+  .player-hero-grid > div:first-child { width: 110px !important; height: 140px !important; border-radius: 10px !important; }
   .player-hero-grid h1 { font-size: 27px !important; line-height: 1.04 !important; overflow-wrap: anywhere; }
   .player-hero-grid > div:nth-child(2) > div:nth-child(2) { margin-top: 8px !important; font-size: 12px !important; line-height: 1.45; }
   .player-hero-grid > div:nth-child(2) > a { margin-top: 9px !important; font-size: 13px !important; }
