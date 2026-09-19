@@ -98,6 +98,23 @@ Make Players, Clubs, Transfers, Contracts, and Salaries feel like one coherent p
 
 Build comparisons, trends, market-value context, contract context, and salary context.
 
+### Phase 3 milestone 1 completed
+
+- [x] Player profiles now include performance-intelligence cards using recorded season data
+- [x] Player profiles now show season output trends (goals + assists) and playing-time context
+- [x] Player profiles now show descriptive per-90 role metrics from recorded minutes
+- [x] Player profiles now show recorded market-value trajectory context without forecasting
+- [x] Added side-by-side Player Comparison route using shared WFM performance, contract and market-value fields
+- [x] Added responsive/mobile styling for Phase 3 intelligence and comparison views
+
+### Phase 3 next
+
+- [ ] Add league/position context and peer benchmarking where sample sizes support it
+- [ ] Add richer market-value history visualization
+- [ ] Expand comparison metrics by player role
+- [ ] Add contract-expiry and salary context to comparison views
+- [ ] Build deeper scouting-oriented intelligence after the comparison foundation is stable
+
 ## PHASE 4 — Verification
 
 Enable players, agents, clubs, and eventually journalists/scouts to contribute and verify information.
