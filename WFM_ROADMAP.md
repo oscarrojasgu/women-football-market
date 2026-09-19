@@ -78,7 +78,12 @@ Make Players, Clubs, Transfers, Contracts, and Salaries feel like one coherent p
 - [x] Contracts page connects player, club, league, position, salary, expiry date, and confidence
 - [x] Contracts page provides active-contract and known-payroll summary metrics
 - [x] Contracts page supports clearable search and multi-dimensional filtering
-- [ ] Redesign Transfers around a chronological market feed
+- [x] Transfers redesigned as a chronological market feed
+- [x] Transfers connect player profiles, club profiles, transfer type, fee, date, and confidence
+- [x] Transfers support search across player, club, league, nationality, and position
+- [x] Transfers support transfer-type, league, year, and confidence filters
+- [x] Transfers provide recent-market, permanent/free/loan, known-fee, and verified summary metrics
+- [x] Transfers provide clear-filters behavior and explicit result counts
 - [ ] Redesign Salaries around comparable compensation data
 - [ ] Make player profiles the central destination connecting contracts, salary, transfers, values, statistics, and sources
 - [ ] Final responsive/mobile pass across every Phase 2 route
