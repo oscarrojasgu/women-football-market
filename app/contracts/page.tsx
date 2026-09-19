@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
+import PlayerPhoto from "../components/PlayerPhoto";
 
 type PlayerData = { full_name: string; photo_url: string | null; nationality: string | null; position: string | null };
 type ClubData = { name: string; league: string | null; country: string | null; logo_url: string | null };
@@ -138,7 +139,7 @@ export default function ContractsPage() {
           {loading ? <div style={{ padding: 35, textAlign: "center", color: "#777" }}>Loading...</div> : filteredContracts.length === 0 ? <div style={{ padding: 35, textAlign: "center", color: "#777" }}>No contracts found.</div> : filteredContracts.map(c => {
             const days = daysUntil(c.end_date); const urgent = days !== null && days >= 0 && days <= 90;
             return <Link key={c.id} href={`/players/${c.player_id}`} style={{ display: "grid", gridTemplateColumns: "2fr 1.45fr .9fr 1.15fr 1.15fr .9fr", gap: 12, padding: "16px 18px", borderBottom: "1px solid #eee", textDecoration: "none", color: "#111", alignItems: "center" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0 }}>{c.player?.photo_url ? <img src={c.player.photo_url} alt="" style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} /> : <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#eee", flexShrink: 0 }} />}<div style={{ minWidth: 0 }}><div style={{ fontWeight: 700, fontSize: 14, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.player?.full_name || "Unknown Player"}</div><div style={{ color: "#777", fontSize: 12, marginTop: 3 }}>{c.player?.position || "—"}</div></div></div>
+              <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0 }}><PlayerPhoto src={c.player?.photo_url} alt={c.player?.full_name || "Player"} width={40} height={40} style={{ borderRadius: "50%", objectFit: "cover", background: "#eee" }} /><div style={{ minWidth: 0 }}><div style={{ fontWeight: 700, fontSize: 14, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.player?.full_name || "Unknown Player"}</div><div style={{ color: "#777", fontSize: 12, marginTop: 3 }}>{c.player?.position || "—"}</div></div></div>
               <div style={{ minWidth: 0 }}><div style={{ fontWeight: 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.club?.name || "Unknown Club"}</div><div style={{ color: "#777", fontSize: 11, marginTop: 3 }}>{c.club?.league || "—"}</div></div>
               <div style={{ fontSize: 12, fontWeight: 700 }}>{statusLabel(c.status)}</div>
               <div><div style={{ fontSize: 13, fontWeight: urgent ? 800 : 600 }}>{formatDate(c.end_date)}</div><div style={{ color: urgent ? "#111" : "#777", fontSize: 11, marginTop: 3 }}>{expiryLabel(c)}</div></div>
