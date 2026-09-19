@@ -571,7 +571,7 @@
 .market-point > i { display:block; height:8px; background:#ecebe7; border-radius:999px; overflow:hidden; }
 .market-point > i > em { display:block; height:100%; background:#111; border-radius:999px; }
 .market-point > strong { font-size:11px; white-space:nowrap; }
-.players-page .player-row > span:first-child img { display:block !important; width:52px !important; height:64px !important; flex:0 0 52px !important; object-fit:contain !important; }
+.players-page .player-row > span:first-child img { display:block !important; width:52px !important; height:52px !important; flex:0 0 52px !important; object-fit:cover !important; border-radius:50% !important; }
 .player-hero-grid > div:first-child { box-sizing:border-box; }
 .player-hero-grid > div:first-child img { display:block !important; object-fit:contain !important; object-position:50% 18% !important; }
 
