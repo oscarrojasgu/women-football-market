@@ -456,10 +456,12 @@ export default function PlayersPage() {
                     onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = "/wfm-player-placeholder.svg"; }}
                     width={52}
                     height={64}
-                    loading="lazy"
+                    loading="eager"
+                    decoding="async"
                     style={{
                       width: "52px",
                       height: "64px",
+                      display: "block",
                       borderRadius: "8px",
                       objectFit: "contain",
                       objectPosition: "center",
