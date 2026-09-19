@@ -451,8 +451,9 @@ export default function PlayersPage() {
               >
                 <span style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
                   <img
-                    src={player.photo_url || "/wfm-player-placeholder.svg"}
+                    src={player.photo_url ? `/api/player-image?url=${encodeURIComponent(player.photo_url)}` : "/wfm-player-placeholder.svg"}
                     alt={player.full_name}
+                    onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = "/wfm-player-placeholder.svg"; }}
                     width={52}
                     height={64}
                     loading="lazy"
