@@ -451,7 +451,7 @@ export default function PlayersPage() {
               >
                 <span style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
                   <img
-                    src={player.photo_url ? `/api/player-image?url=${encodeURIComponent(player.photo_url)}` : "/wfm-player-placeholder.svg"}
+                    src={player.photo_url || "/wfm-player-placeholder.svg"}
                     alt={player.full_name}
                     width={52}
                     height={64}
@@ -460,8 +460,8 @@ export default function PlayersPage() {
                       width: "52px",
                       height: "64px",
                       borderRadius: "8px",
-                      objectFit: "cover",
-                      objectPosition: "50% 0%",
+                      objectFit: "contain",
+                      objectPosition: "center",
                       background: "#eee",
                       flexShrink: 0,
                     }}
