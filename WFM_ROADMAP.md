@@ -132,9 +132,11 @@ Build comparisons, trends, market-value context, contract context, and salary co
 Important limitation:
 - [ ] A real external statistics provider/API has not been selected or connected yet, so the system does not claim to automatically import every match. Once a provider is selected, Supabase Cron can call the ingestion function on a schedule and the existing intelligence views will reflect accepted updates automatically.
 
-### Phase 3 next
+### Phase 3 provider integration — IN PROGRESS
 
-- [ ] Connect the first reliable women’s-football statistics provider/API
+- [x] Selected Sportmonks as the first provider candidate because its current API documents women's competitions, player statistics, lineups, squads, and season statistics in the same football API schema. citeturn0search0turn0search4
+- [x] Completed the WFM-side provider integration foundation and kept it behind the existing ingestion pipeline rather than coupling provider logic to the public player pages
+- [ ] Add the Sportmonks API token as a server-side Supabase secret and validate the first WFM competition/player mapping against live provider data
 - [ ] Add scheduled ingestion after the provider is validated
 - [ ] Build deeper scouting-oriented intelligence after the comparison foundation is stable
 - [ ] Add broader competition/league coverage to strengthen peer samples
