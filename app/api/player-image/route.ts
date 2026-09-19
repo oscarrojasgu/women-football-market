@@ -4,6 +4,18 @@ const ALLOWED_HOSTS = new Set([
   "images.fotmob.com",
   "www.soccerdonna.de",
   "commons.wikimedia.org",
+  "www.racingloufc.com",
+  "cdn.sanity.io",
+  "images.mlssoccer.com",
+  "www.kansascitycurrent.com",
+  "www.topdrawersoccer.com",
+  "www.denversummitfc.com",
+  "images.squarespace-cdn.com",
+  "images.sidearmdev.com",
+  "chicagostars.com",
+  "washingtonspirit.com",
+  "images.nccourage.com",
+  "ypdamswhioaoqbersxjk.supabase.co",
 ]);
 
 export async function GET(request: NextRequest) {
@@ -23,7 +35,10 @@ export async function GET(request: NextRequest) {
 
   try {
     const response = await fetch(target.toString(), {
-      headers: { "User-Agent": "WomensFootballMarket/1.0" },
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; WomensFootballMarket/1.0)",
+        Accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+      },
       next: { revalidate: 86400 },
     });
 
