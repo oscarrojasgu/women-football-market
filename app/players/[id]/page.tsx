@@ -15,6 +15,8 @@ type Contract = {
   end_date: string | null;
   annual_salary: number | null;
   weekly_salary: number | null;
+  annual_salary_usd: number | null;
+  weekly_salary_usd: number | null;
   currency: string | null;
   notes: string | null;
   club_id: string | null;
@@ -354,7 +356,7 @@ export default async function PlayerPage({
   const { data: contractData } = await supabase
     .from("contracts")
     .select(
-      "id, status, confidence, start_date, end_date, annual_salary, weekly_salary, currency, notes, club_id"
+      "id, status, confidence, start_date, end_date, annual_salary, weekly_salary, annual_salary_usd, weekly_salary_usd, currency, notes, club_id"
     )
     .eq("player_id", id)
     .order("start_date", { ascending: false });
@@ -1115,8 +1117,8 @@ export default async function PlayerPage({
 
                 <div style={valueStyle}>
                   {formatSalary(
-                    currentContract.annual_salary,
-                    currentContract.currency
+                    currentContract.annual_salary_usd,
+                    "USD"
                   )}
                 </div>
               </div>
@@ -1126,8 +1128,8 @@ export default async function PlayerPage({
 
                 <div style={valueStyle}>
                   {formatSalary(
-                    currentContract.weekly_salary,
-                    currentContract.currency
+                    currentContract.weekly_salary_usd,
+                    "USD"
                   )}
                 </div>
               </div>
@@ -1516,8 +1518,8 @@ export default async function PlayerPage({
 
                         <div style={valueStyle}>
                           {formatSalary(
-                            contract.annual_salary,
-                            contract.currency
+                            contract.annual_salary_usd,
+                            "USD"
                           )}
                         </div>
                       </div>
