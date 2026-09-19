@@ -2,7 +2,7 @@
 
 This file is the working source of truth for the Women’s Football Market build.
 
-## Current phase: PHASE 2 — UX redesign
+## Current phase: PHASE 3 — Player intelligence
 
 Phase 1 data foundation is complete. The database is now structured, normalized, sourced where evidence exists, and explicit about information that cannot be verified from available sources.
 
