@@ -50,6 +50,7 @@ Security cleanup completed:
 - Restricted the bootstrap owner function from anonymous/authenticated execution.
 - Added admin-only RLS management for photo permissions.
 - Supabase security review has no remaining public SECURITY DEFINER execution warning.
+- Leaked password protection remains disabled and is still an outstanding Supabase Auth security recommendation.
 
 ## PHASE 2 — UX redesign
 
