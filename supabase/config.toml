@@ -1,0 +1,2 @@
+[functions.ingest-player-stats]
+verify_jwt = false
