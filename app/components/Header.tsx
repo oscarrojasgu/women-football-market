@@ -1,21 +1,32 @@
 import Link from 'next/link'
 
+const pages = [
+  { href: '/players', label: 'Players' },
+  { href: '/contracts', label: 'Contracts' },
+  { href: '/transfers', label: 'Transfers' },
+  { href: '/salaries', label: 'Salaries' },
+  { href: '/clubs', label: 'Clubs' },
+]
+
 export default function Header() {
   return (
-    <nav>
-      <Link href="/" className="logo">
+    <nav className="site-header">
+      <Link href="/" className="logo" aria-label="Women’s Football Market home">
         WFM<span>•</span>
       </Link>
 
       <div className="navlinks">
-        <Link href="/players">Players</Link>
-        <Link href="/contracts">Contracts</Link>
-        <Link href="/transfers">Transfers</Link>
-        <Link href="/salaries">Salaries</Link>
-        <Link href="/clubs">Clubs</Link>
+        {pages.map((page) => (
+          <Link key={page.href} href={page.href}>
+            {page.label}
+          </Link>
+        ))}
       </div>
 
-      <button className="login">Sign in</button>
+      <div className="header-meta">
+        <span className="header-status">LIVE DATABASE</span>
+        <button className="login" type="button">Sign in</button>
+      </div>
     </nav>
   )
 }
