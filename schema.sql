@@ -274,3 +274,85 @@ on public.wfm_admins
 for select
 to authenticated
 using ((select auth.uid()) = user_id);
+
+
+-- Phase 3 derived intelligence views.
+-- These are read-only database views over recorded statistics; they do not duplicate source data.
+create or replace view public.player_season_intelligence
+with (security_invoker = true)
+as
+with aggregated as (
+  select
+    ps.player_id,
+    ps.season,
+    ps.club_id,
+    c.name as club_name,
+    c.league,
+    p.position,
+    p.nationality,
+    sum(coalesce(ps.appearances,0))::integer as appearances,
+    sum(coalesce(ps.starts,0))::integer as starts,
+    sum(coalesce(ps.minutes,0))::integer as minutes,
+    sum(coalesce(ps.goals,0))::integer as goals,
+    sum(coalesce(ps.assists,0))::integer as assists,
+    sum(coalesce(ps.shots,0))::integer as shots,
+    sum(coalesce(ps.shots_on_target,0))::integer as shots_on_target,
+    sum(coalesce(ps.key_passes,0))::integer as key_passes,
+    sum(coalesce(ps.chances_created,0))::integer as chances_created,
+    sum(coalesce(ps.tackles,0))::integer as tackles,
+    sum(coalesce(ps.interceptions,0))::integer as interceptions,
+    sum(coalesce(ps.progressive_passes,0))::integer as progressive_passes,
+    sum(coalesce(ps.progressive_carries,0))::integer as progressive_carries,
+    sum(coalesce(ps.duels_won,0))::integer as duels_won,
+    sum(coalesce(ps.aerials_won,0))::integer as aerials_won,
+    sum(coalesce(ps.xg,0))::numeric as xg,
+    sum(coalesce(ps.xa,0))::numeric as xa,
+    sum(coalesce(ps.sca,0))::integer as sca,
+    sum(coalesce(ps.gca,0))::integer as gca
+  from public.player_stats ps
+  join public.players p on p.id = ps.player_id
+  left join public.clubs c on c.id = ps.club_id
+  group by ps.player_id, ps.season, ps.club_id, c.name, c.league, p.position, p.nationality
+)
+select a.*,
+  round(a.goals::numeric * 90 / nullif(a.minutes,0), 3) as goals_per90,
+  round(a.assists::numeric * 90 / nullif(a.minutes,0), 3) as assists_per90,
+  round(a.xg * 90 / nullif(a.minutes,0), 3) as xg_per90,
+  round(a.xa * 90 / nullif(a.minutes,0), 3) as xa_per90,
+  round(a.chances_created::numeric * 90 / nullif(a.minutes,0), 3) as chances_created_per90,
+  round(a.key_passes::numeric * 90 / nullif(a.minutes,0), 3) as key_passes_per90,
+  round(a.tackles::numeric * 90 / nullif(a.minutes,0), 3) as tackles_per90,
+  round(a.interceptions::numeric * 90 / nullif(a.minutes,0), 3) as interceptions_per90,
+  round(a.progressive_passes::numeric * 90 / nullif(a.minutes,0), 3) as progressive_passes_per90,
+  round(a.progressive_carries::numeric * 90 / nullif(a.minutes,0), 3) as progressive_carries_per90,
+  round(a.duels_won::numeric * 90 / nullif(a.minutes,0), 3) as duels_won_per90
+from aggregated a;
+
+create or replace view public.player_peer_benchmarks
+with (security_invoker = true)
+as
+with eligible as (
+  select * from public.player_season_intelligence
+  where minutes >= 450 and league is not null and position is not null
+),
+peer_counts as (
+  select season, league, position, count(*)::integer as peer_count
+  from eligible group by season, league, position
+)
+select
+  e.player_id,e.season,e.club_id,e.club_name,e.league,e.position,pc.peer_count,
+  round((percent_rank() over (partition by e.season,e.league,e.position order by e.goals_per90)*100)::numeric,1) as goals_per90_percentile,
+  round((percent_rank() over (partition by e.season,e.league,e.position order by e.assists_per90)*100)::numeric,1) as assists_per90_percentile,
+  round((percent_rank() over (partition by e.season,e.league,e.position order by e.xg_per90)*100)::numeric,1) as xg_per90_percentile,
+  round((percent_rank() over (partition by e.season,e.league,e.position order by e.xa_per90)*100)::numeric,1) as xa_per90_percentile,
+  round((percent_rank() over (partition by e.season,e.league,e.position order by e.chances_created_per90)*100)::numeric,1) as chances_created_per90_percentile,
+  round((percent_rank() over (partition by e.season,e.league,e.position order by e.key_passes_per90)*100)::numeric,1) as key_passes_per90_percentile,
+  round((percent_rank() over (partition by e.season,e.league,e.position order by e.tackles_per90)*100)::numeric,1) as tackles_per90_percentile,
+  round((percent_rank() over (partition by e.season,e.league,e.position order by e.interceptions_per90)*100)::numeric,1) as interceptions_per90_percentile,
+  round((percent_rank() over (partition by e.season,e.league,e.position order by e.progressive_carries_per90)*100)::numeric,1) as progressive_carries_per90_percentile
+from eligible e
+join peer_counts pc using (season,league,position)
+where pc.peer_count >= 5;
+
+grant select on public.player_season_intelligence to anon, authenticated;
+grant select on public.player_peer_benchmarks to anon, authenticated;
