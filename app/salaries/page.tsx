@@ -153,7 +153,7 @@ export default function SalariesPage() {
     salaryRecords.length > 0
       ? salaryRecords.reduce(
           (total, record) =>
-            total + (record.annual_salary || 0),
+            total + (record.annual_salary_usd || 0),
           0
         ) / salaryRecords.length
       : null
@@ -296,7 +296,7 @@ export default function SalariesPage() {
           >
             {formatSalary(
               highestSalary,
-              salaryRecords[0]?.currency || 'USD'
+              'USD'
             )}
           </strong>
         </div>
