@@ -1,435 +1,111 @@
 /* Phase 2 mobile pass: keep the market pages usable on iPhone without shrinking desktop layouts. */
 
 .salary-page,
-.salary-page * {
-  box-sizing: border-box;
-}
-
-.salary-shell {
-  width: min(1200px, calc(100% - 48px));
-  margin: 0 auto;
-}
-
-.salary-hero {
-  background: #111;
-  color: #fff;
-  padding: 54px 0 48px;
-}
-
-.salary-eyebrow {
-  font-size: 11px;
-  letter-spacing: 2px;
-  font-weight: 800;
-  color: #aaa;
-  margin-bottom: 12px;
-}
-
-.salary-hero h1 {
-  margin: 0;
-  font-size: clamp(38px, 5vw, 58px);
-  line-height: 1;
-  letter-spacing: -2px;
-}
-
-.salary-hero p {
-  max-width: 720px;
-  margin: 18px 0 0;
-  color: #c8c8c8;
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-.salary-content {
-  padding: 30px 0 70px;
-}
-
-.salary-stat-grid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 22px;
-}
-
-.salary-stat {
-  min-width: 0;
-  background: #fff;
-  border: 1px solid #e2e1dc;
-  border-radius: 12px;
-  padding: 16px 17px;
-}
-
-.salary-stat span {
-  display: block;
-  color: #777;
-  font-size: 11px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.salary-stat strong {
-  display: block;
-  font-size: 22px;
-  line-height: 1.15;
-  overflow-wrap: anywhere;
-}
-
-.salary-controls {
-  background: #fff;
-  border: 1px solid #e2e1dc;
-  border-radius: 14px;
-  padding: 18px;
-  margin-bottom: 16px;
-}
-
-.salary-control-grid {
-  display: grid;
-  grid-template-columns: minmax(220px, 1fr) repeat(4, minmax(125px, 160px));
-  gap: 10px;
-}
-
-.salary-control-grid input,
-.salary-control-grid select {
-  width: 100%;
-  min-width: 0;
-  min-height: 42px;
-  border: 1px solid #d9d8d3;
-  border-radius: 9px;
-  padding: 10px 12px;
-  font-size: 14px;
-  background: #fff;
-  color: #111;
-  outline: none;
-}
-
-.salary-control-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 13px;
-  color: #777;
-  font-size: 13px;
-}
-
-.salary-control-footer button,
-.salary-empty button {
-  border: 0;
-  background: transparent;
-  color: #111;
-  padding: 0;
-  font-size: 13px;
-  font-weight: 750;
-  cursor: pointer;
-}
-
-.salary-note {
-  background: #f0efe9;
-  border: 1px solid #dedcd3;
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-bottom: 16px;
-  color: #666;
-  font-size: 12px;
-  line-height: 1.55;
-}
-
-.salary-note strong {
-  color: #222;
-}
-
-.salary-table-wrap {
-  width: 100%;
-  overflow: hidden;
-  background: #fff;
-  border: 1px solid #e2e1dc;
-  border-radius: 14px;
-}
-
-.salary-table-header,
-.salary-row {
-  display: grid;
-  grid-template-columns: 1.55fr 1.45fr 0.9fr 1.05fr 1.05fr 1fr 0.9fr;
-  gap: 14px;
-  align-items: center;
-}
-
-.salary-table-header {
-  padding: 13px 18px;
-  background: #fafafa;
-  border-bottom: 1px solid #e5e5e5;
-  color: #777;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .8px;
-}
-
-.salary-row {
-  padding: 15px 18px;
-  border-bottom: 1px solid #eeeeee;
-  color: #111;
-  text-decoration: none;
-  font-size: 13px;
-  min-width: 0;
-}
-
-.salary-row:last-child {
-  border-bottom: 0;
-}
-
-.salary-row > span {
-  min-width: 0;
-}
-
-.salary-row strong {
-  font-weight: 800;
-}
-
-.salary-row small {
-  display: block;
-  margin-top: 3px;
-  color: #888;
-  font-size: 11px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.salary-primary {
-  font-weight: 800;
-}
-
-.salary-original {
-  color: #555;
-}
-
-.salary-confidence {
-  display: inline-flex;
-  align-items: center;
-  min-height: 24px;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-style: normal;
-  font-size: 10px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
+.salary-page * { box-sizing: border-box; }
+.salary-shell { width: min(1200px, calc(100% - 48px)); margin: 0 auto; }
+.salary-hero { background: #111; color: #fff; padding: 54px 0 48px; }
+.salary-eyebrow { font-size: 11px; letter-spacing: 2px; font-weight: 800; color: #aaa; margin-bottom: 12px; }
+.salary-hero h1 { margin: 0; font-size: clamp(38px, 5vw, 58px); line-height: 1; letter-spacing: -2px; }
+.salary-hero p { max-width: 720px; margin: 18px 0 0; color: #c8c8c8; font-size: 16px; line-height: 1.6; }
+.salary-content { padding: 30px 0 70px; }
+.salary-stat-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin-bottom: 22px; }
+.salary-stat { min-width: 0; background: #fff; border: 1px solid #e2e1dc; border-radius: 12px; padding: 16px 17px; }
+.salary-stat span { display: block; color: #777; font-size: 11px; font-weight: 700; margin-bottom: 6px; }
+.salary-stat strong { display: block; font-size: 22px; line-height: 1.15; overflow-wrap: anywhere; }
+.salary-controls { background: #fff; border: 1px solid #e2e1dc; border-radius: 14px; padding: 18px; margin-bottom: 16px; }
+.salary-control-grid { display: grid; grid-template-columns: minmax(220px, 1fr) repeat(4, minmax(125px, 160px)); gap: 10px; }
+.salary-control-grid input,.salary-control-grid select { width: 100%; min-width: 0; min-height: 42px; border: 1px solid #d9d8d3; border-radius: 9px; padding: 10px 12px; font-size: 14px; background: #fff; color: #111; outline: none; }
+.salary-control-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 13px; color: #777; font-size: 13px; }
+.salary-control-footer button,.salary-empty button { border: 0; background: transparent; color: #111; padding: 0; font-size: 13px; font-weight: 750; cursor: pointer; }
+.salary-note { background: #f0efe9; border: 1px solid #dedcd3; border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; color: #666; font-size: 12px; line-height: 1.55; }
+.salary-note strong { color: #222; }
+.salary-table-wrap { width: 100%; overflow: hidden; background: #fff; border: 1px solid #e2e1dc; border-radius: 14px; }
+.salary-table-header,.salary-row { display: grid; grid-template-columns: 1.55fr 1.45fr 0.9fr 1.05fr 1.05fr 1fr 0.9fr; gap: 14px; align-items: center; }
+.salary-table-header { padding: 13px 18px; background: #fafafa; border-bottom: 1px solid #e5e5e5; color: #777; font-size: 10px; font-weight: 800; letter-spacing: .8px; }
+.salary-row { padding: 15px 18px; border-bottom: 1px solid #eeeeee; color: #111; text-decoration: none; font-size: 13px; min-width: 0; }
+.salary-row:last-child { border-bottom: 0; }
+.salary-row > span { min-width: 0; }
+.salary-row strong { font-weight: 800; }
+.salary-row small { display: block; margin-top: 3px; color: #888; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.salary-primary { font-weight: 800; }
+.salary-original { color: #555; }
+.salary-confidence { display: inline-flex; align-items: center; min-height: 24px; padding: 4px 8px; border-radius: 999px; font-style: normal; font-size: 10px; font-weight: 800; white-space: nowrap; }
 .salary-confidence.verified { background: #e8f2ea; color: #245b32; }
 .salary-confidence.reported { background: #eef2f5; color: #40505b; }
 .salary-confidence.estimated { background: #f3ecdf; color: #76591e; }
 .salary-confidence.rumored { background: #f5e8e8; color: #7b3c3c; }
 .salary-confidence.unknown { background: #eeeeeb; color: #666; }
+.salary-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; min-height: 180px; background: #fff; border: 1px solid #e2e1dc; border-radius: 14px; padding: 36px 20px; color: #777; text-align: center; font-size: 14px; }
 
-.salary-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-height: 180px;
-  background: #fff;
-  border: 1px solid #e2e1dc;
-  border-radius: 14px;
-  padding: 36px 20px;
-  color: #777;
-  text-align: center;
-  font-size: 14px;
-}
-
-/* Transfer Market: mobile cards instead of a six-column desktop grid. */
 @media (max-width: 650px) {
-  .salary-shell {
-    width: calc(100% - 32px);
-  }
-
-  .salary-hero {
-    padding: 40px 0 36px;
-  }
-
-  .salary-hero h1 {
-    font-size: clamp(40px, 13vw, 54px);
-    letter-spacing: -2.5px;
-  }
-
-  .salary-hero p {
-    font-size: 15px;
-    line-height: 1.5;
-  }
-
-  .salary-content {
-    padding: 24px 0 48px;
-  }
-
-  .salary-stat-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 9px;
-  }
-
-  .salary-stat {
-    padding: 13px 14px;
-    min-height: 78px;
-  }
-
-  .salary-stat strong {
-    font-size: 19px;
-  }
-
-  .salary-controls {
-    padding: 12px;
-    border-radius: 12px;
-  }
-
-  .salary-control-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 8px;
-  }
-
-  .salary-control-grid input {
-    grid-column: 1 / -1;
-  }
-
-  .salary-control-grid input,
-  .salary-control-grid select {
-    min-height: 44px;
-    font-size: 16px;
-    padding: 9px 10px;
-  }
-
-  .salary-control-footer {
-    align-items: flex-start;
-    font-size: 12px;
-  }
-
-  .salary-note {
-    padding: 11px 12px;
-    font-size: 11px;
-  }
-
-  .salary-table-wrap {
-    border-radius: 12px;
-    overflow: visible;
-    background: transparent;
-    border: 0;
-  }
-
-  .salary-table-header {
-    display: none;
-  }
-
-  .salary-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 9px 12px;
-    padding: 15px;
-    margin-bottom: 9px;
-    border: 1px solid #e2e1dc;
-    border-radius: 12px;
-    background: #fff;
-    font-size: 13px;
-  }
-
-  .salary-row:last-child {
-    border-bottom: 1px solid #e2e1dc;
-    margin-bottom: 0;
-  }
-
-  .salary-row .salary-player { grid-column: 1 / -1; }
-  .salary-row .salary-club { grid-column: 1 / -1; }
+  .salary-shell { width: calc(100% - 32px); }
+  .salary-hero { padding: 40px 0 36px; }
+  .salary-hero h1 { font-size: clamp(40px, 13vw, 54px); letter-spacing: -2.5px; }
+  .salary-hero p { font-size: 15px; line-height: 1.5; }
+  .salary-content { padding: 24px 0 48px; }
+  .salary-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+  .salary-stat { padding: 13px 14px; min-height: 78px; }
+  .salary-stat strong { font-size: 19px; }
+  .salary-controls { padding: 12px; border-radius: 12px; }
+  .salary-control-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+  .salary-control-grid input { grid-column: 1 / -1; }
+  .salary-control-grid input,.salary-control-grid select { min-height: 44px; font-size: 16px; padding: 9px 10px; }
+  .salary-control-footer { align-items: flex-start; font-size: 12px; }
+  .salary-note { padding: 11px 12px; font-size: 11px; }
+  .salary-table-wrap { border-radius: 12px; overflow: visible; background: transparent; border: 0; }
+  .salary-table-header { display: none; }
+  .salary-row { grid-template-columns: minmax(0, 1fr) auto; gap: 9px 12px; padding: 15px; margin-bottom: 9px; border: 1px solid #e2e1dc; border-radius: 12px; background: #fff; font-size: 13px; }
+  .salary-row:last-child { border-bottom: 1px solid #e2e1dc; margin-bottom: 0; }
+  .salary-row .salary-player,.salary-row .salary-club { grid-column: 1 / -1; }
   .salary-row > span:nth-child(3) { display: inline-block; }
-  .salary-row > span:nth-child(4) { text-align: right; }
-  .salary-row > span:nth-child(5) { text-align: right; }
+  .salary-row > span:nth-child(4),.salary-row > span:nth-child(5) { text-align: right; }
   .salary-row > span:nth-child(6) { grid-column: 1; }
   .salary-row > span:nth-child(7) { grid-column: 2; text-align: right; }
+  .salary-row .salary-primary { font-size: 15px; }
 
-  .salary-row .salary-primary {
-    font-size: 15px;
-  }
+  /* Transfer market inline grids become thumb-friendly cards. */
+  main > section:nth-child(2) > div:first-child { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  main > section:nth-child(2) > div:nth-child(2) > div:first-child { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
+  main > section:nth-child(2) > div:nth-child(2) input { grid-column: 1 / -1; font-size: 16px !important; min-height: 44px !important; }
+  main > section:nth-child(2) > div:nth-child(2) select { min-height: 44px !important; font-size: 16px !important; }
+  main > section:nth-child(2) article { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; gap: 12px !important; padding: 14px !important; }
+  main > section:nth-child(2) article > div:nth-child(1) { grid-column: 1 / -1; }
+  main > section:nth-child(2) article > a:nth-child(2) { grid-column: 1 / -1; }
+  main > section:nth-child(2) article > div:nth-child(3) { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr) !important; gap: 6px !important; }
 
-  .salary-row small {
-    max-width: 100%;
-  }
-
-  /* The transfer page uses inline grids, so these rules intentionally use !important. */
-  main > section:nth-child(2) > div:first-child {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-
-  main > section:nth-child(2) > div:nth-child(2) > div:first-child {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-  }
-
-  main > section:nth-child(2) > div:nth-child(2) input {
-    grid-column: 1 / -1;
-    font-size: 16px !important;
-    min-height: 44px !important;
-  }
-
-  main > section:nth-child(2) > div:nth-child(2) select {
-    min-height: 44px !important;
-    font-size: 16px !important;
-  }
-
-  main > section:nth-child(2) article {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-    gap: 12px !important;
-    padding: 14px !important;
-  }
-
-  main > section:nth-child(2) article > div:nth-child(1) {
-    grid-column: 1 / -1;
-  }
-
-  main > section:nth-child(2) article > a:nth-child(2) {
-    grid-column: 1 / -1;
-  }
-
-  main > section:nth-child(2) article > div:nth-child(3) {
-    grid-column: 1 / -1;
-    grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr) !important;
-    gap: 6px !important;
-  }
-
-  main > section:nth-child(2) article > div:nth-child(4) {
-    align-self: center;
-  }
-
-  main > section:nth-child(2) article > div:nth-child(5) {
-    align-self: center;
-    text-align: right;
-  }
-
-  main > section:nth-child(2) article > div:nth-child(6) {
-    text-align: right;
-  }
-
-  main > section:nth-child(2) article a {
-    min-width: 0;
-  }
-
-  main > section:nth-child(2) article a > div {
-    min-width: 0;
-  }
-
-  main > section:nth-child(2) article a img {
-    max-width: 100%;
-  }
+  /* Player profile: stack every intelligence block cleanly on narrow iPhone screens. */
+  .player-page { overflow-x: hidden; }
+  .player-hero { padding: 24px 16px 30px !important; }
+  .player-hero > div { width: 100%; }
+  .player-hero-grid { grid-template-columns: 82px minmax(0,1fr) !important; gap: 14px !important; align-items: start !important; }
+  .player-hero-grid > div:first-child { width: 82px !important; height: 82px !important; border-radius: 10px !important; }
+  .player-hero-grid h1 { font-size: 27px !important; line-height: 1.04 !important; overflow-wrap: anywhere; }
+  .player-hero-grid > div:nth-child(2) > div:nth-child(2) { margin-top: 8px !important; font-size: 12px !important; line-height: 1.45; }
+  .player-hero-grid > div:nth-child(2) > a { margin-top: 9px !important; font-size: 13px !important; }
+  .player-hero-value { grid-column: 1 / -1; min-width: 0 !important; width: 100%; text-align: left !important; padding-top: 8px; border-top: 1px solid #333; }
+  .player-hero-value > div:nth-child(2) { font-size: 24px !important; }
+  .player-content { padding: 16px 16px 42px !important; }
+  .player-overview-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 8px !important; }
+  .player-overview-grid > div { padding: 14px !important; min-width: 0; }
+  .player-overview-grid > div > div:nth-child(2) { overflow-wrap: anywhere; }
+  .player-main-grid { grid-template-columns: minmax(0,1fr) !important; gap: 12px !important; }
+  .player-main-grid > section,.player-main-grid > aside { padding: 16px !important; }
+  .player-links-grid { grid-template-columns: 1fr !important; gap: 8px !important; }
+  .profile-contract-card { overflow: hidden; }
+  .profile-contract-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 12px !important; }
+  .profile-contract-grid > div:first-child { grid-column: 1 / -1; }
+  .market-value-list > div { grid-template-columns: 88px minmax(0,1fr) !important; gap: 8px !important; align-items: start !important; }
+  .market-value-list > div > div:nth-child(2) { min-width: 0; }
+  .market-value-list > div > div:nth-child(3) { grid-column: 2; }
+  .market-value-list > div > div:nth-child(4) { display: none; }
+  .player-page table { min-width: 620px; }
 }
 
 @media (min-width: 651px) and (max-width: 1000px) {
-  .salary-stat-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .salary-control-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .salary-table-wrap {
-    overflow-x: auto;
-  }
-
-  .salary-table-header,
-  .salary-row {
-    min-width: 900px;
-  }
+  .salary-stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .salary-control-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .salary-table-wrap { overflow-x: auto; }
+  .salary-table-header,.salary-row { min-width: 900px; }
+  .player-overview-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+  .player-main-grid { grid-template-columns: minmax(0,1fr) !important; }
 }
