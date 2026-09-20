@@ -19,7 +19,9 @@ const agg=(r:Stat[])=>r.reduce((a,s)=>({minutes:a.minutes+n(s.minutes),goals:a.g
 export default function PlayerIntelligence({stats,marketValues,position,contracts,seasonIntelligence,peerBenchmarks}:{stats:Stat[];marketValues:Value[];position:string|null;contracts:Contract[];seasonIntelligence:SeasonIntel[];peerBenchmarks:PeerBenchmark[]}){
  const pathname=usePathname();
  const playerId=pathname.split("/").filter(Boolean).pop()||"";
- const isGoalkeeper=/goalkeeper|goalie|\bGK\b/i.test(position||"");
+ const roleGroup=getPlayerRoleGroup(position);
+ const isGoalkeeper=roleGroup==="GK";
+ const roleLabel=roleLabels[roleGroup];
  const [gkBenchmarks,setGkBenchmarks]=useState<GKBenchmark[]>([]);
  useEffect(()=>{if(!isGoalkeeper||!playerId)return;let cancelled=false;(async()=>{const {data}=await supabase.from("player_goalkeeper_benchmarks").select("season,league,peer_count,saves_per90,shots_faced_per90,goals_against_per90,clean_sheets_per90,pk_saves_per90,saves_per90_percentile,shots_faced_per90_percentile,goals_against_per90_percentile,clean_sheets_per90_percentile,pk_saves_per90_percentile").eq("player_id",playerId).order("season",{ascending:false});if(!cancelled&&data)setGkBenchmarks(data as GKBenchmark[])})();return()=>{cancelled=true}},[isGoalkeeper,playerId]);
  const seasons=Array.from(new Set(stats.map(s=>s.season))).sort((a,b)=>b.localeCompare(a,undefined,{numeric:true}));
