@@ -6,7 +6,7 @@ const n=(v:number|null)=>v||0;
 const p90=(v:number,m:number)=>m?v*90/m:null;
 const money=(v:number|null)=>v==null?"—":new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(v);
 const fmt=(v:number|null)=>v==null?"—":v.toLocaleString("en-US",{maximumFractionDigits:2});
-const agg=(r:Stat[])=>r.reduce((a,s)=>({minutes:a.minutes+n(s.minutes),goals:a.goals+n(s.goals),assists:a.assists+n(s.assists),xg:a.xg+n(s.xg),xa:a.xa+n(s.xa),chances:a.chances+n(s.chances),key:a.key+n(s.key_passes),tackles:a.tackles+n(s.tackles),interceptions:a.interceptions+n(s.interceptions),carries:a.carries+n(s.progressive_carries)}),{minutes:0,goals:0,assists:0,xg:0,xa:0,chances:0,key:0,tackles:0,interceptions:0,carries:0});
+const agg=(r:Stat[])=>r.reduce((a,s)=>({minutes:a.minutes+n(s.minutes),goals:a.goals+n(s.goals),assists:a.assists+n(s.assists),xg:a.xg+n(s.xg),xa:a.xa+n(s.xa),chances:a.chances+n(s.chances_created),key:a.key+n(s.key_passes),tackles:a.tackles+n(s.tackles),interceptions:a.interceptions+n(s.interceptions),carries:a.carries+n(s.progressive_carries)}),{minutes:0,goals:0,assists:0,xg:0,xa:0,chances:0,key:0,tackles:0,interceptions:0,carries:0});
 export default function PlayerIntelligence({stats,marketValues,position}:{stats:Stat[];marketValues:Value[];position:string|null}){
  const seasons=Array.from(new Set(stats.map(s=>s.season))).sort((a,b)=>b.localeCompare(a,undefined,{numeric:true}));
  const current=agg(stats.filter(s=>s.season===seasons[0])), previous=agg(stats.filter(s=>s.season===seasons[1]));
