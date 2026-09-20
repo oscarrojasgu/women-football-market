@@ -3,3 +3,6 @@ verify_jwt = false
 
 [functions.sync-sportmonks-match-stats]
 verify_jwt = false
+
+[functions.aggregate-sportmonks-stats]
+verify_jwt = false
