@@ -148,20 +148,16 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     return <main className="player-page" style={{ minHeight: "100vh", background: "#f5f4ef", padding: "80px 20px" }}><div style={{ maxWidth: 1200, margin: "0 auto" }}><h1>Player not found</h1><Link href="/players">Back to players</Link></div></main>;
   }
 
-  const [{ data: contractData }, { data: statsData }, { data: transferData }, { data: valueData }, { data: intelligenceData }, { data: peerData }] = await Promise.all([
+  const [{ data: contractData }, { data: statsData }, { data: transferData }, { data: valueData }] = await Promise.all([
     supabase.from("contracts").select("id,status,confidence,start_date,end_date,annual_salary,weekly_salary,annual_salary_usd,weekly_salary_usd,currency,notes,club_id").eq("player_id", id).order("start_date", { ascending: false }),
     supabase.from("player_stats").select("id,club_id,season,competition,appearances,starts,minutes,goals,assists,yellow_cards,red_cards,shots,shots_on_target,key_passes,chances_created,crosses,tackles,tackles_won,interceptions,clearances,blocks,recoveries,dispossessions,dribbles_attempted,dribbles_completed,fouls_committed,fouls_drawn,offsides,passes_attempted,passes_completed,progressive_passes,progressive_carries,duels_won,duels_lost,aerials_won,aerials_lost,xg,xa,sca,gca,saves,shots_on_target_faced,goals_against,clean_sheets,penalty_kicks_saved,penalty_kicks_faced,own_goals,confidence,notes").eq("player_id", id).order("season", { ascending: false }).order("competition", { ascending: true }),
     supabase.from("transfers").select("id,transfer_date,transfer_type,fee,currency,confidence,from_club:clubs!transfers_from_club_id_fkey(id,name,league,country,logo_url),to_club:clubs!transfers_to_club_id_fkey(id,name,league,country,logo_url)").eq("player_id", id).order("transfer_date", { ascending: false }),
     supabase.from("market_values").select("id,valuation_date,market_value,currency,market_value_usd,confidence,notes").eq("player_id", id).order("valuation_date", { ascending: false }),
-    supabase.from("player_season_intelligence").select("*").eq("player_id", id).order("season", { ascending: false }),
-    supabase.from("player_peer_benchmarks").select("*").eq("player_id", id).order("season", { ascending: false }),
   ]);
 
   const contracts = (contractData || []) as Contract[];
   const stats = (statsData || []) as PlayerStat[];
   const marketValues = (valueData || []) as MarketValue[];
-  const intelligenceRows = intelligenceData || [];
-  const peerRows = peerData || [];
   const transfers: Transfer[] = (transferData || []).map((item: any) => ({ ...item, from_club: Array.isArray(item.from_club) ? item.from_club[0] || null : item.from_club || null, to_club: Array.isArray(item.to_club) ? item.to_club[0] || null : item.to_club || null }));
 
   const clubIds = Array.from(new Set(contracts.map(c => c.club_id).concat(stats.map(s => s.club_id)).filter((v): v is string => Boolean(v))));
@@ -183,8 +179,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <Link href="/players" style={{ color: "#aaa", textDecoration: "none", fontSize: 12 }}>← Players</Link>
           <div className="player-hero-grid" style={{ display: "grid", gridTemplateColumns: "140px minmax(0,1fr) auto", gap: 26, alignItems: "center", marginTop: 22 }}>
-            <div style={{ width: 140, height: 180, borderRadius: 12, overflow: "hidden", background: "#222", border: "1px solid #333" }}>
-              <img src={player.photo_url || "/wfm-player-placeholder.svg"} alt={player.full_name} onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = "/wfm-player-placeholder.svg"; }} style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "center", display: "block" }} />
+            <div style={{ width: 140, height: 140, borderRadius: 12, overflow: "hidden", background: "#222", border: "1px solid #333" }}>
+              <img src={player.photo_url || "/wfm-player-placeholder.svg"} alt={player.full_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
             <div style={{ minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
@@ -248,7 +244,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           {transfers.length ? <div style={{ marginTop: 16, display: "grid", gap: 8 }}>{transfers.map((transfer, index) => <article key={transfer.id} style={{ display: "grid", gridTemplateColumns: "110px minmax(0,1fr) 150px", gap: 14, alignItems: "center", padding: "14px 0", borderBottom: index === transfers.length - 1 ? 0 : "1px solid #eee" }}><div><div style={label}>Date</div><div style={{ marginTop: 5, fontSize: 12 }}>{dateText(transfer.transfer_date)}</div></div><div><div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}><span style={{ fontWeight: 700 }}>{transfer.from_club?.name || "Previous club"}</span><span style={{ color: "#999" }}>→</span><span style={{ fontWeight: 700 }}>{transfer.to_club?.name || "New club"}</span></div><div style={{ marginTop: 5, color: "#888", fontSize: 11 }}>{titleCase(transfer.transfer_type)} · {titleCase(transfer.confidence)}</div></div><div style={{ textAlign: "right" }}><div style={label}>Fee</div><div style={{ marginTop: 5, fontWeight: 750 }}>{transfer.fee == null ? "Free" : original(transfer.fee, transfer.currency)}</div></div></article>)}</div> : <div style={{ marginTop: 18, color: "#888" }}>No transfer records available.</div>}
         </section>
 
-        <PlayerIntelligence rows={intelligenceRows} marketValues={marketValues} peerRows={peerRows} />
+        <PlayerIntelligence stats={stats} marketValues={marketValues} position={player.position} />
 
         <section style={{ marginTop: 16 }}><PlayerStatistics stats={stats} clubs={clubs} /></section>
 
