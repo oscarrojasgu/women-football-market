@@ -139,6 +139,8 @@ Important limitation:
 - [x] Added a dedicated match-level stats table so provider match data cannot double-count the existing season-level `player_stats` table
 - [x] Added provider-player mapping with safe exact-name auto-matching during validation
 - [x] Deployed the live `sync-sportmonks-match-stats` Edge Function; it records every run in `data_update_runs`
+- [x] Added and deployed `aggregate-sportmonks-stats` to roll validated match records into season-level `player_stats` without duplicating raw match data
+- [x] Hardened Edge Function auth with Supabase `withSupabase({ auth: "secret" })` and function-level JWT verification configuration
 - [ ] Add the Sportmonks API token as a server-side Supabase secret and validate the first WFM competition/player mapping against live provider data
 - [ ] Add scheduled ingestion after the provider is validated
 - [ ] Build deeper scouting-oriented intelligence after the comparison foundation is stable
