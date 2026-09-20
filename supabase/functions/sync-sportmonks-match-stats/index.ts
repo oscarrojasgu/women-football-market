@@ -5,9 +5,12 @@ type SportmonksFixture = {
   id?: number | string;
   league_id?: number | string | null;
   season_id?: number | string | null;
+  league?: { name?: string | null } | null;
+  season?: { name?: string | number | null } | null;
   lineups?: Array<{
     player_id?: number | string | null;
     player_name?: string | null;
+    team_id?: number | string | null;
     minutes_played?: number | null;
     details?: Array<{
       type?: { name?: string | null; code?: string | null };
@@ -66,7 +69,7 @@ export default withSupabase({ auth: "secret" }, async (req, ctx) => {
 
   for (const fixtureId of fixtureIds) {
     try {
-      const payload = await sportmonks(`fixtures/${encodeURIComponent(fixtureId)}?include=lineups.details;participants`, token);
+      const payload = await sportmonks(`fixtures/${encodeURIComponent(fixtureId)}?include=lineups.details;participants;league;season`, token);
       const fixture = payload?.data as SportmonksFixture | undefined;
       if (!fixture?.id || !fixture.season_id || !fixture.league_id) {
         rejected++;
@@ -116,13 +119,16 @@ export default withSupabase({ auth: "secret" }, async (req, ctx) => {
         }
 
         const details = lineup.details || [];
+        const seasonName = String(fixture.season?.name || fixture.season_id);
+        const competitionName = String(fixture.league?.name || fixture.league_id);
         const row = {
           provider,
+          club_id: null,
           external_match_id: String(fixture.id),
           external_player_id: externalPlayerId,
           player_id: playerId,
-          season: String(fixture.season_id),
-          competition: String(fixture.league_id),
+          season: seasonName,
+          competition: competitionName,
           appearances: (lineup.minutes_played || 0) > 0 ? 1 : 0,
           minutes: lineup.minutes_played || 0,
           goals: numeric(details, "Goals"),
