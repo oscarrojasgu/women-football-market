@@ -161,8 +161,19 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   const stats = (statsData || []) as PlayerStat[];
   const marketValues = (valueData || []) as MarketValue[];
   const transfers: Transfer[] = (transferData || []).map((item: any) => ({ ...item, from_club: Array.isArray(item.from_club) ? item.from_club[0] || null : item.from_club || null, to_club: Array.isArray(item.to_club) ? item.to_club[0] || null : item.to_club || null }));
-  const seasonIntelligence = (seasonIntelligenceData || []) as Array<Record<string, any>>;
-  const peerBenchmarks = (peerBenchmarkData || []) as Array<Record<string, any>>;
+  const seasonIntelligence = (seasonIntelligenceData || []) as Array<{
+    season: string; club_name: string | null; league: string | null; position: string | null;
+    minutes: number | null; goals: number | null; assists: number | null;
+    goals_per90: number | null; assists_per90: number | null; xg_per90: number | null; xa_per90: number | null;
+    chances_created_per90: number | null; key_passes_per90: number | null; tackles_per90: number | null;
+    interceptions_per90: number | null; progressive_carries_per90: number | null; duels_won_per90: number | null;
+  }>;
+  const peerBenchmarks = (peerBenchmarkData || []) as Array<{
+    season: string; league: string | null; position: string | null; peer_count: number | null;
+    goals_per90_percentile: number | null; assists_per90_percentile: number | null; xg_per90_percentile: number | null;
+    xa_per90_percentile: number | null; chances_created_per90_percentile: number | null; key_passes_per90_percentile: number | null;
+    tackles_per90_percentile: number | null; interceptions_per90_percentile: number | null; progressive_carries_per90_percentile: number | null;
+  }>;
 
   const clubIds = Array.from(new Set(contracts.map(c => c.club_id).concat(stats.map(s => s.club_id)).filter((v): v is string => Boolean(v))));
   const { data: clubData } = clubIds.length ? await supabase.from("clubs").select("id,name,league,country,logo_url").in("id", clubIds) : { data: [] };
