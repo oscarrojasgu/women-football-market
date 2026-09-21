@@ -136,7 +136,7 @@ Important limitation:
 
 - [x] Added a descriptive Scouting Profile to player intelligence using recorded role metrics and eligible peer-group percentiles
 - [x] Kept scouting context descriptive rather than converting benchmark data into a player rating
-- [ ] Add role-specific scouting filters and research views
+- [x] Add role-specific scouting filters and research views
 - [ ] Add richer player archetype/context views using only recorded WFM data
 - [ ] Add broader competition/league coverage to strengthen peer samples
 - [ ] Add historical contract and salary trend context where source coverage supports it
