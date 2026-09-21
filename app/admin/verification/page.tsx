@@ -258,27 +258,6 @@ export default function VerificationDashboard() {
     await loadQueue();
   }
 
-  async function signOut()(id: string) {
-    setBusy(true);
-    setMessage("");
-
-    const { error } = await supabase
-      .from("player_claims")
-      .update({
-        status: "rejected",
-      })
-      .eq("id", id);
-
-    setBusy(false);
-
-    if (error) {
-      setMessage(error.message);
-      return;
-    }
-
-    await loadQueue();
-  }
-
   async function signOut() {
     await supabase.auth.signOut();
     setUser(null);
