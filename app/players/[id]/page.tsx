@@ -175,7 +175,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     tackles_per90_percentile: number | null; interceptions_per90_percentile: number | null; progressive_carries_per90_percentile: number | null;
   }>;
 
-  const clubIds = Array.from(new Set(contracts.map(c => c.club_id).concat(stats.map(s => s.club_id)).filter((v): v is string => Boolean(v))));
+  const transferClubIds = transfers.flatMap(t => [t.from_club?.id, t.to_club?.id]);
+  const clubIds = Array.from(new Set(contracts.map(c => c.club_id).concat(stats.map(s => s.club_id)).concat(transferClubIds).filter((v): v is string => Boolean(v))));
   const { data: clubData } = clubIds.length ? await supabase.from("clubs").select("id,name,league,country,logo_url").in("id", clubIds) : { data: [] };
   const clubs = (clubData || []) as Club[];
   const clubMap = new Map(clubs.map(c => [c.id, c]));
@@ -185,22 +186,27 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   const datedCurrentContract = contracts.find(c => c.start_date && c.start_date <= today && (!c.end_date || c.end_date >= today)) || null;
   const currentContract = activeContract || datedCurrentContract;
   const latestStatWithClub = stats.find(s => s.club_id) || null;
+  const latestTransferWithClub = transfers.find(t => t.to_club?.id) || null;
   const currentClub = currentContract?.club_id
     ? clubMap.get(currentContract.club_id) || null
-    : latestStatWithClub?.club_id
-      ? clubMap.get(latestStatWithClub.club_id) || null
-      : contracts[0]?.club_id
-        ? clubMap.get(contracts[0].club_id) || null
-        : null;
+    : latestTransferWithClub?.to_club?.id
+      ? clubMap.get(latestTransferWithClub.to_club.id) || latestTransferWithClub.to_club
+      : latestStatWithClub?.club_id
+        ? clubMap.get(latestStatWithClub.club_id) || null
+        : contracts[0]?.club_id
+          ? clubMap.get(contracts[0].club_id) || null
+          : null;
   const currentValue = marketValues[0] || null;
   const age = ageOf(player.date_of_birth);
   const code = flagCode(player.nationality);
   const contractHistory = contracts.filter(c => c.id !== currentContract?.id);
   const currentClubSource = currentContract?.club_id && clubMap.get(currentContract.club_id)
     ? "contract"
-    : latestStatWithClub?.club_id && clubMap.get(latestStatWithClub.club_id)
-      ? "latest club statistics"
-      : "latest contract record";
+    : latestTransferWithClub?.to_club?.id
+      ? "latest transfer"
+      : latestStatWithClub?.club_id && clubMap.get(latestStatWithClub.club_id)
+        ? "latest club statistics"
+        : "latest contract record";
   const latestTransfer = transfers[0] || null;
 
   return (
