@@ -132,20 +132,22 @@ Build comparisons, trends, market-value context, contract context, and salary co
 Important limitation:
 - [ ] A real external statistics provider/API has not been selected or connected yet, so the system does not claim to automatically import every match. Once a provider is selected, Supabase Cron can call the ingestion function on a schedule and the existing intelligence views will reflect accepted updates automatically.
 
-### Phase 3 provider integration — IN PROGRESS
+### Phase 3 milestone 4 — scouting intelligence — IN PROGRESS
 
-- [x] Selected Sportmonks as the first provider candidate because its current API documents women's competitions, player statistics, lineups, squads, and season statistics in the same football API schema. citeturn0search0turn0search4
-- [x] Completed the WFM-side provider integration foundation and kept it behind the existing ingestion pipeline rather than coupling provider logic to the public player pages
-- [x] Added a dedicated match-level stats table so provider match data cannot double-count the existing season-level `player_stats` table
-- [x] Added provider-player mapping with safe exact-name auto-matching during validation
-- [x] Deployed the live `sync-sportmonks-match-stats` Edge Function; it records every run in `data_update_runs`
-- [x] Added and deployed `aggregate-sportmonks-stats` to roll validated match records into season-level `player_stats` without duplicating raw match data
-- [x] Hardened Edge Function auth with Supabase `withSupabase({ auth: "secret" })` and function-level JWT verification configuration
-- [ ] Add the Sportmonks API token as a server-side Supabase secret and validate the first WFM competition/player mapping against live provider data
-- [ ] Add scheduled ingestion after the provider is validated
-- [ ] Build deeper scouting-oriented intelligence after the comparison foundation is stable
+- [x] Added a descriptive Scouting Profile to player intelligence using recorded role metrics and eligible peer-group percentiles
+- [x] Kept scouting context descriptive rather than converting benchmark data into a player rating
+- [ ] Add role-specific scouting filters and research views
+- [ ] Add richer player archetype/context views using only recorded WFM data
 - [ ] Add broader competition/league coverage to strengthen peer samples
 - [ ] Add historical contract and salary trend context where source coverage supports it
+- [ ] Add saved scouting workflows after the intelligence layer is stable
+
+### Provider strategy
+
+- Sportmonks is intentionally skipped.
+- WFM keeps the provider-agnostic ingestion foundation so a future source can be connected without redesigning the public player workflow.
+- No automatic external statistics provider is currently claimed as connected or active.
+- Phase 3 continues using the verified/recorded WFM database and derived intelligence views rather than blocking progress on a provider integration.
 
 ## PHASE 4 — Verification
 
