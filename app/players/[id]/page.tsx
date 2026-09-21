@@ -222,6 +222,29 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           <div style={card}><div style={label}>Agency</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.agency || "Not reported"}</div><div style={{ color: "#888", fontSize: 12, marginTop: 3 }}>{player.preferred_foot ? `${player.preferred_foot} foot` : ""}</div></div>
         </div>
 
+        <section className="player-personal-info" style={{ ...card, marginTop: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+            <div>
+              <h2 style={{ margin: 0, fontSize: 19 }}>Personal Information</h2>
+              <p style={{ margin: "4px 0 0", color: "#888", fontSize: 12 }}>Verified biographical and player-profile information currently recorded by WFM.</p>
+            </div>
+            <div style={{ fontSize: 11, color: "#888" }}>{player.date_of_birth ? "Date of birth recorded" : "Biographical data incomplete"}</div>
+          </div>
+          <div className="player-personal-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 12, marginTop: 18 }}>
+            <div style={card}><div style={label}>Date of Birth</div><div style={{ marginTop: 7, fontWeight: 750 }}>{dateText(player.date_of_birth)}</div></div>
+            <div style={card}><div style={label}>Age</div><div style={{ marginTop: 7, fontWeight: 750 }}>{age !== null ? age : "—"}</div></div>
+            <div style={card}><div style={label}>Nationality</div><div style={{ marginTop: 7, fontWeight: 750, display: "flex", alignItems: "center", gap: 8 }}>{code && <img src={`https://flagcdn.com/w40/${code}.png`} alt="" width={24} height={16} style={{ objectFit: "cover", borderRadius: 2 }} />}{player.nationality || "—"}</div></div>
+            <div style={card}><div style={label}>Birthplace</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.birthplace || "—"}</div></div>
+            <div style={card}><div style={label}>Height</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.height_cm ? `${player.height_cm} cm` : "—"}</div></div>
+            <div style={card}><div style={label}>Primary Position</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.position || "—"}</div></div>
+            <div style={card}><div style={label}>Secondary Position</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.secondary_position || "—"}</div></div>
+            <div style={card}><div style={label}>Preferred Foot</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.preferred_foot || "—"}</div></div>
+            <div style={card}><div style={label}>Agency</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.agency || "—"}</div></div>
+            <div style={card}><div style={label}>Current Club Since</div><div style={{ marginTop: 7, fontWeight: 750 }}>{dateText(player.current_club_since)}</div></div>
+            <div style={{ ...card, gridColumn: "span 2" }}><div style={label}>Youth Clubs</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.youth_clubs || "—"}</div></div>
+          </div>
+        </section>
+
         <div className="player-main-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,2fr) minmax(280px,1fr)", gap: 16, marginTop: 16 }}>
           <section style={card}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
@@ -239,7 +262,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           <aside style={card}>
             <h2 style={{ margin: 0, fontSize: 19 }}>Data Coverage</h2>
             <p style={{ margin: "5px 0 18px", color: "#888", fontSize: 12 }}>What WFM currently knows about this player.</p>
-            {["Player identity", player.photo_url ? "Player photo" : "Player photo placeholder", currentClub ? "Current club" : "Current club unknown", contracts.length ? "Contract history" : "Contract data unavailable", marketValues.length ? "Market value history" : "Market value unavailable", transfers.length ? "Transfer history" : "Transfer history unavailable", stats.length ? "Club statistics" : "Club statistics unavailable"].map((text, index) => <div key={text} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "9px 0", borderBottom: index === 6 ? 0 : "1px solid #eee", fontSize: 12 }}><span>{text}</span><strong style={{ color: index === 1 && !player.photo_url ? "#888" : "#111" }}>{index === 1 && !player.photo_url ? "Placeholder" : "Available"}</strong></div>)}
+            {["Player identity", player.date_of_birth ? "Date of birth" : "Date of birth missing", player.birthplace ? "Birthplace" : "Birthplace missing", player.height_cm ? "Height" : "Height missing", player.position ? "Primary position" : "Primary position missing", player.secondary_position ? "Secondary position" : "Secondary position missing", player.preferred_foot ? "Preferred foot" : "Preferred foot missing", player.photo_url ? "Player photo" : "Player photo placeholder", currentClub ? "Current club" : "Current club unknown", contracts.length ? "Contract history" : "Contract data unavailable", marketValues.length ? "Market value history" : "Market value unavailable", transfers.length ? "Transfer history" : "Transfer history unavailable", stats.length ? "Club statistics" : "Club statistics unavailable"].map((text, index) => <div key={text} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "9px 0", borderBottom: index === 12 ? 0 : "1px solid #eee", fontSize: 12 }}><span>{text}</span><strong style={{ color: index === 1 && !player.photo_url ? "#888" : "#111" }}>{text.includes("missing") ? "Missing" : text.includes("placeholder") ? "Placeholder" : "Available"}</strong></div>)}
           </aside>
         </div>
 
