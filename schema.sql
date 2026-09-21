@@ -470,3 +470,54 @@ create table if not exists public.player_match_stats (
 
 alter table public.provider_player_mappings enable row level security;
 alter table public.player_match_stats enable row level security;
+
+
+-- Phase 4 milestone 4 — official profile & organization verification.
+create table if not exists public.official_verifications (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  player_id uuid references public.players(id) on delete cascade,
+  club_id uuid references public.clubs(id) on delete cascade,
+  agency_name text,
+  verification_type text not null check (verification_type in ('player','agent','agency','club')),
+  status text not null default 'pending' check (status in ('pending','verified','rejected','revoked')),
+  verification_method text,
+  evidence_url text,
+  source_id uuid references public.sources(id) on delete set null,
+  notes text,
+  reviewed_by uuid references auth.users(id) on delete set null,
+  reviewed_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.official_verification_reviews (
+  id uuid primary key default gen_random_uuid(),
+  verification_id uuid not null references public.official_verifications(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  reviewer_id uuid not null references auth.users(id) on delete cascade,
+  action text not null check (action in ('approved','rejected','revoked','needs_evidence')),
+  status_before text,
+  status_after text,
+  verification_method text,
+  evidence_url text,
+  source_id uuid references public.sources(id) on delete set null,
+  notes text,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.official_verification_public (
+  verification_id uuid primary key references public.official_verifications(id) on delete cascade,
+  player_id uuid references public.players(id) on delete cascade,
+  club_id uuid references public.clubs(id) on delete cascade,
+  agency_name text,
+  verification_type text not null,
+  status text not null,
+  verification_method text,
+  evidence_url text,
+  source_id uuid references public.sources(id) on delete set null,
+  verified_at timestamptz,
+  updated_at timestamptz not null default now()
+);
+
+-- The live database also contains submit_official_verification_request and review_official_verification RPCs.
