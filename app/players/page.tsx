@@ -61,6 +61,23 @@ type MarketValue = {
   market_value_usd: number | null;
 };
 
+type PeerBenchmark = {
+  player_id: string;
+  season: string;
+  league: string | null;
+  position: string | null;
+  peer_count: number | null;
+  goals_per90_percentile: number | null;
+  assists_per90_percentile: number | null;
+  xg_per90_percentile: number | null;
+  xa_per90_percentile: number | null;
+  chances_created_per90_percentile: number | null;
+  key_passes_per90_percentile: number | null;
+  tackles_per90_percentile: number | null;
+  interceptions_per90_percentile: number | null;
+  progressive_carries_per90_percentile: number | null;
+};
+
 type SortKey =
   | "name"
   | "age"
@@ -83,6 +100,7 @@ export default function PlayersPage() {
   const [contracts, setContracts] = useState<ContractInfo[]>([]);
   const [seasonIntel, setSeasonIntel] = useState<SeasonIntel[]>([]);
   const [marketValues, setMarketValues] = useState<MarketValue[]>([]);
+  const [peerBenchmarks, setPeerBenchmarks] = useState<PeerBenchmark[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
@@ -91,6 +109,8 @@ export default function PlayersPage() {
   const [league, setLeague] = useState("All");
   const [club, setClub] = useState("All");
   const [minimumMinutes, setMinimumMinutes] = useState("0");
+  const [scoutingFocus, setScoutingFocus] = useState("All");
+  const [minimumPercentile, setMinimumPercentile] = useState("0");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [shortlist, setShortlist] = useState<string[]>([]);
@@ -102,7 +122,7 @@ export default function PlayersPage() {
     async function loadPlayers() {
       setLoading(true);
 
-      const [playerResult, contractResult, intelResult, valueResult] =
+      const [playerResult, contractResult, intelResult, valueResult, peerResult] =
         await Promise.all([
           supabase
             .from("players")
@@ -164,6 +184,10 @@ export default function PlayersPage() {
             .from("market_values")
             .select("player_id, valuation_date, market_value_usd")
             .order("valuation_date", { ascending: false }),
+
+          supabase
+            .from("player_peer_benchmarks")
+            .select("player_id,season,league,position,peer_count,goals_per90_percentile,assists_per90_percentile,xg_per90_percentile,xa_per90_percentile,chances_created_per90_percentile,key_passes_per90_percentile,tackles_per90_percentile,interceptions_per90_percentile,progressive_carries_per90_percentile"),
         ]);
 
       if (playerResult.error) {
@@ -202,6 +226,12 @@ export default function PlayersPage() {
         console.error("Error loading market values:", valueResult.error);
       } else {
         setMarketValues((valueResult.data || []) as MarketValue[]);
+      }
+
+      if (peerResult.error) {
+        console.error("Error loading peer benchmarks:", peerResult.error);
+      } else {
+        setPeerBenchmarks((peerResult.data || []) as PeerBenchmark[]);
       }
 
       setLoading(false);
@@ -255,6 +285,28 @@ export default function PlayersPage() {
 
     return map;
   }, [seasonIntel]);
+
+  const latestPeerByPlayer = useMemo(() => {
+    const map = new Map<string, PeerBenchmark>();
+    for (const row of peerBenchmarks) {
+      const current = map.get(row.player_id);
+      const year = seasonStart(row.season);
+      const currentYear = seasonStart(current?.season || null);
+      if (!current || year > currentYear) map.set(row.player_id, row);
+    }
+    return map;
+  }, [peerBenchmarks]);
+
+  const scoutingMetricValues = (benchmark: PeerBenchmark | undefined, focus: string) => {
+    if (!benchmark || focus === "All") return [];
+    const metrics: Record<string, (keyof PeerBenchmark)[]> = {
+      attack: ["goals_per90_percentile", "xg_per90_percentile", "assists_per90_percentile"],
+      creation: ["assists_per90_percentile", "xa_per90_percentile", "chances_created_per90_percentile", "key_passes_per90_percentile"],
+      defending: ["tackles_per90_percentile", "interceptions_per90_percentile"],
+      progression: ["progressive_carries_per90_percentile"],
+    };
+    return (metrics[focus] || []).map((key) => Number(benchmark[key] ?? -1)).filter((value) => value >= 0);
+  };
 
   const latestValueByPlayer = useMemo(() => {
     const map = new Map<string, MarketValue>();
@@ -383,7 +435,9 @@ export default function PlayersPage() {
     nationality !== "All" ||
     league !== "All" ||
     club !== "All" ||
-    minimumMinutes !== "0";
+    minimumMinutes !== "0" ||
+    scoutingFocus !== "All" ||
+    minimumPercentile !== "0";
 
   const clearFilters = () => {
     setSearch("");
@@ -392,6 +446,8 @@ export default function PlayersPage() {
     setLeague("All");
     setClub("All");
     setMinimumMinutes("0");
+    setScoutingFocus("All");
+    setMinimumPercentile("0");
   };
 
   const changeSort = (next: SortKey) => {
@@ -416,6 +472,12 @@ export default function PlayersPage() {
       const playerRole = getPlayerRoleGroup(
         player.position,
         player.secondary_position
+      );
+      const benchmark = latestPeerByPlayer.get(player.id);
+      const percentileThreshold = Number(minimumPercentile);
+      const focusValues = scoutingMetricValues(benchmark, scoutingFocus);
+      const matchesScoutingFocus = scoutingFocus === "All" || (
+        focusValues.length > 0 && Math.max(...focusValues) >= percentileThreshold
       );
 
       const searchValues = [
@@ -446,7 +508,8 @@ export default function PlayersPage() {
         (club === "All" ||
           contract?.club?.name === club ||
           (!contract?.club?.name && intel?.club_name === club)) &&
-        Number(intel?.minutes || 0) >= minMinutes
+        Number(intel?.minutes || 0) >= minMinutes &&
+        matchesScoutingFocus
       );
     });
 
@@ -504,16 +567,19 @@ export default function PlayersPage() {
     league,
     club,
     minimumMinutes,
+    scoutingFocus,
+    minimumPercentile,
     sortKey,
     sortDirection,
     latestIntelByPlayer,
     contractByPlayer,
     latestValueByPlayer,
+    latestPeerByPlayer,
   ]);
 
   const totalPages = Math.max(1, Math.ceil(filteredPlayers.length / pageSize));
 
-  useEffect(() => { setPage(1); }, [search, role, nationality, league, club, minimumMinutes, sortKey, sortDirection]);
+  useEffect(() => { setPage(1); }, [search, role, nationality, league, club, minimumMinutes, scoutingFocus, minimumPercentile, sortKey, sortDirection]);
   useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
 
   const visiblePlayers = filteredPlayers.slice((page - 1) * pageSize, page * pageSize);
@@ -633,6 +699,22 @@ export default function PlayersPage() {
               ))}
             </select>
 
+            <select value={scoutingFocus} onChange={(event) => setScoutingFocus(event.target.value)}>
+              <option value="All">All Scouting Focus</option>
+              <option value="attack">Goal Threat</option>
+              <option value="creation">Chance Creation</option>
+              <option value="defending">Defensive Work</option>
+              <option value="progression">Ball Progression</option>
+            </select>
+
+            <select value={minimumPercentile} onChange={(event) => setMinimumPercentile(event.target.value)} disabled={scoutingFocus === "All"}>
+              <option value="0">Any Peer Percentile</option>
+              <option value="50">50th+ Percentile</option>
+              <option value="60">60th+ Percentile</option>
+              <option value="75">75th+ Percentile</option>
+              <option value="90">90th+ Percentile</option>
+            </select>
+
             <select
               value={minimumMinutes}
               onChange={(event) => setMinimumMinutes(event.target.value)}
@@ -674,8 +756,9 @@ export default function PlayersPage() {
 
         <div className="scout-note">
           <strong>Scouting context:</strong> performance figures use the latest
-          recorded season available for each player. Per-90 figures are
-          descriptive production measures, not WFM ratings or predictions.
+          recorded season available for each player. Peer-percentile filters use
+          the latest eligible league/position benchmark. They are descriptive
+          research context, not WFM ratings or predictions.
           Players without recorded season statistics remain searchable but are
           excluded when a minimum-minutes filter is applied.
         </div>
