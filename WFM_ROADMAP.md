@@ -137,12 +137,12 @@ Important limitation:
 - [x] Added a descriptive Scouting Profile to player intelligence using recorded role metrics and eligible peer-group percentiles
 - [x] Kept scouting context descriptive rather than converting benchmark data into a player rating
 - [x] Add role-specific scouting filters and research views
-- [ ] Add richer player archetype/context views using only recorded WFM data
+- [x] Add richer player archetype/context views using only recorded WFM data
 - [ ] Add broader competition/league coverage to strengthen peer samples
-- [ ] Add historical contract and salary trend context where source coverage supports it
-- [ ] Add saved scouting workflows after the intelligence layer is stable
+- [x] Add historical contract and salary trend context where source coverage supports it
+- [x] Add saved scouting workflows after the intelligence layer is stable
 
-### Provider strategy
+### Milestone 4 implementation notes\n\n- Scouting archetypes are descriptive labels derived from recorded peer percentiles; they are not player ratings, rankings, projections, or forecasts.\n- Player profiles now expose dominant recorded traits plus percentile context.\n- The player directory now shows the same archetype language so research can move from database search into player profiles without changing the underlying data model.\n- Contract/salary context now includes recorded contract history when multiple records are available.\n- Scouting shortlists can be saved as named browser-local workflows and reloaded later; no new server-side scouting record is created.\n\n### Provider strategy
 
 - Sportmonks is intentionally skipped.
 - WFM keeps the provider-agnostic ingestion foundation so a future source can be connected without redesigning the public player workflow.
