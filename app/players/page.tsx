@@ -93,7 +93,7 @@ export default function PlayersPage() {
   const [minimumMinutes, setMinimumMinutes] = useState("0");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [shortlist, setShortlist] = useState<string[]>([]);
+  const [shortlist, setShortlist] = useState<string[]>([]);\n  const [page, setPage] = useState(1);\n  const pageSize = 25;
   const router = useRouter();
 
   useEffect(() => {
@@ -494,7 +494,7 @@ export default function PlayersPage() {
     latestValueByPlayer,
   ]);
 
-  const playersWithStats = players.filter((player) =>
+  const totalPages = Math.max(1, Math.ceil(filteredPlayers.length / pageSize));\n\n  useEffect(() => { setPage(1); }, [search, role, nationality, league, club, minimumMinutes, sortKey, sortDirection]);\n  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);\n\n  const visiblePlayers = filteredPlayers.slice((page - 1) * pageSize, page * pageSize);\n  const pageStart = filteredPlayers.length ? (page - 1) * pageSize + 1 : 0;\n  const pageEnd = Math.min(page * pageSize, filteredPlayers.length);\n\n  const playersWithStats = players.filter((player) =>
     latestIntelByPlayer.has(player.id)
   ).length;
 
@@ -674,7 +674,7 @@ export default function PlayersPage() {
             </button>
           </div>
 
-          {filteredPlayers.map((player) => {
+          {visiblePlayers.map((player) => {
             const intel = latestIntelByPlayer.get(player.id);
             const contract = contractByPlayer.get(player.id);
             const value = latestValueByPlayer.get(player.id);
@@ -744,7 +744,7 @@ export default function PlayersPage() {
             );
           })}
 
-          {!loading && filteredPlayers.length === 0 && (
+          {!loading && filteredPlayers.length > 0 && (\n            <div className="scout-pagination">\n              <span>Showing {pageStart}–{pageEnd} of {filteredPlayers.length}</span>\n              <div>\n                <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>Previous</button>\n                <strong>Page {page} of {totalPages}</strong>\n                <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>Next</button>\n              </div>\n            </div>\n          )}\n\n          {!loading && filteredPlayers.length === 0 && (
             <div className="scout-empty">
               <strong>No players match the current filters</strong>
               <span>Broaden the role, league, club or minutes criteria.</span>
