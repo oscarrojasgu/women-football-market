@@ -140,11 +140,19 @@ Important limitation:
 - [x] Add richer player archetype/context views using only recorded WFM data
 - [x] Add a competition coverage audit and canonical competition model to measure peer-sample readiness
 - [x] Establish first sourced competition expansion with 2026 Damallsvenskan data and validate peer-sample readiness
-- [ ] Expand sourced statistics/player coverage across additional competitions to strengthen broader peer samples
+- [x] Expand sourced statistics/player coverage across additional competitions to strengthen broader peer samples
 - [x] Add historical contract and salary trend context where source coverage supports it
 - [x] Add saved scouting workflows after the intelligence layer is stable
 
 ### Milestone 4 implementation notes
+
+Sourced competition expansion completed across four additional competitions beyond the initial NWSL/FA WSL foundation:
+- 2026 Damallsvenskan: 10 sourced player-season records; scouting-ready.
+- 2025-2026 Frauen-Bundesliga: 11 sourced player-season records after correcting the Vanessa Diehm/Vanessa Fudalla identity mismatch; scouting-ready.
+- 2025-2026 Eredivisie Vrouwen: 20 sourced player-season records across six clubs represented in player statistics; scouting-ready.
+- 2025-2026 Serie A Women: 16 sourced player-season records across four clubs represented in player statistics; scouting-ready.
+- All newly inserted statistics retain source IDs, confidence values, canonical competition IDs, and update timestamps; unavailable fields remain null rather than being inferred.
+
 
 - Scouting archetypes are descriptive labels derived from recorded peer percentiles; they are not player ratings, rankings, projections, or forecasts.
 - Player profiles now expose dominant recorded traits plus percentile context.
@@ -158,7 +166,7 @@ Important limitation:
 - Added `competition_id` references to clubs and player statistics and backfilled existing records.
 - Added `competition_coverage_audit` to distinguish scouting-ready competitions, competitions with data below the five-player peer threshold, and competitions with no recorded statistics.
 - Updated player-season, peer-benchmark, and goalkeeper intelligence views to use the canonical competition reference instead of relying on the club league text alone.
-- Current audit: NWSL is scouting-ready with 167 stat players and 133 eligible player-season records; FA Women’s Super League has 143 stat players but is below the peer threshold because the current dataset only represents one season/position coverage path; Frauen-Bundesliga and Kvindeliga have recorded data but remain below the peer threshold; the remaining canonical competitions currently have no recorded player statistics.
+- The live audit should be used for current competition coverage counts; sourced expansion has now moved Frauen-Bundesliga, Damallsvenskan, Eredivisie Vrouwen, and Serie A Women into `SCOUTING_READY` status.
 - This audit is now the source of truth for the next data-expansion work; no unsupported player/stat records were fabricated to fill coverage gaps.
 - First sourced expansion completed: 2026 Damallsvenskan now has 10 sourced player-season records across five clubs, with five eligible midfielders and five eligible forwards, making the competition scouting-ready for those two recorded position groups. The league reference now includes the 14 official 2026 teams; two older club records remain separately represented in the database and are not treated as current 2026 participants.
 
