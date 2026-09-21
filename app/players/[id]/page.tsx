@@ -175,9 +175,21 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     tackles_per90_percentile: number | null; interceptions_per90_percentile: number | null; progressive_carries_per90_percentile: number | null;
   }>;
 
-  const transferClubIds = transfers.flatMap(t => [t.from_club?.id, t.to_club?.id]);
-  const clubIds = Array.from(new Set(contracts.map(c => c.club_id).concat(stats.map(s => s.club_id)).concat(transferClubIds).filter((v): v is string => Boolean(v))));
-  const { data: clubData } = clubIds.length ? await supabase.from("clubs").select("id,name,league,country,logo_url").in("id", clubIds) : { data: [] };
+  const transferClubIds: string[] = [];
+  for (const transfer of transfers) {
+    if (transfer.from_club?.id) transferClubIds.push(transfer.from_club.id);
+    if (transfer.to_club?.id) transferClubIds.push(transfer.to_club.id);
+  }
+  const clubIds: string[] = [];
+  for (const contract of contracts) {
+    if (contract.club_id) clubIds.push(contract.club_id);
+  }
+  for (const stat of stats) {
+    if (stat.club_id) clubIds.push(stat.club_id);
+  }
+  clubIds.push(...transferClubIds);
+  const uniqueClubIds = Array.from(new Set(clubIds));
+  const { data: clubData } = uniqueClubIds.length ? await supabase.from("clubs").select("id,name,league,country,logo_url").in("id", uniqueClubIds) : { data: [] };
   const clubs = (clubData || []) as Club[];
   const clubMap = new Map(clubs.map(c => [c.id, c]));
 
