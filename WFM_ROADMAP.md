@@ -204,6 +204,16 @@ Enable players, agents, clubs, and eventually journalists/scouts to contribute a
 - [x] Added RLS so contributors can only create/view their own requests and profiles, while WFM admins retain review access.
 - [x] Added authenticated database functions for submitting and reviewing representation requests; public execution was removed.
 - [x] Verified the new tables, RLS policies, and functions in the live Supabase project.
+### Phase 4 milestone 3 — verified contributor workflows — COMPLETE
+
+- [x] Added an authenticated contributor portal for identity, representation requests, and sourced player updates.
+- [x] Added a secured database workflow requiring approved player representation or a verified player claim before a contributor can submit a verified player update.
+- [x] Limited verified contributor player edits to an explicit allowlist of supported profile fields.
+- [x] Preserved the existing verification-submission queue so contributor changes still require WFM review before publication.
+- [x] Restricted direct insertion of the verified-contributor submission type through RLS so it cannot bypass representation checks.
+- [x] Routed player-claim approval/rejection through an audited database function and automatically grants approved player representation when a claim is verified.
+- [x] Added a uniqueness guard preventing duplicate approved player representation for the same user/player pair.
+- [x] Verified the live Supabase workflow, RLS policies, functions, and production Vercel deployment.
 
 ## PHASE 5 — Scouting tools
 
