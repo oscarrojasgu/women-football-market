@@ -31,6 +31,20 @@ type Player = {
   full_name: string;
 };
 
+type OfficialVerification = {
+  id: string;
+  user_id: string;
+  player_id: string | null;
+  club_id: string | null;
+  agency_name: string | null;
+  verification_type: string;
+  status: string;
+  verification_method: string | null;
+  evidence_url: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
 export default function VerificationDashboard() {
   const [user, setUser] = useState<any>(null);
   const [authorized, setAuthorized] = useState(false);
@@ -41,7 +55,9 @@ export default function VerificationDashboard() {
   const [busy, setBusy] = useState(false);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [claims, setClaims] = useState<Claim[]>([]);
+  const [officialVerifications, setOfficialVerifications] = useState<OfficialVerification[]>([]);
   const [players, setPlayers] = useState<Record<string, Player>>({});
+  const [clubs, setClubs] = useState<Record<string, { id: string; name: string }>>({});
 
   useEffect(() => {
     checkSession();
@@ -138,7 +154,7 @@ export default function VerificationDashboard() {
   async function loadQueue() {
     setLoading(true);
 
-    const [{ data: submissionData, error: submissionError }, { data: claimData, error: claimError }] =
+    const [{ data: submissionData, error: submissionError }, { data: claimData, error: claimError }, { data: officialData, error: officialError }] =
       await Promise.all([
         supabase
           .from("verification_submissions")
@@ -154,23 +170,31 @@ export default function VerificationDashboard() {
           )
           .eq("status", "pending")
           .order("created_at", { ascending: true }),
+        supabase
+          .from("official_verifications")
+          .select("id, user_id, player_id, club_id, agency_name, verification_type, status, verification_method, evidence_url, notes, created_at")
+          .eq("status", "pending")
+          .order("created_at", { ascending: true }),
       ]);
 
-    if (submissionError || claimError) {
-      setMessage(submissionError?.message || claimError?.message || "Could not load the review queue.");
+    if (submissionError || claimError || officialError) {
+      setMessage(submissionError?.message || claimError?.message || officialError?.message || "Could not load the review queue.");
       setLoading(false);
       return;
     }
 
     const nextSubmissions = submissionData || [];
     const nextClaims = claimData || [];
+    const nextOfficialVerifications = officialData || [];
     setSubmissions(nextSubmissions);
     setClaims(nextClaims);
+    setOfficialVerifications(nextOfficialVerifications);
 
     const ids = Array.from(
       new Set([
         ...nextSubmissions.map((item) => item.player_id),
         ...nextClaims.map((item) => item.player_id),
+        ...nextOfficialVerifications.map((item) => item.player_id).filter(Boolean) as string[],
       ])
     );
 
@@ -187,6 +211,16 @@ export default function VerificationDashboard() {
       setPlayers(map);
     } else {
       setPlayers({});
+    }
+
+    const clubIds = Array.from(new Set(nextOfficialVerifications.map((item) => item.club_id).filter(Boolean) as string[]));
+    if (clubIds.length) {
+      const { data: clubData } = await supabase.from("clubs").select("id,name").in("id", clubIds);
+      const clubMap: Record<string, { id: string; name: string }> = {};
+      (clubData || []).forEach((club) => { clubMap[club.id] = club; });
+      setClubs(clubMap);
+    } else {
+      setClubs({});
     }
 
     setLoading(false);
@@ -255,6 +289,22 @@ export default function VerificationDashboard() {
     }
 
     setMessage("Claim rejected.");
+    await loadQueue();
+  }
+
+  async function reviewOfficial(id: string, action: "approved" | "rejected" | "revoked" | "needs_evidence") {
+    setBusy(true);
+    setMessage("");
+    const { error } = await supabase.rpc("review_official_verification", {
+      p_verification_id: id,
+      p_action: action,
+    });
+    setBusy(false);
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+    setMessage(action === "approved" ? "Official verification approved and published." : action === "rejected" ? "Official verification rejected." : action === "revoked" ? "Official verification revoked." : "Official verification returned for more evidence.");
     await loadQueue();
   }
 
@@ -368,6 +418,44 @@ export default function VerificationDashboard() {
           <div style={styles.statNumber}>{claims.length}</div>
           <div style={styles.statLabel}>Pending claims</div>
         </div>
+        <div style={styles.statCard}>
+          <div style={styles.statNumber}>{officialVerifications.length}</div>
+          <div style={styles.statLabel}>Pending official verification</div>
+        </div>
+      </section>
+
+      <section style={styles.section}>
+        <div style={styles.sectionHeader}>
+          <h2 style={styles.sectionTitle}>Official verification</h2>
+          <button onClick={loadQueue} style={styles.refreshButton}>Refresh</button>
+        </div>
+        {officialVerifications.length === 0 ? (
+          <div style={styles.empty}>No pending official verification requests.</div>
+        ) : (
+          <div style={styles.list}>
+            {officialVerifications.map((item) => (
+              <article key={item.id} style={styles.card}>
+                <div style={styles.cardTop}>
+                  <div>
+                    <div style={styles.playerName}>
+                      {item.player_id ? players[item.player_id]?.full_name || "Unknown player" : item.club_id ? clubs[item.club_id]?.name || "Unknown club" : item.agency_name || "Agency"}
+                    </div>
+                    <div style={styles.field}>{item.verification_type.toUpperCase()} · User ID: {item.user_id}</div>
+                  </div>
+                  <div style={styles.pending}>PENDING</div>
+                </div>
+                <div style={styles.notes}>Verification method: {item.verification_method || "Not specified"}</div>
+                {item.evidence_url && <a href={item.evidence_url} target="_blank" rel="noreferrer" style={styles.evidence}>Open evidence ↗</a>}
+                {item.notes && <div style={styles.notes}><strong>Notes:</strong> {item.notes}</div>}
+                <div style={styles.actions}>
+                  <button onClick={() => reviewOfficial(item.id, "approved")} disabled={busy} style={styles.approveButton}>Approve official</button>
+                  <button onClick={() => reviewOfficial(item.id, "needs_evidence")} disabled={busy} style={styles.rejectButton}>Needs evidence</button>
+                  <button onClick={() => reviewOfficial(item.id, "rejected")} disabled={busy} style={styles.rejectButton}>Reject</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
 
       <section style={styles.section}>
@@ -593,7 +681,7 @@ const styles = {
     maxWidth: 1100,
     margin: "0 auto 24px",
     display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
     gap: 14,
   },
   statCard: {
