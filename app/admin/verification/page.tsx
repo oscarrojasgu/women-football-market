@@ -222,13 +222,10 @@ export default function VerificationDashboard() {
     setBusy(true);
     setMessage("");
 
-    const { error } = await supabase
-      .from("player_claims")
-      .update({
-        status: "verified",
-        verified_at: new Date().toISOString(),
-      })
-      .eq("id", id);
+    const { error } = await supabase.rpc("review_player_claim", {
+      p_claim_id: id,
+      p_action: "verified",
+    });
 
     setBusy(false);
 
@@ -237,10 +234,31 @@ export default function VerificationDashboard() {
       return;
     }
 
+    setMessage("Claim verified and representation access granted.");
     await loadQueue();
   }
 
   async function rejectClaim(id: string) {
+    setBusy(true);
+    setMessage("");
+
+    const { error } = await supabase.rpc("review_player_claim", {
+      p_claim_id: id,
+      p_action: "rejected",
+    });
+
+    setBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setMessage("Claim rejected.");
+    await loadQueue();
+  }
+
+  async function signOut()(id: string) {
     setBusy(true);
     setMessage("");
 
