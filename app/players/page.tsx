@@ -79,7 +79,9 @@ type PeerBenchmark = {
   progressive_carries_per90_percentile: number | null;
 };
 
-type SavedWorkflow = { name: string; playerIds: string[]; createdAt: string };\n\ntype SortKey =
+type SavedWorkflow = { name: string; playerIds: string[]; createdAt: string };
+
+type SortKey =
   | "name"
   | "age"
   | "minutes"
@@ -114,10 +116,23 @@ export default function PlayersPage() {
   const [minimumPercentile, setMinimumPercentile] = useState("0");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [shortlist, setShortlist] = useState<string[]>([]);\n  const [savedWorkflows, setSavedWorkflows] = useState<SavedWorkflow[]>([]);
+  const [shortlist, setShortlist] = useState<string[]>([]);
+  const [savedWorkflows, setSavedWorkflows] = useState<SavedWorkflow[]>([]);
   const [page, setPage] = useState(1);
   const pageSize = 25;
-  const router = useRouter();\n\n  useEffect(() => {\n    try {\n      const storedShortlist = localStorage.getItem("wfm_scouting_shortlist");\n      if (storedShortlist) setShortlist(JSON.parse(storedShortlist));\n      const storedWorkflows = localStorage.getItem("wfm_scouting_workflows");\n      if (storedWorkflows) setSavedWorkflows(JSON.parse(storedWorkflows));\n    } catch {\n      setShortlist([]);\n      setSavedWorkflows([]);\n    }\n  }, []);\n\n  useEffect(() => {\n    try { localStorage.setItem("wfm_scouting_shortlist", JSON.stringify(shortlist)); } catch {}\n  }, [shortlist]);
+  const router = useRouter();
+
+  useEffect(() => {
+    try {
+      const storedShortlist = localStorage.getItem("wfm_scouting_shortlist");
+      if (storedShortlist) setShortlist(JSON.parse(storedShortlist));
+      const storedWorkflows = localStorage.getItem("wfm_scouting_workflows");
+      if (storedWorkflows) setSavedWorkflows(JSON.parse(storedWorkflows));
+    } catch {
+      setShortlist([]);
+      setSavedWorkflows([]);
+    }
+  }, []);
 
   useEffect(() => {
     async function loadPlayers() {
