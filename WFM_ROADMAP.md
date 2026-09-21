@@ -194,6 +194,16 @@ Enable players, agents, clubs, and eventually journalists/scouts to contribute a
 - [x] Added explicit review outcomes: approved, rejected, and needs_evidence at the database workflow level.
 - [x] Verified the live Supabase audit table, review function, RLS policy, and production Vercel deployment.
 
+### Phase 4 milestone 2 — contributor identity & ownership — COMPLETE
+
+- [x] Added contributor profiles with explicit contributor type and organization context.
+- [x] Added representation requests linking authenticated users to players, clubs, or agencies.
+- [x] Added request states for pending, approved, rejected, and revoked relationships.
+- [x] Added evidence, source, verification-method, reviewer, and review-timestamp fields to the representation workflow.
+- [x] Added representation review history for auditable ownership/representation decisions.
+- [x] Added RLS so contributors can only create/view their own requests and profiles, while WFM admins retain review access.
+- [x] Added authenticated database functions for submitting and reviewing representation requests; public execution was removed.
+- [x] Verified the new tables, RLS policies, and functions in the live Supabase project.
 
 ## PHASE 5 — Scouting tools
 
