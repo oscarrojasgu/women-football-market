@@ -580,3 +580,81 @@
   .market-point { grid-template-columns:68px minmax(0,1fr); }
   .market-point > strong { grid-column:2; }
 }
+
+
+/* Player scouting database */
+.players-scout-hero { background:#111; color:#fff; padding:55px 6vw 50px; }
+.players-scout-shell { max-width:1200px; margin:0 auto; }
+.players-scout-eyebrow { font-size:12px; letter-spacing:2px; font-weight:800; color:#aaa; margin-bottom:14px; }
+.players-scout-hero h1 { margin:0; font-size:clamp(42px,5vw,58px); line-height:1.02; letter-spacing:-2px; font-weight:800; }
+.players-scout-hero p { max-width:760px; margin:18px 0 0; color:#c8c8c8; font-size:17px; line-height:1.6; }
+.players-scout-page { background:#f5f4ef; }
+.scout-stat-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:18px; }
+.scout-stat { min-width:0; background:#fff; border:1px solid #e2e1dc; border-radius:12px; padding:16px 17px; }
+.scout-stat span { display:block; color:#777; font-size:10px; font-weight:800; letter-spacing:.7px; margin-bottom:6px; }
+.scout-stat strong { display:block; font-size:24px; line-height:1.1; }
+.scout-controls { background:#fff; border:1px solid #e2e1dc; border-radius:14px; padding:18px; margin-bottom:14px; }
+.scout-control-grid { display:grid; grid-template-columns:minmax(250px,1.8fr) repeat(5,minmax(130px,1fr)); gap:9px; }
+.scout-control-grid input,.scout-control-grid select { width:100%; min-width:0; min-height:42px; border:1px solid #d9d8d3; border-radius:9px; padding:9px 11px; font-size:13px; background:#fff; color:#111; outline:none; }
+.scout-control-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:13px; color:#777; font-size:12px; }
+.scout-control-footer button,.scout-empty button { border:0; background:transparent; color:#111; padding:0; font-size:12px; font-weight:800; cursor:pointer; }
+.scout-control-footer button:disabled { color:#aaa; cursor:default; }
+.scout-note { background:#f0efe9; border:1px solid #dedcd3; border-radius:10px; padding:11px 13px; margin-bottom:14px; color:#666; font-size:11px; line-height:1.55; }
+.scout-note strong { color:#222; }
+.scout-table-wrap { width:100%; overflow:hidden; background:#fff; border:1px solid #e2e1dc; border-radius:14px; }
+.scout-table-header,.scout-row { display:grid; grid-template-columns:minmax(240px,2.2fr) .55fr .75fr .65fr .65fr .65fr .95fr .95fr; gap:10px; align-items:center; }
+.scout-table-header { padding:11px 16px; background:#fafafa; border-bottom:1px solid #e5e5e5; }
+.scout-table-header button { border:0; background:transparent; color:#777; padding:0; text-align:left; font-size:9px; font-weight:800; letter-spacing:.7px; cursor:pointer; }
+.scout-row { padding:13px 16px; border-bottom:1px solid #eeeeee; color:#111; text-decoration:none; font-size:12px; min-width:0; }
+.scout-row:last-child { border-bottom:0; }
+.scout-row > span { min-width:0; }
+.scout-player { display:flex; align-items:center; gap:10px; min-width:0; }
+.scout-player img { width:46px; height:46px; flex:0 0 46px; object-fit:cover; object-position:center; border-radius:50%; background:#eee; }
+.scout-player > span { min-width:0; }
+.scout-player strong { display:block; font-size:13px; font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.scout-player small,.scout-row > span > small { display:block; margin-top:3px; color:#888; font-size:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.scout-row > span:not(.scout-player) { font-weight:700; }
+.scout-age { color:#555; }
+.scout-empty { min-height:190px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; padding:36px 20px; color:#777; text-align:center; font-size:13px; }
+.scout-empty strong { color:#222; font-size:16px; }
+.scout-empty button { margin-top:5px; text-decoration:underline; }
+
+@media (max-width:1000px) and (min-width:651px) {
+  .scout-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .scout-control-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .scout-control-grid input { grid-column:1 / -1; }
+  .scout-table-wrap { overflow-x:auto; }
+  .scout-table-header,.scout-row { min-width:980px; }
+}
+
+@media (max-width:650px) {
+  .players-scout-hero { padding:40px 16px 36px; }
+  .players-scout-shell { width:100%; }
+  .players-scout-hero h1 { font-size:clamp(40px,12vw,52px); letter-spacing:-2px; }
+  .players-scout-hero p { font-size:15px; line-height:1.5; }
+  .scout-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+  .scout-stat { padding:13px 14px; min-height:76px; }
+  .scout-stat strong { font-size:20px; }
+  .scout-controls { padding:12px; border-radius:12px; }
+  .scout-control-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  .scout-control-grid input { grid-column:1 / -1; }
+  .scout-control-grid input,.scout-control-grid select { min-height:44px; font-size:16px; }
+  .scout-control-footer { font-size:11px; align-items:flex-start; }
+  .scout-note { font-size:10px; }
+  .scout-table-wrap { border:0; background:transparent; overflow:visible; }
+  .scout-table-header { display:none; }
+  .scout-row { display:grid; grid-template-columns:minmax(0,1fr) auto !important; gap:8px 12px; padding:14px; margin-bottom:9px; border:1px solid #e2e1dc; border-radius:12px; background:#fff; min-width:0 !important; }
+  .scout-row:last-child { border-bottom:1px solid #e2e1dc; }
+  .scout-player { grid-column:1 / -1; }
+  .scout-row > span:nth-child(2) { color:#555; }
+  .scout-row > span:nth-child(3)::before { content:"MIN "; color:#999; font-size:9px; }
+  .scout-row > span:nth-child(4)::before { content:"G/90 "; color:#999; font-size:9px; }
+  .scout-row > span:nth-child(5)::before { content:"A/90 "; color:#999; font-size:9px; }
+  .scout-row > span:nth-child(6)::before { content:"xG/90 "; color:#999; font-size:9px; }
+  .scout-row > span:nth-child(7) { grid-column:1; }
+  .scout-row > span:nth-child(8) { grid-column:2; text-align:right; }
+  .scout-row > span:nth-child(7)::before { content:"VALUE "; color:#999; font-size:9px; }
+  .scout-row > span:nth-child(8)::before { content:"SALARY "; color:#999; font-size:9px; }
+  .scout-player strong { font-size:14px; }
+  .scout-player small { font-size:10px; }
+}
