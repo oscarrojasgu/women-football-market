@@ -678,23 +678,20 @@ export default function PlayersPage() {
             const intel = latestIntelByPlayer.get(player.id);
             const contract = contractByPlayer.get(player.id);
             const value = latestValueByPlayer.get(player.id);
-            const playerRole = getPlayerRoleGroup(
-              player.position,
-              player.secondary_position
-            );
+            const playerRole = getPlayerRoleGroup(player.position, player.secondary_position);
             const age = calculateAge(player.date_of_birth);
-            const playerClub =
-              contract?.club?.name || intel?.club_name || "Club unavailable";
-            const playerLeague =
-              contract?.club?.league || intel?.league || "League unavailable";
+            const playerClub = contract?.club?.name || intel?.club_name || "Club unavailable";
+            const playerLeague = contract?.club?.league || intel?.league || "League unavailable";
 
             return (
-              <Link
-                href={`/players/${player.id}`}
-                className="scout-row"
-                key={player.id}
-              >
-                <button\n                  type="button"\n                  className="scout-shortlist-toggle"\n                  onClick={(event) => { event.preventDefault(); toggleShortlist(player.id); }}\n                  aria-label={shortlist.includes(player.id) ? `Remove ${player.full_name} from shortlist` : `Add ${player.full_name} to shortlist`}\n                >{shortlist.includes(player.id) ? "✓" : "+"}</button>\n                <Link href={`/players/${player.id}`} className="scout-player">
+              <div className={`scout-row ${shortlist.includes(player.id) ? "is-shortlisted" : ""}`} key={player.id}>
+                <button
+                  type="button"
+                  className="scout-shortlist-toggle"
+                  onClick={() => toggleShortlist(player.id)}
+                  aria-label={shortlist.includes(player.id) ? `Remove ${player.full_name} from shortlist` : `Add ${player.full_name} to shortlist`}
+                >{shortlist.includes(player.id) ? "✓" : "+"}</button>
+                <Link href={`/players/${player.id}`} className="scout-player">
                   <img
                     src={player.photo_url || "/wfm-player-placeholder.svg"}
                     alt={player.full_name}
@@ -710,37 +707,24 @@ export default function PlayersPage() {
                   />
                   <span>
                     <strong>{player.full_name}</strong>
-                    <small>
-                      {roleLabels[playerRole]} · {player.nationality || "Nationality unavailable"}
-                    </small>
-                    <small>
-                      {playerClub} · {playerLeague}
-                    </small>
+                    <small>{roleLabels[playerRole]} · {player.nationality || "Nationality unavailable"}</small>
+                    <small>{playerClub} · {playerLeague}</small>
                   </span>
-                </span>
-
+                </Link>
                 <span className="scout-age">{age ?? "—"}</span>
                 <span>{intel?.minutes ?? "—"}</span>
                 <span>{formatNumber(intel?.goals_per90 ?? null)}</span>
                 <span>{formatNumber(intel?.assists_per90 ?? null)}</span>
                 <span>{formatNumber(intel?.xg_per90 ?? null)}</span>
                 <span>
-                  {value?.market_value_usd != null
-                    ? formatMoney(value.market_value_usd)
-                    : "—"}
-                  {value?.valuation_date && (
-                    <small>as of {formatDate(value.valuation_date)}</small>
-                  )}
+                  {value?.market_value_usd != null ? formatMoney(value.market_value_usd) : "—"}
+                  {value?.valuation_date && <small>as of {formatDate(value.valuation_date)}</small>}
                 </span>
                 <span>
-                  {contract?.annual_salary_usd != null
-                    ? formatMoney(contract.annual_salary_usd)
-                    : "—"}
-                  {contract?.end_date && (
-                    <small>ends {formatDate(contract.end_date)}</small>
-                  )}
+                  {contract?.annual_salary_usd != null ? formatMoney(contract.annual_salary_usd) : "—"}
+                  {contract?.end_date && <small>ends {formatDate(contract.end_date)}</small>}
                 </span>
-              </Link>
+              </div>
             );
           })}
 
