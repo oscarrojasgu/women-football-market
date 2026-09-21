@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { getPlayerRoleGroup, roleLabels, type PlayerRoleGroup } from "../lib/player-roles";
+import { getScoutingArchetype } from "../lib/scouting";
 
 type Player = {
   id: string;
@@ -78,7 +79,7 @@ type PeerBenchmark = {
   progressive_carries_per90_percentile: number | null;
 };
 
-type SortKey =
+type SavedWorkflow = { name: string; playerIds: string[]; createdAt: string };\n\ntype SortKey =
   | "name"
   | "age"
   | "minutes"
@@ -113,10 +114,10 @@ export default function PlayersPage() {
   const [minimumPercentile, setMinimumPercentile] = useState("0");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [shortlist, setShortlist] = useState<string[]>([]);
+  const [shortlist, setShortlist] = useState<string[]>([]);\n  const [savedWorkflows, setSavedWorkflows] = useState<SavedWorkflow[]>([]);
   const [page, setPage] = useState(1);
   const pageSize = 25;
-  const router = useRouter();
+  const router = useRouter();\n\n  useEffect(() => {\n    try {\n      const storedShortlist = localStorage.getItem("wfm_scouting_shortlist");\n      if (storedShortlist) setShortlist(JSON.parse(storedShortlist));\n      const storedWorkflows = localStorage.getItem("wfm_scouting_workflows");\n      if (storedWorkflows) setSavedWorkflows(JSON.parse(storedWorkflows));\n    } catch {\n      setShortlist([]);\n      setSavedWorkflows([]);\n    }\n  }, []);\n\n  useEffect(() => {\n    try { localStorage.setItem("wfm_scouting_shortlist", JSON.stringify(shortlist)); } catch {}\n  }, [shortlist]);
 
   useEffect(() => {
     async function loadPlayers() {
@@ -750,10 +751,20 @@ export default function PlayersPage() {
           <div><strong>{shortlist.length}</strong> player{shortlist.length === 1 ? "" : "s"} in shortlist</div>
           <div className="scout-shortlist-actions">
             <button type="button" onClick={compareShortlist} disabled={shortlist.length < 2}>Compare first 2</button>
+            <button type="button" onClick={() => { const name = window.prompt("Name this scouting workflow"); if (!name?.trim() || !shortlist.length) return; const next = [{ name: name.trim(), playerIds: shortlist, createdAt: new Date().toISOString() }, ...savedWorkflows.filter((w) => w.name !== name.trim())].slice(0, 10); setSavedWorkflows(next); localStorage.setItem("wfm_scouting_workflows", JSON.stringify(next)); }}>Save workflow</button>
             <button type="button" onClick={() => { localStorage.removeItem("wfm_scouting_shortlist"); setShortlist([]); }} disabled={!shortlist.length}>Clear shortlist</button>
           </div>
         </div>
-
+        {savedWorkflows.length > 0 && (
+          <div className="scout-note">
+            <strong>Saved scouting workflows:</strong> {savedWorkflows.map((workflow) => (
+              <span key={workflow.name} style={{display:"inline-flex",gap:5,alignItems:"center",marginLeft:8,marginBottom:4}}>
+                <button type="button" onClick={() => setShortlist(workflow.playerIds)}>{workflow.name} ({workflow.playerIds.length})</button>
+                <button type="button" aria-label={`Delete ${workflow.name}`} onClick={() => { const next = savedWorkflows.filter((w) => w.name !== workflow.name); setSavedWorkflows(next); localStorage.setItem("wfm_scouting_workflows", JSON.stringify(next)); }}>×</button>
+              </span>
+            ))}
+          </div>
+        )}
         <div className="scout-note">
           <strong>Scouting context:</strong> performance figures use the latest
           recorded season available for each player. Peer-percentile filters use
@@ -826,6 +837,7 @@ export default function PlayersPage() {
                     <strong>{player.full_name}</strong>
                     <small>{roleLabels[playerRole]} · {player.nationality || "Nationality unavailable"}</small>
                     <small>{playerClub} · {playerLeague}</small>
+                    {latestPeerByPlayer.get(player.id) && (() => { const peer = latestPeerByPlayer.get(player.id)!; const archetype = getScoutingArchetype(playerRole,{goals:peer.goals_per90_percentile,assists:peer.assists_per90_percentile,xg:peer.xg_per90_percentile,xa:peer.xa_per90_percentile,chancesCreated:peer.chances_created_per90_percentile,keyPasses:peer.key_passes_per90_percentile,tackles:peer.tackles_per90_percentile,interceptions:peer.interceptions_per90_percentile,progressiveCarries:peer.progressive_carries_per90_percentile}); return <small>{archetype.label}</small>; })()}
                   </span>
                 </Link>
                 <span className="scout-age">{age ?? "—"}</span>
