@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { getPlayerRoleGroup, roleLabels, type PlayerRoleGroup } from "../lib/player-roles";
 
 type Player = {
   id: string;
@@ -10,6 +11,7 @@ type Player = {
   date_of_birth: string | null;
   nationality: string | null;
   position: string | null;
+  secondary_position: string | null;
   preferred_foot: string | null;
   agency: string | null;
   photo_url: string | null;
@@ -17,12 +19,12 @@ type Player = {
 
 type ContractInfo = {
   player_id: string;
-  annual_salary: number | null;
-  weekly_salary: number | null;
   annual_salary_usd: number | null;
   weekly_salary_usd: number | null;
-  currency: string | null;
   status: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  confidence: string | null;
   club: {
     name: string;
     league: string | null;
@@ -30,162 +32,288 @@ type ContractInfo = {
   } | null;
 };
 
+type SeasonIntel = {
+  player_id: string;
+  season: string;
+  club_name: string | null;
+  league: string | null;
+  position: string | null;
+  minutes: number | null;
+  goals: number | null;
+  assists: number | null;
+  xg: number | null;
+  xa: number | null;
+  goals_per90: number | null;
+  assists_per90: number | null;
+  xg_per90: number | null;
+  xa_per90: number | null;
+  chances_created_per90: number | null;
+  key_passes_per90: number | null;
+  tackles_per90: number | null;
+  interceptions_per90: number | null;
+  progressive_carries_per90: number | null;
+};
+
+type MarketValue = {
+  player_id: string;
+  valuation_date: string;
+  market_value_usd: number | null;
+};
+
+type SortKey =
+  | "name"
+  | "age"
+  | "minutes"
+  | "goals90"
+  | "assists90"
+  | "xg90"
+  | "value"
+  | "salary"
+  | "contract";
+
+const seasonStart = (season: string | null) => {
+  if (!season) return 0;
+  const match = season.match(/(19|20)\d{2}/);
+  return match ? Number(match[0]) : 0;
+};
+
 export default function PlayersPage() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [contracts, setContracts] = useState<ContractInfo[]>([]);
+  const [seasonIntel, setSeasonIntel] = useState<SeasonIntel[]>([]);
+  const [marketValues, setMarketValues] = useState<MarketValue[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
-  const [position, setPosition] = useState("All");
+  const [role, setRole] = useState<PlayerRoleGroup | "All">("All");
   const [nationality, setNationality] = useState("All");
+  const [league, setLeague] = useState("All");
+  const [club, setClub] = useState("All");
+  const [minimumMinutes, setMinimumMinutes] = useState("0");
+  const [sortKey, setSortKey] = useState<SortKey>("name");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
     async function loadPlayers() {
       setLoading(true);
 
-      const { data: playerData, error: playerError } =
-        await supabase
-          .from("players")
-          .select(`
-            id,
-            full_name,
-            date_of_birth,
-            nationality,
-            position,
-            preferred_foot,
-            agency,
-            photo_url
-          `)
-          .order("full_name", { ascending: true });
+      const [playerResult, contractResult, intelResult, valueResult] =
+        await Promise.all([
+          supabase
+            .from("players")
+            .select(`
+              id,
+              full_name,
+              date_of_birth,
+              nationality,
+              position,
+              secondary_position,
+              preferred_foot,
+              agency,
+              photo_url
+            `)
+            .order("full_name", { ascending: true }),
 
-      if (playerError) {
-        console.error("Error loading players:", playerError);
-        setPlayers([]);
-        setLoading(false);
-        return;
-      }
+          supabase
+            .from("contracts")
+            .select(`
+              player_id,
+              annual_salary_usd,
+              weekly_salary_usd,
+              status,
+              start_date,
+              end_date,
+              confidence,
+              club:clubs (
+                name,
+                league,
+                logo_url
+              )
+            `),
 
-      const { data: contractData, error: contractError } =
-        await supabase
-          .from("contracts")
-          .select(`
-            player_id,
-            annual_salary,
-            weekly_salary,
-            annual_salary_usd,
-            weekly_salary_usd,
-            currency,
-            status,
-            club:clubs (
-              name,
+          supabase
+            .from("player_season_intelligence")
+            .select(`
+              player_id,
+              season,
+              club_name,
               league,
-              logo_url
-            )
-          `);
+              position,
+              minutes,
+              goals,
+              assists,
+              xg,
+              xa,
+              goals_per90,
+              assists_per90,
+              xg_per90,
+              xa_per90,
+              chances_created_per90,
+              key_passes_per90,
+              tackles_per90,
+              interceptions_per90,
+              progressive_carries_per90
+            `),
 
-      if (contractError) {
-        console.error("Error loading contracts:", contractError);
+          supabase
+            .from("market_values")
+            .select("player_id, valuation_date, market_value_usd")
+            .order("valuation_date", { ascending: false }),
+        ]);
+
+      if (playerResult.error) {
+        console.error("Error loading players:", playerResult.error);
+        setPlayers([]);
+      } else {
+        setPlayers(playerResult.data || []);
       }
 
-      const normalizedContracts: ContractInfo[] = (
-        contractData || []
-      ).map((contract: any) => ({
-        player_id: contract.player_id,
-        annual_salary: contract.annual_salary,
-        weekly_salary: contract.weekly_salary,
-        annual_salary_usd: contract.annual_salary_usd,
-        weekly_salary_usd: contract.weekly_salary_usd,
-        currency: contract.currency,
-        status: contract.status,
-        club: Array.isArray(contract.club)
-          ? contract.club[0] || null
-          : contract.club || null,
-      }));
+      if (contractResult.error) {
+        console.error("Error loading contracts:", contractResult.error);
+      } else {
+        setContracts(
+          (contractResult.data || []).map((contract: any) => ({
+            player_id: contract.player_id,
+            annual_salary_usd: contract.annual_salary_usd,
+            weekly_salary_usd: contract.weekly_salary_usd,
+            status: contract.status,
+            start_date: contract.start_date,
+            end_date: contract.end_date,
+            confidence: contract.confidence,
+            club: Array.isArray(contract.club)
+              ? contract.club[0] || null
+              : contract.club || null,
+          }))
+        );
+      }
 
-      setPlayers(playerData || []);
-      setContracts(normalizedContracts);
+      if (intelResult.error) {
+        console.error("Error loading player intelligence:", intelResult.error);
+      } else {
+        setSeasonIntel((intelResult.data || []) as SeasonIntel[]);
+      }
+
+      if (valueResult.error) {
+        console.error("Error loading market values:", valueResult.error);
+      } else {
+        setMarketValues((valueResult.data || []) as MarketValue[]);
+      }
+
       setLoading(false);
     }
 
     loadPlayers();
   }, []);
 
-  const positions = useMemo(() => {
-    const values = players
-      .map((player) => player.position)
-      .filter(Boolean) as string[];
+  const contractByPlayer = useMemo(() => {
+    const map = new Map<string, ContractInfo>();
 
-    return ["All", ...Array.from(new Set(values))];
-  }, [players]);
+    for (const contract of contracts) {
+      const current = map.get(contract.player_id);
+      const isActive = contract.status?.toLowerCase() === "active";
+      const currentIsActive = current?.status?.toLowerCase() === "active";
 
-  const nationalities = useMemo(() => {
-    const values = players
-      .map((player) => player.nationality)
-      .filter(Boolean) as string[];
+      if (!current || (isActive && !currentIsActive)) {
+        map.set(contract.player_id, contract);
+        continue;
+      }
 
-    return ["All", ...Array.from(new Set(values)).sort()];
-  }, [players]);
+      if (
+        current &&
+        isActive === currentIsActive &&
+        (contract.end_date || "") > (current.end_date || "")
+      ) {
+        map.set(contract.player_id, contract);
+      }
+    }
 
-  const getContract = (playerId: string) => {
-    const playerContracts = contracts.filter(
-      (contract) => contract.player_id === playerId
-    );
+    return map;
+  }, [contracts]);
 
-    const activeContract = playerContracts.find(
-      (contract) =>
-        contract.status?.toLowerCase() === "active"
-    );
+  const latestIntelByPlayer = useMemo(() => {
+    const map = new Map<string, SeasonIntel>();
 
-    return activeContract || playerContracts[0] || null;
-  };
+    for (const row of seasonIntel) {
+      const current = map.get(row.player_id);
+      const rowYear = seasonStart(row.season);
+      const currentYear = seasonStart(current?.season || null);
 
-  const filteredPlayers = useMemo(() => {
-    const query = search.toLowerCase().trim();
+      if (
+        !current ||
+        rowYear > currentYear ||
+        (rowYear === currentYear &&
+          Number(row.minutes || 0) > Number(current.minutes || 0))
+      ) {
+        map.set(row.player_id, row);
+      }
+    }
 
-    return players.filter((player) => {
-      const playerName =
-        player.full_name?.toLowerCase() || "";
-      const playerNationality =
-        player.nationality?.toLowerCase() || "";
-      const playerPosition =
-        player.position?.toLowerCase() || "";
-      const playerAgency =
-        player.agency?.toLowerCase() || "";
+    return map;
+  }, [seasonIntel]);
 
-      const contract = contracts.find(
-        (item) => item.player_id === player.id
-      );
+  const latestValueByPlayer = useMemo(() => {
+    const map = new Map<string, MarketValue>();
 
-      const clubName =
-        contract?.club?.name?.toLowerCase() || "";
-      const league =
-        contract?.club?.league?.toLowerCase() || "";
+    for (const value of marketValues) {
+      if (!map.has(value.player_id)) {
+        map.set(value.player_id, value);
+      }
+    }
 
-      const matchesSearch =
-        !query ||
-        [
-          playerName,
-          playerNationality,
-          playerPosition,
-          playerAgency,
-          clubName,
-          league,
-        ].some((value) => value.includes(query));
+    return map;
+  }, [marketValues]);
 
-      const matchesPosition =
-        position === "All" || player.position === position;
-      const matchesNationality =
-        nationality === "All" || player.nationality === nationality;
+  const nationalities = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          players
+            .map((player) => player.nationality)
+            .filter(Boolean) as string[]
+        )
+      ).sort(),
+    [players]
+  );
 
-      return (
-        matchesSearch &&
-        matchesPosition &&
-        matchesNationality
-      );
-    });
-  }, [players, contracts, search, position, nationality]);
+  const roles = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          players.map((player) =>
+            getPlayerRoleGroup(player.position, player.secondary_position)
+          )
+        )
+      ).sort((a, b) => roleLabels[a].localeCompare(roleLabels[b])),
+    [players]
+  );
 
-  function calculateAge(dateOfBirth: string | null) {
+  const leagues = useMemo(() => {
+    const values = new Set<string>();
+
+    for (const player of players) {
+      const contract = contractByPlayer.get(player.id);
+      const intel = latestIntelByPlayer.get(player.id);
+      if (contract?.club?.league) values.add(contract.club.league);
+      else if (intel?.league) values.add(intel.league);
+    }
+
+    return Array.from(values).sort();
+  }, [players, contractByPlayer, latestIntelByPlayer]);
+
+  const clubs = useMemo(() => {
+    const values = new Set<string>();
+
+    for (const player of players) {
+      const contract = contractByPlayer.get(player.id);
+      const intel = latestIntelByPlayer.get(player.id);
+      if (contract?.club?.name) values.add(contract.club.name);
+      else if (intel?.club_name) values.add(intel.club_name);
+    }
+
+    return Array.from(values).sort();
+  }, [players, contractByPlayer, latestIntelByPlayer]);
+
+  const calculateAge = (dateOfBirth: string | null) => {
     if (!dateOfBirth) return null;
 
     const birthDate = new Date(`${dateOfBirth}T00:00:00`);
@@ -201,327 +329,428 @@ export default function PlayersPage() {
     }
 
     return age;
-  }
+  };
 
-  function formatSalary(salary: number | null) {
-    if (salary === null || salary === undefined) {
-      return "Not available";
+  const formatNumber = (value: number | null, digits = 1) => {
+    if (value === null || value === undefined || Number.isNaN(Number(value))) {
+      return "—";
     }
+    return Number(value).toFixed(digits);
+  };
+
+  const formatMoney = (value: number | null) => {
+    if (value === null || value === undefined) return "—";
 
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
       maximumFractionDigits: 0,
-    }).format(salary);
-  }
+      notation: "compact",
+    }).format(Number(value));
+  };
+
+  const formatDate = (value: string | null) => {
+    if (!value) return "—";
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      year: "numeric",
+    }).format(new Date(`${value}T00:00:00`));
+  };
 
   const filtersActive =
     search.trim() !== "" ||
-    position !== "All" ||
-    nationality !== "All";
+    role !== "All" ||
+    nationality !== "All" ||
+    league !== "All" ||
+    club !== "All" ||
+    minimumMinutes !== "0";
 
-  function clearFilters() {
+  const clearFilters = () => {
     setSearch("");
-    setPosition("All");
+    setRole("All");
     setNationality("All");
-  }
+    setLeague("All");
+    setClub("All");
+    setMinimumMinutes("0");
+  };
+
+  const changeSort = (next: SortKey) => {
+    if (sortKey === next) {
+      setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(next);
+      setSortDirection(next === "name" ? "asc" : "desc");
+    }
+  };
+
+  const sortIndicator = (key: SortKey) =>
+    sortKey === key ? (sortDirection === "asc" ? " ↑" : " ↓") : "";
+
+  const filteredPlayers = useMemo(() => {
+    const query = search.toLowerCase().trim();
+    const minMinutes = Number(minimumMinutes);
+
+    const rows = players.filter((player) => {
+      const intel = latestIntelByPlayer.get(player.id);
+      const contract = contractByPlayer.get(player.id);
+      const playerRole = getPlayerRoleGroup(
+        player.position,
+        player.secondary_position
+      );
+
+      const searchValues = [
+        player.full_name,
+        player.nationality,
+        player.position,
+        player.secondary_position,
+        player.preferred_foot,
+        player.agency,
+        contract?.club?.name,
+        contract?.club?.league,
+        intel?.club_name,
+        intel?.league,
+      ]
+        .filter(Boolean)
+        .map((value) => String(value).toLowerCase());
+
+      const matchesSearch =
+        !query || searchValues.some((value) => value.includes(query));
+
+      return (
+        matchesSearch &&
+        (role === "All" || playerRole === role) &&
+        (nationality === "All" || player.nationality === nationality) &&
+        (league === "All" ||
+          contract?.club?.league === league ||
+          (!contract?.club?.league && intel?.league === league)) &&
+        (club === "All" ||
+          contract?.club?.name === club ||
+          (!contract?.club?.name && intel?.club_name === club)) &&
+        Number(intel?.minutes || 0) >= minMinutes
+      );
+    });
+
+    return rows.sort((a, b) => {
+      const aIntel = latestIntelByPlayer.get(a.id);
+      const bIntel = latestIntelByPlayer.get(b.id);
+      const aContract = contractByPlayer.get(a.id);
+      const bContract = contractByPlayer.get(b.id);
+      const aValue = latestValueByPlayer.get(a.id);
+      const bValue = latestValueByPlayer.get(b.id);
+
+      let comparison = 0;
+
+      if (sortKey === "name") {
+        comparison = a.full_name.localeCompare(b.full_name);
+      } else if (sortKey === "age") {
+        comparison =
+          Number(calculateAge(a.date_of_birth) || 0) -
+          Number(calculateAge(b.date_of_birth) || 0);
+      } else if (sortKey === "minutes") {
+        comparison =
+          Number(aIntel?.minutes || 0) - Number(bIntel?.minutes || 0);
+      } else if (sortKey === "goals90") {
+        comparison =
+          Number(aIntel?.goals_per90 || 0) -
+          Number(bIntel?.goals_per90 || 0);
+      } else if (sortKey === "assists90") {
+        comparison =
+          Number(aIntel?.assists_per90 || 0) -
+          Number(bIntel?.assists_per90 || 0);
+      } else if (sortKey === "xg90") {
+        comparison =
+          Number(aIntel?.xg_per90 || 0) - Number(bIntel?.xg_per90 || 0);
+      } else if (sortKey === "value") {
+        comparison =
+          Number(aValue?.market_value_usd || 0) -
+          Number(bValue?.market_value_usd || 0);
+      } else if (sortKey === "salary") {
+        comparison =
+          Number(aContract?.annual_salary_usd || 0) -
+          Number(bContract?.annual_salary_usd || 0);
+      } else if (sortKey === "contract") {
+        comparison = (aContract?.end_date || "9999-12-31").localeCompare(
+          bContract?.end_date || "9999-12-31"
+        );
+      }
+
+      return sortDirection === "asc" ? comparison : -comparison;
+    });
+  }, [
+    players,
+    search,
+    role,
+    nationality,
+    league,
+    club,
+    minimumMinutes,
+    sortKey,
+    sortDirection,
+    latestIntelByPlayer,
+    contractByPlayer,
+    latestValueByPlayer,
+  ]);
+
+  const playersWithStats = players.filter((player) =>
+    latestIntelByPlayer.has(player.id)
+  ).length;
+
+  const activeContracts = players.filter(
+    (player) => contractByPlayer.get(player.id)?.status?.toLowerCase() === "active"
+  ).length;
+
+  const leagueCount = new Set(
+    players
+      .map(
+        (player) =>
+          contractByPlayer.get(player.id)?.club?.league ||
+          latestIntelByPlayer.get(player.id)?.league
+      )
+      .filter(Boolean)
+  ).size;
 
   return (
     <>
-      <section
-        style={{
-          background: "#111",
-          color: "#fff",
-          padding: "55px 6vw 50px",
-        }}
-      >
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <div
-            style={{
-              fontSize: "12px",
-              letterSpacing: "2px",
-              fontWeight: 700,
-              marginBottom: "14px",
-              color: "#aaa",
-            }}
-          >
-            WOMEN&apos;S FOOTBALL MARKET
-          </div>
-
-          <h1
-            style={{
-              fontSize: "48px",
-              lineHeight: 1.05,
-              margin: 0,
-              fontWeight: 800,
-            }}
-          >
-            Players
-          </h1>
-
-          <p
-            style={{
-              maxWidth: "700px",
-              color: "#ccc",
-              fontSize: "17px",
-              lineHeight: 1.6,
-              marginTop: "18px",
-              marginBottom: 0,
-            }}
-          >
-            Explore the player database by position, nationality, club,
-            league and compensation.
+      <section className="players-scout-hero">
+        <div className="players-scout-shell">
+          <div className="players-scout-eyebrow">WOMEN&apos;S FOOTBALL MARKET</div>
+          <h1>Player Scouting Database</h1>
+          <p>
+            Search the WFM player pool by role, league, club, age, playing time,
+            performance output, contract context and recorded market value.
           </p>
         </div>
       </section>
 
-      <main
-        className="players-page"
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "40px 20px 60px",
-          fontFamily: "Arial, sans-serif",
-          background: "#f5f4ef",
-        }}
-      >
-        <div
-          className="players-filters"
-          style={{
-            padding: "20px",
-            border: "1px solid #e5e5e5",
-            borderRadius: "14px",
-            marginBottom: "22px",
-            background: "#fff",
-          }}
-        >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "2fr 1fr 1fr auto",
-              gap: "12px",
-            }}
-          >
+      <main className="players-page players-scout-page">
+        <section className="scout-stat-grid">
+          <div className="scout-stat">
+            <span>PLAYER POOL</span>
+            <strong>{players.length}</strong>
+          </div>
+          <div className="scout-stat">
+            <span>WITH RECORDED STATS</span>
+            <strong>{playersWithStats}</strong>
+          </div>
+          <div className="scout-stat">
+            <span>ACTIVE CONTRACTS</span>
+            <strong>{activeContracts}</strong>
+          </div>
+          <div className="scout-stat">
+            <span>LEAGUES</span>
+            <strong>{leagueCount}</strong>
+          </div>
+        </section>
+
+        <section className="scout-controls">
+          <div className="scout-control-grid">
             <input
               type="text"
-              placeholder="Search player, club, league or agency..."
+              placeholder="Search player, club, league, nationality or agency..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{
-                padding: "14px 16px",
-                border: "1px solid #ddd",
-                borderRadius: "9px",
-                fontSize: "15px",
-                background: "#fff",
-                minWidth: 0,
-              }}
+              onChange={(event) => setSearch(event.target.value)}
             />
 
             <select
-              value={position}
-              onChange={(e) => setPosition(e.target.value)}
-              style={{
-                padding: "14px 16px",
-                border: "1px solid #ddd",
-                borderRadius: "9px",
-                fontSize: "15px",
-                background: "#fff",
-              }}
+              value={role}
+              onChange={(event) =>
+                setRole(event.target.value as PlayerRoleGroup | "All")
+              }
             >
-              {positions.map((item) => (
+              <option value="All">All Roles</option>
+              {roles.map((item) => (
                 <option key={item} value={item}>
-                  {item === "All" ? "All Positions" : item}
+                  {roleLabels[item]}
                 </option>
               ))}
             </select>
 
             <select
               value={nationality}
-              onChange={(e) => setNationality(e.target.value)}
-              style={{
-                padding: "14px 16px",
-                border: "1px solid #ddd",
-                borderRadius: "9px",
-                fontSize: "15px",
-                background: "#fff",
-              }}
+              onChange={(event) => setNationality(event.target.value)}
             >
+              <option value="All">All Nationalities</option>
               {nationalities.map((item) => (
                 <option key={item} value={item}>
-                  {item === "All" ? "All Nationalities" : item}
+                  {item}
                 </option>
               ))}
             </select>
 
-            <button
-              type="button"
-              onClick={clearFilters}
-              disabled={!filtersActive}
-              style={{
-                padding: "0 15px",
-                border: "1px solid #ddd",
-                borderRadius: "9px",
-                background: filtersActive ? "#111" : "#f5f5f5",
-                color: filtersActive ? "#fff" : "#aaa",
-                fontSize: "13px",
-                fontWeight: 700,
-                cursor: filtersActive ? "pointer" : "default",
-                whiteSpace: "nowrap",
+            <select
+              value={league}
+              onChange={(event) => {
+                setLeague(event.target.value);
+                setClub("All");
               }}
             >
-              Clear filters
-            </button>
-          </div>
-        </div>
+              <option value="All">All Leagues</option>
+              {leagues.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "12px",
-            marginBottom: "12px",
-          }}
-        >
-          <div style={{ fontSize: "14px", color: "#666" }}>
-            {loading
-              ? "Loading players..."
-              : `${filteredPlayers.length} player${
-                  filteredPlayers.length === 1 ? "" : "s"
-                } found`}
+            <select
+              value={club}
+              onChange={(event) => setClub(event.target.value)}
+            >
+              <option value="All">All Clubs</option>
+              {clubs.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={minimumMinutes}
+              onChange={(event) => setMinimumMinutes(event.target.value)}
+            >
+              <option value="0">Any Minutes</option>
+              <option value="450">450+ Minutes</option>
+              <option value="900">900+ Minutes</option>
+              <option value="1350">1,350+ Minutes</option>
+              <option value="1800">1,800+ Minutes</option>
+            </select>
           </div>
 
-          {filtersActive && !loading && (
-            <div style={{ fontSize: "12px", color: "#888" }}>
-              Filters applied
+          <div className="scout-control-footer">
+            <span>
+              {loading
+                ? "Loading scouting database..."
+                : `${filteredPlayers.length} player${filteredPlayers.length === 1 ? "" : "s"} match your criteria`}
+            </span>
+
+            <div>
+              <button
+                type="button"
+                onClick={clearFilters}
+                disabled={!filtersActive}
+              >
+                Clear filters
+              </button>
             </div>
-          )}
+          </div>
+        </section>
+
+        <div className="scout-note">
+          <strong>Scouting context:</strong> performance figures use the latest
+          recorded season available for each player. Per-90 figures are
+          descriptive production measures, not WFM ratings or predictions.
+          Players without recorded season statistics remain searchable but are
+          excluded when a minimum-minutes filter is applied.
         </div>
 
-        <div
-          className="players-table"
-          style={{
-            border: "1px solid #e3e3e3",
-            borderRadius: "14px",
-            overflow: "hidden",
-            background: "#fff",
-          }}
-        >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "2fr 1.5fr 1fr 1.2fr 1.3fr",
-              gap: "12px",
-              padding: "15px 20px",
-              background: "#fafafa",
-              borderBottom: "1px solid #e3e3e3",
-              fontSize: "11px",
-              fontWeight: 700,
-              color: "#777",
-              letterSpacing: "0.8px",
-            }}
-          >
-            <span>PLAYER</span>
-            <span>CLUB</span>
-            <span>POSITION</span>
-            <span>LEAGUE</span>
-            <span>ANNUAL SALARY</span>
+        <section className="scout-table-wrap">
+          <div className="scout-table-header">
+            <button type="button" onClick={() => changeSort("name")}>
+              PLAYER{sortIndicator("name")}
+            </button>
+            <button type="button" onClick={() => changeSort("age")}>
+              AGE{sortIndicator("age")}
+            </button>
+            <button type="button" onClick={() => changeSort("minutes")}>
+              MINUTES{sortIndicator("minutes")}
+            </button>
+            <button type="button" onClick={() => changeSort("goals90")}>
+              G/90{sortIndicator("goals90")}
+            </button>
+            <button type="button" onClick={() => changeSort("assists90")}>
+              A/90{sortIndicator("assists90")}
+            </button>
+            <button type="button" onClick={() => changeSort("xg90")}>
+              xG/90{sortIndicator("xg90")}
+            </button>
+            <button type="button" onClick={() => changeSort("value")}>
+              MARKET VALUE{sortIndicator("value")}
+            </button>
+            <button type="button" onClick={() => changeSort("salary")}>
+              SALARY{sortIndicator("salary")}
+            </button>
           </div>
 
           {filteredPlayers.map((player) => {
+            const intel = latestIntelByPlayer.get(player.id);
+            const contract = contractByPlayer.get(player.id);
+            const value = latestValueByPlayer.get(player.id);
+            const playerRole = getPlayerRoleGroup(
+              player.position,
+              player.secondary_position
+            );
             const age = calculateAge(player.date_of_birth);
-            const contract = getContract(player.id);
+            const playerClub =
+              contract?.club?.name || intel?.club_name || "Club unavailable";
+            const playerLeague =
+              contract?.club?.league || intel?.league || "League unavailable";
 
             return (
               <Link
                 href={`/players/${player.id}`}
-                className="player-row"
+                className="scout-row"
                 key={player.id}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "2fr 1.5fr 1fr 1.2fr 1.3fr",
-                  gap: "12px",
-                  padding: "16px 20px",
-                  borderBottom: "1px solid #eee",
-                  alignItems: "center",
-                  color: "#111",
-                  textDecoration: "none",
-                  fontSize: "14px",
-                }}
               >
-                <span style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
+                <span className="scout-player">
                   <img
                     src={player.photo_url || "/wfm-player-placeholder.svg"}
                     alt={player.full_name}
-                    onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = "/wfm-player-placeholder.svg"; }}
-                    width={52}
-                    height={64}
-                    loading="eager"
+                    onError={(event) => {
+                      event.currentTarget.onerror = null;
+                      event.currentTarget.src = "/wfm-player-placeholder.svg";
+                    }}
+                    width={48}
+                    height={48}
+                    loading="lazy"
                     decoding="async"
                     referrerPolicy="no-referrer"
-                    style={{
-                      width: "52px",
-                      height: "52px",
-                      display: "block",
-                      borderRadius: "50%",
-                      objectFit: "cover",
-                      objectPosition: "center",
-                      background: "#eee",
-                      flexShrink: 0,
-                    }}
                   />
-                  <span style={{ minWidth: 0 }}>
-                    <b>{player.full_name}</b>
-                  <small
-                    style={{
-                      display: "block",
-                      marginTop: "4px",
-                      color: "#888",
-                      fontSize: "12px",
-                    }}
-                  >
-                    {player.nationality || "Nationality unavailable"}
-                    {age ? ` · ${age}` : ""}
-                  </small>
+                  <span>
+                    <strong>{player.full_name}</strong>
+                    <small>
+                      {roleLabels[playerRole]} · {player.nationality || "Nationality unavailable"}
+                    </small>
+                    <small>
+                      {playerClub} · {playerLeague}
+                    </small>
                   </span>
                 </span>
 
-                <span>{contract?.club?.name || "—"}</span>
-                <span>{player.position || "—"}</span>
-                <span style={{ color: "#666" }}>
-                  {contract?.club?.league || "—"}
+                <span className="scout-age">{age ?? "—"}</span>
+                <span>{intel?.minutes ?? "—"}</span>
+                <span>{formatNumber(intel?.goals_per90 ?? null)}</span>
+                <span>{formatNumber(intel?.assists_per90 ?? null)}</span>
+                <span>{formatNumber(intel?.xg_per90 ?? null)}</span>
+                <span>
+                  {value?.market_value_usd != null
+                    ? formatMoney(value.market_value_usd)
+                    : "—"}
+                  {value?.valuation_date && (
+                    <small>as of {formatDate(value.valuation_date)}</small>
+                  )}
                 </span>
-                <span style={{ fontWeight: 700 }}>
-                  {formatSalary(contract?.annual_salary_usd ?? null)}
+                <span>
+                  {contract?.annual_salary_usd != null
+                    ? formatMoney(contract.annual_salary_usd)
+                    : "—"}
+                  {contract?.end_date && (
+                    <small>ends {formatDate(contract.end_date)}</small>
+                  )}
                 </span>
               </Link>
             );
           })}
 
           {!loading && filteredPlayers.length === 0 && (
-            <div
-              style={{
-                padding: "55px 20px",
-                textAlign: "center",
-                color: "#777",
-              }}
-            >
-              <strong
-                style={{
-                  display: "block",
-                  color: "#222",
-                  fontSize: "16px",
-                  marginBottom: "7px",
-                }}
-              >
-                No players found
-              </strong>
-              <span style={{ fontSize: "13px" }}>
-                Try changing your search or filters.
-              </span>
+            <div className="scout-empty">
+              <strong>No players match the current filters</strong>
+              <span>Broaden the role, league, club or minutes criteria.</span>
+              <button type="button" onClick={clearFilters}>
+                Reset scouting filters
+              </button>
             </div>
           )}
-        </div>
+        </section>
       </main>
     </>
   );
