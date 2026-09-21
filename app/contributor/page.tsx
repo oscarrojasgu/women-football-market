@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 
 type Player = { id: string; full_name: string };
+type Club = { id: string; name: string };
 type Request = {
   id: string; player_id: string | null; club_id: string | null; agency_name: string | null;
   relationship_type: string; status: string; verification_method: string | null;
@@ -25,7 +26,7 @@ const fields = [
 export default function ContributorPortal() {
   const [user,setUser]=useState<any>(null), [loading,setLoading]=useState(true), [message,setMessage]=useState("");
   const [profileType,setProfileType]=useState("individual"), [name,setName]=useState(""), [org,setOrg]=useState("");
-  const [requests,setRequests]=useState<Request[]>([]), [officialVerifications,setOfficialVerifications]=useState<OfficialVerification[]>([]), [query,setQuery]=useState(""), [clubQuery,setClubQuery]=useState(""), [clubs,setClubs]=useState<Player[]>([]), [clubId,setClubId]=useState(""), [players,setPlayers]=useState<Player[]>([]);
+  const [requests,setRequests]=useState<Request[]>([]), [officialVerifications,setOfficialVerifications]=useState<OfficialVerification[]>([]), [query,setQuery]=useState(""), [clubQuery,setClubQuery]=useState(""), [clubs,setClubs]=useState<Club[]>([]), [clubId,setClubId]=useState(""), [players,setPlayers]=useState<Player[]>([]);
   const [playerId,setPlayerId]=useState(""), [field,setField]=useState("full_name"), [value,setValue]=useState("");
   const [evidence,setEvidence]=useState(""), [notes,setNotes]=useState(""), [busy,setBusy]=useState(false);
 
@@ -161,7 +162,7 @@ export default function ContributorPortal() {
         </>}
         {profileType==="club" && <>
           <label style={s.label}>Club<input style={s.input} value={clubQuery} onChange={e=>searchClubs(e.target.value)} placeholder="Search by club name" /></label>
-          {clubs.length>0&&<div style={s.results}>{clubs.map(p=><button key={p.id} style={s.result} onClick={()=>{setClubId(p.id);setClubQuery(p.full_name);setClubs([])}}>{p.full_name}</button>)}</div>}
+          {clubs.length>0&&<div style={s.results}>{clubs.map(p=><button key={p.id} style={s.result} onClick={()=>{setClubId(p.id);setClubQuery(p.name);setClubs([])}}>{p.name}</button>)}</div>}
         </>}
         {profileType==="agency" && <label style={s.label}>Agency name<input style={s.input} value={org} onChange={e=>setOrg(e.target.value)} /></label>}
         <button style={s.button} disabled={busy} onClick={submitOfficialVerification}>Request official verification</button>
