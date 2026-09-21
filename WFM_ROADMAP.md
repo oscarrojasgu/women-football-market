@@ -2,7 +2,7 @@
 
 This file is the working source of truth for the Women’s Football Market build.
 
-## Current phase: PHASE 3 — Player intelligence
+## Current phase: PHASE 4 — Verification
 
 Phase 1 data foundation is complete. The database is now structured, normalized, sourced where evidence exists, and explicit about information that cannot be verified from available sources.
 
@@ -180,6 +180,20 @@ Sourced competition expansion completed across four additional competitions beyo
 ## PHASE 4 — Verification
 
 Enable players, agents, clubs, and eventually journalists/scouts to contribute and verify information.
+
+### Phase 4 milestone 1 — verification & contributor architecture — COMPLETE
+
+- [x] Audited the existing verification-submission and player-claim workflows.
+- [x] Kept player claims and verification submissions as the existing contribution primitives rather than creating duplicate systems.
+- [x] Established admin-only review boundaries through Supabase RLS.
+- [x] Added an immutable-style verification review history table capturing reviewer, action, player, field, old/new values, source, evidence, notes, and timestamp.
+- [x] Added an atomic database review function so approved player-field submissions update the player and submission status in one transaction.
+- [x] Restricted the review function to authenticated WFM admins and removed public execution.
+- [x] Routed the owner verification dashboard through the database review function instead of directly mutating player records.
+- [x] Preserved source/evidence provenance when a submission is approved.
+- [x] Added explicit review outcomes: approved, rejected, and needs_evidence at the database workflow level.
+- [x] Verified the live Supabase audit table, review function, RLS policy, and production Vercel deployment.
+
 
 ## PHASE 5 — Scouting tools
 
