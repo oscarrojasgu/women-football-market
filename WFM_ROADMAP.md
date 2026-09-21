@@ -138,7 +138,8 @@ Important limitation:
 - [x] Kept scouting context descriptive rather than converting benchmark data into a player rating
 - [x] Add role-specific scouting filters and research views
 - [x] Add richer player archetype/context views using only recorded WFM data
-- [ ] Add broader competition/league coverage to strengthen peer samples
+- [x] Add a competition coverage audit and canonical competition model to measure peer-sample readiness
+- [ ] Expand sourced statistics/player coverage across additional competitions to strengthen peer samples
 - [x] Add historical contract and salary trend context where source coverage supports it
 - [x] Add saved scouting workflows after the intelligence layer is stable
 
@@ -149,6 +150,15 @@ Important limitation:
 - The player directory now shows the same archetype language so research can move from database search into player profiles without changing the underlying data model.
 - Contract/salary context now includes recorded contract history when multiple records are available.
 - Scouting shortlists can be saved as named browser-local workflows and reloaded later; no new server-side scouting record is created.
+
+### Competition coverage implementation notes
+
+- Added canonical competition and alias reference tables so alternate labels such as NWSL Regular Season/NWSL, WSL/FA Women’s Super League, and Kvindeligaen/Kvindeliga resolve to one competition identity.
+- Added `competition_id` references to clubs and player statistics and backfilled existing records.
+- Added `competition_coverage_audit` to distinguish scouting-ready competitions, competitions with data below the five-player peer threshold, and competitions with no recorded statistics.
+- Updated player-season, peer-benchmark, and goalkeeper intelligence views to use the canonical competition reference instead of relying on the club league text alone.
+- Current audit: NWSL is scouting-ready with 167 stat players and 133 eligible player-season records; FA Women’s Super League has 143 stat players but is below the peer threshold because the current dataset only represents one season/position coverage path; Frauen-Bundesliga and Kvindeliga have recorded data but remain below the peer threshold; the remaining canonical competitions currently have no recorded player statistics.
+- This audit is now the source of truth for the next data-expansion work; no unsupported player/stat records were fabricated to fill coverage gaps.
 
 ### Provider strategy
 
