@@ -25,7 +25,7 @@ const fields = [
 export default function ContributorPortal() {
   const [user,setUser]=useState<any>(null), [loading,setLoading]=useState(true), [message,setMessage]=useState("");
   const [profileType,setProfileType]=useState("individual"), [name,setName]=useState(""), [org,setOrg]=useState("");
-  const [requests,setRequests]=useState<Request[]>([]), [officialVerifications,setOfficialVerifications]=useState<OfficialVerification[]>([]), [query,setQuery]=useState(""), [players,setPlayers]=useState<Player[]>([]);
+  const [requests,setRequests]=useState<Request[]>([]), [officialVerifications,setOfficialVerifications]=useState<OfficialVerification[]>([]), [query,setQuery]=useState(""), [clubQuery,setClubQuery]=useState(""), [clubs,setClubs]=useState<Player[]>([]), [clubId,setClubId]=useState(""), [players,setPlayers]=useState<Player[]>([]);
   const [playerId,setPlayerId]=useState(""), [field,setField]=useState("full_name"), [value,setValue]=useState("");
   const [evidence,setEvidence]=useState(""), [notes,setNotes]=useState(""), [busy,setBusy]=useState(false);
 
@@ -72,14 +72,25 @@ export default function ContributorPortal() {
     if(!error){setEvidence("");setNotes("");await load();}
   }
 
+  async function searchClubs(v:string){
+    setClubQuery(v);
+    if(v.trim().length<2){setClubs([]);return;}
+    const {data}=await supabase.from("clubs").select("id,name").ilike("name",`%${v.trim()}%`).order("name").limit(8);
+    setClubs(data||[]);
+  }
+
   async function submitOfficialVerification(){
-    if(!playerId){setMessage("Select a player first.");return;}
-    setBusy(true);setMessage("");
     const verificationType=profileType==="agent"?"agent":profileType==="agency"?"agency":profileType==="club"?"club":"player";
+    if(verificationType==="player" || verificationType==="agent"){
+      if(!playerId){setMessage("Select a player first.");return;}
+    }
+    if(verificationType==="club" && !clubId){setMessage("Select a club first.");return;}
+    if(verificationType==="agency" && !org.trim()){setMessage("Enter the agency name first.");return;}
+    setBusy(true);setMessage("");
     const {error}=await supabase.rpc("submit_official_verification_request",{
-      p_player_id:verificationType==="club"?null:playerId,
-      p_club_id:null,
-      p_agency_name:verificationType==="agency"?org||null:null,
+      p_player_id:(verificationType==="player" || verificationType==="agent")?playerId:null,
+      p_club_id:verificationType==="club"?clubId:null,
+      p_agency_name:verificationType==="agency"?org.trim():null,
       p_verification_type:verificationType,
       p_verification_method:"contributor_portal",
       p_evidence_url:evidence||null,
@@ -144,9 +155,16 @@ export default function ContributorPortal() {
       <section style={s.card}>
         <h2 style={s.h2}>Request official verification</h2>
         <p style={s.muted}>Official verification is a separate status from approved representation. WFM reviews the evidence before publishing an official badge.</p>
-        <label style={s.label}>Player<input style={s.input} value={query} onChange={e=>searchPlayers(e.target.value)} placeholder="Search by player name" /></label>
-        {players.length>0&&<div style={s.results}>{players.map(p=><button key={p.id} style={s.result} onClick={()=>{setPlayerId(p.id);setQuery(p.full_name);setPlayers([])}}>{p.full_name}</button>)}</div>}
-        <button style={s.button} disabled={busy||!playerId} onClick={submitOfficialVerification}>Request official verification</button>
+        {(profileType==="player" || profileType==="agent" || profileType==="individual") && <>
+          <label style={s.label}>Player<input style={s.input} value={query} onChange={e=>searchPlayers(e.target.value)} placeholder="Search by player name" /></label>
+          {players.length>0&&<div style={s.results}>{players.map(p=><button key={p.id} style={s.result} onClick={()=>{setPlayerId(p.id);setQuery(p.full_name);setPlayers([])}}>{p.full_name}</button>)}</div>}
+        </>}
+        {profileType==="club" && <>
+          <label style={s.label}>Club<input style={s.input} value={clubQuery} onChange={e=>searchClubs(e.target.value)} placeholder="Search by club name" /></label>
+          {clubs.length>0&&<div style={s.results}>{clubs.map(p=><button key={p.id} style={s.result} onClick={()=>{setClubId(p.id);setClubQuery(p.full_name);setClubs([])}}>{p.full_name}</button>)}</div>}
+        </>}
+        {profileType==="agency" && <label style={s.label}>Agency name<input style={s.input} value={org} onChange={e=>setOrg(e.target.value)} /></label>}
+        <button style={s.button} disabled={busy} onClick={submitOfficialVerification}>Request official verification</button>
       </section>
 
       <section style={s.card}>
