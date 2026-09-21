@@ -192,91 +192,29 @@ export default function VerificationDashboard() {
     setLoading(false);
   }
 
-  async function approveSubmission(item: Submission) {
+  async function reviewSubmission(id: string, action: "approved" | "rejected" | "needs_evidence") {
     setBusy(true);
     setMessage("");
 
-    const supportedFields = [
-      "full_name",
-      "date_of_birth",
-      "nationality",
-      "position",
-      "secondary_position",
-      "preferred_foot",
-      "height_cm",
-      "birthplace",
-      "agency",
-      "youth_clubs",
-      "current_club_since",
-    ];
-
-    if (!item.field_name || !supportedFields.includes(item.field_name)) {
-      setBusy(false);
-      setMessage(
-        "This submission needs manual handling because the field is not an automatically applicable player field yet."
-      );
-      return;
-    }
-
-    let value: string | number | null = item.new_value;
-
-    if (
-      item.field_name === "height_cm"
-    ) {
-      const parsed = Number(item.new_value);
-      if (!Number.isFinite(parsed)) {
-        setBusy(false);
-        setMessage("Height must be a number in centimeters.");
-        return;
-      }
-      value = parsed;
-    }
-
-    if (
-      (item.field_name === "date_of_birth" ||
-        item.field_name === "current_club_since") &&
-      item.new_value
-    ) {
-      const parsedDate = new Date(item.new_value);
-      if (Number.isNaN(parsedDate.getTime())) {
-        setBusy(false);
-        setMessage("Use a valid date, such as 2026-09-18.");
-        return;
-      }
-      value = item.new_value;
-    }
-
-    const updatePayload: Record<string, string | number | null> = {};
-    updatePayload[item.field_name] = value;
-
-    const { error: playerError } = await supabase
-      .from("players")
-      .update(updatePayload)
-      .eq("id", item.player_id);
-
-    if (playerError) {
-      setBusy(false);
-      setMessage(playerError.message);
-      return;
-    }
-
-    const { error: reviewError } = await supabase
-      .from("verification_submissions")
-      .update({
-        status: "approved",
-        reviewed_by: user.id,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", item.id);
+    const { error } = await supabase.rpc("review_verification_submission", {
+      p_submission_id: id,
+      p_action: action,
+    });
 
     setBusy(false);
 
-    if (reviewError) {
-      setMessage(reviewError.message);
+    if (error) {
+      setMessage(error.message);
       return;
     }
 
-    setMessage("Approved and applied to the player profile.");
+    setMessage(
+      action === "approved"
+        ? "Approved and applied to the player profile."
+        : action === "rejected"
+          ? "Submission rejected."
+          : "Submission marked as needing more evidence."
+    );
     await loadQueue();
   }
 
