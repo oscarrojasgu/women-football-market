@@ -848,3 +848,49 @@
   color: #111 !important;
   text-decoration: none !important;
 }
+
+
+/* =========================
+   GLOBAL TYPOGRAPHY LOCK
+   Keep every WFM route on the original Arial system.
+========================= */
+.players-page,
+.players-page *,
+.contracts-scout-page,
+.contracts-scout-page *,
+.salary-page,
+.salary-page *,
+.clubs-page,
+.clubs-page *,
+.transfers-page,
+.transfers-page *,
+.player-page,
+.player-page *,
+.compare-page,
+.compare-page * {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.players-page input,
+.players-page select,
+.players-page button,
+.contracts-scout-page input,
+.contracts-scout-page select,
+.contracts-scout-page button,
+.salary-page input,
+.salary-page select,
+.salary-page button,
+.clubs-page input,
+.clubs-page select,
+.clubs-page button,
+.transfers-page input,
+.transfers-page select,
+.transfers-page button,
+.player-page input,
+.player-page select,
+.player-page button,
+.compare-page input,
+.compare-page select,
+.compare-page button {
+  font-family: Arial, Helvetica, sans-serif;
+}
