@@ -36,7 +36,17 @@ export default function PlayerIntelligence({stats,marketValues,position,contract
  const latestIntel=seasonIntelligence[0]||null,latestPeer=peerBenchmarks.find(p=>p.season===latestIntel?.season)||peerBenchmarks[0]||null,gkPeer=gkBenchmarks.find(p=>p.season===seasons[0])||gkBenchmarks[0]||null;
  const percentile=(v:number|null)=>v==null?"—":`${Math.round(v)}th`;
  const percentileBand=(v:number|null)=>{if(v==null)return null;if(v>=75)return"Above most recorded peers";if(v>=50)return"Above the peer-group midpoint";if(v>=25)return"Below the peer-group midpoint";return"Below most recorded peers"};
- const scoutingDimensions=latestPeer?[["Goals / 90",latestPeer.goals_per90_percentile],["Assists / 90",latestPeer.assists_per90_percentile],["xG / 90",latestPeer.xg_per90_percentile],["xA / 90",latestPeer.xa_per90_percentile],["Chances Created / 90",latestPeer.chances_created_per90_percentile],["Key Passes / 90",latestPeer.key_passes_per90_percentile],["Tackles / 90",latestPeer.tackles_per90_percentile],["Interceptions / 90",latestPeer.interceptions_per90_percentile],["Progressive Carries / 90",latestPeer.progressive_carries_per90_percentile]].filter((x):x is [string,number]=>x[1]!=null):[];
+ const scoutingDimensions:Array<[string,number]>=latestPeer ? [
+  ["Goals / 90", latestPeer.goals_per90_percentile],
+  ["Assists / 90", latestPeer.assists_per90_percentile],
+  ["xG / 90", latestPeer.xg_per90_percentile],
+  ["xA / 90", latestPeer.xa_per90_percentile],
+  ["Chances Created / 90", latestPeer.chances_created_per90_percentile],
+  ["Key Passes / 90", latestPeer.key_passes_per90_percentile],
+  ["Tackles / 90", latestPeer.tackles_per90_percentile],
+  ["Interceptions / 90", latestPeer.interceptions_per90_percentile],
+  ["Progressive Carries / 90", latestPeer.progressive_carries_per90_percentile]
+ ].filter((item): item is [string,number] => item[1] !== null) : [];
  const archetype=getScoutingArchetype(roleGroup,{goals:latestPeer?.goals_per90_percentile,assists:latestPeer?.assists_per90_percentile,xg:latestPeer?.xg_per90_percentile,xa:latestPeer?.xa_per90_percentile,chancesCreated:latestPeer?.chances_created_per90_percentile,keyPasses:latestPeer?.key_passes_per90_percentile,tackles:latestPeer?.tackles_per90_percentile,interceptions:latestPeer?.interceptions_per90_percentile,progressiveCarries:latestPeer?.progressive_carries_per90_percentile});
  const valueChange=latest!=null&&prior!=null&&prior!==0?((latest-prior)/prior)*100:null;
  const contractDays=currentContract?.end_date?Math.ceil((new Date(`${currentContract.end_date}T00:00:00`).getTime()-Date.now())/86400000):null;
