@@ -81,6 +81,7 @@ export default function ClubProfilePage() {
   const [transfers, setTransfers] = useState<Transfer[]>([])
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState("salary")
+  const [officialVerification, setOfficialVerification] = useState<any>(null)
 
   useEffect(() => {
     async function loadData() {
@@ -102,6 +103,13 @@ export default function ClubProfilePage() {
         setLoading(false)
         return
       }
+
+      const { data: officialData } = await supabase
+        .from("official_verification_public")
+        .select("verification_type,verified_at")
+        .eq("club_id", id)
+        .eq("status", "verified")
+        .maybeSingle()
 
       const { data: contractData } = await supabase
         .from("contracts")
@@ -259,6 +267,7 @@ export default function ClubProfilePage() {
         }))
 
       setClub(clubData)
+      setOfficialVerification(officialData || null)
       setContracts(contractsWithPlayers)
       setTransfers(transfersWithDetails)
       setLoading(false)
@@ -450,15 +459,18 @@ export default function ClubProfilePage() {
                 CLUB PROFILE
               </div>
 
-              <h1
-                style={{
-                  fontSize: 46,
-                  lineHeight: 1.05,
-                  margin: 0,
-                }}
-              >
-                {club.name}
-              </h1>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <h1
+                  style={{
+                    fontSize: 46,
+                    lineHeight: 1.05,
+                    margin: 0,
+                  }}
+                >
+                  {club.name}
+                </h1>
+                {officialVerification && <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 8px", borderRadius: 999, background: "#e8f2ea", color: "#245b32", fontSize: 10, fontWeight: 800, letterSpacing: ".04em" }}>✓ OFFICIAL WFM REPRESENTATIVE</span>}
+              </div>
 
               <div
                 style={{
