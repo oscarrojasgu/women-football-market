@@ -827,3 +827,24 @@
     justify-self: end;
   }
 }
+
+
+/* PLAYER TABLE LINK RESET — keep database names neutral, not browser-link blue */
+.players-scout-page .scout-player,
+.players-scout-page .scout-player:link,
+.players-scout-page .scout-player:visited,
+.players-scout-page .scout-player:hover,
+.players-scout-page .scout-player:active {
+  color: #111 !important;
+  text-decoration: none !important;
+}
+
+.players-scout-page .scout-player strong {
+  color: #111 !important;
+  text-decoration: none !important;
+}
+
+.players-scout-page .scout-player:hover strong {
+  color: #111 !important;
+  text-decoration: none !important;
+}
