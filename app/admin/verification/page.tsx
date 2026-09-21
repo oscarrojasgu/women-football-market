@@ -218,29 +218,6 @@ export default function VerificationDashboard() {
     await loadQueue();
   }
 
-  async function rejectSubmission(id: string) {
-    setBusy(true);
-    setMessage("");
-
-    const { error } = await supabase
-      .from("verification_submissions")
-      .update({
-        status: "rejected",
-        reviewed_by: user.id,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", id);
-
-    setBusy(false);
-
-    if (error) {
-      setMessage(error.message);
-      return;
-    }
-
-    await loadQueue();
-  }
-
   async function approveClaim(id: string) {
     setBusy(true);
     setMessage("");
@@ -453,14 +430,14 @@ export default function VerificationDashboard() {
 
                 <div style={styles.actions}>
                   <button
-                    onClick={() => approveSubmission(item)}
+                    onClick={() => reviewSubmission(item.id, "approved")}
                     disabled={busy}
                     style={styles.approveButton}
                   >
                     Approve & apply
                   </button>
                   <button
-                    onClick={() => rejectSubmission(item.id)}
+                    onClick={() => reviewSubmission(item.id, "rejected")}
                     disabled={busy}
                     style={styles.rejectButton}
                   >
