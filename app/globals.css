@@ -643,164 +643,293 @@ footer small {
     width: 100%;
     min-width: 0;
     min-height: 0 !important;
-    padding: 18px !important;
-  }
-
-  .player-page > div > div > div[style*="minmax(190px, 230px)"] > div:nth-child(2) h2 {
-    font-size: 19px !important;
-  }
-
-  .player-page > div > div > div[style*="minmax(190px, 230px)"] > div:nth-child(2) div[style*="fontSize: 30"] {
-    font-size: 28px !important;
-    line-height: 1.05;
-    white-space: nowrap;
   }
 }
 
-@media (max-width: 380px) {
-  .logo {
-    font-size: 19px;
-  }
+/* ================================================================
+   WFM PLAYER PROFILE — CORE SITE VISUAL SYSTEM
+   Reference: Home, Contracts, Salaries, Transfers and Market Values.
+   The player profile keeps its own information architecture, but uses
+   the same spacing, typography, surfaces, borders and responsive rhythm.
+================================================================ */
 
-  .logo span {
-    font-size: 21px;
-  }
-
-  .login {
-    padding-left: 11px;
-    padding-right: 11px;
-  }
-
-  .hero h1 {
-    font-size: 39px;
-  }
+.player-page {
+  background: #f5f4ef !important;
+  color: #121212 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
 }
 
-html {
-  background: #f5f4ef;
+.player-page .player-hero {
+  width: 100% !important;
+  background: #111 !important;
+  color: #fff !important;
+  padding: 55px 6vw 50px !important;
 }
 
-body {
-  background: #f5f4ef;
-  min-height: 100vh;
+.player-page .player-hero > div {
+  max-width: 1200px !important;
+  margin: 0 auto !important;
 }
 
-main {
-  background: #f5f4ef;
-  min-height: 100vh;
+.player-page .player-hero > div > a:first-child {
+  color: #aaa !important;
+  font-size: 12px !important;
+  text-decoration: none !important;
 }
 
-
-/* =========================
-   PHASE 2 DESIGN SYSTEM
-========================= */
-
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  height: 76px;
-  width: 100%;
-  background: rgba(250, 249, 245, 0.96);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid #d9d7d0;
+.player-page .player-hero-grid {
+  display: grid !important;
+  grid-template-columns: 140px minmax(0, 1fr) auto !important;
+  gap: 26px !important;
+  align-items: center !important;
+  margin-top: 22px !important;
 }
 
-.site-header .logo {
-  display: inline-flex;
-  align-items: center;
-  line-height: 1;
-  text-decoration: none;
+.player-page .player-hero-grid > div:first-child {
+  width: 140px !important;
+  height: 140px !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  background: #222 !important;
+  border: 1px solid #333 !important;
 }
 
-.site-header .navlinks a {
-  position: relative;
-  padding: 29px 0 27px;
-  font-weight: 600;
+.player-page .player-hero-grid > div:first-child img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
 }
 
-.site-header .navlinks a::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 21px;
-  height: 2px;
-  background: #111;
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 0.18s ease;
+.player-page .player-hero-grid h1 {
+  margin: 0 !important;
+  font-size: clamp(42px, 5vw, 58px) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -2px !important;
+  font-weight: 800 !important;
 }
 
-.site-header .navlinks a:hover::after,
-.site-header .navlinks a.active::after {
-  transform: scaleX(1);
+.player-page .player-hero-grid > div:nth-child(2) > div:nth-child(2) {
+  margin-top: 13px !important;
+  color: #bbb !important;
+  font-size: 15px !important;
 }
 
-.site-header .navlinks a.active {
-  font-weight: 800;
+.player-page .player-hero-grid > div:nth-child(2) > a {
+  color: #fff !important;
+  margin-top: 15px !important;
 }
 
-.header-meta {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 14px;
+.player-page .player-hero-value {
+  min-width: 190px !important;
+  text-align: right !important;
 }
 
-.header-status {
-  display: inline-flex;
-  align-items: center;
-  min-height: 28px;
-  padding: 0 9px;
-  border: 1px solid #d9d7d0;
-  border-radius: 999px;
-  color: #666;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 1px;
+.player-page .player-hero-value > div:first-child {
+  color: #aaa !important;
 }
 
-.site-header .login {
-  margin-left: 0;
+.player-page .player-hero-value > div:nth-child(2) {
+  font-size: 30px !important;
+  font-weight: 800 !important;
+  margin-top: 5px !important;
+  color: #c9ff3d !important;
 }
 
-a {
-  transition: color 0.15s ease, opacity 0.15s ease;
+.player-page .player-content {
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding: 22px 20px 60px !important;
 }
 
-button,
-input,
-select {
-  font: inherit;
+.player-page .player-overview-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 12px !important;
 }
 
-::selection {
-  background: #c9ff3d;
+.player-page .player-overview-grid > div,
+.player-page .player-main-grid > section,
+.player-page .player-main-grid > aside,
+.player-page .player-content > section[style*="background"] {
+  background: #fff !important;
+  border: 1px solid #e2e1dc !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+.player-page .player-overview-grid > div {
+  padding: 16px 17px !important;
+  min-height: 92px;
+}
+
+.player-page .player-main-grid {
+  display: grid !important;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr) !important;
+  gap: 16px !important;
+  margin-top: 16px !important;
+}
+
+.player-page .player-main-grid > section,
+.player-page .player-main-grid > aside,
+.player-page .player-content > section[style*="background"] {
+  padding: 22px !important;
+}
+
+.player-page h2 {
+  color: #121212 !important;
+  font-weight: 600 !important;
+}
+
+.player-page .player-main-grid h2,
+.player-page .player-content > section h2 {
+  font-size: 19px !important;
+  line-height: 1.2 !important;
+}
+
+.player-page .player-links-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.player-page .player-links-grid a {
+  color: #111 !important;
+  text-decoration: none !important;
+  background: #fafafa !important;
+  border: 1px solid #e2e1dc !important;
+  border-radius: 9px !important;
+}
+
+.player-page .player-links-grid a:hover {
+  border-color: #bbb !important;
+  background: #f5f4ef !important;
+}
+
+.player-page a {
   color: #111;
 }
 
-@media (max-width: 900px) and (min-width: 651px) {
-  .site-header {
-    padding-left: 24px;
-    padding-right: 24px;
+.player-page a:hover {
+  color: #555;
+}
+
+.player-page .market-value-list,
+.player-page .market-value-list > div {
+  min-width: 0;
+}
+
+.player-page .market-value-list > div {
+  border-color: #e5e5e5 !important;
+}
+
+@media (max-width: 1000px) {
+  .player-page .player-hero-grid {
+    grid-template-columns: 120px minmax(0, 1fr) !important;
   }
 
-  .site-header .navlinks {
-    gap: 18px;
+  .player-page .player-hero-grid > div:first-child {
+    width: 120px !important;
+    height: 120px !important;
   }
 
-  .site-header .navlinks a {
-    font-size: 13px;
+  .player-page .player-hero-value {
+    grid-column: 1 / -1 !important;
+    text-align: left !important;
+    min-width: 0 !important;
+    padding-top: 2px !important;
   }
 
-  .header-status {
-    display: none;
+  .player-page .player-main-grid {
+    grid-template-columns: 1fr !important;
   }
 }
 
 @media (max-width: 650px) {
-  .site-header {
-    display: none !important;
+  .player-page .player-hero {
+    padding: 40px 16px 36px !important;
+  }
+
+  .player-page .player-hero-grid {
+    grid-template-columns: 96px minmax(0, 1fr) !important;
+    gap: 16px !important;
+    margin-top: 18px !important;
+  }
+
+  .player-page .player-hero-grid > div:first-child {
+    width: 96px !important;
+    height: 96px !important;
+    border-radius: 10px !important;
+  }
+
+  .player-page .player-hero-grid h1 {
+    font-size: 30px !important;
+    line-height: 1.04 !important;
+    letter-spacing: -1.1px !important;
+    overflow-wrap: anywhere;
+  }
+
+  .player-page .player-hero-grid > div:nth-child(2) > div:nth-child(2) {
+    margin-top: 8px !important;
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+  }
+
+  .player-page .player-hero-grid > div:nth-child(2) > a {
+    margin-top: 9px !important;
+    font-size: 13px !important;
+  }
+
+  .player-page .player-hero-value {
+    grid-column: 1 / -1 !important;
+    padding-top: 2px !important;
+  }
+
+  .player-page .player-hero-value > div:nth-child(2) {
+    font-size: 27px !important;
+  }
+
+  .player-page .player-content {
+    width: 100% !important;
+    padding: 18px 16px 44px !important;
+  }
+
+  .player-page .player-overview-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  .player-page .player-overview-grid > div {
+    padding: 14px !important;
+    min-height: 88px;
+  }
+
+  .player-page .player-main-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    margin-top: 12px !important;
+  }
+
+  .player-page .player-main-grid > section,
+  .player-page .player-main-grid > aside,
+  .player-page .player-content > section[style*="background"] {
+    padding: 17px !important;
+    border-radius: 12px !important;
+  }
+
+  .player-page .player-links-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .player-page .player-content section[id="contract"] > div,
+  .player-page .market-value-list > div,
+  .player-page .player-content section[id="transfers"] article {
+    min-width: 620px;
+  }
+
+  .player-page .player-content section[id="contract"],
+  .player-page .player-content section[id="market-value"],
+  .player-page .player-content section[id="transfers"] {
+    overflow-x: auto;
   }
 }
