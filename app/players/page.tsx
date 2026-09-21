@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { getPlayerRoleGroup, roleLabels, type PlayerRoleGroup } from "../lib/player-roles";
@@ -92,6 +93,8 @@ export default function PlayersPage() {
   const [minimumMinutes, setMinimumMinutes] = useState("0");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [shortlist, setShortlist] = useState<string[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     async function loadPlayers() {
@@ -357,7 +360,7 @@ export default function PlayersPage() {
     }).format(new Date(`${value}T00:00:00`));
   };
 
-  const filtersActive =
+  const toggleShortlist = (playerId: string) => {\n    setShortlist((current) => {\n      const next = current.includes(playerId)\n        ? current.filter((id) => id !== playerId)\n        : [...current, playerId];\n      localStorage.setItem("wfm_scouting_shortlist", JSON.stringify(next));\n      return next;\n    });\n  };\n\n  const compareShortlist = () => {\n    if (shortlist.length < 2) return;\n    router.push(`/compare?player1=${encodeURIComponent(shortlist[0])}&player2=${encodeURIComponent(shortlist[1])}`);\n  };\n\n  const filtersActive =
     search.trim() !== "" ||
     role !== "All" ||
     nationality !== "All" ||
@@ -635,7 +638,7 @@ export default function PlayersPage() {
           </div>
         </section>
 
-        <div className="scout-note">
+        <div className="scout-shortlist-bar">\n          <div><strong>{shortlist.length}</strong> player{shortlist.length === 1 ? "" : "s"} in shortlist</div>\n          <div className="scout-shortlist-actions">\n            <button type="button" onClick={compareShortlist} disabled={shortlist.length < 2}>Compare first 2</button>\n            <button type="button" onClick={() => { localStorage.removeItem("wfm_scouting_shortlist"); setShortlist([]); }} disabled={!shortlist.length}>Clear shortlist</button>\n          </div>\n        </div>\n\n        <div className="scout-note">
           <strong>Scouting context:</strong> performance figures use the latest
           recorded season available for each player. Per-90 figures are
           descriptive production measures, not WFM ratings or predictions.
@@ -691,7 +694,7 @@ export default function PlayersPage() {
                 className="scout-row"
                 key={player.id}
               >
-                <span className="scout-player">
+                <button\n                  type="button"\n                  className="scout-shortlist-toggle"\n                  onClick={(event) => { event.preventDefault(); toggleShortlist(player.id); }}\n                  aria-label={shortlist.includes(player.id) ? `Remove ${player.full_name} from shortlist` : `Add ${player.full_name} to shortlist`}\n                >{shortlist.includes(player.id) ? "✓" : "+"}</button>\n                <Link href={`/players/${player.id}`} className="scout-player">
                   <img
                     src={player.photo_url || "/wfm-player-placeholder.svg"}
                     alt={player.full_name}
