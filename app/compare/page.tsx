@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import {useEffect,useMemo,useState} from "react";
-import {useSearchParams} from "next/navigation";
 import {supabase} from "../lib/supabase";
 import {getPlayerRoleGroup,roleLabels} from "../lib/player-roles";
 
@@ -19,10 +18,10 @@ const p90=(v:number|null,m:number|null)=>m?(v||0)*90/m:null;
 const sum=(r:I[])=>r.reduce((a,x)=>({minutes:a.minutes+(x.minutes||0),appearances:a.appearances+(x.appearances||0),goals:a.goals+(x.goals||0),assists:a.assists+(x.assists||0),xg:a.xg+(x.xg||0),xa:a.xa+(x.xa||0),chances:a.chances+(x.chances_created||0),key:a.key+(x.key_passes||0),tackles:a.tackles+(x.tackles||0),interceptions:a.interceptions+(x.interceptions||0),carries:a.carries+(x.progressive_carries||0)}),{minutes:0,appearances:0,goals:0,assists:0,xg:0,xa:0,chances:0,key:0,tackles:0,interceptions:0,carries:0});
 const expiry=(d:string|null)=>d?new Date(d+"T00:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}):"Unknown";
 export default function ComparePage(){
- const searchParams=useSearchParams();
  const[players,setPlayers]=useState<P[]>([]),[leftSearch,setLeftSearch]=useState(""),[rightSearch,setRightSearch]=useState(""),[rows,setRows]=useState<I[]>([]),[gkRows,setGkRows]=useState<G[]>([]),[benchmarks,setBenchmarks]=useState<B[]>([]),[gkBenchmarks,setGkBenchmarks]=useState<GB[]>([]),[contracts,setContracts]=useState<C[]>([]),[values,setValues]=useState<V[]>([]),[left,setLeft]=useState(""),[right,setRight]=useState(""),[season,setSeason]=useState("2026"),[loading,setLoading]=useState(true);
  useEffect(()=>{
-  const p1=searchParams.get("player1"); const p2=searchParams.get("player2");
+  const params=new URLSearchParams(window.location.search);
+  const p1=params.get("player1"); const p2=params.get("player2");
   if(p1) { setLeft(p1); setLeftSearch(""); } if(p2) { setRight(p2); setRightSearch(""); }
   (async()=>{const[p,i,g,b,gb,c,v]=await Promise.all([supabase.from("players").select("id,full_name,nationality,position,photo_url").order("full_name"),supabase.from("player_season_intelligence").select("*"),supabase.from("player_stats").select("player_id,season,minutes,saves,shots_on_target_faced,goals_against,clean_sheets,penalty_kicks_saved,penalty_kicks_faced"),supabase.from("player_peer_benchmarks").select("*"),supabase.from("player_goalkeeper_benchmarks").select("player_id,season,league,peer_count,saves_per90,shots_faced_per90,goals_against_per90,clean_sheets_per90,pk_saves_per90,saves_per90_percentile,shots_faced_per90_percentile,goals_against_per90_percentile,clean_sheets_per90_percentile,pk_saves_per90_percentile"),supabase.from("contracts").select("player_id,annual_salary_usd,weekly_salary_usd,end_date,status"),supabase.from("market_values").select("player_id,market_value_usd,valuation_date").order("valuation_date",{ascending:false})]);setPlayers((p.data||[]) as P[]);setRows((i.data||[]) as I[]);setGkRows((g.data||[]) as G[]);setBenchmarks((b.data||[]) as B[]);setGkBenchmarks((gb.data||[]) as GB[]);setContracts((c.data||[]) as C[]);setValues((v.data||[]) as V[]);setLoading(false)})()},[searchParams]);
  const seasons=useMemo(()=>["All",...Array.from(new Set(rows.map(s=>s.season))).sort((a,b)=>b.localeCompare(a,undefined,{numeric:true}))],[rows]);
