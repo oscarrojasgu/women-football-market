@@ -215,6 +215,17 @@ Enable players, agents, clubs, and eventually journalists/scouts to contribute a
 - [x] Added a uniqueness guard preventing duplicate approved player representation for the same user/player pair.
 - [x] Verified the live Supabase workflow, RLS policies, functions, and production Vercel deployment.
 
+### Phase 4 milestone 4 — official profile & organization verification — COMPLETE
+
+- [x] Added a separate official-verification state so approved representation does not automatically become an official badge.
+- [x] Added official verification targets for players, agents/agencies, and clubs.
+- [x] Added evidence, source, verification method, reviewer, review timestamp, and auditable review history.
+- [x] Added admin-only approval, rejection, needs-evidence, and revocation workflow through an authenticated database function.
+- [x] Added a public-safe verification table that exposes only verified badge information without contributor user IDs.
+- [x] Added contributor-portal official verification requests and status visibility.
+- [x] Added public WFM verification indicators to player and club profiles.
+- [x] Verified live Supabase schema, RLS, function privileges, security advisors, and production UI changes.
+
 ## PHASE 5 — Scouting tools
 
 Build advanced filters, saved searches, player comparison, and shortlists.
