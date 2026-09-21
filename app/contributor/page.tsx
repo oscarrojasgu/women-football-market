@@ -9,6 +9,11 @@ type Request = {
   relationship_type: string; status: string; verification_method: string | null;
   evidence_url: string | null; notes: string | null; created_at: string;
 };
+type OfficialVerification = {
+  id: string; player_id: string | null; club_id: string | null; agency_name: string | null;
+  verification_type: string; status: string; verification_method: string | null;
+  evidence_url: string | null; notes: string | null; created_at: string;
+};
 
 const fields = [
   ["full_name","Full name"],["nationality","Nationality"],["date_of_birth","Date of birth"],
@@ -20,7 +25,7 @@ const fields = [
 export default function ContributorPortal() {
   const [user,setUser]=useState<any>(null), [loading,setLoading]=useState(true), [message,setMessage]=useState("");
   const [profileType,setProfileType]=useState("individual"), [name,setName]=useState(""), [org,setOrg]=useState("");
-  const [requests,setRequests]=useState<Request[]>([]), [query,setQuery]=useState(""), [players,setPlayers]=useState<Player[]>([]);
+  const [requests,setRequests]=useState<Request[]>([]), [officialVerifications,setOfficialVerifications]=useState<OfficialVerification[]>([]), [query,setQuery]=useState(""), [players,setPlayers]=useState<Player[]>([]);
   const [playerId,setPlayerId]=useState(""), [field,setField]=useState("full_name"), [value,setValue]=useState("");
   const [evidence,setEvidence]=useState(""), [notes,setNotes]=useState(""), [busy,setBusy]=useState(false);
 
@@ -31,6 +36,8 @@ export default function ContributorPortal() {
     if(user){
       const {data}=await supabase.from("representation_requests").select("*").order("created_at",{ascending:false});
       setRequests(data||[]);
+      const {data:official}=await supabase.from("official_verifications").select("*").order("created_at",{ascending:false});
+      setOfficialVerifications(official||[]);
       const {data:p}=await supabase.from("contributor_profiles").select("*").eq("user_id",user.id).maybeSingle();
       if(p){setName(p.display_name||"");setOrg(p.organization_name||"");setProfileType(p.contributor_type||"individual");}
     }
@@ -62,6 +69,24 @@ export default function ContributorPortal() {
     });
     setBusy(false);
     setMessage(error?.message||"Representation request submitted for review.");
+    if(!error){setEvidence("");setNotes("");await load();}
+  }
+
+  async function submitOfficialVerification(){
+    if(!playerId){setMessage("Select a player first.");return;}
+    setBusy(true);setMessage("");
+    const verificationType=profileType==="agent"?"agent":profileType==="agency"?"agency":profileType==="club"?"club":"player";
+    const {error}=await supabase.rpc("submit_official_verification_request",{
+      p_player_id:verificationType==="club"?null:playerId,
+      p_club_id:null,
+      p_agency_name:verificationType==="agency"?org||null:null,
+      p_verification_type:verificationType,
+      p_verification_method:"contributor_portal",
+      p_evidence_url:evidence||null,
+      p_notes:notes||null
+    });
+    setBusy(false);
+    setMessage(error?.message||"Official verification request submitted for WFM review.");
     if(!error){setEvidence("");setNotes("");await load();}
   }
 
@@ -117,8 +142,21 @@ export default function ContributorPortal() {
       </section>
 
       <section style={s.card}>
+        <h2 style={s.h2}>Request official verification</h2>
+        <p style={s.muted}>Official verification is a separate status from approved representation. WFM reviews the evidence before publishing an official badge.</p>
+        <label style={s.label}>Player<input style={s.input} value={query} onChange={e=>searchPlayers(e.target.value)} placeholder="Search by player name" /></label>
+        {players.length>0&&<div style={s.results}>{players.map(p=><button key={p.id} style={s.result} onClick={()=>{setPlayerId(p.id);setQuery(p.full_name);setPlayers([])}}>{p.full_name}</button>)}</div>}
+        <button style={s.button} disabled={busy||!playerId} onClick={submitOfficialVerification}>Request official verification</button>
+      </section>
+
+      <section style={s.card}>
         <h2 style={s.h2}>My representation requests</h2>
         {requests.length===0?<p style={s.muted}>No requests yet.</p>:requests.map(r=><div key={r.id} style={s.row}><strong>{r.player_id?"Player representation":r.agency_name?"Agency representation":"Club representation"}</strong><span style={s.badge}>{r.status.toUpperCase()}</span><small>{new Date(r.created_at).toLocaleDateString()}</small></div>)}
+      </section>
+
+      <section style={s.card}>
+        <h2 style={s.h2}>My official verification status</h2>
+        {officialVerifications.length===0?<p style={s.muted}>No official verification requests yet.</p>:officialVerifications.map(v=><div key={v.id} style={s.row}><strong>{v.verification_type.toUpperCase()}</strong><span style={s.badge}>{v.status.toUpperCase()}</span><small>{new Date(v.created_at).toLocaleDateString()}</small></div>)}
       </section>
     </div>
   </main>;
