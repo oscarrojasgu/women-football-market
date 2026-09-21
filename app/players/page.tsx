@@ -93,7 +93,9 @@ export default function PlayersPage() {
   const [minimumMinutes, setMinimumMinutes] = useState("0");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [shortlist, setShortlist] = useState<string[]>([]);\n  const [page, setPage] = useState(1);\n  const pageSize = 25;
+  const [shortlist, setShortlist] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
+  const pageSize = 25;
   const router = useRouter();
 
   useEffect(() => {
@@ -360,7 +362,22 @@ export default function PlayersPage() {
     }).format(new Date(`${value}T00:00:00`));
   };
 
-  const toggleShortlist = (playerId: string) => {\n    setShortlist((current) => {\n      const next = current.includes(playerId)\n        ? current.filter((id) => id !== playerId)\n        : [...current, playerId];\n      localStorage.setItem("wfm_scouting_shortlist", JSON.stringify(next));\n      return next;\n    });\n  };\n\n  const compareShortlist = () => {\n    if (shortlist.length < 2) return;\n    router.push(`/compare?player1=${encodeURIComponent(shortlist[0])}&player2=${encodeURIComponent(shortlist[1])}`);\n  };\n\n  const filtersActive =
+  const toggleShortlist = (playerId: string) => {
+    setShortlist((current) => {
+      const next = current.includes(playerId)
+        ? current.filter((id) => id !== playerId)
+        : [...current, playerId];
+      localStorage.setItem("wfm_scouting_shortlist", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const compareShortlist = () => {
+    if (shortlist.length < 2) return;
+    router.push(`/compare?player1=${encodeURIComponent(shortlist[0])}&player2=${encodeURIComponent(shortlist[1])}`);
+  };
+
+  const filtersActive =
     search.trim() !== "" ||
     role !== "All" ||
     nationality !== "All" ||
@@ -494,7 +511,16 @@ export default function PlayersPage() {
     latestValueByPlayer,
   ]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredPlayers.length / pageSize));\n\n  useEffect(() => { setPage(1); }, [search, role, nationality, league, club, minimumMinutes, sortKey, sortDirection]);\n  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);\n\n  const visiblePlayers = filteredPlayers.slice((page - 1) * pageSize, page * pageSize);\n  const pageStart = filteredPlayers.length ? (page - 1) * pageSize + 1 : 0;\n  const pageEnd = Math.min(page * pageSize, filteredPlayers.length);\n\n  const playersWithStats = players.filter((player) =>
+  const totalPages = Math.max(1, Math.ceil(filteredPlayers.length / pageSize));
+
+  useEffect(() => { setPage(1); }, [search, role, nationality, league, club, minimumMinutes, sortKey, sortDirection]);
+  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
+
+  const visiblePlayers = filteredPlayers.slice((page - 1) * pageSize, page * pageSize);
+  const pageStart = filteredPlayers.length ? (page - 1) * pageSize + 1 : 0;
+  const pageEnd = Math.min(page * pageSize, filteredPlayers.length);
+
+  const playersWithStats = players.filter((player) =>
     latestIntelByPlayer.has(player.id)
   ).length;
 
@@ -638,7 +664,15 @@ export default function PlayersPage() {
           </div>
         </section>
 
-        <div className="scout-shortlist-bar">\n          <div><strong>{shortlist.length}</strong> player{shortlist.length === 1 ? "" : "s"} in shortlist</div>\n          <div className="scout-shortlist-actions">\n            <button type="button" onClick={compareShortlist} disabled={shortlist.length < 2}>Compare first 2</button>\n            <button type="button" onClick={() => { localStorage.removeItem("wfm_scouting_shortlist"); setShortlist([]); }} disabled={!shortlist.length}>Clear shortlist</button>\n          </div>\n        </div>\n\n        <div className="scout-note">
+        <div className="scout-shortlist-bar">
+          <div><strong>{shortlist.length}</strong> player{shortlist.length === 1 ? "" : "s"} in shortlist</div>
+          <div className="scout-shortlist-actions">
+            <button type="button" onClick={compareShortlist} disabled={shortlist.length < 2}>Compare first 2</button>
+            <button type="button" onClick={() => { localStorage.removeItem("wfm_scouting_shortlist"); setShortlist([]); }} disabled={!shortlist.length}>Clear shortlist</button>
+          </div>
+        </div>
+
+        <div className="scout-note">
           <strong>Scouting context:</strong> performance figures use the latest
           recorded season available for each player. Per-90 figures are
           descriptive production measures, not WFM ratings or predictions.
@@ -728,7 +762,18 @@ export default function PlayersPage() {
             );
           })}
 
-          {!loading && filteredPlayers.length > 0 && (\n            <div className="scout-pagination">\n              <span>Showing {pageStart}–{pageEnd} of {filteredPlayers.length}</span>\n              <div>\n                <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>Previous</button>\n                <strong>Page {page} of {totalPages}</strong>\n                <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>Next</button>\n              </div>\n            </div>\n          )}\n\n          {!loading && filteredPlayers.length === 0 && (
+          {!loading && filteredPlayers.length > 0 && (
+            <div className="scout-pagination">
+              <span>Showing {pageStart}–{pageEnd} of {filteredPlayers.length}</span>
+              <div>
+                <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>Previous</button>
+                <strong>Page {page} of {totalPages}</strong>
+                <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>Next</button>
+              </div>
+            </div>
+          )}
+
+          {!loading && filteredPlayers.length === 0 && (
             <div className="scout-empty">
               <strong>No players match the current filters</strong>
               <span>Broaden the role, league, club or minutes criteria.</span>
