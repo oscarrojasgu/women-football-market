@@ -220,6 +220,12 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
         ? "latest club statistics"
         : "latest contract record";
   const latestTransfer = transfers[0] || null;
+  const { data: officialVerification } = await supabase
+    .from("official_verification_public")
+    .select("verification_type,verified_at")
+    .eq("player_id", id)
+    .eq("status", "verified")
+    .maybeSingle();
 
   return (
     <main className="player-page" style={{ minHeight: "100vh", background: "#f5f4ef", color: "#111" }}>
@@ -233,6 +239,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             <div style={{ minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                 <h1 style={{ margin: 0, fontSize: "clamp(28px,5vw,48px)", lineHeight: 1 }}>{player.full_name}</h1>
+                {officialVerification && <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 8px", borderRadius: 999, background: "#e8f2ea", color: "#245b32", fontSize: 10, fontWeight: 800, letterSpacing: ".04em" }}>✓ WFM VERIFIED PLAYER</span>}
                 {code && <img src={`https://flagcdn.com/w40/${code}.png`} alt={player.nationality || "Nationality"} width={28} height={19} style={{ objectFit: "cover", borderRadius: 2 }} />}
               </div>
               <div style={{ marginTop: 13, color: "#bbb", fontSize: 15 }}>{player.nationality || "Nationality unknown"} · {player.position || "Position unknown"}{player.secondary_position ? ` / ${player.secondary_position}` : ""}{age !== null ? ` · ${age}` : ""}</div>
