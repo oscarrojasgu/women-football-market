@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 
 const pages = [
   { href: '/players', label: 'Players' },
+  { href: '/scouting', label: 'Scouting' },
   { href: '/contracts', label: 'Contracts' },
   { href: '/transfers', label: 'Transfers' },
   { href: '/salaries', label: 'Salaries' },
