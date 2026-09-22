@@ -5,6 +5,14 @@ import { useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import { supabase } from "../../lib/supabase"
 
+type ClubParticipation = {
+  club_id: string
+  competition_name: string | null
+  competition_id: string | null
+  season_key: string | null
+  season_label: string | null
+}
+
 type Club = {
   id: string
   name: string
@@ -82,6 +90,8 @@ export default function ClubProfilePage() {
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState("salary")
   const [officialVerification, setOfficialVerification] = useState<any>(null)
+  const [clubParticipations, setClubParticipations] = useState<ClubParticipation[]>([])
+  const [selectedSeason, setSelectedSeason] = useState("all")
 
   useEffect(() => {
     async function loadData() {
@@ -103,6 +113,26 @@ export default function ClubProfilePage() {
         setLoading(false)
         return
       }
+
+      const { data: participationData } = await supabase
+        .from("club_competitions")
+        .select("club_id,competition_season:competition_seasons(competition:competitions(id,canonical_name),season:seasons(season_key,label))")
+        .eq("club_id", id)
+
+      const normalizedParticipations: ClubParticipation[] = (participationData || []).map((row: any) => {
+        const competitionSeason = Array.isArray(row.competition_season) ? row.competition_season[0] : row.competition_season
+        const competition = Array.isArray(competitionSeason?.competition) ? competitionSeason.competition[0] : competitionSeason?.competition
+        const season = Array.isArray(competitionSeason?.season) ? competitionSeason.season[0] : competitionSeason?.season
+        return {
+          club_id: row.club_id,
+          competition_name: competition?.canonical_name || null,
+          competition_id: competition?.id || null,
+          season_key: season?.season_key || null,
+          season_label: season?.label || null,
+        }
+      })
+
+      setClubParticipations(normalizedParticipations)
 
       const { data: officialData } = await supabase
         .from("official_verification_public")
@@ -275,6 +305,28 @@ export default function ClubProfilePage() {
 
     loadData()
   }, [id])
+
+  const seasons = useMemo(() => {
+    const values = new Map<string, string>()
+    for (const row of clubParticipations) {
+      if (row.season_key) values.set(row.season_key, row.season_label || row.season_key)
+    }
+    return Array.from(values.entries()).sort((a, b) => b[0].localeCompare(a[0]))
+  }, [clubParticipations])
+
+  const competitionsForSeason = useMemo(() => {
+    const rows = selectedSeason === "all"
+      ? clubParticipations
+      : clubParticipations.filter((row) => row.season_key === selectedSeason)
+    return Array.from(new Set(rows.map((row) => row.competition_name).filter(Boolean) as string[])).sort()
+  }, [clubParticipations, selectedSeason])
+
+  const currentCompetitionLabel = useMemo(() => {
+    const rows = selectedSeason === "all"
+      ? clubParticipations
+      : clubParticipations.filter((row) => row.season_key === selectedSeason)
+    return rows[0]?.competition_name || club.league || "Competition unavailable"
+  }, [clubParticipations, selectedSeason, club])
 
   const currentContracts = useMemo(() => {
     return contracts.filter(
@@ -479,7 +531,7 @@ export default function ClubProfilePage() {
                   fontSize: 16,
                 }}
               >
-                {[club.country, club.league]
+  {[club.country, currentCompetitionLabel]
                   .filter(Boolean)
                   .join(" · ")}
               </div>
@@ -495,6 +547,17 @@ export default function ClubProfilePage() {
           padding: "32px 24px 60px",
         }}
       >
+        <div style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12, padding: "16px 18px", marginBottom: 24, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ fontSize: 12, fontWeight: 800, color: "#777", letterSpacing: 1 }}>CLUB CONTEXT</div>
+          <select value={selectedSeason} onChange={(event) => setSelectedSeason(event.target.value)} style={{ border: "1px solid #ddd", borderRadius: 8, padding: "9px 12px", background: "#fff", fontSize: 13 }}>
+            <option value="all">All seasons</option>
+            {seasons.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+          </select>
+          <div style={{ fontSize: 13, color: "#555" }}>
+            {competitionsForSeason.length ? competitionsForSeason.join(" · ") : "No competition participation recorded"}
+          </div>
+        </div>
+
         <div
           style={{
             display: "grid",
@@ -579,7 +642,7 @@ export default function ClubProfilePage() {
                   color: "#666",
                 }}
               >
-                Active roster and known contract information.
+                Active roster and known contract information for the club profile. Competition and season participation is shown above.
               </p>
             </div>
 
