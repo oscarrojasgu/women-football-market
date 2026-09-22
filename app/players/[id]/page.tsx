@@ -38,6 +38,13 @@ type Transfer = {
   confidence: string | null;
   from_club: Club | null;
   to_club: Club | null;
+  competitionContexts?: {
+    club_role: string;
+    competition_season?: {
+      competition?: { canonical_name: string | null } | null;
+      season?: { season_key: string; label: string | null } | null;
+    } | null;
+  }[];
 };
 
 type MarketValue = {
@@ -48,6 +55,10 @@ type MarketValue = {
   market_value_usd: number | null;
   confidence: string | null;
   notes: string | null;
+  competition_season?: {
+    competition?: { canonical_name: string | null } | null;
+    season?: { season_key: string; label: string | null } | null;
+  } | null;
 };
 
 type PlayerStat = {
@@ -156,8 +167,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   const [{ data: contractData }, { data: statsData }, { data: transferData }, { data: valueData }, { data: seasonIntelligenceData }, { data: peerBenchmarkData }] = await Promise.all([
     supabase.from("contracts").select("id,status,confidence,start_date,end_date,annual_salary,weekly_salary,annual_salary_usd,weekly_salary_usd,currency,notes,club_id").eq("player_id", id).order("start_date", { ascending: false }),
     supabase.from("player_stats").select("id,club_id,season,competition,appearances,starts,minutes,goals,assists,yellow_cards,red_cards,shots,shots_on_target,key_passes,chances_created,crosses,tackles,tackles_won,interceptions,clearances,blocks,recoveries,dispossessions,dribbles_attempted,dribbles_completed,fouls_committed,fouls_drawn,offsides,passes_attempted,passes_completed,progressive_passes,progressive_carries,duels_won,duels_lost,aerials_won,aerials_lost,xg,xa,sca,gca,saves,shots_on_target_faced,goals_against,clean_sheets,penalty_kicks_saved,penalty_kicks_faced,own_goals,confidence,notes,competition_season:competition_seasons(id,competition:competitions(canonical_name),season:seasons(season_key,label))").eq("player_id", id).order("season", { ascending: false }).order("competition", { ascending: true }),
-    supabase.from("transfers").select("id,transfer_date,transfer_type,fee,currency,confidence,from_club:clubs!transfers_from_club_id_fkey(id,name,league,country,logo_url),to_club:clubs!transfers_to_club_id_fkey(id,name,league,country,logo_url)").eq("player_id", id).order("transfer_date", { ascending: false }),
-    supabase.from("market_values").select("id,valuation_date,market_value,currency,market_value_usd,confidence,notes").eq("player_id", id).order("valuation_date", { ascending: false }),
+    supabase.from("transfers").select("id,transfer_date,transfer_type,fee,currency,confidence,from_club:clubs!transfers_from_club_id_fkey(id,name,league,country,logo_url),to_club:clubs!transfers_to_club_id_fkey(id,name,league,country,logo_url),transfer_competitions:transfer_competitions(club_role,competition_season:competition_seasons(competition:competitions(canonical_name),season:seasons(season_key,label)))").eq("player_id", id).order("transfer_date", { ascending: false }),
+    supabase.from("market_values").select("id,valuation_date,market_value,currency,market_value_usd,confidence,notes,competition_season:competition_seasons(competition:competitions(canonical_name),season:seasons(season_key,label))").eq("player_id", id).order("valuation_date", { ascending: false }),
     supabase.from("player_season_intelligence").select("season,club_name,league,position,minutes,goals,assists,goals_per90,assists_per90,xg_per90,xa_per90,chances_created_per90,key_passes_per90,tackles_per90,interceptions_per90,progressive_carries_per90,duels_won_per90").eq("player_id", id).order("season", { ascending: false }),
     supabase.from("player_peer_benchmarks").select("season,league,position,peer_count,goals_per90_percentile,assists_per90_percentile,xg_per90_percentile,xa_per90_percentile,chances_created_per90_percentile,key_passes_per90_percentile,tackles_per90_percentile,interceptions_per90_percentile,progressive_carries_per90_percentile").eq("player_id", id).order("season", { ascending: false }),
   ]);
@@ -169,7 +180,12 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     season: stat.competition_season?.season?.season_key || stat.season,
   })) as PlayerStat[];
   const marketValues = (valueData || []) as MarketValue[];
-  const transfers: Transfer[] = (transferData || []).map((item: any) => ({ ...item, from_club: Array.isArray(item.from_club) ? item.from_club[0] || null : item.from_club || null, to_club: Array.isArray(item.to_club) ? item.to_club[0] || null : item.to_club || null }));
+  const transfers: Transfer[] = (transferData || []).map((item: any) => ({
+    ...item,
+    from_club: Array.isArray(item.from_club) ? item.from_club[0] || null : item.from_club || null,
+    to_club: Array.isArray(item.to_club) ? item.to_club[0] || null : item.to_club || null,
+    competitionContexts: Array.isArray(item.transfer_competitions) ? item.transfer_competitions : [],
+  }));
   const seasonIntelligence = (seasonIntelligenceData || []) as Array<{
     season: string; club_name: string | null; league: string | null; position: string | null;
     minutes: number | null; goals: number | null; assists: number | null;
@@ -323,12 +339,12 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
 
         <section id="market-value" style={{ ...card, marginTop: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}><div><h2 style={{ margin: 0, fontSize: 19 }}>Market Value History</h2><p style={{ margin: "4px 0 0", color: "#888", fontSize: 12 }}>Valuation timeline with normalized USD and confidence.</p></div></div>
-          {marketValues.length ? <div className="market-value-list" style={{ marginTop: 16, display: "grid", gap: 8 }}>{marketValues.map((value, index) => <div key={value.id} style={{ display: "grid", gridTemplateColumns: "120px 1fr auto auto", gap: 14, alignItems: "center", padding: "12px 0", borderBottom: index === marketValues.length - 1 ? 0 : "1px solid #eee" }}><div style={{ fontSize: 12, color: "#777" }}>{dateText(value.valuation_date)}</div><div><strong>{usd(value.market_value_usd)}</strong>{value.market_value != null && <span style={{ marginLeft: 8, color: "#888", fontSize: 11 }}>Original: {original(value.market_value, value.currency)}</span>}</div><div style={{ fontSize: 11, color: "#777" }}>{titleCase(value.confidence)}</div><div style={{ fontSize: 11, color: "#999", textAlign: "right" }}>{index === 0 ? "Latest" : ""}</div></div>)}</div> : <div style={{ marginTop: 18, color: "#888" }}>No market value records available.</div>}
+          {marketValues.length ? <div className="market-value-list" style={{ marginTop: 16, display: "grid", gap: 8 }}>{marketValues.map((value, index) => <div key={value.id} style={{ display: "grid", gridTemplateColumns: "120px 1fr auto auto", gap: 14, alignItems: "center", padding: "12px 0", borderBottom: index === marketValues.length - 1 ? 0 : "1px solid #eee" }}><div style={{ fontSize: 12, color: "#777" }}>{dateText(value.valuation_date)}</div><div><strong>{usd(value.market_value_usd)}</strong>{value.market_value != null && <span style={{ marginLeft: 8, color: "#888", fontSize: 11 }}>Original: {original(value.market_value, value.currency)}</span>}<div style={{ marginTop: 4, color: "#999", fontSize: 11 }}>{value.competition_season?.competition?.canonical_name || "Competition not linked"}{value.competition_season?.season?.label ? " · " + value.competition_season.season.label : ""}</div></div><div style={{ fontSize: 11, color: "#777" }}>{titleCase(value.confidence)}</div><div style={{ fontSize: 11, color: "#999", textAlign: "right" }}>{index === 0 ? "Latest" : ""}</div></div>)}</div> : <div style={{ marginTop: 18, color: "#888" }}>No market value records available.</div>}
         </section>
 
         <section id="transfers" style={{ ...card, marginTop: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}><div><h2 style={{ margin: 0, fontSize: 19 }}>Transfer History</h2><p style={{ margin: "4px 0 0", color: "#888", fontSize: 12 }}>Every recorded movement connected to this player.</p></div><Link href="/transfers" style={{ fontSize: 12, color: "#111" }}>View transfer market →</Link></div>
-          {transfers.length ? <div style={{ marginTop: 16, display: "grid", gap: 8 }}>{transfers.map((transfer, index) => <article key={transfer.id} style={{ display: "grid", gridTemplateColumns: "110px minmax(0,1fr) 150px", gap: 14, alignItems: "center", padding: "14px 0", borderBottom: index === transfers.length - 1 ? 0 : "1px solid #eee" }}><div><div style={label}>Date</div><div style={{ marginTop: 5, fontSize: 12 }}>{dateText(transfer.transfer_date)}</div></div><div><div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}><span style={{ fontWeight: 700 }}>{transfer.from_club?.name || "Previous club"}</span><span style={{ color: "#999" }}>→</span><span style={{ fontWeight: 700 }}>{transfer.to_club?.name || "New club"}</span></div><div style={{ marginTop: 5, color: "#888", fontSize: 11 }}>{titleCase(transfer.transfer_type)} · {titleCase(transfer.confidence)}</div></div><div style={{ textAlign: "right" }}><div style={label}>Fee</div><div style={{ marginTop: 5, fontWeight: 750 }}>{transfer.fee == null ? "Free" : original(transfer.fee, transfer.currency)}</div></div></article>)}</div> : <div style={{ marginTop: 18, color: "#888" }}>No transfer records available.</div>}
+          {transfers.length ? <div style={{ marginTop: 16, display: "grid", gap: 8 }}>{transfers.map((transfer, index) => <article key={transfer.id} style={{ display: "grid", gridTemplateColumns: "110px minmax(0,1fr) 150px", gap: 14, alignItems: "center", padding: "14px 0", borderBottom: index === transfers.length - 1 ? 0 : "1px solid #eee" }}><div><div style={label}>Date</div><div style={{ marginTop: 5, fontSize: 12 }}>{dateText(transfer.transfer_date)}</div></div><div><div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}><span style={{ fontWeight: 700 }}>{transfer.from_club?.name || "Previous club"}</span><span style={{ color: "#999" }}>→</span><span style={{ fontWeight: 700 }}>{transfer.to_club?.name || "New club"}</span></div><div style={{ marginTop: 5, color: "#888", fontSize: 11 }}>{titleCase(transfer.transfer_type)} · {titleCase(transfer.confidence)}</div>{transfer.competitionContexts?.length ? <div style={{ marginTop: 4, color: "#999", fontSize: 11 }}>{transfer.competitionContexts[0].competition_season?.competition?.canonical_name || "Competition linked"}{transfer.competitionContexts[0].competition_season?.season?.label ? " · " + transfer.competitionContexts[0].competition_season.season.label : ""}</div> : null}</div><div style={{ textAlign: "right" }}><div style={label}>Fee</div><div style={{ marginTop: 5, fontWeight: 750 }}>{transfer.fee == null ? "Free" : original(transfer.fee, transfer.currency)}</div></div></article>)}</div> : <div style={{ marginTop: 18, color: "#888" }}>No transfer records available.</div>}
         </section>
 
         <PlayerIntelligence stats={stats} marketValues={marketValues} position={player.position} contracts={contracts} seasonIntelligence={seasonIntelligence} peerBenchmarks={peerBenchmarks} />
