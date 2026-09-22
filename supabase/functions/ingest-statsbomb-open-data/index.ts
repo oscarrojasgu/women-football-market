@@ -10,6 +10,22 @@ type Event = { id?:number; type?:{name?:string}; player?:{id?:number;name?:strin
 function minute(v:string|null|undefined){if(!v)return 90;const [m,s]=v.split(":").map(Number);return(m||0)+(s||0)/60;}
 function playedMinutes(ps:PositionSegment[]){const a=ps.filter(p=>p.from).map(p=>[minute(p.from),minute(p.to)] as [number,number]).sort((x,y)=>x[0]-y[0]);if(!a.length)return 0;let total=0,start=a[0][0],end=a[0][1];for(const [x,y] of a.slice(1)){if(x<=end+.01)end=Math.max(end,y);else{total+=end-start;start=x;end=y;}}return Math.round(total+end-start);}
 async function getJson(path:string){const r=await fetch("https://raw.githubusercontent.com/hudl/open-data/master/"+path);const t=await r.text();if(!r.ok)throw new Error("StatsBomb "+r.status+": "+t.slice(0,300));return JSON.parse(t);}
+async function resolveCompetitionSeason(ctx: any, competitionLabel: string, seasonLabel: string) {
+  const competitionName=competitionLabel.trim();
+  const {data:direct}=await ctx.supabaseAdmin.from("competitions").select("id").ilike("canonical_name",competitionName).maybeSingle();
+  let competitionId=direct?.id||null;
+  if(!competitionId){const {data:alias}=await ctx.supabaseAdmin.from("competition_aliases").select("competition_id").ilike("source_label",competitionName).maybeSingle();competitionId=alias?.competition_id||null;}
+  if(!competitionId)return null;
+  const seasonKey=seasonLabel.trim().replace(/\//g,"-");
+  let {data:season}=await ctx.supabaseAdmin.from("seasons").select("id").eq("season_key",seasonKey).maybeSingle();
+  if(!season){const {data:created}=await ctx.supabaseAdmin.from("seasons").insert({season_key:seasonKey,label:seasonKey}).select("id").single();season=created||null;}
+  if(!season)return null;
+  const {data:cs}=await ctx.supabaseAdmin.from("competition_seasons").select("id").eq("competition_id",competitionId).eq("season_id",season.id).maybeSingle();
+  if(cs?.id)return cs.id;
+  const {data:createdCs}=await ctx.supabaseAdmin.from("competition_seasons").upsert({competition_id:competitionId,season_id:season.id},{onConflict:"competition_id,season_id"}).select("id").single();
+  return createdCs?.id||null;
+}
+
 function emptyStats(){return{appearances:0,starts:0,minutes:0,goals:0,assists:0,cards:0,shots:0,shots_on_target:0,key_passes:0,chances_created:0,crosses:0,tackles:0,tackles_won:0,interceptions:0,clearances:0,blocks:0,recoveries:0,dispossessions:0,dribbles_attempted:0,dribbles_completed:0,fouls_committed:0,fouls_drawn:0,offsides:0,passes_attempted:0,passes_completed:0,progressive_passes:0,progressive_carries:0,duels_won:0,duels_lost:0,aerials_won:0,aerials_lost:0,xg:0,xa:0,sca:0,gca:0,saves:0,shots_on_target_faced:0,goals_against:0,clean_sheets:0,penalty_kicks_saved:0,penalty_kicks_faced:0,own_goals:0};}
 
 export default { fetch: withSupabase({auth:"secret"}, async (req,ctx)=>{
@@ -53,7 +69,10 @@ export default { fetch: withSupabase({auth:"secret"}, async (req,ctx)=>{
         let playerId=ep?.length===1?ep[0].id:null;
         if(!playerId){const {data:np,error}=await ctx.supabaseAdmin.from("players").insert({full_name:info.name,nationality:info.nationality||null,position:info.position}).select("id").single();if(error||!np){rejected++;errors.push(match.match_id+":"+externalId+" player: "+(error?.message||"insert failed"));continue;}playerId=np.id;}
         await ctx.supabaseAdmin.from("provider_player_mappings").upsert({provider:"statsbomb-open-data",external_player_id:String(externalId),player_id:playerId,external_name:info.name,confidence:"verified",notes:"Matched/imported from StatsBomb Open Data."},{onConflict:"provider,external_player_id"});
-        const row={provider:"statsbomb-open-data",external_match_id:String(match.match_id),external_player_id:String(externalId),player_id:playerId,club_id:info.clubId,season:match.season?.season_name||String(seasonId),competition:match.competition?.competition_name||("StatsBomb competition "+competitionId),...s,match_id:String(match.match_id),source_event_id:"statsbomb:"+match.match_id+":"+externalId,confidence:"verified",notes:"Imported from Hudl StatsBomb Open Data lineups/events."};
+        const seasonName=match.season?.season_name||String(seasonId);
+        const competitionName=match.competition?.competition_name||("StatsBomb competition "+competitionId);
+        const competitionSeasonId=await resolveCompetitionSeason(ctx,competitionName,seasonName);
+        const row={provider:"statsbomb-open-data",external_match_id:String(match.match_id),external_player_id:String(externalId),player_id:playerId,club_id:info.clubId,season:seasonName,competition:competitionName,competition_season_id:competitionSeasonId,...s,match_id:String(match.match_id),source_event_id:"statsbomb:"+match.match_id+":"+externalId,confidence:"verified",notes:"Imported from Hudl StatsBomb Open Data lineups/events."};
         const {data:existing}=await ctx.supabaseAdmin.from("player_match_stats").select("id").eq("provider","statsbomb-open-data").eq("external_match_id",String(match.match_id)).eq("external_player_id",String(externalId)).maybeSingle();
         const {error}=await ctx.supabaseAdmin.from("player_match_stats").upsert({...row,updated_at:new Date().toISOString()},{onConflict:"provider,external_match_id,external_player_id"});
         if(error){rejected++;errors.push(match.match_id+":"+externalId+": "+error.message);}else if(existing)updated++;else inserted++;
