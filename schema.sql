@@ -829,3 +829,162 @@ left join public.competition_seasons cs on cs.id=sr.competition_season_id
 left join public.competitions comp on comp.id=cs.competition_id;
 
 grant select on public.player_salary_history to anon,authenticated;
+
+
+-- ============================================================
+-- Phase 6 — Milestone 4: Global Transfer & Market-Value Coverage
+-- ============================================================
+
+alter table public.market_values
+  add column if not exists competition_season_id uuid
+  references public.competition_seasons(id) on delete set null;
+
+create index if not exists idx_market_values_competition_season
+  on public.market_values(competition_season_id);
+
+create index if not exists idx_market_values_player_date
+  on public.market_values(player_id, valuation_date desc);
+
+create table if not exists public.transfer_competitions (
+  id uuid primary key default gen_random_uuid(),
+  transfer_id uuid not null references public.transfers(id) on delete cascade,
+  competition_season_id uuid not null references public.competition_seasons(id) on delete cascade,
+  club_role text not null check (club_role in ('from','to')),
+  source_id uuid references public.sources(id) on delete set null,
+  confidence text not null default 'unknown'
+    check (confidence in ('verified','reported','estimated','rumored','unknown')),
+  created_at timestamptz not null default now(),
+  unique(transfer_id, competition_season_id, club_role)
+);
+
+create index if not exists idx_transfer_competitions_transfer
+  on public.transfer_competitions(transfer_id);
+
+create index if not exists idx_transfer_competitions_competition_season
+  on public.transfer_competitions(competition_season_id);
+
+create index if not exists idx_transfer_competitions_role
+  on public.transfer_competitions(club_role);
+
+create table if not exists public.global_transfer_coverage_targets (
+  id uuid primary key default gen_random_uuid(),
+  competition_id uuid not null references public.competitions(id) on delete cascade,
+  priority integer not null default 3 check (priority between 1 and 5),
+  status text not null default 'planned'
+    check (status in ('planned','in_progress','covered','paused')),
+  target_transfer_records integer,
+  target_transfer_coverage_percent numeric
+    check (target_transfer_coverage_percent between 0 and 100),
+  preferred_source text,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(competition_id)
+);
+
+create table if not exists public.global_market_value_coverage_targets (
+  id uuid primary key default gen_random_uuid(),
+  competition_id uuid not null references public.competitions(id) on delete cascade,
+  priority integer not null default 3 check (priority between 1 and 5),
+  status text not null default 'planned'
+    check (status in ('planned','in_progress','covered','paused')),
+  target_market_value_records integer,
+  target_market_value_coverage_percent numeric
+    check (target_market_value_coverage_percent between 0 and 100),
+  preferred_source text,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(competition_id)
+);
+
+create or replace view public.global_transfer_coverage_summary
+with (security_invoker=true)
+as
+select
+  c.id as competition_id,
+  c.canonical_name as competition,
+  coalesce(x.transfer_count,0) as transfer_count,
+  coalesce(x.transfer_player_count,0) as transfer_player_count,
+  x.latest_transfer_date,
+  gt.priority,
+  gt.status,
+  gt.target_transfer_records,
+  gt.target_transfer_coverage_percent,
+  gt.preferred_source
+from public.competitions c
+left join (
+  select
+    cs.competition_id,
+    count(distinct tc.transfer_id) as transfer_count,
+    count(distinct tr.player_id) as transfer_player_count,
+    max(tr.transfer_date) as latest_transfer_date
+  from public.transfer_competitions tc
+  join public.competition_seasons cs on cs.id=tc.competition_season_id
+  join public.transfers tr on tr.id=tc.transfer_id
+  group by cs.competition_id
+) x on x.competition_id=c.id
+left join public.global_transfer_coverage_targets gt
+  on gt.competition_id=c.id;
+
+create or replace view public.global_market_value_coverage_summary
+with (security_invoker=true)
+as
+select
+  c.id as competition_id,
+  c.canonical_name as competition,
+  coalesce(x.market_value_count,0) as market_value_count,
+  coalesce(x.market_value_player_count,0) as market_value_player_count,
+  x.latest_valuation_date,
+  gt.priority,
+  gt.status,
+  gt.target_market_value_records,
+  gt.target_market_value_coverage_percent,
+  gt.preferred_source
+from public.competitions c
+left join (
+  select
+    cs.competition_id,
+    count(mv.id) as market_value_count,
+    count(distinct mv.player_id) as market_value_player_count,
+    max(mv.valuation_date) as latest_valuation_date
+  from public.market_values mv
+  join public.competition_seasons cs on cs.id=mv.competition_season_id
+  group by cs.competition_id
+) x on x.competition_id=c.id
+left join public.global_market_value_coverage_targets gt
+  on gt.competition_id=c.id;
+
+alter table public.transfer_competitions enable row level security;
+alter table public.global_transfer_coverage_targets enable row level security;
+alter table public.global_market_value_coverage_targets enable row level security;
+
+drop policy if exists "Public can read transfer competitions" on public.transfer_competitions;
+create policy "Public can read transfer competitions"
+on public.transfer_competitions for select
+to anon, authenticated
+using (true);
+
+drop policy if exists "WFM admins can manage transfer competitions" on public.transfer_competitions;
+create policy "WFM admins can manage transfer competitions"
+on public.transfer_competitions for all
+to authenticated
+using (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())))
+with check (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+
+drop policy if exists "WFM admins can manage global transfer coverage targets" on public.global_transfer_coverage_targets;
+create policy "WFM admins can manage global transfer coverage targets"
+on public.global_transfer_coverage_targets for all
+to authenticated
+using (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())))
+with check (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+
+drop policy if exists "WFM admins can manage global market value coverage targets" on public.global_market_value_coverage_targets;
+create policy "WFM admins can manage global market value coverage targets"
+on public.global_market_value_coverage_targets for all
+to authenticated
+using (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())))
+with check (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+
+grant select on public.global_transfer_coverage_summary to anon, authenticated;
+grant select on public.global_market_value_coverage_summary to anon, authenticated;
