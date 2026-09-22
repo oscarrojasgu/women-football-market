@@ -702,3 +702,130 @@ on public.global_coverage_targets for all
 to authenticated
 using (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())))
 with check (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+
+
+-- ============================================================
+-- Phase 6 — Milestone 3: Global Contract & Salary Coverage
+-- ============================================================
+
+create table if not exists public.salary_exchange_rates (
+  id uuid primary key default gen_random_uuid(),
+  currency text not null,
+  rate_date date not null,
+  usd_per_unit numeric not null check (usd_per_unit > 0),
+  source_id uuid references public.sources(id) on delete set null,
+  source_name text,
+  created_at timestamptz not null default now(),
+  unique(currency, rate_date)
+);
+
+alter table public.salary_records
+  add column if not exists competition_season_id uuid references public.competition_seasons(id) on delete set null,
+  add column if not exists annual_salary_usd numeric,
+  add column if not exists weekly_salary_usd numeric,
+  add column if not exists exchange_rate_to_usd numeric,
+  add column if not exists conversion_date date;
+
+create index if not exists idx_salary_records_competition_season on public.salary_records(competition_season_id);
+
+create table if not exists public.contract_competitions (
+  id uuid primary key default gen_random_uuid(),
+  contract_id uuid not null references public.contracts(id) on delete cascade,
+  competition_season_id uuid not null references public.competition_seasons(id) on delete cascade,
+  source_id uuid references public.sources(id) on delete set null,
+  confidence text not null default 'unknown'
+    check (confidence in ('verified','reported','estimated','rumored','unknown')),
+  created_at timestamptz not null default now(),
+  unique(contract_id, competition_season_id)
+);
+
+create index if not exists idx_contract_competitions_contract on public.contract_competitions(contract_id);
+create index if not exists idx_contract_competitions_competition_season on public.contract_competitions(competition_season_id);
+
+create table if not exists public.global_salary_coverage_targets (
+  id uuid primary key default gen_random_uuid(),
+  competition_id uuid not null references public.competitions(id) on delete cascade,
+  priority integer not null default 3 check (priority between 1 and 5),
+  status text not null default 'planned'
+    check (status in ('planned','in_progress','covered','paused')),
+  target_salary_records integer,
+  target_salary_coverage_percent numeric check (target_salary_coverage_percent between 0 and 100),
+  preferred_source text,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(competition_id)
+);
+
+create or replace view public.global_salary_coverage_summary
+with (security_invoker=true)
+as
+select c.id competition_id,c.canonical_name competition,c.country,c.competition_type,cg.region,
+coalesce(sr.salary_record_count,0)::integer salary_record_count,
+coalesce(sr.players_with_salary,0)::integer players_with_salary,
+coalesce(sr.usd_converted_count,0)::integer usd_converted_count,
+coalesce(ct.status,'planned') salary_coverage_status,ct.priority,ct.preferred_source
+from public.competitions c
+left join public.competition_groups cg on cg.id=c.competition_group_id
+left join (
+  select cs.competition_id,count(distinct sr.id) salary_record_count,
+  count(distinct sr.player_id) players_with_salary,
+  count(*) filter(where sr.annual_salary_usd is not null or sr.weekly_salary_usd is not null) usd_converted_count
+  from public.salary_records sr join public.competition_seasons cs on cs.id=sr.competition_season_id
+  group by cs.competition_id
+) sr on sr.competition_id=c.id
+left join public.global_salary_coverage_targets ct on ct.competition_id=c.id;
+
+create or replace view public.global_contract_coverage_summary
+with (security_invoker=true)
+as
+select c.id competition_id,c.canonical_name competition,c.country,cg.region,
+count(distinct cc.contract_id)::integer contract_count,
+count(distinct ct.player_id)::integer players_with_contracts,
+count(distinct case when ct.annual_salary_usd is not null or ct.weekly_salary_usd is not null then ct.id end)::integer contracts_with_usd_salary
+from public.competitions c
+left join public.competition_groups cg on cg.id=c.competition_group_id
+left join public.competition_seasons cs on cs.competition_id=c.id
+left join public.contract_competitions cc on cc.competition_season_id=cs.id
+left join public.contracts ct on ct.id=cc.contract_id
+group by c.id,c.canonical_name,c.country,cg.region;
+
+alter table public.salary_exchange_rates enable row level security;
+alter table public.contract_competitions enable row level security;
+alter table public.global_salary_coverage_targets enable row level security;
+
+drop policy if exists "Public can read salary exchange rates" on public.salary_exchange_rates;
+create policy "Public can read salary exchange rates" on public.salary_exchange_rates for select to anon,authenticated using(true);
+
+drop policy if exists "WFM admins can manage salary exchange rates" on public.salary_exchange_rates;
+create policy "WFM admins can manage salary exchange rates" on public.salary_exchange_rates for all to authenticated
+using(exists(select 1 from public.wfm_admins a where a.user_id=(select auth.uid())))
+with check(exists(select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+
+drop policy if exists "WFM admins can manage contract competitions" on public.contract_competitions;
+create policy "WFM admins can manage contract competitions" on public.contract_competitions for all to authenticated
+using(exists(select 1 from public.wfm_admins a where a.user_id=(select auth.uid())))
+with check(exists(select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+
+drop policy if exists "WFM admins can manage salary coverage targets" on public.global_salary_coverage_targets;
+create policy "WFM admins can manage salary coverage targets" on public.global_salary_coverage_targets for all to authenticated
+using(exists(select 1 from public.wfm_admins a where a.user_id=(select auth.uid())))
+with check(exists(select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+
+grant select on public.global_salary_coverage_summary to anon,authenticated;
+grant select on public.global_contract_coverage_summary to anon,authenticated;
+grant select on public.salary_exchange_rates to anon,authenticated;
+
+create or replace view public.player_salary_history
+with (security_invoker=true)
+as
+select sr.id,sr.player_id,p.full_name,sr.season,sr.competition_season_id,
+comp.canonical_name competition,sr.annual_salary,sr.weekly_salary,sr.currency,
+sr.annual_salary_usd,sr.weekly_salary_usd,sr.exchange_rate_to_usd,sr.conversion_date,
+sr.confidence,sr.source_id
+from public.salary_records sr
+join public.players p on p.id=sr.player_id
+left join public.competition_seasons cs on cs.id=sr.competition_season_id
+left join public.competitions comp on comp.id=cs.competition_id;
+
+grant select on public.player_salary_history to anon,authenticated;
