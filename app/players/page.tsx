@@ -79,7 +79,7 @@ type PeerBenchmark = {
   progressive_carries_per90_percentile: number | null;
 };
 
-type SavedWorkflow = { name: string; playerIds: string[]; createdAt: string };
+type SavedWorkflow = { id: string; name: string; description: string | null; filters: Record<string, unknown>; sort_key: string | null; sort_direction: string | null; created_at: string; };
 
 type SortKey =
   | "name"
@@ -118,20 +118,65 @@ export default function PlayersPage() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [shortlist, setShortlist] = useState<string[]>([]);
   const [savedWorkflows, setSavedWorkflows] = useState<SavedWorkflow[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [scoutingLists, setScoutingLists] = useState<{ id: string; name: string; status: string }[]>([]);
+  const [selectedScoutingListId, setSelectedScoutingListId] = useState("");
+  const [scoutingMessage, setScoutingMessage] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 25;
   const router = useRouter();
 
   useEffect(() => {
-    try {
-      const storedShortlist = localStorage.getItem("wfm_scouting_shortlist");
-      if (storedShortlist) setShortlist(JSON.parse(storedShortlist));
-      const storedWorkflows = localStorage.getItem("wfm_scouting_workflows");
-      if (storedWorkflows) setSavedWorkflows(JSON.parse(storedWorkflows));
-    } catch {
-      setShortlist([]);
-      setSavedWorkflows([]);
+    let mounted = true;
+
+    async function loadScoutingWorkspace() {
+      const { data: authData } = await supabase.auth.getUser();
+      if (!mounted) return;
+
+      const currentUserId = authData.user?.id || null;
+      setUserId(currentUserId);
+
+      if (!currentUserId) {
+        setShortlist([]);
+        setSavedWorkflows([]);
+        return;
+      }
+
+      const [listResult, searchResult] = await Promise.all([
+        supabase
+          .from("scouting_lists")
+          .select("id,name,status")
+          .eq("status", "active")
+          .order("updated_at", { ascending: false }),
+        supabase
+          .from("saved_searches")
+          .select("id,name,description,filters,sort_key,sort_direction,created_at,updated_at")
+          .order("updated_at", { ascending: false }),
+      ]);
+
+      if (!mounted) return;
+
+      if (listResult.error) {
+        console.error("Error loading scouting lists:", listResult.error);
+        setScoutingMessage(listResult.error.message);
+      } else {
+        const nextLists = (listResult.data || []) as { id: string; name: string; status: string }[];
+        setScoutingLists(nextLists);
+        if (nextLists.length) setSelectedScoutingListId(nextLists[0].id);
+      }
+
+      if (searchResult.error) {
+        console.error("Error loading saved searches:", searchResult.error);
+        setScoutingMessage(searchResult.error.message);
+      } else {
+        setSavedWorkflows((searchResult.data || []) as SavedWorkflow[]);
+      }
     }
+
+    loadScoutingWorkspace();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -432,12 +477,66 @@ export default function PlayersPage() {
 
   const toggleShortlist = (playerId: string) => {
     setShortlist((current) => {
-      const next = current.includes(playerId)
+      return current.includes(playerId)
         ? current.filter((id) => id !== playerId)
         : [...current, playerId];
-      localStorage.setItem("wfm_scouting_shortlist", JSON.stringify(next));
-      return next;
     });
+  };
+
+  const createScoutingList = async () => {
+    if (!userId) {
+      setScoutingMessage("Sign in to create a persistent scouting list.");
+      return;
+    }
+
+    const name = window.prompt("Name this scouting list")?.trim();
+    if (!name) return;
+
+    const { data, error } = await supabase
+      .from("scouting_lists")
+      .insert({ user_id: userId, name })
+      .select("id,name,status")
+      .single();
+
+    if (error) {
+      setScoutingMessage(error.message);
+      return;
+    }
+
+    setScoutingLists((current) => [data, ...current]);
+    setSelectedScoutingListId(data.id);
+    setScoutingMessage("Scouting list created.");
+  };
+
+  const addPlayerToScoutingList = async (playerId: string) => {
+    if (!userId) {
+      setScoutingMessage("Sign in to add players to persistent scouting lists.");
+      return;
+    }
+    if (!selectedScoutingListId) {
+      setScoutingMessage("Create or select a scouting list first.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("scouting_list_players")
+      .insert({
+        list_id: selectedScoutingListId,
+        player_id: playerId,
+        added_by: userId,
+      });
+
+    if (error) {
+      if (error.code === "23505") {
+        setScoutingMessage("That player is already in the selected scouting list.");
+      } else {
+        setScoutingMessage(error.message);
+      }
+      return;
+    }
+
+    const listName = scoutingLists.find((list) => list.id === selectedScoutingListId)?.name || "scouting list";
+    setScoutingMessage(`Added player to ${listName}.`);
   };
 
   const compareShortlist = () => {
@@ -763,23 +862,113 @@ export default function PlayersPage() {
         </section>
 
         <div className="scout-shortlist-bar">
-          <div><strong>{shortlist.length}</strong> player{shortlist.length === 1 ? "" : "s"} in shortlist</div>
+          <div>
+            <strong>{shortlist.length}</strong> player{shortlist.length === 1 ? "" : "s"} in compare shortlist
+          </div>
           <div className="scout-shortlist-actions">
+            <select
+              value={selectedScoutingListId}
+              onChange={(event) => setSelectedScoutingListId(event.target.value)}
+              disabled={!userId}
+              aria-label="Scouting list"
+            >
+              <option value="">{userId ? "Select scouting list" : "Sign in for scouting lists"}</option>
+              {scoutingLists.map((list) => (
+                <option key={list.id} value={list.id}>{list.name}</option>
+              ))}
+            </select>
+            <button type="button" onClick={createScoutingList}>New list</button>
             <button type="button" onClick={compareShortlist} disabled={shortlist.length < 2}>Compare first 2</button>
-            <button type="button" onClick={() => { const name = window.prompt("Name this scouting workflow"); if (!name?.trim() || !shortlist.length) return; const next = [{ name: name.trim(), playerIds: shortlist, createdAt: new Date().toISOString() }, ...savedWorkflows.filter((w) => w.name !== name.trim())].slice(0, 10); setSavedWorkflows(next); localStorage.setItem("wfm_scouting_workflows", JSON.stringify(next)); }}>Save workflow</button>
-            <button type="button" onClick={() => { localStorage.removeItem("wfm_scouting_shortlist"); setShortlist([]); }} disabled={!shortlist.length}>Clear shortlist</button>
+            <button
+              type="button"
+              onClick={async () => {
+                if (!userId) {
+                  setScoutingMessage("Sign in to save persistent scouting workflows.");
+                  return;
+                }
+                const name = window.prompt("Name this scouting workflow")?.trim();
+                if (!name) return;
+
+                const filters = {
+                  search,
+                  role,
+                  nationality,
+                  league,
+                  club,
+                  minimumMinutes,
+                  scoutingFocus,
+                  minimumPercentile,
+                };
+
+                const { data, error } = await supabase
+                  .from("saved_searches")
+                  .insert({
+                    user_id: userId,
+                    name,
+                    filters,
+                    sort_key: sortKey,
+                    sort_direction: sortDirection,
+                  })
+                  .select("id,name,description,filters,sort_key,sort_direction,created_at,updated_at")
+                  .single();
+
+                if (error) {
+                  setScoutingMessage(error.message);
+                  return;
+                }
+
+                setSavedWorkflows((current) => [data as SavedWorkflow, ...current]);
+                setScoutingMessage("Scouting workflow saved.");
+              }}
+            >
+              Save workflow
+            </button>
+            <button type="button" onClick={() => setShortlist([])} disabled={!shortlist.length}>Clear shortlist</button>
           </div>
         </div>
         {savedWorkflows.length > 0 && (
           <div className="scout-note">
-            <strong>Saved scouting workflows:</strong> {savedWorkflows.map((workflow) => (
-              <span key={workflow.name} style={{display:"inline-flex",gap:5,alignItems:"center",marginLeft:8,marginBottom:4}}>
-                <button type="button" onClick={() => setShortlist(workflow.playerIds)}>{workflow.name} ({workflow.playerIds.length})</button>
-                <button type="button" aria-label={`Delete ${workflow.name}`} onClick={() => { const next = savedWorkflows.filter((w) => w.name !== workflow.name); setSavedWorkflows(next); localStorage.setItem("wfm_scouting_workflows", JSON.stringify(next)); }}>×</button>
+            <strong>Saved scouting workflows:</strong>{" "}
+            {savedWorkflows.map((workflow) => (
+              <span key={workflow.id} style={{display:"inline-flex",gap:5,alignItems:"center",marginLeft:8,marginBottom:4}}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const filters = workflow.filters || {};
+                    setSearch(String(filters.search || ""));
+                    setRole((filters.role || "All") as PlayerRoleGroup | "All");
+                    setNationality(String(filters.nationality || "All"));
+                    setLeague(String(filters.league || "All"));
+                    setClub(String(filters.club || "All"));
+                    setMinimumMinutes(String(filters.minimumMinutes || "0"));
+                    setScoutingFocus(String(filters.scoutingFocus || "All"));
+                    setMinimumPercentile(String(filters.minimumPercentile || "0"));
+                    if (workflow.sort_key) setSortKey(workflow.sort_key as SortKey);
+                    if (workflow.sort_direction === "asc" || workflow.sort_direction === "desc") setSortDirection(workflow.sort_direction);
+                  }}
+                >
+                  {workflow.name}
+                </button>
+                <button
+                  type="button"
+                  aria-label={`Delete ${workflow.name}`}
+                  onClick={async () => {
+                    const { error } = await supabase.from("saved_searches").delete().eq("id", workflow.id);
+                    if (error) setScoutingMessage(error.message);
+                    else setSavedWorkflows((current) => current.filter((item) => item.id !== workflow.id));
+                  }}
+                >
+                  ×
+                </button>
               </span>
             ))}
           </div>
         )}
+        <div className="scout-note">
+          <strong>Persistent scouting:</strong>{" "}
+          {userId ? "Signed in. Use the list selector below to save players to your WFM scouting workspace." : "Sign in to save players and workflows to your private WFM scouting workspace."}
+          {scoutingMessage && <span style={{marginLeft:8}}>{scoutingMessage}</span>}
+        </div>
         <div className="scout-note">
           <strong>Scouting context:</strong> performance figures use the latest
           recorded season available for each player. Peer-percentile filters use
@@ -828,12 +1017,21 @@ export default function PlayersPage() {
 
             return (
               <div className={`scout-row ${shortlist.includes(player.id) ? "is-shortlisted" : ""}`} key={player.id}>
-                <button
-                  type="button"
-                  className="scout-shortlist-toggle"
-                  onClick={() => toggleShortlist(player.id)}
-                  aria-label={shortlist.includes(player.id) ? `Remove ${player.full_name} from shortlist` : `Add ${player.full_name} to shortlist`}
-                >{shortlist.includes(player.id) ? "✓" : "+"}</button>
+                <div className="scout-row-actions">
+                  <button
+                    type="button"
+                    className="scout-shortlist-toggle"
+                    onClick={() => toggleShortlist(player.id)}
+                    aria-label={shortlist.includes(player.id) ? `Remove ${player.full_name} from compare shortlist` : `Add ${player.full_name} to compare shortlist`}
+                  >{shortlist.includes(player.id) ? "✓" : "+"}</button>
+                  <button
+                    type="button"
+                    className="scout-list-add"
+                    onClick={() => addPlayerToScoutingList(player.id)}
+                    disabled={!userId || !selectedScoutingListId}
+                    aria-label={`Add ${player.full_name} to selected scouting list`}
+                  >Add</button>
+                </div>
                 <Link href={`/players/${player.id}`} className="scout-player">
                   <img
                     src={player.photo_url || "/wfm-player-placeholder.svg"}
