@@ -4,6 +4,14 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
+type ClubParticipation = {
+  club_id: string
+  competition_name: string | null
+  competition_id: string | null
+  season_key: string | null
+  season_label: string | null
+}
+
 type Club = {
   id: string
   name: string
@@ -55,8 +63,10 @@ export default function ClubsPage() {
   const [contracts, setContracts] = useState<ContractRecord[]>([])
   const [marketValues, setMarketValues] = useState<MarketValueRecord[]>([])
   const [transfers, setTransfers] = useState<TransferRecord[]>([])
+  const [clubParticipations, setClubParticipations] = useState<ClubParticipation[]>([])
   const [q, setQ] = useState('')
   const [leagueFilter, setLeagueFilter] = useState('all')
+  const [seasonFilter, setSeasonFilter] = useState('all')
   const [countryFilter, setCountryFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
   const [sortBy, setSortBy] = useState<SortKey>('name')
@@ -66,7 +76,7 @@ export default function ClubsPage() {
     async function loadClubs() {
       setLoading(true)
 
-      const [clubResult, contractResult, valueResult, transferResult] = await Promise.all([
+      const [clubResult, contractResult, valueResult, transferResult, participationResult] = await Promise.all([
         supabase
           .from('clubs')
           .select(`
@@ -98,17 +108,44 @@ export default function ClubsPage() {
         supabase
           .from('transfers')
           .select('from_club_id, to_club_id'),
+        supabase
+          .from('club_competitions')
+          .select('club_id,competition_season:competition_seasons(competition:competitions(id,canonical_name),season:seasons(season_key,label))'),
       ])
 
       if (clubResult.error) console.error('Error loading clubs:', clubResult.error)
       if (contractResult.error) console.error('Error loading club contracts:', contractResult.error)
       if (valueResult.error) console.error('Error loading market values:', valueResult.error)
       if (transferResult.error) console.error('Error loading club transfers:', transferResult.error)
+      if (participationResult.error) console.error('Error loading club competition participation:', participationResult.error)
 
       setClubs((clubResult.data || []) as Club[])
       setContracts((contractResult.data || []) as ContractRecord[])
       setMarketValues((valueResult.data || []) as MarketValueRecord[])
       setTransfers((transferResult.data || []) as TransferRecord[])
+
+      const normalizedParticipations: ClubParticipation[] = []
+      for (const row of participationResult.data || []) {
+        const competitionSeason = Array.isArray((row as any).competition_season)
+          ? (row as any).competition_season[0]
+          : (row as any).competition_season
+        const competition = Array.isArray(competitionSeason?.competition)
+          ? competitionSeason.competition[0]
+          : competitionSeason?.competition
+        const season = Array.isArray(competitionSeason?.season)
+          ? competitionSeason.season[0]
+          : competitionSeason?.season
+        if ((row as any).club_id) {
+          normalizedParticipations.push({
+            club_id: (row as any).club_id,
+            competition_name: competition?.canonical_name || null,
+            competition_id: competition?.id || null,
+            season_key: season?.season_key || null,
+            season_label: season?.label || null,
+          })
+        }
+      }
+      setClubParticipations(normalizedParticipations)
       setLoading(false)
     }
 
@@ -184,10 +221,28 @@ export default function ClubsPage() {
     return stats
   }, [clubs, contracts, latestMarketValues, transfers])
 
+  const participationByClub = useMemo(() => {
+    const map = new Map<string, ClubParticipation[]>()
+    for (const row of clubParticipations) {
+      const current = map.get(row.club_id) || []
+      current.push(row)
+      map.set(row.club_id, current)
+    }
+    return map
+  }, [clubParticipations])
+
   const leagues = useMemo(
-    () => Array.from(new Set(clubs.map((club) => club.league).filter(Boolean) as string[])).sort(),
-    [clubs]
+    () => Array.from(new Set(clubParticipations.map((row) => row.competition_name).filter(Boolean) as string[])).sort(),
+    [clubParticipations]
   )
+
+  const seasons = useMemo(() => {
+    const values = new Map<string, string>()
+    for (const row of clubParticipations) {
+      if (row.season_key) values.set(row.season_key, row.season_label || row.season_key)
+    }
+    return Array.from(values.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+  }, [clubParticipations])
 
   const countries = useMemo(
     () => Array.from(new Set(clubs.map((club) => club.country).filter(Boolean) as string[])).sort(),
@@ -208,13 +263,19 @@ export default function ClubsPage() {
         .filter(Boolean)
         .join(' ')
 
+      const participation = participationByClub.get(club.id) || []
       const matchesSearch = !search || normalize(searchable).includes(search)
-      const matchesLeague = leagueFilter === 'all' || club.league === leagueFilter
+      const matchesLeague = leagueFilter === 'all' || participation.some((row) => row.competition_name === leagueFilter)
+      const matchesSeason = seasonFilter === 'all' || participation.some((row) => row.season_key === seasonFilter)
+      const matchesCompetitionSeason = participation.some((row) =>
+        (leagueFilter === 'all' || row.competition_name === leagueFilter) &&
+        (seasonFilter === 'all' || row.season_key === seasonFilter)
+      )
       const matchesCountry = countryFilter === 'all' || club.country === countryFilter
       const matchesType =
         typeFilter === 'all' || (club.organization_type || 'club') === typeFilter
 
-      return matchesSearch && matchesLeague && matchesCountry && matchesType && Boolean(stats)
+      return matchesSearch && matchesLeague && matchesSeason && matchesCompetitionSeason && matchesCountry && matchesType && Boolean(stats)
     })
 
     return [...filtered].sort((a, b) => {
@@ -235,7 +296,7 @@ export default function ClubsPage() {
 
       return a.name.localeCompare(b.name)
     })
-  }, [clubs, clubStats, q, leagueFilter, countryFilter, typeFilter, sortBy])
+  }, [clubs, clubStats, participationByClub, q, leagueFilter, seasonFilter, countryFilter, typeFilter, sortBy])
 
   const totalPlayers = useMemo(
     () => new Set(contracts.filter((contract) => normalize(contract.status) === 'active').map((contract) => contract.player_id)).size,
@@ -255,12 +316,14 @@ export default function ClubsPage() {
   const hasFilters =
     Boolean(q.trim()) ||
     leagueFilter !== 'all' ||
+    seasonFilter !== 'all' ||
     countryFilter !== 'all' ||
     typeFilter !== 'all'
 
   function clearFilters() {
     setQ('')
     setLeagueFilter('all')
+    setSeasonFilter('all')
     setCountryFilter('all')
     setTypeFilter('all')
   }
@@ -317,9 +380,13 @@ export default function ClubsPage() {
                   onChange={(event) => setQ(event.target.value)}
                   style={{ flex: '1 1 230px', minWidth: 200, border: '1px solid #d8d8d8', borderRadius: 9, padding: '11px 13px', fontSize: 14, outline: 'none' }}
                 />
-                <select value={leagueFilter} onChange={(event) => setLeagueFilter(event.target.value)} style={{ flex: '0 1 180px', border: '1px solid #d8d8d8', borderRadius: 9, padding: '11px 30px 11px 11px', background: '#fff', fontSize: 13 }}>
-                  <option value="all">All leagues</option>
+                <select value={leagueFilter} onChange={(event) => { setLeagueFilter(event.target.value); setSeasonFilter('all') }} style={{ flex: '0 1 180px', border: '1px solid #d8d8d8', borderRadius: 9, padding: '11px 30px 11px 11px', background: '#fff', fontSize: 13 }}>
+                  <option value="all">All competitions</option>
                   {leagues.map((league) => <option key={league} value={league}>{league}</option>)}
+                </select>
+                <select value={seasonFilter} onChange={(event) => setSeasonFilter(event.target.value)} style={{ flex: '0 1 150px', border: '1px solid #d8d8d8', borderRadius: 9, padding: '11px 30px 11px 11px', background: '#fff', fontSize: 13 }}>
+                  <option value="all">All seasons</option>
+                  {seasons.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
                 </select>
                 <select value={countryFilter} onChange={(event) => setCountryFilter(event.target.value)} style={{ flex: '0 1 150px', border: '1px solid #d8d8d8', borderRadius: 9, padding: '11px 30px 11px 11px', background: '#fff', fontSize: 13 }}>
                   <option value="all">All countries</option>
@@ -364,7 +431,7 @@ export default function ClubsPage() {
             <table style={{ width: '100%', minWidth: 900, borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#fafafa', borderBottom: '1px solid #e8e8e8' }}>
-                  {['Club', 'League', 'Country', 'Active roster', 'Known payroll', 'Squad market value', 'Transfers'].map((heading, index) => (
+                  {['Club', 'Competition', 'Season', 'Country', 'Active roster', 'Known payroll', 'Squad market value', 'Transfers'].map((heading, index) => (
                     <th key={heading} style={{ textAlign: index === 0 ? 'left' : index >= 3 ? 'right' : 'left', padding: '13px 18px', fontSize: 10, color: '#888', letterSpacing: 0.9, textTransform: 'uppercase', fontWeight: 800 }}>
                       {heading}
                     </th>
@@ -373,7 +440,7 @@ export default function ClubsPage() {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={7} style={{ padding: 50, textAlign: 'center', color: '#777' }}>Loading club database…</td></tr>
+                  <tr><td colSpan={8} style={{ padding: 50, textAlign: 'center', color: '#777' }}>Loading club database…</td></tr>
                 ) : filteredClubs.length === 0 ? (
                   <tr><td colSpan={7} style={{ padding: 50, textAlign: 'center', color: '#777' }}>No clubs match these filters.</td></tr>
                 ) : (
@@ -401,7 +468,26 @@ export default function ClubsPage() {
                             </div>
                           </div>
                         </td>
-                        <td style={{ padding: '16px 18px', color: '#555', fontSize: 13 }}>{club.league || '—'}</td>
+                        <td style={{ padding: '16px 18px', color: '#555', fontSize: 13 }}>
+                          {(() => {
+                            const participation = participationByClub.get(club.id) || []
+                            const match = participation.find((row) =>
+                              (leagueFilter === 'all' || row.competition_name === leagueFilter) &&
+                              (seasonFilter === 'all' || row.season_key === seasonFilter)
+                            )
+                            return match?.competition_name || participation[0]?.competition_name || club.league || '—'
+                          })()}
+                        </td>
+                        <td style={{ padding: '16px 18px', color: '#555', fontSize: 13 }}>
+                          {(() => {
+                            const participation = participationByClub.get(club.id) || []
+                            const match = participation.find((row) =>
+                              (leagueFilter === 'all' || row.competition_name === leagueFilter) &&
+                              (seasonFilter === 'all' || row.season_key === seasonFilter)
+                            )
+                            return match?.season_label || match?.season_key || '—'
+                          })()}
+                        </td>
                         <td style={{ padding: '16px 18px', color: '#555', fontSize: 13 }}>{club.country || '—'}</td>
                         <td style={{ padding: '16px 18px', textAlign: 'right', fontWeight: 800 }}>{stats.playerIds.size || 0}</td>
                         <td style={{ padding: '16px 18px', textAlign: 'right', fontWeight: 700 }}>{payroll}</td>
