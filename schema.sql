@@ -521,3 +521,184 @@ create table if not exists public.official_verification_public (
 );
 
 -- The live database also contains submit_official_verification_request and review_official_verification RPCs.
+
+
+-- ============================================================
+-- Phase 6 — Milestone 2: International Player & Club Coverage
+-- Global coverage and reusable entity-import framework.
+-- ============================================================
+
+create table if not exists public.competition_groups (
+  id uuid primary key default gen_random_uuid(),
+  name text not null unique,
+  country text,
+  region text,
+  active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+alter table public.competitions
+  add column if not exists competition_group_id uuid
+  references public.competition_groups(id) on delete set null;
+
+create index if not exists idx_competitions_group
+  on public.competitions(competition_group_id);
+
+create table if not exists public.provider_club_mappings (
+  id uuid primary key default gen_random_uuid(),
+  provider text not null,
+  external_club_id text not null,
+  club_id uuid not null references public.clubs(id) on delete cascade,
+  external_name text,
+  confidence text not null default 'verified',
+  source_id uuid references public.sources(id) on delete set null,
+  notes text,
+  created_at timestamptz not null default now(),
+  unique(provider, external_club_id)
+);
+
+create index if not exists idx_provider_club_mappings_club
+  on public.provider_club_mappings(club_id);
+
+create table if not exists public.entity_import_queue (
+  id uuid primary key default gen_random_uuid(),
+  provider text not null,
+  entity_type text not null check (entity_type in ('player','club')),
+  external_id text not null,
+  external_name text,
+  country text,
+  competition_id uuid references public.competitions(id) on delete set null,
+  season_id uuid references public.seasons(id) on delete set null,
+  payload jsonb not null default '{}'::jsonb,
+  status text not null default 'pending'
+    check (status in ('pending','matched','ready','imported','rejected','needs_review')),
+  matched_player_id uuid references public.players(id) on delete set null,
+  matched_club_id uuid references public.clubs(id) on delete set null,
+  source_id uuid references public.sources(id) on delete set null,
+  import_batch_id uuid,
+  error_message text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(provider, entity_type, external_id)
+);
+
+create index if not exists idx_entity_import_queue_status
+  on public.entity_import_queue(status, created_at);
+
+create index if not exists idx_entity_import_queue_competition
+  on public.entity_import_queue(competition_id, season_id);
+
+create table if not exists public.global_coverage_targets (
+  id uuid primary key default gen_random_uuid(),
+  competition_id uuid not null references public.competitions(id) on delete cascade,
+  priority integer not null default 3 check (priority between 1 and 5),
+  status text not null default 'planned'
+    check (status in ('planned','in_progress','covered','paused')),
+  preferred_provider text,
+  target_player_coverage integer,
+  target_club_coverage integer,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(competition_id)
+);
+
+create or replace view public.global_coverage_summary
+with (security_invoker = true)
+as
+select
+  c.id as competition_id,
+  c.canonical_name as competition,
+  c.country,
+  c.competition_type,
+  c.level_label,
+  c.active,
+  cg.name as competition_group,
+  cg.region,
+  coalesce(cs.season_count,0)::integer as season_count,
+  coalesce(cc.club_count,0)::integer as club_count,
+  coalesce(pc.player_count,0)::integer as player_count,
+  coalesce(pp.provider_count,0)::integer as provider_count,
+  coalesce(t.status,'planned') as coverage_status,
+  t.priority,
+  t.preferred_provider
+from public.competitions c
+left join public.competition_groups cg on cg.id = c.competition_group_id
+left join (
+  select competition_id, count(*) season_count
+  from public.competition_seasons
+  group by competition_id
+) cs on cs.competition_id = c.id
+left join (
+  select cs2.competition_id, count(distinct cc.club_id) club_count
+  from public.club_competitions cc
+  join public.competition_seasons cs2 on cs2.id = cc.competition_season_id
+  group by cs2.competition_id
+) cc on cc.competition_id = c.id
+left join (
+  select cs2.competition_id, count(distinct pc2.player_id) player_count
+  from public.player_competitions pc2
+  join public.club_competitions cc2 on cc2.id = pc2.club_competition_id
+  join public.competition_seasons cs2 on cs2.id = cc2.competition_season_id
+  group by cs2.competition_id
+) pc on pc.competition_id = c.id
+left join (
+  select cs2.competition_id, count(distinct ppm.provider)::integer provider_count
+  from public.player_stats ps
+  join public.competition_seasons cs2 on cs2.id = ps.competition_season_id
+  join public.provider_player_mappings ppm on ppm.player_id = ps.player_id
+  group by cs2.competition_id
+) pp on pp.competition_id = c.id
+left join public.global_coverage_targets t on t.competition_id = c.id;
+
+create or replace view public.global_country_coverage
+with (security_invoker = true)
+as
+select
+  cg.id as competition_group_id,
+  cg.name as country,
+  cg.region,
+  count(distinct c.id)::integer as competition_count,
+  count(distinct case when c.active then c.id end)::integer as active_competition_count,
+  coalesce(sum(gcs.club_count),0)::integer as club_count,
+  coalesce(sum(gcs.player_count),0)::integer as player_count
+from public.competition_groups cg
+left join public.competitions c on c.competition_group_id = cg.id
+left join public.global_coverage_summary gcs on gcs.competition_id = c.id
+group by cg.id, cg.name, cg.region;
+
+-- Public read-only coverage views; import/mapping tables remain admin-controlled.
+grant select on public.competition_groups to anon, authenticated;
+grant select on public.global_coverage_summary to anon, authenticated;
+grant select on public.global_country_coverage to anon, authenticated;
+
+alter table public.competition_groups enable row level security;
+alter table public.provider_club_mappings enable row level security;
+alter table public.entity_import_queue enable row level security;
+alter table public.global_coverage_targets enable row level security;
+
+drop policy if exists "Public can read competition groups" on public.competition_groups;
+create policy "Public can read competition groups"
+on public.competition_groups for select
+to anon, authenticated using (true);
+
+drop policy if exists "WFM admins can manage provider club mappings" on public.provider_club_mappings;
+create policy "WFM admins can manage provider club mappings"
+on public.provider_club_mappings for all
+to authenticated
+using (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())))
+with check (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+
+drop policy if exists "WFM admins can manage entity import queue" on public.entity_import_queue;
+create policy "WFM admins can manage entity import queue"
+on public.entity_import_queue for all
+to authenticated
+using (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())))
+with check (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+
+drop policy if exists "WFM admins can manage global coverage targets" on public.global_coverage_targets;
+create policy "WFM admins can manage global coverage targets"
+on public.global_coverage_targets for all
+to authenticated
+using (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())))
+with check (exists (select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
