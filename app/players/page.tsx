@@ -194,7 +194,7 @@ export default function PlayersPage() {
     async function loadPlayers() {
       setLoading(true);
 
-      const [playerResult, contractResult, intelResult, valueResult, peerResult] =
+      const [playerResult, contractResult, intelResult, valueResult, peerResult, participationResult] =
         await Promise.all([
           supabase
             .from("players")
