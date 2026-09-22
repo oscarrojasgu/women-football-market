@@ -54,6 +54,7 @@ type PlayerStat = {
   own_goals: number | null;
   confidence: string | null;
   notes: string | null;
+  seasonLabel?: string | null;
 };
 
 type Club = {
@@ -170,7 +171,7 @@ export default function PlayerStatistics({
         await Promise.all([
           supabase
             .from("player_stats")
-            .select("*")
+            .select("*,competition_season:competition_seasons(id,competition:competitions(canonical_name),season:seasons(season_key,label))")
             .eq("player_id", playerId)
             .order("season", { ascending: false })
             .order("competition", { ascending: true }),
@@ -185,7 +186,26 @@ export default function PlayerStatistics({
       if (cancelled) return;
 
       if (!clubStatsResult.error && clubStatsResult.data) {
-        setFullStats(clubStatsResult.data as PlayerStat[]);
+        const normalizedStats = (clubStatsResult.data as any[]).map((stat) => {
+          const competitionSeason = Array.isArray(stat.competition_season)
+            ? stat.competition_season[0] || null
+            : stat.competition_season || null;
+          const competition = Array.isArray(competitionSeason?.competition)
+            ? competitionSeason.competition[0] || null
+            : competitionSeason?.competition || null;
+          const season = Array.isArray(competitionSeason?.season)
+            ? competitionSeason.season[0] || null
+            : competitionSeason?.season || null;
+
+          return {
+            ...stat,
+            competition: competition?.canonical_name || stat.competition,
+            season: season?.season_key || stat.season,
+            seasonLabel: season?.label || season?.season_key || stat.season,
+          } as PlayerStat;
+        });
+
+        setFullStats(normalizedStats);
       }
 
       if (!nationalResult.error && nationalResult.data) {
@@ -991,7 +1011,7 @@ export default function PlayerStatistics({
                                 whiteSpace: "nowrap",
                               }}
                             >
-                              {stat.season}
+                              {stat.seasonLabel || stat.season}
                             </td>
 
                             <td
