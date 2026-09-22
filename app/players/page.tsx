@@ -56,6 +56,15 @@ type SeasonIntel = {
   progressive_carries_per90: number | null;
 };
 
+type PlayerParticipation = {
+  player_id: string;
+  club_name: string | null;
+  competition_name: string | null;
+  competition_id: string | null;
+  season_key: string | null;
+  season_label: string | null;
+};
+
 type MarketValue = {
   player_id: string;
   valuation_date: string;
@@ -104,12 +113,14 @@ export default function PlayersPage() {
   const [seasonIntel, setSeasonIntel] = useState<SeasonIntel[]>([]);
   const [marketValues, setMarketValues] = useState<MarketValue[]>([]);
   const [peerBenchmarks, setPeerBenchmarks] = useState<PeerBenchmark[]>([]);
+  const [playerParticipations, setPlayerParticipations] = useState<PlayerParticipation[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
   const [role, setRole] = useState<PlayerRoleGroup | "All">("All");
   const [nationality, setNationality] = useState("All");
   const [league, setLeague] = useState("All");
+  const [season, setSeason] = useState("All");
   const [club, setClub] = useState("All");
   const [minimumMinutes, setMinimumMinutes] = useState("0");
   const [scoutingFocus, setScoutingFocus] = useState("All");
@@ -249,6 +260,10 @@ export default function PlayersPage() {
           supabase
             .from("player_peer_benchmarks")
             .select("player_id,season,league,position,peer_count,goals_per90_percentile,assists_per90_percentile,xg_per90_percentile,xa_per90_percentile,chances_created_per90_percentile,key_passes_per90_percentile,tackles_per90_percentile,interceptions_per90_percentile,progressive_carries_per90_percentile"),
+
+          supabase
+            .from("player_competitions")
+            .select("player_id,club_competition:club_competitions(club:clubs(name),competition_season:competition_seasons(competition:competitions(id,canonical_name),season:seasons(season_key,label)))"),
         ]);
 
       if (playerResult.error) {
@@ -287,6 +302,30 @@ export default function PlayersPage() {
         console.error("Error loading market values:", valueResult.error);
       } else {
         setMarketValues((valueResult.data || []) as MarketValue[]);
+      }
+
+      if (participationResult.error) {
+        console.error("Error loading player competition participation:", participationResult.error);
+      } else {
+        const normalizedParticipations: PlayerParticipation[] = [];
+        for (const row of participationResult.data || []) {
+          const cc = Array.isArray((row as any).club_competition) ? (row as any).club_competition[0] : (row as any).club_competition;
+          const cs = Array.isArray(cc?.competition_season) ? cc.competition_season[0] : cc?.competition_season;
+          const competition = Array.isArray(cs?.competition) ? cs.competition[0] : cs?.competition;
+          const season = Array.isArray(cs?.season) ? cs.season[0] : cs?.season;
+          const club = Array.isArray(cc?.club) ? cc.club[0] : cc?.club;
+          if ((row as any).player_id) {
+            normalizedParticipations.push({
+              player_id: (row as any).player_id,
+              club_name: club?.name || null,
+              competition_name: competition?.canonical_name || null,
+              competition_id: competition?.id || null,
+              season_key: season?.season_key || null,
+              season_label: season?.label || null,
+            });
+          }
+        }
+        setPlayerParticipations(normalizedParticipations);
       }
 
       if (peerResult.error) {
@@ -381,6 +420,26 @@ export default function PlayersPage() {
     return map;
   }, [marketValues]);
 
+  const participationByPlayer = useMemo(() => {
+    const map = new Map<string, PlayerParticipation[]>();
+    for (const row of playerParticipations) {
+      const current = map.get(row.player_id) || [];
+      current.push(row);
+      map.set(row.player_id, current);
+    }
+    return map;
+  }, [playerParticipations]);
+
+  const competitions = useMemo(() => Array.from(new Set(playerParticipations.map((row) => row.competition_name).filter(Boolean) as string[])).sort(), [playerParticipations]);
+
+  const seasons = useMemo(() => {
+    const values = new Map<string, string>();
+    for (const row of playerParticipations) {
+      if (row.season_key) values.set(row.season_key, row.season_label || row.season_key);
+    }
+    return Array.from(values.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [playerParticipations]);
+
   const nationalities = useMemo(
     () =>
       Array.from(
@@ -405,31 +464,17 @@ export default function PlayersPage() {
     [players]
   );
 
-  const leagues = useMemo(() => {
-    const values = new Set<string>();
-
-    for (const player of players) {
-      const contract = contractByPlayer.get(player.id);
-      const intel = latestIntelByPlayer.get(player.id);
-      if (contract?.club?.league) values.add(contract.club.league);
-      else if (intel?.league) values.add(intel.league);
-    }
-
-    return Array.from(values).sort();
-  }, [players, contractByPlayer, latestIntelByPlayer]);
+  const leagues = competitions;
 
   const clubs = useMemo(() => {
     const values = new Set<string>();
-
-    for (const player of players) {
-      const contract = contractByPlayer.get(player.id);
-      const intel = latestIntelByPlayer.get(player.id);
-      if (contract?.club?.name) values.add(contract.club.name);
-      else if (intel?.club_name) values.add(intel.club_name);
+    for (const row of playerParticipations) {
+      if (league !== "All" && row.competition_name !== league) continue;
+      if (season !== "All" && row.season_key !== season) continue;
+      if (row.club_name) values.add(row.club_name);
     }
-
     return Array.from(values).sort();
-  }, [players, contractByPlayer, latestIntelByPlayer]);
+  }, [playerParticipations, league, season]);
 
   const calculateAge = (dateOfBirth: string | null) => {
     if (!dateOfBirth) return null;
@@ -549,6 +594,7 @@ export default function PlayersPage() {
     role !== "All" ||
     nationality !== "All" ||
     league !== "All" ||
+    season !== "All" ||
     club !== "All" ||
     minimumMinutes !== "0" ||
     scoutingFocus !== "All" ||
@@ -559,6 +605,7 @@ export default function PlayersPage() {
     setRole("All");
     setNationality("All");
     setLeague("All");
+    setSeason("All");
     setClub("All");
     setMinimumMinutes("0");
     setScoutingFocus("All");
@@ -617,12 +664,13 @@ export default function PlayersPage() {
         matchesSearch &&
         (role === "All" || playerRole === role) &&
         (nationality === "All" || player.nationality === nationality) &&
-        (league === "All" ||
-          contract?.club?.league === league ||
-          (!contract?.club?.league && intel?.league === league)) &&
-        (club === "All" ||
-          contract?.club?.name === club ||
-          (!contract?.club?.name && intel?.club_name === club)) &&
+        (league === "All" || (participationByPlayer.get(player.id) || []).some((row) => row.competition_name === league)) &&
+        (season === "All" || (participationByPlayer.get(player.id) || []).some((row) => row.season_key === season)) &&
+        (club === "All" || (participationByPlayer.get(player.id) || []).some((row) =>
+          row.club_name === club &&
+          (league === "All" || row.competition_name === league) &&
+          (season === "All" || row.season_key === season)
+        )) &&
         Number(intel?.minutes || 0) >= minMinutes &&
         matchesScoutingFocus
       );
@@ -680,6 +728,7 @@ export default function PlayersPage() {
     role,
     nationality,
     league,
+    season,
     club,
     minimumMinutes,
     scoutingFocus,
@@ -694,7 +743,7 @@ export default function PlayersPage() {
 
   const totalPages = Math.max(1, Math.ceil(filteredPlayers.length / pageSize));
 
-  useEffect(() => { setPage(1); }, [search, role, nationality, league, club, minimumMinutes, scoutingFocus, minimumPercentile, sortKey, sortDirection]);
+  useEffect(() => { setPage(1); }, [search, role, nationality, league, season, club, minimumMinutes, scoutingFocus, minimumPercentile, sortKey, sortDirection]);
   useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
 
   const visiblePlayers = filteredPlayers.slice((page - 1) * pageSize, page * pageSize);
@@ -709,15 +758,7 @@ export default function PlayersPage() {
     (player) => contractByPlayer.get(player.id)?.status?.toLowerCase() === "active"
   ).length;
 
-  const leagueCount = new Set(
-    players
-      .map(
-        (player) =>
-          contractByPlayer.get(player.id)?.club?.league ||
-          latestIntelByPlayer.get(player.id)?.league
-      )
-      .filter(Boolean)
-  ).size;
+  const leagueCount = competitions.length;
 
   return (
     <>
@@ -747,7 +788,7 @@ export default function PlayersPage() {
             <strong>{activeContracts}</strong>
           </div>
           <div className="scout-stat">
-            <span>LEAGUES</span>
+            <span>COMPETITIONS</span>
             <strong>{leagueCount}</strong>
           </div>
         </section>
@@ -791,14 +832,28 @@ export default function PlayersPage() {
               value={league}
               onChange={(event) => {
                 setLeague(event.target.value);
+                setSeason("All");
                 setClub("All");
               }}
             >
-              <option value="All">All Leagues</option>
+              <option value="All">All Competitions</option>
               {leagues.map((item) => (
                 <option key={item} value={item}>
                   {item}
                 </option>
+              ))}
+            </select>
+
+            <select
+              value={season}
+              onChange={(event) => {
+                setSeason(event.target.value);
+                setClub("All");
+              }}
+            >
+              <option value="All">All Seasons</option>
+              {seasons.map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
               ))}
             </select>
 
@@ -938,7 +993,8 @@ export default function PlayersPage() {
                     setSearch(String(filters.search || ""));
                     setRole((filters.role || "All") as PlayerRoleGroup | "All");
                     setNationality(String(filters.nationality || "All"));
-                    setLeague(String(filters.league || "All"));
+                    setLeague(String(filters.league || filters.competition || "All"));
+                    setSeason(String(filters.season || "All"));
                     setClub(String(filters.club || "All"));
                     setMinimumMinutes(String(filters.minimumMinutes || "0"));
                     setScoutingFocus(String(filters.scoutingFocus || "All"));
@@ -1013,7 +1069,7 @@ export default function PlayersPage() {
             const playerRole = getPlayerRoleGroup(player.position, player.secondary_position);
             const age = calculateAge(player.date_of_birth);
             const playerClub = contract?.club?.name || intel?.club_name || "Club unavailable";
-            const playerLeague = contract?.club?.league || intel?.league || "League unavailable";
+            const playerLeague = participationByPlayer.get(player.id)?.find((row) => row.season_key === intel?.season)?.competition_name || contract?.club?.league || intel?.league || "Competition unavailable";
 
             return (
               <div className={`scout-row ${shortlist.includes(player.id) ? "is-shortlisted" : ""}`} key={player.id}>
