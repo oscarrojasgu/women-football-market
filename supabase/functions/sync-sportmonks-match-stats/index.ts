@@ -26,6 +26,22 @@ function numeric(details: SportmonksFixture["lineups"][number]["details"], ...na
   return typeof raw === "number" ? raw : Number(raw) || 0;
 }
 
+async function resolveCompetitionSeason(ctx: any, competitionLabel: string, seasonLabel: string) {
+  const competitionName=competitionLabel.trim();
+  const {data:direct}=await ctx.supabaseAdmin.from("competitions").select("id").ilike("canonical_name",competitionName).maybeSingle();
+  let competitionId=direct?.id||null;
+  if(!competitionId){const {data:alias}=await ctx.supabaseAdmin.from("competition_aliases").select("competition_id").ilike("source_label",competitionName).maybeSingle();competitionId=alias?.competition_id||null;}
+  if(!competitionId)return null;
+  const seasonKey=seasonLabel.trim().replace(/\//g,"-");
+  let {data:season}=await ctx.supabaseAdmin.from("seasons").select("id").eq("season_key",seasonKey).maybeSingle();
+  if(!season){const {data:created}=await ctx.supabaseAdmin.from("seasons").insert({season_key:seasonKey,label:seasonKey}).select("id").single();season=created||null;}
+  if(!season)return null;
+  const {data:cs}=await ctx.supabaseAdmin.from("competition_seasons").select("id").eq("competition_id",competitionId).eq("season_id",season.id).maybeSingle();
+  if(cs?.id)return cs.id;
+  const {data:createdCs}=await ctx.supabaseAdmin.from("competition_seasons").upsert({competition_id:competitionId,season_id:season.id},{onConflict:"competition_id,season_id"}).select("id").single();
+  return createdCs?.id||null;
+}
+
 async function sportmonks(path: string, token: string) {
   const url = new URL(`https://api.sportmonks.com/v3/football/${path}`);
   const response = await fetch(url, { headers: { Authorization: token } });
@@ -121,6 +137,7 @@ export default withSupabase({ auth: "secret" }, async (req, ctx) => {
         const details = lineup.details || [];
         const seasonName = String(fixture.season?.name || fixture.season_id);
         const competitionName = String(fixture.league?.name || fixture.league_id);
+        const competitionSeasonId=await resolveCompetitionSeason(ctx,competitionName,seasonName);
         const row = {
           provider,
           club_id: null,
@@ -129,6 +146,7 @@ export default withSupabase({ auth: "secret" }, async (req, ctx) => {
           player_id: playerId,
           season: seasonName,
           competition: competitionName,
+          competition_season_id: competitionSeasonId,
           appearances: (lineup.minutes_played || 0) > 0 ? 1 : 0,
           minutes: lineup.minutes_played || 0,
           goals: numeric(details, "Goals"),
