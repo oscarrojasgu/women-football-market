@@ -50,6 +50,24 @@ type MatchRow = {
 
 const n=(v:number|null)=>v||0;
 
+async function resolveCompetitionSeason(ctx: any, competitionLabel: string, seasonLabel: string) {
+  const competitionName=competitionLabel.trim();
+  const {data:direct}=await ctx.supabaseAdmin.from("competitions").select("id").ilike("canonical_name",competitionName).maybeSingle();
+  let competitionId=direct?.id||null;
+  if(!competitionId){const {data:alias}=await ctx.supabaseAdmin.from("competition_aliases").select("competition_id").ilike("source_label",competitionName).maybeSingle();competitionId=alias?.competition_id||null;}
+  if(!competitionId)return null;
+  const seasonKey=seasonLabel.trim().replace(/\//g,"-");
+  let {data:season}=await ctx.supabaseAdmin.from("seasons").select("id").eq("season_key",seasonKey).maybeSingle();
+  if(!season){const {data:created}=await ctx.supabaseAdmin.from("seasons").insert({season_key:seasonKey,label:seasonKey}).select("id").single();season=created||null;}
+  if(!season)return null;
+  const {data:cs}=await ctx.supabaseAdmin.from("competition_seasons").select("id").eq("competition_id",competitionId).eq("season_id",season.id).maybeSingle();
+  if(cs?.id)return cs.id;
+  const {data:createdCs}=await ctx.supabaseAdmin.from("competition_seasons").upsert({competition_id:competitionId,season_id:season.id},{onConflict:"competition_id,season_id"}).select("id").single();
+  return createdCs?.id||null;
+}
+
+
+
 export default withSupabase({ auth: "secret" }, async (req, ctx) => {
   if (req.method !== "POST") return Response.json({ error: "POST required" }, { status: 405 });
 
@@ -134,8 +152,9 @@ export default withSupabase({ auth: "secret" }, async (req, ctx) => {
     });
 
     const sourceEventId = `sportmonks:aggregate:${first.season}:${first.competition}:${first.player_id}:${first.club_id || "none"}`;
+    const competitionSeasonId=await resolveCompetitionSeason(ctx,first.competition,first.season);
     const row = {
-      player_id:first.player_id, club_id:first.club_id, season:first.season, competition:first.competition,
+      player_id:first.player_id, club_id:first.club_id, season:first.season, competition:first.competition, competition_season_id:competitionSeasonId,
       ...aggregate, source_event_id:sourceEventId, confidence:"verified",
       notes:`Aggregated from ${group.length} Sportmonks match-stat records.`, updated_at:new Date().toISOString()
     };
