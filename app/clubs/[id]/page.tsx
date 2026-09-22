@@ -325,7 +325,7 @@ export default function ClubProfilePage() {
     const rows = selectedSeason === "all"
       ? clubParticipations
       : clubParticipations.filter((row) => row.season_key === selectedSeason)
-    return rows[0]?.competition_name || club.league || "Competition unavailable"
+    return rows[0]?.competition_name || club?.league || "Competition unavailable"
   }, [clubParticipations, selectedSeason, club])
 
   const currentContracts = useMemo(() => {
