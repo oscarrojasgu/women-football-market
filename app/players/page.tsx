@@ -518,7 +518,6 @@ export default function PlayersPage() {
 
   const formatMoney = (value: number | null) => {
     if (value === null || value === undefined) return "—";
-
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
@@ -675,16 +674,23 @@ export default function PlayersPage() {
       const matchesSearch =
         !query || searchValues.some((value) => value.includes(query));
 
+      const participation = participationByPlayer.get(player.id) || [];
+      const matchesCompetitionContext =
+        league === "All" && season === "All"
+          ? true
+          : participation.some(
+              (row) =>
+                (league === "All" || row.competition_name === league) &&
+                (season === "All" || row.season_key === season)
+            );
+
       return (
         matchesSearch &&
         (role === "All" || playerRole === role) &&
         (nationality === "All" || player.nationality === nationality) &&
-        (league === "All" ||
-          (participationByPlayer.get(player.id) || []).some((row) => row.competition_name === league)) &&
-        (season === "All" ||
-          (participationByPlayer.get(player.id) || []).some((row) => row.season_key === season)) &&
+        matchesCompetitionContext &&
         (club === "All" ||
-          (participationByPlayer.get(player.id) || []).some((row) =>
+          participation.some((row) =>
             row.club_name === club &&
             (league === "All" || row.competition_name === league) &&
             (season === "All" || row.season_key === season)
@@ -807,7 +813,7 @@ export default function PlayersPage() {
             <strong>{activeContracts}</strong>
           </div>
           <div className="scout-stat">
-            <span>LEAGUES</span>
+            <span>COMPETITIONS</span>
             <strong>{leagueCount}</strong>
           </div>
         </section>
@@ -1098,78 +1104,3 @@ export default function PlayersPage() {
                 <div className="scout-row-actions">
                   <button
                     type="button"
-                    className="scout-shortlist-toggle"
-                    onClick={() => toggleShortlist(player.id)}
-                    aria-label={shortlist.includes(player.id) ? `Remove ${player.full_name} from compare shortlist` : `Add ${player.full_name} to compare shortlist`}
-                  >{shortlist.includes(player.id) ? "✓" : "+"}</button>
-                  <button
-                    type="button"
-                    className="scout-list-add"
-                    onClick={() => addPlayerToScoutingList(player.id)}
-                    disabled={!userId || !selectedScoutingListId}
-                    aria-label={`Add ${player.full_name} to selected scouting list`}
-                  >Add</button>
-                </div>
-                <Link href={`/players/${player.id}`} className="scout-player">
-                  <img
-                    src={player.photo_url || "/wfm-player-placeholder.svg"}
-                    alt={player.full_name}
-                    onError={(event) => {
-                      event.currentTarget.onerror = null;
-                      event.currentTarget.src = "/wfm-player-placeholder.svg";
-                    }}
-                    width={48}
-                    height={48}
-                    loading="lazy"
-                    decoding="async"
-                    referrerPolicy="no-referrer"
-                  />
-                  <span>
-                    <strong>{player.full_name}</strong>
-                    <small>{roleLabels[playerRole]} · {player.nationality || "Nationality unavailable"}</small>
-                    <small>{playerClub} · {playerLeague}</small>
-                    {latestPeerByPlayer.get(player.id) && (() => { const peer = latestPeerByPlayer.get(player.id)!; const archetype = getScoutingArchetype(playerRole,{goals:peer.goals_per90_percentile,assists:peer.assists_per90_percentile,xg:peer.xg_per90_percentile,xa:peer.xa_per90_percentile,chancesCreated:peer.chances_created_per90_percentile,keyPasses:peer.key_passes_per90_percentile,tackles:peer.tackles_per90_percentile,interceptions:peer.interceptions_per90_percentile,progressiveCarries:peer.progressive_carries_per90_percentile}); return <small>{archetype.label}</small>; })()}
-                  </span>
-                </Link>
-                <span className="scout-age">{age ?? "—"}</span>
-                <span>{intel?.minutes ?? "—"}</span>
-                <span>{formatNumber(intel?.goals_per90 ?? null)}</span>
-                <span>{formatNumber(intel?.assists_per90 ?? null)}</span>
-                <span>{formatNumber(intel?.xg_per90 ?? null)}</span>
-                <span>
-                  {value?.market_value_usd != null ? formatMoney(value.market_value_usd) : "—"}
-                  {value?.valuation_date && <small>as of {formatDate(value.valuation_date)}</small>}
-                </span>
-                <span>
-                  {contract?.annual_salary_usd != null ? formatMoney(contract.annual_salary_usd) : "—"}
-                  {contract?.end_date && <small>ends {formatDate(contract.end_date)}</small>}
-                </span>
-              </div>
-            );
-          })}
-
-          {!loading && filteredPlayers.length > 0 && (
-            <div className="scout-pagination">
-              <span>Showing {pageStart}–{pageEnd} of {filteredPlayers.length}</span>
-              <div>
-                <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>Previous</button>
-                <strong>Page {page} of {totalPages}</strong>
-                <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>Next</button>
-              </div>
-            </div>
-          )}
-
-          {!loading && filteredPlayers.length === 0 && (
-            <div className="scout-empty">
-              <strong>No players match the current filters</strong>
-              <span>Broaden the role, league, club or minutes criteria.</span>
-              <button type="button" onClick={clearFilters}>
-                Reset scouting filters
-              </button>
-            </div>
-          )}
-        </section>
-      </main>
-    </>
-  );
-}
