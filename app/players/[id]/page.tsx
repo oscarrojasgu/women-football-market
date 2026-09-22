@@ -53,6 +53,11 @@ type MarketValue = {
 type PlayerStat = {
   id: string;
   club_id: string | null;
+  competition_season?: {
+    id: string;
+    competition?: { canonical_name: string | null } | null;
+    season?: { season_key: string; label: string | null } | null;
+  } | null;
   season: string;
   competition: string;
   appearances: number | null;
@@ -150,7 +155,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
 
   const [{ data: contractData }, { data: statsData }, { data: transferData }, { data: valueData }, { data: seasonIntelligenceData }, { data: peerBenchmarkData }] = await Promise.all([
     supabase.from("contracts").select("id,status,confidence,start_date,end_date,annual_salary,weekly_salary,annual_salary_usd,weekly_salary_usd,currency,notes,club_id").eq("player_id", id).order("start_date", { ascending: false }),
-    supabase.from("player_stats").select("id,club_id,season,competition,appearances,starts,minutes,goals,assists,yellow_cards,red_cards,shots,shots_on_target,key_passes,chances_created,crosses,tackles,tackles_won,interceptions,clearances,blocks,recoveries,dispossessions,dribbles_attempted,dribbles_completed,fouls_committed,fouls_drawn,offsides,passes_attempted,passes_completed,progressive_passes,progressive_carries,duels_won,duels_lost,aerials_won,aerials_lost,xg,xa,sca,gca,saves,shots_on_target_faced,goals_against,clean_sheets,penalty_kicks_saved,penalty_kicks_faced,own_goals,confidence,notes").eq("player_id", id).order("season", { ascending: false }).order("competition", { ascending: true }),
+    supabase.from("player_stats").select("id,club_id,season,competition,appearances,starts,minutes,goals,assists,yellow_cards,red_cards,shots,shots_on_target,key_passes,chances_created,crosses,tackles,tackles_won,interceptions,clearances,blocks,recoveries,dispossessions,dribbles_attempted,dribbles_completed,fouls_committed,fouls_drawn,offsides,passes_attempted,passes_completed,progressive_passes,progressive_carries,duels_won,duels_lost,aerials_won,aerials_lost,xg,xa,sca,gca,saves,shots_on_target_faced,goals_against,clean_sheets,penalty_kicks_saved,penalty_kicks_faced,own_goals,confidence,notes,competition_season:competition_seasons(id,competition:competitions(canonical_name),season:seasons(season_key,label))").eq("player_id", id).order("season", { ascending: false }).order("competition", { ascending: true }),
     supabase.from("transfers").select("id,transfer_date,transfer_type,fee,currency,confidence,from_club:clubs!transfers_from_club_id_fkey(id,name,league,country,logo_url),to_club:clubs!transfers_to_club_id_fkey(id,name,league,country,logo_url)").eq("player_id", id).order("transfer_date", { ascending: false }),
     supabase.from("market_values").select("id,valuation_date,market_value,currency,market_value_usd,confidence,notes").eq("player_id", id).order("valuation_date", { ascending: false }),
     supabase.from("player_season_intelligence").select("season,club_name,league,position,minutes,goals,assists,goals_per90,assists_per90,xg_per90,xa_per90,chances_created_per90,key_passes_per90,tackles_per90,interceptions_per90,progressive_carries_per90,duels_won_per90").eq("player_id", id).order("season", { ascending: false }),
@@ -158,7 +163,11 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   ]);
 
   const contracts = (contractData || []) as Contract[];
-  const stats = (statsData || []) as PlayerStat[];
+  const stats = (statsData || []).map((stat: any) => ({
+    ...stat,
+    competition: stat.competition_season?.competition?.canonical_name || stat.competition,
+    season: stat.competition_season?.season?.season_key || stat.season,
+  })) as PlayerStat[];
   const marketValues = (valueData || []) as MarketValue[];
   const transfers: Transfer[] = (transferData || []).map((item: any) => ({ ...item, from_club: Array.isArray(item.from_club) ? item.from_club[0] || null : item.from_club || null, to_club: Array.isArray(item.to_club) ? item.to_club[0] || null : item.to_club || null }));
   const seasonIntelligence = (seasonIntelligenceData || []) as Array<{
