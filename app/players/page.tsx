@@ -71,6 +71,22 @@ type MarketValue = {
   market_value_usd: number | null;
 };
 
+type GlobalPeerBenchmark = {
+  player_id: string;
+  season: string;
+  position: string | null;
+  peer_count_global: number | null;
+  goals_per90_global_percentile: number | null;
+  assists_per90_global_percentile: number | null;
+  xg_per90_global_percentile: number | null;
+  xa_per90_global_percentile: number | null;
+  chances_created_per90_global_percentile: number | null;
+  key_passes_per90_global_percentile: number | null;
+  tackles_per90_global_percentile: number | null;
+  interceptions_per90_global_percentile: number | null;
+  progressive_carries_per90_global_percentile: number | null;
+};
+
 type PeerBenchmark = {
   player_id: string;
   season: string;
@@ -113,6 +129,7 @@ export default function PlayersPage() {
   const [seasonIntel, setSeasonIntel] = useState<SeasonIntel[]>([]);
   const [marketValues, setMarketValues] = useState<MarketValue[]>([]);
   const [peerBenchmarks, setPeerBenchmarks] = useState<PeerBenchmark[]>([]);
+  const [globalPeerBenchmarks, setGlobalPeerBenchmarks] = useState<GlobalPeerBenchmark[]>([]);
   const [playerParticipations, setPlayerParticipations] = useState<PlayerParticipation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -125,6 +142,7 @@ export default function PlayersPage() {
   const [minimumMinutes, setMinimumMinutes] = useState("0");
   const [scoutingFocus, setScoutingFocus] = useState("All");
   const [minimumPercentile, setMinimumPercentile] = useState("0");
+  const [benchmarkScope, setBenchmarkScope] = useState<"competition" | "global">("competition");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [shortlist, setShortlist] = useState<string[]>([]);
@@ -194,7 +212,7 @@ export default function PlayersPage() {
     async function loadPlayers() {
       setLoading(true);
 
-      const [playerResult, contractResult, intelResult, valueResult, peerResult, participationResult] =
+      const [playerResult, contractResult, intelResult, valueResult, peerResult, globalPeerResult, participationResult] =
         await Promise.all([
           supabase
             .from("players")
@@ -260,6 +278,10 @@ export default function PlayersPage() {
           supabase
             .from("player_peer_benchmarks")
             .select("player_id,season,league,position,peer_count,goals_per90_percentile,assists_per90_percentile,xg_per90_percentile,xa_per90_percentile,chances_created_per90_percentile,key_passes_per90_percentile,tackles_per90_percentile,interceptions_per90_percentile,progressive_carries_per90_percentile"),
+
+          supabase
+            .from("player_global_peer_benchmarks")
+            .select("player_id,season,position,peer_count_global,goals_per90_global_percentile,assists_per90_global_percentile,xg_per90_global_percentile,xa_per90_global_percentile,chances_created_per90_global_percentile,key_passes_per90_global_percentile,tackles_per90_global_percentile,interceptions_per90_global_percentile,progressive_carries_per90_global_percentile"),
 
           supabase
             .from("player_competitions")
@@ -334,6 +356,12 @@ export default function PlayersPage() {
         setPeerBenchmarks((peerResult.data || []) as PeerBenchmark[]);
       }
 
+      if (globalPeerResult.error) {
+        console.error("Error loading global peer benchmarks:", globalPeerResult.error);
+      } else {
+        setGlobalPeerBenchmarks((globalPeerResult.data || []) as GlobalPeerBenchmark[]);
+      }
+
       setLoading(false);
     }
 
@@ -386,6 +414,17 @@ export default function PlayersPage() {
     return map;
   }, [seasonIntel]);
 
+  const latestGlobalPeerByPlayer = useMemo(() => {
+    const map = new Map<string, GlobalPeerBenchmark>();
+    for (const row of globalPeerBenchmarks) {
+      const current = map.get(row.player_id);
+      const year = seasonStart(row.season);
+      const currentYear = seasonStart(current?.season || null);
+      if (!current || year > currentYear) map.set(row.player_id, row);
+    }
+    return map;
+  }, [globalPeerBenchmarks]);
+
   const latestPeerByPlayer = useMemo(() => {
     const map = new Map<string, PeerBenchmark>();
     for (const row of peerBenchmarks) {
@@ -397,7 +436,7 @@ export default function PlayersPage() {
     return map;
   }, [peerBenchmarks]);
 
-  const scoutingMetricValues = (benchmark: PeerBenchmark | undefined, focus: string) => {
+  const scoutingMetricValues = (benchmark: PeerBenchmark | GlobalPeerBenchmark | undefined, focus: string) => {
     if (!benchmark || focus === "All") return [];
     const metrics: Record<string, (keyof PeerBenchmark)[]> = {
       attack: ["goals_per90_percentile", "xg_per90_percentile", "assists_per90_percentile"],
@@ -733,12 +772,14 @@ export default function PlayersPage() {
     minimumMinutes,
     scoutingFocus,
     minimumPercentile,
+    benchmarkScope,
     sortKey,
     sortDirection,
     latestIntelByPlayer,
     contractByPlayer,
     latestValueByPlayer,
     latestPeerByPlayer,
+    latestGlobalPeerByPlayer,
   ]);
 
   const totalPages = Math.max(1, Math.ceil(filteredPlayers.length / pageSize));
@@ -877,6 +918,11 @@ export default function PlayersPage() {
               <option value="progression">Ball Progression</option>
             </select>
 
+            <select value={benchmarkScope} onChange={(event) => setBenchmarkScope(event.target.value as "competition" | "global")} disabled={scoutingFocus === "All"}>
+              <option value="competition">Competition Peer Benchmark</option>
+              <option value="global">Global Peer Benchmark</option>
+            </select>
+
             <select value={minimumPercentile} onChange={(event) => setMinimumPercentile(event.target.value)} disabled={scoutingFocus === "All"}>
               <option value="0">Any Peer Percentile</option>
               <option value="50">50th+ Percentile</option>
@@ -953,6 +999,7 @@ export default function PlayersPage() {
                   minimumMinutes,
                   scoutingFocus,
                   minimumPercentile,
+                  benchmarkScope,
                 };
 
                 const { data, error } = await supabase
@@ -999,6 +1046,7 @@ export default function PlayersPage() {
                     setMinimumMinutes(String(filters.minimumMinutes || "0"));
                     setScoutingFocus(String(filters.scoutingFocus || "All"));
                     setMinimumPercentile(String(filters.minimumPercentile || "0"));
+                    setBenchmarkScope((filters.benchmarkScope || "competition") as "competition" | "global");
                     if (workflow.sort_key) setSortKey(workflow.sort_key as SortKey);
                     if (workflow.sort_direction === "asc" || workflow.sort_direction === "desc") setSortDirection(workflow.sort_direction);
                   }}
@@ -1106,7 +1154,7 @@ export default function PlayersPage() {
                     <strong>{player.full_name}</strong>
                     <small>{roleLabels[playerRole]} · {player.nationality || "Nationality unavailable"}</small>
                     <small>{playerClub} · {playerLeague}</small>
-                    {latestPeerByPlayer.get(player.id) && (() => { const peer = latestPeerByPlayer.get(player.id)!; const archetype = getScoutingArchetype(playerRole,{goals:peer.goals_per90_percentile,assists:peer.assists_per90_percentile,xg:peer.xg_per90_percentile,xa:peer.xa_per90_percentile,chancesCreated:peer.chances_created_per90_percentile,keyPasses:peer.key_passes_per90_percentile,tackles:peer.tackles_per90_percentile,interceptions:peer.interceptions_per90_percentile,progressiveCarries:peer.progressive_carries_per90_percentile}); return <small>{archetype.label}</small>; })()}
+                    {(benchmarkScope === "global" ? latestGlobalPeerByPlayer.get(player.id) : latestPeerByPlayer.get(player.id)) && (() => { const peer = (benchmarkScope === "global" ? latestGlobalPeerByPlayer.get(player.id) : latestPeerByPlayer.get(player.id))!; const archetype = getScoutingArchetype(playerRole,{goals:peer.goals_per90_percentile,assists:peer.assists_per90_percentile,xg:peer.xg_per90_percentile,xa:peer.xa_per90_percentile,chancesCreated:peer.chances_created_per90_percentile,keyPasses:peer.key_passes_per90_percentile,tackles:peer.tackles_per90_percentile,interceptions:peer.interceptions_per90_percentile,progressiveCarries:peer.progressive_carries_per90_percentile}); return <small>{archetype.label}</small>; })()}
                   </span>
                 </Link>
                 <span className="scout-age">{age ?? "—"}</span>
