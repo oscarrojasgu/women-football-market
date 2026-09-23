@@ -988,3 +988,49 @@ with check (exists (select 1 from public.wfm_admins a where a.user_id=(select au
 
 grant select on public.global_transfer_coverage_summary to anon, authenticated;
 grant select on public.global_market_value_coverage_summary to anon, authenticated;
+
+
+-- ============================================================
+-- Phase 6 — Milestone 5: Multi-League Intelligence
+-- ============================================================
+
+create or replace view public.player_global_peer_benchmarks
+with (security_invoker=true)
+as
+with eligible as (
+  select *
+  from public.player_season_intelligence
+  where minutes >= 450 and season is not null and position is not null and league is not null
+),
+ranked as (
+  select e.*,
+    count(*) over (partition by e.season,e.position) as peer_count_global,
+    percent_rank() over (partition by e.season,e.position order by e.goals_per90) as goals_per90_global_percentile,
+    percent_rank() over (partition by e.season,e.position order by e.assists_per90) as assists_per90_global_percentile,
+    percent_rank() over (partition by e.season,e.position order by e.xg_per90) as xg_per90_global_percentile,
+    percent_rank() over (partition by e.season,e.position order by e.xa_per90) as xa_per90_global_percentile,
+    percent_rank() over (partition by e.season,e.position order by e.chances_created_per90) as chances_created_per90_global_percentile,
+    percent_rank() over (partition by e.season,e.position order by e.key_passes_per90) as key_passes_per90_global_percentile,
+    percent_rank() over (partition by e.season,e.position order by e.tackles_per90) as tackles_per90_global_percentile,
+    percent_rank() over (partition by e.season,e.position order by e.interceptions_per90) as interceptions_per90_global_percentile,
+    percent_rank() over (partition by e.season,e.position order by e.progressive_carries_per90) as progressive_carries_per90_global_percentile,
+    percent_rank() over (partition by e.season,e.position order by e.duels_won_per90) as duels_won_per90_global_percentile
+  from eligible e
+)
+select * from ranked where peer_count_global >= 5;
+
+create or replace view public.competition_stat_context
+with (security_invoker=true)
+as
+select psi.season,psi.league as competition,psi.position,count(*) as player_count,sum(psi.minutes) as total_minutes,
+ avg(psi.goals_per90) as avg_goals_per90,avg(psi.assists_per90) as avg_assists_per90,
+ avg(psi.xg_per90) as avg_xg_per90,avg(psi.xa_per90) as avg_xa_per90,
+ avg(psi.chances_created_per90) as avg_chances_created_per90,avg(psi.key_passes_per90) as avg_key_passes_per90,
+ avg(psi.tackles_per90) as avg_tackles_per90,avg(psi.interceptions_per90) as avg_interceptions_per90,
+ avg(psi.progressive_carries_per90) as avg_progressive_carries_per90,avg(psi.duels_won_per90) as avg_duels_won_per90
+from public.player_season_intelligence psi
+where psi.minutes >= 450 and psi.season is not null and psi.league is not null and psi.position is not null
+group by psi.season,psi.league,psi.position;
+
+grant select on public.player_global_peer_benchmarks to anon, authenticated;
+grant select on public.competition_stat_context to anon, authenticated;
