@@ -4,75 +4,60 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 
 type Club={id:string;name:string};
-type Profile={id:string;name:string;description:string|null;status:string;club_id:string|null;created_at:string;updated_at:string};
+type Competition={id:string;name:string};
+type Criteria={
+ positions:string[]; roles:string; age_min:number|null; age_max:number|null; nationalities:string; competitions:string[]; contract_status:string;
+ salary_min_usd:number|null; salary_max_usd:number|null; market_value_min_usd:number|null; market_value_max_usd:number|null; min_minutes:number|null;
+ goals_per90_min:number|null; assists_per90_min:number|null; xg_per90_min:number|null; xa_per90_min:number|null; chances_created_per90_min:number|null;
+ key_passes_per90_min:number|null; tackles_per90_min:number|null; interceptions_per90_min:number|null; progressive_carries_per90_min:number|null;
+ global_percentile_min:number|null; priorities:string;
+};
+type Profile={id:string;name:string;description:string|null;status:string;club_id:string|null;criteria:Criteria;created_at:string;updated_at:string};
+
+const emptyCriteria:Criteria={positions:[],roles:"",age_min:null,age_max:null,nationalities:"",competitions:[],contract_status:"any",salary_min_usd:null,salary_max_usd:null,market_value_min_usd:null,market_value_max_usd:null,min_minutes:null,goals_per90_min:null,assists_per90_min:null,xg_per90_min:null,xa_per90_min:null,chances_created_per90_min:null,key_passes_per90_min:null,tackles_per90_min:null,interceptions_per90_min:null,progressive_carries_per90_min:null,global_percentile_min:null,priorities:""};
+const positions=["GK","CB","FB","WB","DM","CM","AM","WM","W","ST","CF"];
+const contractOptions=["any","active","expiring","free_agent"];
+
+function normalizeCriteria(value:unknown):Criteria{const c=(value&&typeof value==="object"?value:{}) as Partial<Criteria>;return {...emptyCriteria,...c,positions:Array.isArray(c.positions)?c.positions:[],competitions:Array.isArray(c.competitions)?c.competitions:[]}}
+function numValue(v:string){return v.trim()===""?null:Number(v)}
 
 export default function ScoutingProfilesPage(){
- const [userId,setUserId]=useState<string|null>(null);
- const [profiles,setProfiles]=useState<Profile[]>([]);
- const [clubs,setClubs]=useState<Club[]>([]);
- const [name,setName]=useState("");
- const [description,setDescription]=useState("");
- const [clubId,setClubId]=useState("");
- const [loading,setLoading]=useState(true);
- const [saving,setSaving]=useState(false);
- const [message,setMessage]=useState("");
+ const [userId,setUserId]=useState<string|null>(null),[profiles,setProfiles]=useState<Profile[]>([]),[clubs,setClubs]=useState<Club[]>([]),[competitions,setCompetitions]=useState<Competition[]>([]);
+ const [name,setName]=useState(""),[description,setDescription]=useState(""),[clubId,setClubId]=useState(""),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[message,setMessage]=useState(""),[editing,setEditing]=useState<string|null>(null),[drafts,setDrafts]=useState<Record<string,Criteria>>({});
 
- useEffect(()=>{let mounted=true;(async()=>{
-  const {data:auth}=await supabase.auth.getUser();
-  if(!mounted)return;
-  const uid=auth.user?.id||null;setUserId(uid);
-  if(!uid){setLoading(false);return}
-  const [pr,cr]=await Promise.all([
-   supabase.from("scouting_profiles").select("id,name,description,status,club_id,created_at,updated_at").order("updated_at",{ascending:false}),
-   supabase.from("clubs").select("id,name").order("name",{ascending:true})
-  ]);
-  if(!mounted)return;
-  if(pr.error)setMessage(pr.error.message);else setProfiles((pr.data||[]) as Profile[]);
-  if(!cr.error)setClubs((cr.data||[]) as Club[]);
-  setLoading(false);
+ useEffect(()=>{let mounted=true;(async()=>{const {data:auth}=await supabase.auth.getUser();if(!mounted)return;const uid=auth.user?.id||null;setUserId(uid);if(!uid){setLoading(false);return}
+  const [pr,cr,co]=await Promise.all([supabase.from("scouting_profiles").select("id,name,description,status,club_id,criteria,created_at,updated_at").order("updated_at",{ascending:false}),supabase.from("clubs").select("id,name").order("name",{ascending:true}),supabase.from("competitions").select("id,name").order("name",{ascending:true})]);if(!mounted)return;
+  if(pr.error)setMessage(pr.error.message);else{const rows=(pr.data||[]).map((p:any)=>({...p,criteria:normalizeCriteria(p.criteria)})) as Profile[];setProfiles(rows);const initial:Record<string,Criteria>={};rows.forEach(p=>initial[p.id]=p.criteria);setDrafts(initial)}
+  if(!cr.error)setClubs((cr.data||[]) as Club[]);if(!co.error)setCompetitions((co.data||[]) as Competition[]);setLoading(false);
  })();return()=>{mounted=false}},[]);
 
- const createProfile=async()=>{
-  const clean=name.trim();if(!clean||!userId)return;
-  setSaving(true);setMessage("");
-  const {data,error}=await supabase.from("scouting_profiles").insert({user_id:userId,name:clean,description:description.trim()||null,club_id:clubId||null}).select("id,name,description,status,club_id,created_at,updated_at").single();
-  if(error)setMessage(error.message);else{setProfiles(p=>[data as Profile,...p]);setName("");setDescription("");setClubId("")}
-  setSaving(false);
- };
- const toggleStatus=async(p:Profile)=>{
-  const status=p.status==="active"?"archived":"active";
-  const {data,error}=await supabase.from("scouting_profiles").update({status,updated_at:new Date().toISOString()}).eq("id",p.id).select("id,name,description,status,club_id,created_at,updated_at").single();
-  if(error)setMessage(error.message);else setProfiles(ps=>ps.map(x=>x.id===p.id?data as Profile:x));
- };
- const deleteProfile=async(p:Profile)=>{
-  if(!window.confirm("Delete this scouting profile?"))return;
-  const {error}=await supabase.from("scouting_profiles").delete().eq("id",p.id);
-  if(error)setMessage(error.message);else setProfiles(ps=>ps.filter(x=>x.id!==p.id));
- };
+ const createProfile=async()=>{const clean=name.trim();if(!clean||!userId)return;setSaving(true);setMessage("");const {data,error}=await supabase.from("scouting_profiles").insert({user_id:userId,name:clean,description:description.trim()||null,club_id:clubId||null,criteria:emptyCriteria}).select("id,name,description,status,club_id,criteria,created_at,updated_at").single();if(error)setMessage(error.message);else{const profile={...(data as any),criteria:normalizeCriteria((data as any).criteria)} as Profile;setProfiles(p=>[profile,...p]);setDrafts(d=>({...d,[profile.id]:profile.criteria}));setName("");setDescription("");setClubId("");setEditing(profile.id)}setSaving(false)};
+ const updateDraft=(id:string,key:keyof Criteria,value:any)=>setDrafts(d=>({...d,[id]:{...normalizeCriteria(d[id]),[key]:value}}));
+ const toggleArray=(id:string,key:"positions"|"competitions",value:string)=>{const c=normalizeCriteria(drafts[id]);const current=c[key];updateDraft(id,key,current.includes(value)?current.filter(x=>x!==value):[...current,value])};
+ const saveCriteria=async(p:Profile)=>{const criteria=normalizeCriteria(drafts[p.id]);setSaving(true);setMessage("");const {data,error}=await supabase.from("scouting_profiles").update({criteria,updated_at:new Date().toISOString()}).eq("id",p.id).select("id,name,description,status,club_id,criteria,created_at,updated_at").single();if(error)setMessage(error.message);else{const updated={...(data as any),criteria:normalizeCriteria((data as any).criteria)} as Profile;setProfiles(ps=>ps.map(x=>x.id===p.id?updated:x));setDrafts(d=>({...d,[p.id]:updated.criteria}));setEditing(null)}setSaving(false)};
+ const toggleStatus=async(p:Profile)=>{const status=p.status==="active"?"archived":"active";const {data,error}=await supabase.from("scouting_profiles").update({status,updated_at:new Date().toISOString()}).eq("id",p.id).select("id,name,description,status,club_id,criteria,created_at,updated_at").single();if(error)setMessage(error.message);else setProfiles(ps=>ps.map(x=>x.id===p.id?{...(data as any),criteria:normalizeCriteria((data as any).criteria)}:x))};
+ const deleteProfile=async(p:Profile)=>{if(!window.confirm("Delete this scouting profile?"))return;const {error}=await supabase.from("scouting_profiles").delete().eq("id",p.id);if(error)setMessage(error.message);else{setProfiles(ps=>ps.filter(x=>x.id!==p.id));setDrafts(d=>{const n={...d};delete n[p.id];return n})}};
  const clubName=(id:string|null)=>id?clubs.find(c=>c.id===id)?.name||"Linked club":"Independent profile";
+ const inputStyle={display:"block",width:"100%",marginTop:5,padding:8,border:"1px solid #ddd",borderRadius:6,boxSizing:"border-box" as const};const fieldStyle={fontSize:11};const draft=(id:string)=>normalizeCriteria(drafts[id]);
 
- return <main style={{maxWidth:1100,margin:"0 auto",padding:"28px 20px"}}>
-  <div style={{display:"flex",justifyContent:"space-between",gap:16,alignItems:"flex-start",flexWrap:"wrap",marginBottom:22}}>
-   <div><h1 style={{margin:"0 0 6px",fontSize:28}}>Scouting Profiles</h1><p style={{margin:0,color:"#777"}}>Build reusable recruitment profiles for club-specific or independent scouting work.</p></div>
-   <a href="/scouting" style={{fontSize:12}}>← Scouting Workspace</a>
-  </div>
-  <section className="intelligence-panel" style={{padding:20,marginBottom:18}}>
-   <h2 style={{fontSize:16,margin:"0 0 12px"}}>Create Profile</h2>
-   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-    <label style={{fontSize:12}}>Profile name<input value={name} onChange={e=>setName(e.target.value)} placeholder="U23 Central Midfielder" style={{display:"block",width:"100%",marginTop:5,padding:9,border:"1px solid #ddd",borderRadius:6}}/></label>
-    <label style={{fontSize:12}}>Club context<select value={clubId} onChange={e=>setClubId(e.target.value)} style={{display:"block",width:"100%",marginTop:5,padding:9,border:"1px solid #ddd",borderRadius:6}}><option value="">Independent / no club</option>{clubs.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
-   </div>
-   <label style={{display:"block",fontSize:12,marginTop:12}}>Description<textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder="What type of player or recruitment need is this profile designed for?" rows={3} style={{display:"block",width:"100%",marginTop:5,padding:9,border:"1px solid #ddd",borderRadius:6,resize:"vertical"}}/></label>
-   <button type="button" onClick={createProfile} disabled={!name.trim()||saving} style={{marginTop:12,border:"1px solid #222",borderRadius:6,background:"#222",color:"#fff",padding:"9px 14px",cursor:"pointer"}}>{saving?"Creating…":"Create Profile"}</button>
-   {message&&<p style={{color:"#b00",fontSize:12,marginBottom:0}}>{message}</p>}
-  </section>
+ return <main style={{maxWidth:1120,margin:"0 auto",padding:"28px 20px"}}>
+  <div style={{display:"flex",justifyContent:"space-between",gap:16,alignItems:"flex-start",flexWrap:"wrap",marginBottom:22}}><div><h1 style={{margin:"0 0 6px",fontSize:28}}>Scouting Profiles</h1><p style={{margin:0,color:"#777"}}>Reusable recruitment criteria for club-specific or independent global scouting.</p></div><a href="/scouting" style={{fontSize:12}}>← Scouting Workspace</a></div>
+  <section className="intelligence-panel" style={{padding:20,marginBottom:18}}><h2 style={{fontSize:16,margin:"0 0 12px"}}>Create Profile</h2><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}><label style={fieldStyle}>Profile name<input value={name} onChange={e=>setName(e.target.value)} placeholder="U23 Central Midfielder" style={inputStyle}/></label><label style={fieldStyle}>Club context<select value={clubId} onChange={e=>setClubId(e.target.value)} style={inputStyle}><option value="">Independent / no club</option>{clubs.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label></div><label style={{...fieldStyle,display:"block",marginTop:12}}>Description<textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder="What type of player or recruitment need is this profile designed for?" rows={3} style={{...inputStyle,resize:"vertical"}}/></label><button type="button" onClick={createProfile} disabled={!name.trim()||saving} style={{marginTop:12,border:"1px solid #222",borderRadius:6,background:"#222",color:"#fff",padding:"9px 14px"}}>{saving?"Creating…":"Create Profile"}</button></section>
+  {message&&<p style={{color:"#b00",fontSize:12}}>{message}</p>}
   {loading?<p>Loading scouting profiles…</p>:!profiles.length?<div className="intelligence-empty">No scouting profiles yet. Create one above to start building the global scouting network.</div>:
-   <div style={{display:"grid",gap:12}}>{profiles.map(p=><article key={p.id} className="intelligence-panel" style={{padding:18}}>
-    <div style={{display:"flex",justifyContent:"space-between",gap:14,alignItems:"flex-start"}}>
-     <div><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}><h2 style={{fontSize:16,margin:0}}>{p.name}</h2><span style={{fontSize:10,textTransform:"uppercase",letterSpacing:".08em"}}>{p.status}</span></div><p style={{margin:"7px 0 0",fontSize:12,color:"#777"}}>{clubName(p.club_id)}</p>{p.description&&<p style={{margin:"9px 0 0"}}>{p.description}</p>}</div>
-     <div style={{display:"flex",gap:7,flexWrap:"wrap"}}><button type="button" onClick={()=>toggleStatus(p)} style={{border:"1px solid #ddd",background:"#fff",borderRadius:6,padding:"7px 9px",fontSize:11}}>{p.status==="active"?"Archive":"Activate"}</button><button type="button" onClick={()=>deleteProfile(p)} style={{border:"1px solid #ddd",background:"#fff",borderRadius:6,padding:"7px 9px",fontSize:11}}>Delete</button></div>
-    </div>
-    <div style={{marginTop:14,paddingTop:12,borderTop:"1px solid #eee",fontSize:11,color:"#888"}}>Criteria builder and global recruitment targeting will connect to this profile in the next M6 layer.</div>
-   </article>)}</div>}
+   <div style={{display:"grid",gap:14}}>{profiles.map(p=>{const c=draft(p.id);return <article key={p.id} className="intelligence-panel" style={{padding:18}}>
+    <div style={{display:"flex",justifyContent:"space-between",gap:14,alignItems:"flex-start"}}><div><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}><h2 style={{fontSize:16,margin:0}}>{p.name}</h2><span style={{fontSize:10,textTransform:"uppercase",letterSpacing:".08em"}}>{p.status}</span></div><p style={{margin:"7px 0 0",fontSize:12,color:"#777"}}>{clubName(p.club_id)}</p>{p.description&&<p style={{margin:"9px 0 0"}}>{p.description}</p>}</div><div style={{display:"flex",gap:7,flexWrap:"wrap"}}><button type="button" onClick={()=>setEditing(editing===p.id?null:p.id)} style={{border:"1px solid #222",background:"#222",color:"#fff",borderRadius:6,padding:"7px 10px",fontSize:11}}>{editing===p.id?"Close Criteria":"Edit Criteria"}</button><button type="button" onClick={()=>toggleStatus(p)} style={{border:"1px solid #ddd",background:"#fff",borderRadius:6,padding:"7px 9px",fontSize:11}}>{p.status==="active"?"Archive":"Activate"}</button><button type="button" onClick={()=>deleteProfile(p)} style={{border:"1px solid #ddd",background:"#fff",borderRadius:6,padding:"7px 9px",fontSize:11}}>Delete</button></div></div>
+    {editing!==p.id?<div style={{marginTop:14,paddingTop:12,borderTop:"1px solid #eee",fontSize:11,color:"#777"}}>{c.positions.length?"Positions: "+c.positions.join(", "):"Any position"} · {c.age_min??"Any"}–{c.age_max??"Any"} years · {c.min_minutes?c.min_minutes+"+ minutes":"Any minutes"} · {c.contract_status==="any"?"Any contract":c.contract_status.replace("_"," ")}{c.competitions.length?" · "+c.competitions.length+" competition"+(c.competitions.length===1?"":"s"):""}</div>:
+    <div style={{marginTop:18,paddingTop:16,borderTop:"1px solid #eee"}}><div style={{fontSize:11,letterSpacing:".08em",fontWeight:700,marginBottom:12}}>RECRUITMENT CRITERIA</div><section style={{display:"grid",gap:16}}>
+     <div><strong style={{fontSize:12}}>Position / role</strong><div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>{positions.map(x=><button key={x} type="button" onClick={()=>toggleArray(p.id,"positions",x)} style={{border:"1px solid #ddd",borderRadius:14,padding:"5px 9px",background:c.positions.includes(x)?"#222":"#fff",color:c.positions.includes(x)?"#fff":"#333",fontSize:10}}>{x}</button>)}</div><input value={c.roles} onChange={e=>updateDraft(p.id,"roles",e.target.value)} placeholder="Role description, e.g. ball-winning 6 / progressive 8 / inverted fullback" style={inputStyle}/></div>
+     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}><label style={fieldStyle}>Age minimum<input type="number" min="15" max="45" value={c.age_min??""} onChange={e=>updateDraft(p.id,"age_min",numValue(e.target.value))} style={inputStyle}/></label><label style={fieldStyle}>Age maximum<input type="number" min="15" max="45" value={c.age_max??""} onChange={e=>updateDraft(p.id,"age_max",numValue(e.target.value))} style={inputStyle}/></label><label style={fieldStyle}>Minimum minutes<input type="number" min="0" value={c.min_minutes??""} onChange={e=>updateDraft(p.id,"min_minutes",numValue(e.target.value))} placeholder="450" style={inputStyle}/></label></div>
+     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><label style={fieldStyle}>Nationality / market<input value={c.nationalities} onChange={e=>updateDraft(p.id,"nationalities",e.target.value)} placeholder="USA, Colombia, Brazil" style={inputStyle}/></label><label style={fieldStyle}>Contract situation<select value={c.contract_status} onChange={e=>updateDraft(p.id,"contract_status",e.target.value)} style={inputStyle}>{contractOptions.map(x=><option key={x} value={x}>{x==="any"?"Any contract":x.replace("_"," ")}</option>)}</select></label></div>
+     <div><strong style={{fontSize:12}}>Competition / market</strong><div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>{competitions.map(x=><button key={x.id} type="button" onClick={()=>toggleArray(p.id,"competitions",x.id)} style={{border:"1px solid #ddd",borderRadius:14,padding:"5px 9px",background:c.competitions.includes(x.id)?"#222":"#fff",color:c.competitions.includes(x.id)?"#fff":"#333",fontSize:10}}>{x.name}</button>)}</div>{!competitions.length&&<small style={{color:"#888"}}>No competition records available.</small>}</div>
+     <div><strong style={{fontSize:12}}>Financial thresholds — USD</strong><div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:8}}>{([["salary_min_usd","Salary min"],["salary_max_usd","Salary max"],["market_value_min_usd","Market value min"],["market_value_max_usd","Market value max"]] as [keyof Criteria,string][]).map(([key,label])=><label key={key} style={fieldStyle}>{label}<input type="number" min="0" value={(c[key] as number|null)??""} onChange={e=>updateDraft(p.id,key,numValue(e.target.value))} placeholder="USD" style={inputStyle}/></label>)}</div></div>
+     <div><strong style={{fontSize:12}}>Performance thresholds — per 90</strong><div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginTop:8}}>{([["goals_per90_min","Goals /90"],["assists_per90_min","Assists /90"],["xg_per90_min","xG /90"],["xa_per90_min","xA /90"],["chances_created_per90_min","Chances created /90"],["key_passes_per90_min","Key passes /90"],["tackles_per90_min","Tackles /90"],["interceptions_per90_min","Interceptions /90"],["progressive_carries_per90_min","Progressive carries /90"]] as [keyof Criteria,string][]).map(([key,label])=><label key={key} style={fieldStyle}>{label}<input type="number" min="0" step="0.01" value={(c[key] as number|null)??""} onChange={e=>updateDraft(p.id,key,numValue(e.target.value))} style={inputStyle}/></label>)}</div></div>
+     <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:10}}><label style={fieldStyle}>Minimum global peer percentile<input type="number" min="0" max="100" step="1" value={c.global_percentile_min??""} onChange={e=>updateDraft(p.id,"global_percentile_min",numValue(e.target.value))} placeholder="75" style={inputStyle}/></label><label style={fieldStyle}>Scouting priorities<textarea value={c.priorities} onChange={e=>updateDraft(p.id,"priorities",e.target.value)} placeholder="Describe what matters most when evaluating candidates." rows={3} style={{...inputStyle,resize:"vertical"}}/></label></div>
+     <div style={{display:"flex",justifyContent:"flex-end",gap:8}}><button type="button" onClick={()=>{setDrafts(d=>({...d,[p.id]:p.criteria}));setEditing(null)}} style={{border:"1px solid #ddd",background:"#fff",borderRadius:6,padding:"8px 12px",fontSize:11}}>Cancel</button><button type="button" disabled={saving} onClick={()=>saveCriteria(p)} style={{border:"1px solid #222",background:"#222",color:"#fff",borderRadius:6,padding:"8px 12px",fontSize:11}}>{saving?"Saving…":"Save Criteria"}</button></div>
+    </section></div>}
+   </article>})}</div>}
  </main>;
 }
