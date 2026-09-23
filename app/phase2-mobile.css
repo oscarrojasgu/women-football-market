@@ -829,6 +829,15 @@
 }
 
 
+/* CONTRACTS MOBILE LABELS — use contract fields, not scouting-stat labels */
+@media (max-width:650px) {
+  .contracts-scout-page .contract-scout-row > span:nth-child(3)::before { content:"STATUS "; }
+  .contracts-scout-page .contract-scout-row > span:nth-child(4)::before { content:"EXPIRY "; }
+  .contracts-scout-page .contract-scout-row > span:nth-child(5)::before { content:"SALARY "; }
+  .contracts-scout-page .contract-scout-row > span:nth-child(6)::before { content:"CONFIDENCE "; }
+}
+
+
 /* PLAYER TABLE LINK RESET — keep database names neutral, not browser-link blue */
 .players-scout-page .scout-player,
 .players-scout-page .scout-player:link,
