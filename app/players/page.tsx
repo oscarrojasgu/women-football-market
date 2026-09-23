@@ -438,13 +438,41 @@ export default function PlayersPage() {
 
   const scoutingMetricValues = (benchmark: PeerBenchmark | GlobalPeerBenchmark | undefined, focus: string) => {
     if (!benchmark || focus === "All") return [];
-    const metrics: Record<string, (keyof PeerBenchmark)[]> = {
-      attack: ["goals_per90_percentile", "xg_per90_percentile", "assists_per90_percentile"],
-      creation: ["assists_per90_percentile", "xa_per90_percentile", "chances_created_per90_percentile", "key_passes_per90_percentile"],
-      defending: ["tackles_per90_percentile", "interceptions_per90_percentile"],
-      progression: ["progressive_carries_per90_percentile"],
+    const keys = focus === "attack"
+      ? ["goals", "xg", "assists"]
+      : focus === "creation"
+        ? ["assists", "xa", "chancesCreated", "keyPasses"]
+        : focus === "defending"
+          ? ["tackles", "interceptions"]
+          : focus === "progression"
+            ? ["progressiveCarries"]
+            : [];
+    if ("goals_per90_global_percentile" in benchmark) {
+      const values: Record<string, number | null> = {
+        goals: benchmark.goals_per90_global_percentile,
+        xg: benchmark.xg_per90_global_percentile,
+        assists: benchmark.assists_per90_global_percentile,
+        xa: benchmark.xa_per90_global_percentile,
+        chancesCreated: benchmark.chances_created_per90_global_percentile,
+        keyPasses: benchmark.key_passes_per90_global_percentile,
+        tackles: benchmark.tackles_per90_global_percentile,
+        interceptions: benchmark.interceptions_per90_global_percentile,
+        progressiveCarries: benchmark.progressive_carries_per90_global_percentile,
+      };
+      return keys.map((key) => Number(values[key] ?? -1)).filter((value) => value >= 0);
+    }
+    const values: Record<string, number | null> = {
+      goals: benchmark.goals_per90_percentile,
+      xg: benchmark.xg_per90_percentile,
+      assists: benchmark.assists_per90_percentile,
+      xa: benchmark.xa_per90_percentile,
+      chancesCreated: benchmark.chances_created_per90_percentile,
+      keyPasses: benchmark.key_passes_per90_percentile,
+      tackles: benchmark.tackles_per90_percentile,
+      interceptions: benchmark.interceptions_per90_percentile,
+      progressiveCarries: benchmark.progressive_carries_per90_percentile,
     };
-    return (metrics[focus] || []).map((key) => Number(benchmark[key] ?? -1)).filter((value) => value >= 0);
+    return keys.map((key) => Number(values[key] ?? -1)).filter((value) => value >= 0);
   };
 
   const latestValueByPlayer = useMemo(() => {
