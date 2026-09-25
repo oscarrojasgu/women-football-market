@@ -126,9 +126,16 @@ export default function GlobalDiscoveryPage(){
                     onChange={()=>toggleCandidate(p.id)}
                     aria-label={`Select ${p.full_name}`}
                   />
-                  <Link href={{ pathname: "/scouting/player/"+p.id, query: { returnTo: "/scouting/profiles/"+id } }}>
-                    <strong>{p.full_name}</strong>
-                    <small>{p.position||"Position unavailable"}{p.secondary_position?" / "+p.secondary_position:""} · {p.nationality||"Nationality unavailable"}</small>
+                  <Link href={{ pathname: "/scouting/player/"+p.id, query: { returnTo: "/scouting/profiles/"+id } }} style={{display:"flex",alignItems:"center",gap:10,minWidth:0,textDecoration:"none",color:"inherit"}}>
+                    {p.photo_url ? (
+                      <img src={p.photo_url} alt="" className="scout-player-photo" />
+                    ) : (
+                      <span className="scout-player-photo scout-player-photo-empty">{p.full_name?.charAt(0)||"?"}</span>
+                    )}
+                    <span style={{minWidth:0}}>
+                      <strong>{p.full_name}</strong>
+                      <small>{p.position||"Position unavailable"}{p.secondary_position?" / "+p.secondary_position:""} · {p.nationality||"Nationality unavailable"}</small>
+                    </span>
                   </Link>
                 </span>
                 <span>
