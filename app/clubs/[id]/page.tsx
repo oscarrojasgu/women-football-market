@@ -381,6 +381,30 @@ export default function ClubProfilePage() {
       transfer.from_club?.id === id
   )
 
+  const clubIntelligence = useMemo(() => {
+    const today = new Date()
+    const plus180 = new Date(today)
+    plus180.setDate(plus180.getDate() + 180)
+    const active = currentContracts
+    const positions = new Map<string, number>()
+    for (const contract of active) {
+      const key = contract.player?.position || "Unknown"
+      positions.set(key, (positions.get(key) || 0) + 1)
+    }
+    const expiring180 = active.filter(contract => {
+      if (!contract.end_date) return false
+      const end = new Date(contract.end_date + "T00:00:00")
+      return end >= today && end <= plus180
+    })
+    return {
+      positions: Array.from(positions.entries()).sort((a, b) => b[1] - a[1]),
+      expiring180,
+      unknownSalary: active.filter(contract => contract.annual_salary === null).length,
+      incoming: incomingTransfers.length,
+      outgoing: outgoingTransfers.length,
+    }
+  }, [currentContracts, incomingTransfers.length, outgoingTransfers.length])
+
   const sortedContracts = useMemo(() => {
     const sorted = [...currentContracts]
 
@@ -633,6 +657,22 @@ export default function ClubProfilePage() {
                   fontSize: 26,
                 }}
               >
+                <div style={{ marginBottom: 24, padding: "20px", background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12 }}>
+                  <div style={{ fontSize: 11, letterSpacing: 1.5, fontWeight: 800, color: "#777" }}>CLUB INTELLIGENCE</div>
+                  <h2 style={{ margin: "5px 0 0", fontSize: 26 }}>Squad & Contract Context</h2>
+                  <p style={{ margin: "6px 0 16px", color: "#666" }}>Descriptive intelligence derived from WFM roster, contract and transfer records. It does not assign a recruitment need or player rating.</p>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 12 }}>
+                    <div><small>Contracts expiring ≤180 days</small><strong style={{display:"block",fontSize:24}}>{clubIntelligence.expiring180.length}</strong></div>
+                    <div><small>Salary data unavailable</small><strong style={{display:"block",fontSize:24}}>{clubIntelligence.unknownSalary}</strong></div>
+                    <div><small>Incoming transfers</small><strong style={{display:"block",fontSize:24}}>{clubIntelligence.incoming}</strong></div>
+                    <div><small>Outgoing transfers</small><strong style={{display:"block",fontSize:24}}>{clubIntelligence.outgoing}</strong></div>
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:20,marginTop:18}}>
+                    <div><h3 style={{margin:"0 0 8px"}}>Position mix</h3>{clubIntelligence.positions.map(([position,count])=><div key={position} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid #eee"}}><span>{position}</span><strong>{count}</strong></div>)}</div>
+                    <div><h3 style={{margin:"0 0 8px"}}>Contracts ending soon</h3>{clubIntelligence.expiring180.length?clubIntelligence.expiring180.slice(0,8).map(contract=><div key={contract.id} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid #eee"}}><Link href={contract.player?"/players/"+contract.player.id:"#"}>{contract.player?.full_name||"Unknown player"}</Link><span>{formatDate(contract.end_date)}</span></div>):<span style={{color:"#777"}}>No active contracts ending within 180 days based on available dates.</span>}</div>
+                  </div>
+                </div>
+
                 Current Players
               </h2>
 
