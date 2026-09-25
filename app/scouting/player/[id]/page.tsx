@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { supabase } from "../../../lib/supabase";
 
-type PageProps = { params: Promise<{ id: string }> };
+type PageProps = { params: Promise<{ id: string }>; searchParams: Promise<{ returnTo?: string }> };
 
 const ageOf = (dob: string | null) => {
   if (!dob) return null;
@@ -60,7 +60,7 @@ export default async function ScoutingReportPage({ params }: PageProps) {
     <main className="players-page" style={{ paddingBottom: 60 }}>
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "22px 18px 0" }}>
         <div style={{ marginBottom: 14 }}>
-          <Link href="/scouting" style={{ color: "#222", fontWeight: 700, textDecoration: "none", fontSize: 12 }}>← Scouting Workspace</Link>
+          <Link href={workspaceHref} style={{ color: "#222", fontWeight: 700, textDecoration: "none", fontSize: 12 }}>← Scouting Workspace</Link>
         </div>
 
         <section style={{ ...cardStyle, display: "grid", gridTemplateColumns: "170px 1fr", gap: 24, alignItems: "stretch" }}>
