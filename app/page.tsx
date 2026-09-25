@@ -53,17 +53,14 @@ function calculateAge(dateOfBirth: string | null) {
   return age
 }
 
-function formatSalary(
-  annualSalary: number | null,
-  currency: string | null
-) {
-  if (annualSalary === null) return 'Unknown'
+function formatSalary(annualSalaryUsd: number | null) {
+  if (annualSalaryUsd === null) return 'Unknown'
 
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: currency || 'USD',
+    currency: 'USD',
     maximumFractionDigits: 0,
-  }).format(annualSalary)
+  }).format(annualSalaryUsd)
 }
 
 function formatConfidence(confidence: string | null) {
@@ -104,8 +101,8 @@ export default function Home() {
           .from('contracts')
           .select(`
             player_id,
-            annual_salary,
-            weekly_salary,
+            annual_salary_usd,
+            weekly_salary_usd,
             currency,
             status,
             start_date,
