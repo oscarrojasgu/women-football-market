@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
@@ -11,7 +11,7 @@ type GlobalPeer={player_id:string;season:string;league:string|null;position:stri
 type SavedSearch={id:string;name:string;description:string|null;filters:Record<string,unknown>;sort_key:string|null;sort_direction:string|null;updated_at:string};
 type ClubContext={id:string;name:string;country:string|null;league:string|null;logo_url:string|null;activePlayers:number;expiringContracts:number;unknownSalary:number;positionMix:[string,number][];incomingTransfers:number;outgoingTransfers:number}; type ScoutingNote={id:string;user_id:string;player_id:string|null;list_id:string|null;note_type:string;content:string;created_at:string;updated_at:string}; type Pipeline={id:string;list_player_id:string;stage:string;priority:string;fit_status:string;next_action:string|null;target_date:string|null;evaluation:string|null;};
 
-export default function ScoutingPage(){
+function ScoutingPageContent(){
  const searchParams=useSearchParams();
  const clubId=searchParams.get("club");
  const [clubContext,setClubContext]=useState<ClubContext|null>(null);
@@ -38,4 +38,8 @@ export default function ScoutingPage(){
 <input style={{width:"100%",marginTop:6}} value={pipeline[item.id]?.next_action||""} placeholder="Next recruitment action..." onChange={e=>setPipelineField(item,"next_action",e.target.value)} onBlur={e=>updatePipeline(item,{next_action:e.target.value.trim()||null})}/>
 <textarea style={{width:"100%",marginTop:6}} value={pipeline[item.id]?.evaluation||""} placeholder="Evaluation / recruitment assessment..." rows={2} onChange={e=>setPipelineField(item,"evaluation",e.target.value)} onBlur={e=>updatePipeline(item,{evaluation:e.target.value.trim()||null})}/>
 </div><div className="scouting-note-editor"><select value={noteTypes[item.player_id]||"general"} onChange={e=>setNoteTypes(c=>({...c,[item.player_id]:e.target.value}))}><option value="general">General</option><option value="watch">Watch</option><option value="evaluation">Evaluation</option><option value="follow_up">Follow-up</option><option value="contract">Contract</option><option value="availability">Availability</option></select><textarea value={noteDrafts[item.player_id]||""} onChange={e=>setNoteDrafts(c=>({...c,[item.player_id]:e.target.value}))} placeholder="Add private scouting note..." rows={2}/><button type="button" disabled={savingNote===item.player_id||!(noteDrafts[item.player_id]||"").trim()} onClick={()=>saveNote(item.player_id)}>{savingNote===item.player_id?"Saving...":"Add note"}</button>{(notes[item.player_id]||[]).map(note=><div className="scouting-note-item" key={note.id}><strong>{note.note_type.replace("_"," ")}</strong> {note.content}<button type="button" onClick={()=>removeNote(note.id,item.player_id)}>x</button></div>)}</div></div>})}{!listPlayers.length&&<div className="scouting-empty-row">No players in this list yet. Use <Link href="/players">Player Scouting Database</Link> to add candidates.</div>}</div></>:<div className="scouting-empty">Select or create a scouting list.</div>}<section className="saved-searches"><div className="scouting-section-head"><div><span>RESEARCH</span><h2>Saved Searches</h2><p>Persistent filter definitions from your scouting research.</p></div></div>{savedSearches.length?savedSearches.map(s=><div className="saved-search-row" key={s.id}><div><strong>{s.name}</strong><span>{s.description||"Saved player-search workflow"}</span></div><div><button type="button" onClick={()=>openSavedSearch(s)}>Open search</button><button type="button" onClick={async()=>{const {error}=await supabase.from("saved_searches").delete().eq("id",s.id);if(error)setMessage(error.message);else setSavedSearches(c=>c.filter(x=>x.id!==s.id))}}>Delete</button></div></div>):<div className="scouting-empty-row">No saved searches yet. Save one from the player database once the workflow is connected.</div>}</section></section></section></main>;
+}
+
+export default function ScoutingPage(){
+ return <Suspense fallback={<main className="scouting-workspace"><div className="scouting-empty">Loading scouting workspace…</div></main>}><ScoutingPageContent /></Suspense>;
 }
