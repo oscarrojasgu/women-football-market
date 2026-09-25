@@ -96,7 +96,7 @@ export default function GlobalDiscoveryPage(){
               {lists.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}
             </select>
             <button type="button" onClick={createList} disabled={listBusy}>New List</button>
-            <button type="button" onClick={addSelected} disabled={listBusy||!selected.length||!selectedListId}>Add Selected</button>
+            <button type="button" onClick={addSelected} disabled={listBusy||!selected.length||!selectedListId}>Add Selected</button>\n            <Link href={selected.length >= 2 ? "/scouting/compare?players="+selected.join(",")+"&returnTo=/scouting/profiles/"+id : "#"} onClick={e=>{if(selected.length<2)e.preventDefault()}} style={{display:"inline-flex",alignItems:"center",justifyContent:"center",padding:"7px 11px",border:"1px solid #ccc",borderRadius:5,textDecoration:"none",color:selected.length>=2?"#111":"#999",fontWeight:700,fontSize:12,pointerEvents:selected.length>=2?"auto":"none"}}>Compare Selected</Link>
           </div>
         </section>
 
