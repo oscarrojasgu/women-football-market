@@ -44,19 +44,32 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
     );
   }
 
-  const [{ data: intelligence }, { data: contracts }, { data: values }, { data: peers }] = await Promise.all([
+  const { data: authData } = await supabase.auth.getUser();
+  const userId = authData.user?.id || null;
+
+  const [{ data: intelligence }, { data: contracts }, { data: values }, { data: peers }, { data: memberships }, { data: notes }, { data: pipelines }] = await Promise.all([
     supabase.from("player_season_intelligence").select("season,club_name,league,position,minutes,goals,assists,goals_per90,assists_per90,xg_per90,xa_per90,chances_created_per90,key_passes_per90,tackles_per90,interceptions_per90,progressive_carries_per90,duels_won_per90").eq("player_id", id).order("season", { ascending: false }),
     supabase.from("contracts").select("status,start_date,end_date,annual_salary_usd,weekly_salary_usd,club:clubs(name)").eq("player_id", id).order("start_date", { ascending: false }),
     supabase.from("market_values").select("market_value_usd,valuation_date").eq("player_id", id).order("valuation_date", { ascending: false }).limit(1),
     supabase.from("player_global_peer_benchmarks").select("season,league,position,peer_count_global,goals_per90_global_percentile,assists_per90_global_percentile,xg_per90_global_percentile,xa_per90_global_percentile,chances_created_per90_global_percentile,key_passes_per90_global_percentile,tackles_per90_global_percentile,interceptions_per90_global_percentile,progressive_carries_per90_global_percentile").eq("player_id", id).order("season", { ascending: false }),
+    userId ? supabase.from("scouting_list_players").select("id,list_id,note,scouting_lists(id,name,status)").eq("player_id", id) : Promise.resolve({ data: [], error: null } as any),
+    userId ? supabase.from("scouting_notes").select("id,note_type,content,created_at,list_id").eq("player_id", id).eq("user_id", userId).order("created_at", { ascending: false }) : Promise.resolve({ data: [], error: null } as any),
+    userId ? supabase.from("scouting_pipeline").select("id,list_player_id,stage,priority,fit_status,next_action,target_date,evaluation").eq("user_id", userId) : Promise.resolve({ data: [], error: null } as any),
   ]);
 
   const latest = intelligence?.[0] || null;
   const contract = (contracts || []).find((c: any) => c.status?.toLowerCase() === "active") || contracts?.[0] || null;
   const value = values?.[0] || null;
-  const peer = peers?.[0] || null;
+  const peer = (peers || []).find((p: any) => p.season === latest?.season) || null;
   const club = Array.isArray(contract?.club) ? contract.club[0] : contract?.club;
   const photo = player.photo_url as string | null;
+  const listRows = (memberships || []) as any[];
+  const listNames = listRows.map(row => Array.isArray(row.scouting_lists) ? row.scouting_lists[0] : row.scouting_lists).filter(Boolean);
+  const pipelineMap: Record<string, any> = {};
+  (pipelines || []).forEach((row: any) => { pipelineMap[row.list_player_id] = row; });
+  const playerPipelines = listRows.map(row => pipelineMap[row.id]).filter(Boolean);
+  const primaryPipeline = playerPipelines[0] || null;
+  const latestNotes = ((notes || []) as any[]).slice(0, 5);
 
   return (
     <main className="players-page" style={{ paddingBottom: 60 }}>
