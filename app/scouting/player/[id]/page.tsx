@@ -50,14 +50,14 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
 
   const [{ data: intelligence }, { data: contracts }, { data: values }, { data: peers }, { data: memberships }, { data: notes }, { data: pipelines }, { data: scoutingProfile }, { data: sourceStats }] = await Promise.all([
     supabase.from("player_season_intelligence").select("season,club_name,league,position,minutes,goals,assists,goals_per90,assists_per90,xg_per90,xa_per90,chances_created_per90,key_passes_per90,tackles_per90,interceptions_per90,progressive_carries_per90,duels_won_per90").eq("player_id", id).order("season", { ascending: false }),
-    supabase.from("contracts").select("status,start_date,end_date,annual_salary_usd,weekly_salary_usd,club:clubs(name)").eq("player_id", id).order("start_date", { ascending: false }),
-    supabase.from("market_values").select("market_value_usd,valuation_date").eq("player_id", id).order("valuation_date", { ascending: false }).limit(1),
+    supabase.from("contracts").select("status,start_date,end_date,annual_salary_usd,weekly_salary_usd,club:clubs(name),source:sources(id,publisher,reliability,published_at,url)").eq("player_id", id).order("start_date", { ascending: false }),
+    supabase.from("market_values").select("market_value_usd,valuation_date,source:sources(id,publisher,reliability,published_at,url)").eq("player_id", id).order("valuation_date", { ascending: false }).limit(1),
     supabase.from("player_global_peer_benchmarks").select("season,league,position,peer_count_global,goals_per90_global_percentile,assists_per90_global_percentile,xg_per90_global_percentile,xa_per90_global_percentile,chances_created_per90_global_percentile,key_passes_per90_global_percentile,tackles_per90_global_percentile,interceptions_per90_global_percentile,progressive_carries_per90_global_percentile").eq("player_id", id).order("season", { ascending: false }),
     userId ? supabase.from("scouting_list_players").select("id,list_id,note,scouting_lists(id,name,status)").eq("player_id", id) : Promise.resolve({ data: [], error: null } as any),
     userId ? supabase.from("scouting_notes").select("id,note_type,content,created_at,list_id").eq("player_id", id).eq("user_id", userId).order("created_at", { ascending: false }) : Promise.resolve({ data: [], error: null } as any),
     userId ? supabase.from("scouting_pipeline").select("id,list_player_id,stage,priority,fit_status,next_action,target_date,evaluation").eq("user_id", userId) : Promise.resolve({ data: [], error: null } as any),
     profileId && userId ? supabase.from("scouting_profiles").select("id,name,description,criteria").eq("id", profileId).eq("user_id", userId).single() : Promise.resolve({ data: null, error: null } as any),
-    supabase.from("player_stats").select("season,confidence,source_id").eq("player_id", id),
+    supabase.from("player_stats").select("season,confidence,source_id,source:sources(id,publisher,reliability,published_at,url)").eq("player_id", id),
   ]);
 
   const latest = intelligence?.[0] || null;
@@ -77,6 +77,9 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
   const distinctStatSeasons = new Set(statsEvidence.map(row => row.season).filter(Boolean)).size;
   const sourcedStatRows = statsEvidence.filter(row => row.source_id).length;
   const verifiedStatRows = statsEvidence.filter(row => String(row.confidence || "").toLowerCase() === "verified").length;
+  const statSources = Array.from(new Map(statsEvidence.map(row => [row.source_id, row.source]).filter(([sourceId, source]) => sourceId && source)).values()) as any[];
+  const contractSource = contract?.source || null;
+  const valueSource = value?.source || null;
   const evidenceItems = [["Player identity", Boolean(player.full_name && player.date_of_birth && player.nationality), player.date_of_birth && player.nationality ? "Core identity fields present" : "Identity fields need review"],["Performance data", statsEvidence.length > 0, statsEvidence.length ? `${statsEvidence.length} source rows · ${distinctStatSeasons} season${distinctStatSeasons === 1 ? "" : "s"}` : "No player-stat source rows"],["Stat sources", sourcedStatRows > 0, sourcedStatRows ? `${sourcedStatRows} stat row${sourcedStatRows === 1 ? "" : "s"} linked to a source` : "No linked stat source records"],["Verified stat rows", verifiedStatRows > 0, verifiedStatRows ? `${verifiedStatRows} stat row${verifiedStatRows === 1 ? "" : "s"} marked verified` : "No stat rows marked verified"],["Contract", Boolean(contract), contract ? (contract.confidence ? `Confidence: ${contract.confidence}` : "Contract record present") : "No contract record"],["Market value", Boolean(value), value ? (value.confidence ? `Confidence: ${value.confidence}` : "Market-value record present") : "No market-value record"],["Photo rights metadata", Boolean(player.photo_source || player.photo_credit || player.photo_license), player.photo_license || player.photo_credit || player.photo_source || "Photo metadata unavailable"]];
   const evidencePresent = evidenceItems.filter(item => item[1]).length;
   const evidencePercent = Math.round((evidencePresent / evidenceItems.length) * 100);
@@ -215,6 +218,31 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
                 <span style={{ fontSize: 11, color: "#666" }}>{String(detail)}</span>
               </div>)}
             </div>
+          </div>
+        </section>
+
+        <section style={{ ...cardStyle, marginTop: 14 }}>
+          <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>SOURCE TRACEABILITY</div>
+          <h2 style={{ margin: "5px 0 4px" }}>Underlying sources</h2>
+          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>Where WFM has a linked source record, the report exposes the publisher and reliability metadata used to support the underlying data.</p>
+          <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
+            {[
+              ["Performance", statSources[0] || null],
+              ["Contract", contractSource],
+              ["Market value", valueSource],
+            ].map(([label, source]) => (
+              <div key={label as string} style={{ display: "grid", gridTemplateColumns: "140px 1fr", gap: 10, alignItems: "center", borderBottom: "1px solid #eee", padding: "8px 0" }}>
+                <strong style={{ fontSize: 11 }}>{label}</strong>
+                {source ? (
+                  <div style={{ fontSize: 11 }}>
+                    <strong>{source.publisher || "Publisher unavailable"}</strong>
+                    <span style={{ color: "#777", marginLeft: 8 }}>{source.reliability ? "Reliability: " + source.reliability : "Reliability not recorded"}</span>
+                    {source.published_at ? <span style={{ color: "#777", marginLeft: 8 }}>Published: {source.published_at}</span> : null}
+                    {source.url ? <a href={source.url} target="_blank" rel="noreferrer" style={{ marginLeft: 8 }}>View source</a> : null}
+                  </div>
+                ) : <span style={{ color: "#888", fontSize: 11 }}>No linked source record</span>}
+              </div>
+            ))}
           </div>
         </section>
 
