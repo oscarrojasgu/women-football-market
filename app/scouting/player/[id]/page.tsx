@@ -203,6 +203,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
           </section>
         ) : null}
 
+        <section style={{ ...cardStyle, marginTop: 14 }}>
           <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>DATA EVIDENCE</div>
           <h2 style={{ margin: "5px 0 4px" }}>Evidence &amp; data quality</h2>
           <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>A transparent view of the WFM records supporting this report. Presence of data does not by itself establish that every underlying source is current or independently verified.</p>
