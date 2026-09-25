@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { supabase } from "../../lib/supabase";
+import ShortlistCompareActions from "./ShortlistCompareActions";
 
 type Props={searchParams:Promise<{players?:string;returnTo?:string}>};
 
@@ -12,7 +13,7 @@ export default async function ScoutingComparePage({searchParams}:Props){
   const q=await searchParams;
   const ids=Array.from(new Set((q.players||"").split(",").map(v=>v.trim()).filter(Boolean))).slice(0,6);
   const returnTo=q.returnTo&&q.returnTo.startsWith("/scouting/")?q.returnTo:"/scouting";
-  if(ids.length<2)return <main className="players-page players-scout-page"><div className="scout-empty"><strong>Select at least two players to compare.</strong><Link href={returnTo}>← Scouting Workspace</Link></div></main>;
+  if(ids.length<2)return <main className="players-page players-scout-page">\n      <ShortlistCompareActions playerIds={rows.map(p=>p.id)} returnTo={returnTo} /><div className="scout-empty"><strong>Select at least two players to compare.</strong><Link href={returnTo}>← Scouting Workspace</Link></div></main>;
   const [{data:players},{data:intelligence},{data:contracts},{data:values},{data:peers}]=await Promise.all([
     supabase.from("players").select("id,full_name,date_of_birth,nationality,position,secondary_position,photo_url").in("id",ids),
     supabase.from("player_season_intelligence").select("player_id,season,club_name,league,minutes,goals_per90,assists_per90,xg_per90,xa_per90,chances_created_per90,key_passes_per90,tackles_per90,interceptions_per90,progressive_carries_per90").in("player_id",ids),
