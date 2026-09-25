@@ -28,6 +28,7 @@ const cardStyle = {
 export default async function ScoutingReportPage({ params, searchParams }: PageProps) {
   const { returnTo } = await searchParams;
   const workspaceHref = returnTo && returnTo.startsWith("/scouting/profiles/") ? returnTo : "/scouting";
+  const profileId = workspaceHref.startsWith("/scouting/profiles/") ? workspaceHref.split("/")[3] || null : null;
   const { id } = await params;
   const { data: player, error } = await supabase
     .from("players")
@@ -47,7 +48,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
   const { data: authData } = await supabase.auth.getUser();
   const userId = authData.user?.id || null;
 
-  const [{ data: intelligence }, { data: contracts }, { data: values }, { data: peers }, { data: memberships }, { data: notes }, { data: pipelines }] = await Promise.all([
+  const [{ data: intelligence }, { data: contracts }, { data: values }, { data: peers }, { data: memberships }, { data: notes }, { data: pipelines }, { data: scoutingProfile }] = await Promise.all([
     supabase.from("player_season_intelligence").select("season,club_name,league,position,minutes,goals,assists,goals_per90,assists_per90,xg_per90,xa_per90,chances_created_per90,key_passes_per90,tackles_per90,interceptions_per90,progressive_carries_per90,duels_won_per90").eq("player_id", id).order("season", { ascending: false }),
     supabase.from("contracts").select("status,start_date,end_date,annual_salary_usd,weekly_salary_usd,club:clubs(name)").eq("player_id", id).order("start_date", { ascending: false }),
     supabase.from("market_values").select("market_value_usd,valuation_date").eq("player_id", id).order("valuation_date", { ascending: false }).limit(1),
@@ -55,6 +56,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
     userId ? supabase.from("scouting_list_players").select("id,list_id,note,scouting_lists(id,name,status)").eq("player_id", id) : Promise.resolve({ data: [], error: null } as any),
     userId ? supabase.from("scouting_notes").select("id,note_type,content,created_at,list_id").eq("player_id", id).eq("user_id", userId).order("created_at", { ascending: false }) : Promise.resolve({ data: [], error: null } as any),
     userId ? supabase.from("scouting_pipeline").select("id,list_player_id,stage,priority,fit_status,next_action,target_date,evaluation").eq("user_id", userId) : Promise.resolve({ data: [], error: null } as any),
+    profileId && userId ? supabase.from("scouting_profiles").select("id,name,description,criteria").eq("id", profileId).eq("user_id", userId).single() : Promise.resolve({ data: null, error: null } as any),
   ]);
 
   const latest = intelligence?.[0] || null;
@@ -70,6 +72,16 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
   const playerPipelines = listRows.map(row => pipelineMap[row.id]).filter(Boolean);
   const primaryPipeline = playerPipelines[0] || null;
   const latestNotes = ((notes || []) as any[]).slice(0, 5);
+  const profileCriteria = (scoutingProfile?.criteria && typeof scoutingProfile.criteria === "object") ? scoutingProfile.criteria : null;
+  const profileCriteriaRows = profileCriteria ? [
+    ["Position", Array.isArray(profileCriteria.positions) && profileCriteria.positions.length ? profileCriteria.positions.join(", ") : null],
+    ["Age", profileCriteria.age_min != null || profileCriteria.age_max != null ? `${profileCriteria.age_min ?? "Any"}–${profileCriteria.age_max ?? "Any"}` : null],
+    ["Minimum minutes", profileCriteria.min_minutes != null ? String(profileCriteria.min_minutes) : null],
+    ["Global percentile", profileCriteria.global_percentile_min != null ? `${profileCriteria.global_percentile_min}th minimum` : null],
+    ["Salary range", profileCriteria.salary_min_usd != null || profileCriteria.salary_max_usd != null ? `${money(profileCriteria.salary_min_usd ?? null)}–${money(profileCriteria.salary_max_usd ?? null)}` : null],
+    ["Market value", profileCriteria.market_value_min_usd != null || profileCriteria.market_value_max_usd != null ? `${money(profileCriteria.market_value_min_usd ?? null)}–${money(profileCriteria.market_value_max_usd ?? null)}` : null],
+    ["Contract status", profileCriteria.contract_status && profileCriteria.contract_status !== "any" ? String(profileCriteria.contract_status).replace(/_/g, " ") : null],
+  ].filter(([, value]) => value != null) : [];
 
   const availabilityLabel = contract?.status?.toLowerCase() === "active"
     ? contract?.end_date
@@ -168,6 +180,17 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
             </div>
           </section>
         </div>
+
+        {scoutingProfile && profileCriteriaRows.length ? (
+          <section style={{ ...cardStyle, marginTop: 14 }}>
+            <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>SCOUTING PROFILE CONTEXT</div>
+            <h2 style={{ margin: "5px 0 4px" }}>{scoutingProfile.name}</h2>
+            <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>This player reached the report through this saved recruitment profile. The criteria below are shown as search context and are not a subjective player rating.</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginTop: 12 }}>
+              {profileCriteriaRows.map(([label, value]) => <div key={label as string} style={{ border: "1px solid #eee", borderRadius: 6, padding: 10 }}><small style={{ color: "#888" }}>{label}</small><strong style={{ display: "block", marginTop: 4, textTransform: "capitalize" }}>{String(value)}</strong></div>)}
+            </div>
+          </section>
+        ) : null}
 
         <section style={{ ...cardStyle, marginTop: 14 }}>
           <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>RECRUITMENT INTELLIGENCE</div>
