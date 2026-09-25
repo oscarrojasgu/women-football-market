@@ -126,7 +126,7 @@ export default function GlobalDiscoveryPage(){
                     onChange={()=>toggleCandidate(p.id)}
                     aria-label={`Select ${p.full_name}`}
                   />
-                  <Link href={"/players/"+p.id}>
+                  <Link href={"/scouting/player/"+p.id}>
                     <strong>{p.full_name}</strong>
                     <small>{p.position||"Position unavailable"}{p.secondary_position?" / "+p.secondary_position:""} · {p.nationality||"Nationality unavailable"}</small>
                   </Link>
