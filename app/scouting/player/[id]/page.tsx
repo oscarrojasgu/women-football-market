@@ -48,7 +48,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
   const { data: authData } = await supabase.auth.getUser();
   const userId = authData.user?.id || null;
 
-  const [{ data: intelligence }, { data: contracts }, { data: values }, { data: peers }, { data: memberships }, { data: notes }, { data: pipelines }, { data: scoutingProfile }] = await Promise.all([
+  const [{ data: intelligence }, { data: contracts }, { data: values }, { data: peers }, { data: memberships }, { data: notes }, { data: pipelines }, { data: scoutingProfile }, { data: sourceStats }] = await Promise.all([
     supabase.from("player_season_intelligence").select("season,club_name,league,position,minutes,goals,assists,goals_per90,assists_per90,xg_per90,xa_per90,chances_created_per90,key_passes_per90,tackles_per90,interceptions_per90,progressive_carries_per90,duels_won_per90").eq("player_id", id).order("season", { ascending: false }),
     supabase.from("contracts").select("status,start_date,end_date,annual_salary_usd,weekly_salary_usd,club:clubs(name)").eq("player_id", id).order("start_date", { ascending: false }),
     supabase.from("market_values").select("market_value_usd,valuation_date").eq("player_id", id).order("valuation_date", { ascending: false }).limit(1),
@@ -57,6 +57,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
     userId ? supabase.from("scouting_notes").select("id,note_type,content,created_at,list_id").eq("player_id", id).eq("user_id", userId).order("created_at", { ascending: false }) : Promise.resolve({ data: [], error: null } as any),
     userId ? supabase.from("scouting_pipeline").select("id,list_player_id,stage,priority,fit_status,next_action,target_date,evaluation").eq("user_id", userId) : Promise.resolve({ data: [], error: null } as any),
     profileId && userId ? supabase.from("scouting_profiles").select("id,name,description,criteria").eq("id", profileId).eq("user_id", userId).single() : Promise.resolve({ data: null, error: null } as any),
+    supabase.from("player_stats").select("season,confidence,source_id").eq("player_id", id),
   ]);
 
   const latest = intelligence?.[0] || null;
@@ -72,6 +73,13 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
   const playerPipelines = listRows.map(row => pipelineMap[row.id]).filter(Boolean);
   const primaryPipeline = playerPipelines[0] || null;
   const latestNotes = ((notes || []) as any[]).slice(0, 5);
+  const statsEvidence = (sourceStats || []) as any[];
+  const distinctStatSeasons = new Set(statsEvidence.map(row => row.season).filter(Boolean)).size;
+  const sourcedStatRows = statsEvidence.filter(row => row.source_id).length;
+  const verifiedStatRows = statsEvidence.filter(row => String(row.confidence || "").toLowerCase() === "verified").length;
+  const evidenceItems = [["Player identity", Boolean(player.full_name && player.date_of_birth && player.nationality), player.date_of_birth && player.nationality ? "Core identity fields present" : "Identity fields need review"],["Performance data", statsEvidence.length > 0, statsEvidence.length ? `${statsEvidence.length} source rows · ${distinctStatSeasons} season${distinctStatSeasons === 1 ? "" : "s"}` : "No player-stat source rows"],["Stat sources", sourcedStatRows > 0, sourcedStatRows ? `${sourcedStatRows} stat row${sourcedStatRows === 1 ? "" : "s"} linked to a source` : "No linked stat source records"],["Verified stat rows", verifiedStatRows > 0, verifiedStatRows ? `${verifiedStatRows} stat row${verifiedStatRows === 1 ? "" : "s"} marked verified` : "No stat rows marked verified"],["Contract", Boolean(contract), contract ? (contract.confidence ? `Confidence: ${contract.confidence}` : "Contract record present") : "No contract record"],["Market value", Boolean(value), value ? (value.confidence ? `Confidence: ${value.confidence}` : "Market-value record present") : "No market-value record"],["Photo rights metadata", Boolean(player.photo_source || player.photo_credit || player.photo_license), player.photo_license || player.photo_credit || player.photo_source || "Photo metadata unavailable"]];
+  const evidencePresent = evidenceItems.filter(item => item[1]).length;
+  const evidencePercent = Math.round((evidencePresent / evidenceItems.length) * 100);
   const profileCriteria = (scoutingProfile?.criteria && typeof scoutingProfile.criteria === "object") ? scoutingProfile.criteria : null;
   const profileCriteriaRows = profileCriteria ? [
     ["Position", Array.isArray(profileCriteria.positions) && profileCriteria.positions.length ? profileCriteria.positions.join(", ") : null],
@@ -191,6 +199,24 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
             </div>
           </section>
         ) : null}
+
+          <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>DATA EVIDENCE</div>
+          <h2 style={{ margin: "5px 0 4px" }}>Evidence &amp; data quality</h2>
+          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>A transparent view of the WFM records supporting this report. Presence of data does not by itself establish that every underlying source is current or independently verified.</p>
+          <div style={{ display: "grid", gridTemplateColumns: "180px 1fr", gap: 14, alignItems: "start", marginTop: 12 }}>
+            <div style={{ border: "1px solid #eee", borderRadius: 8, padding: 14 }}>
+              <small style={{ color: "#888", letterSpacing: "0.06em" }}>EVIDENCE COVERAGE</small>
+              <strong style={{ display: "block", fontSize: 30, marginTop: 5 }}>{evidencePercent}%</strong>
+              <span style={{ color: "#777", fontSize: 11 }}>{evidencePresent} of {evidenceItems.length} evidence areas have data</span>
+            </div>
+            <div style={{ display: "grid", gap: 7 }}>
+              {evidenceItems.map(([label, present, detail]) => <div key={label as string} style={{ display: "grid", gridTemplateColumns: "150px 1fr", gap: 8, borderBottom: "1px solid #eee", paddingBottom: 7 }}>
+                <strong style={{ fontSize: 11 }}>{present ? "✓" : "—"} {label}</strong>
+                <span style={{ fontSize: 11, color: "#666" }}>{String(detail)}</span>
+              </div>)}
+            </div>
+          </div>
+        </section>
 
         <section style={{ ...cardStyle, marginTop: 14 }}>
           <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>RECRUITMENT INTELLIGENCE</div>
