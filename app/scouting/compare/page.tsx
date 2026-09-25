@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { supabase } from "../../lib/supabase";
 
 type Props={searchParams:Promise<{players?:string;returnTo?:string}>};
@@ -39,13 +40,13 @@ export default async function ScoutingComparePage({searchParams}:Props){
           </div>
           <div style={{marginTop:14}}>
             <div style={{fontSize:10,color:"#888",letterSpacing:".08em",fontWeight:800}}>PLAYER CONTEXT</div>
-            {[
-              ["Age",p=>age(p.date_of_birth)==null?"—":age(p.date_of_birth)+" yrs"],
-              ["Club",p=>contractMap.get(p.id)?.club?.name||"No current club"],
-              ["Contract",p=>contractMap.get(p.id)?.status||"—"],
-              ["Salary",p=>money(contractMap.get(p.id)?.annual_salary_usd??null)],
-              ["Market value",p=>money(valueMap.get(p.id)?.market_value_usd??null)]
-            ].map(([label,getter])=><div key={label as string} style={{display:"grid",gridTemplateColumns:"180px repeat("+rows.length+",minmax(170px,1fr))",gap:8,borderBottom:"1px solid #eee",padding:"9px 0"}}><strong style={{fontSize:11}}>{label}</strong>{rows.map(p=><span key={p.id} style={{fontSize:12}}>{(getter as any)(p)}</span>)}</div>)}
+            {([
+              ["Age",(p:any):ReactNode=>age(p.date_of_birth)==null?"—":age(p.date_of_birth)+" yrs"],
+              ["Club",(p:any):ReactNode=>contractMap.get(p.id)?.club?.name||"No current club"],
+              ["Contract",(p:any):ReactNode=>contractMap.get(p.id)?.status||"—"],
+              ["Salary",(p:any):ReactNode=>money(contractMap.get(p.id)?.annual_salary_usd??null)],
+              ["Market value",(p:any):ReactNode=>money(valueMap.get(p.id)?.market_value_usd??null)]
+            ] as Array<[string,(p:any)=>ReactNode]>).map(([label,getter])=><div key={label} style={{display:"grid",gridTemplateColumns:"180px repeat("+rows.length+",minmax(170px,1fr))",gap:8,borderBottom:"1px solid #eee",padding:"9px 0"}}><strong style={{fontSize:11}}>{label}</strong>{rows.map((p:any)=><span key={p.id} style={{fontSize:12}}>{getter(p)}</span>)}</div>)}
           </div>
           <div style={{marginTop:20}}><div style={{fontSize:10,color:"#888",letterSpacing:".08em",fontWeight:800}}>LATEST-SEASON PERFORMANCE</div>
             {metrics.map(([label,key])=><div key={key} style={{display:"grid",gridTemplateColumns:"180px repeat("+rows.length+",minmax(170px,1fr))",gap:8,borderBottom:"1px solid #eee",padding:"9px 0"}}><strong style={{fontSize:11}}>{label}</strong>{rows.map(p=>{const i=intelMap.get(p.id);const v=i?.[key];return <span key={p.id} style={{fontSize:12}}>{v==null?"—":key==="minutes"?v:Number(v).toFixed(2)}</span>})}</div>)}
