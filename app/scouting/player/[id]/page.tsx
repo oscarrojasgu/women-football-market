@@ -153,6 +153,42 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
         </div>
 
         <section style={{ ...cardStyle, marginTop: 14 }}>
+          <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>PERFORMANCE HISTORY</div>
+          <h2 style={{ margin: "5px 0 4px" }}>Season trajectory</h2>
+          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>Historical league and club performance from WFM season intelligence. Blank metrics indicate unavailable source data rather than zero production.</p>
+          {intelligence?.length ? (
+            <div style={{ overflowX: "auto", marginTop: 10 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 720, fontSize: 12 }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid #ddd", textAlign: "left" }}>
+                    {["Season","Club / League","Min","G/90","A/90","xG/90","xA/90","Chances/90"].map(label => (
+                      <th key={label} style={{ padding: "9px 8px", fontSize: 9, color: "#888", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>{label}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {(intelligence || []).map((season: any) => (
+                    <tr key={`${season.season}-${season.club_name || ""}-${season.league || ""}`} style={{ borderBottom: "1px solid #eee" }}>
+                      <td style={{ padding: "10px 8px", fontWeight: 800, whiteSpace: "nowrap" }}>{season.season || "—"}</td>
+                      <td style={{ padding: "10px 8px", minWidth: 190 }}>
+                        <strong style={{ display: "block" }}>{season.club_name || "Club unavailable"}</strong>
+                        <small style={{ color: "#777" }}>{season.league || "Competition unavailable"}</small>
+                      </td>
+                      <td style={{ padding: "10px 8px" }}>{season.minutes ?? "—"}</td>
+                      <td style={{ padding: "10px 8px" }}>{season.goals_per90 == null ? "—" : season.goals_per90.toFixed(2)}</td>
+                      <td style={{ padding: "10px 8px" }}>{season.assists_per90 == null ? "—" : season.assists_per90.toFixed(2)}</td>
+                      <td style={{ padding: "10px 8px" }}>{season.xg_per90 == null ? "—" : season.xg_per90.toFixed(2)}</td>
+                      <td style={{ padding: "10px 8px" }}>{season.xa_per90 == null ? "—" : season.xa_per90.toFixed(2)}</td>
+                      <td style={{ padding: "10px 8px" }}>{season.chances_created_per90 == null ? "—" : season.chances_created_per90.toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : <p style={{ color: "#777", fontSize: 12 }}>No season history is currently available for this player.</p>}
+        </section>
+
+        <section style={{ ...cardStyle, marginTop: 14 }}>
           <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>SCOUTING WORKFLOW</div>
           <h2 style={{ margin: "5px 0 4px" }}>Recruitment context</h2>
           <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>Persistent list membership, pipeline status and private scouting context for your WFM account.</p>
