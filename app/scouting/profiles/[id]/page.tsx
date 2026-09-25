@@ -31,7 +31,7 @@ export default function GlobalDiscoveryPage(){
  const [userId,setUserId]=useState<string|null>(null);const [clubContext,setClubContext]=useState<ClubContext|null>(null);const [globalPeers,setGlobalPeers]=useState<Map<string,GlobalPeer>>(new Map());const [lists,setLists]=useState<ScoutingList[]>([]);const [selectedListId,setSelectedListId]=useState("");const [selected,setSelected]=useState<string[]>([]);const [existing,setExisting]=useState<Set<string>>(new Set());const [listBusy,setListBusy]=useState(false);
 
  useEffect(()=>{if(!id)return;let mounted=true;(async()=>{const auth=await supabase.auth.getUser();if(!mounted)return;const uid=auth.data.user?.id||null;setUserId(uid);const [pr,pl,pg,si,co,mv,pa,listResult]=await Promise.all([
-  supabase.from("scouting_profiles").select("id,name,description,criteria").eq("id",id).single(),
+  supabase.from("scouting_profiles").select("id,name,description,club_id,criteria").eq("id",id).single(),
   supabase.from("players").select("id,full_name,date_of_birth,nationality,position,secondary_position,photo_url"),
   supabase.from("player_global_peer_benchmarks").select("player_id,season,goals_per90_global_percentile,assists_per90_global_percentile,xg_per90_global_percentile,xa_per90_global_percentile,chances_created_per90_global_percentile,key_passes_per90_global_percentile,tackles_per90_global_percentile,interceptions_per90_global_percentile,progressive_carries_per90_global_percentile"),
   supabase.from("player_season_intelligence").select("player_id,season,minutes,goals_per90,assists_per90,xg_per90,xa_per90,chances_created_per90,key_passes_per90,tackles_per90,interceptions_per90,progressive_carries_per90,league,club_name"),
