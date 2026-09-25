@@ -642,10 +642,7 @@ export default function Home() {
                 </span>
 
                 <span>
-                  {formatSalary(
-                    contract?.annual_salary ?? null,
-                    contract?.currency ?? null
-                  )}
+                  {formatSalary(contract?.annual_salary ?? null)}
                 </span>
 
                 <span>
