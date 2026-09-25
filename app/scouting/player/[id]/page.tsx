@@ -25,7 +25,7 @@ const cardStyle = {
   padding: 20,
 };
 
-export default async function ScoutingReportPage({ params }: PageProps) {
+export default async function ScoutingReportPage({ params, searchParams }: PageProps) {\n  const { returnTo } = await searchParams;\n  const workspaceHref = returnTo && returnTo.startsWith("/scouting/profiles/") ? returnTo : "/scouting";
   const { id } = await params;
   const { data: player, error } = await supabase
     .from("players")
