@@ -71,6 +71,23 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
   const primaryPipeline = playerPipelines[0] || null;
   const latestNotes = ((notes || []) as any[]).slice(0, 5);
 
+  const availabilityLabel = contract?.status?.toLowerCase() === "active"
+    ? contract?.end_date
+      ? `Contracted through ${contract.end_date}`
+      : "Currently contracted"
+    : "No active contract recorded";
+  const latestGoals = latest?.goals_per90;
+  const latestAssists = latest?.assists_per90;
+  const latestCreation = latest?.chances_created_per90;
+  const peerSignals = peer ? [
+    ["G/90", peer.goals_per90_global_percentile],
+    ["A/90", peer.assists_per90_global_percentile],
+    ["Creation", peer.chances_created_per90_global_percentile],
+    ["Key passes", peer.key_passes_per90_global_percentile],
+    ["Progression", peer.progressive_carries_per90_global_percentile],
+  ].filter(([, v]) => v != null) : [];
+  const strongestPeerSignal = peerSignals.length ? peerSignals.reduce((best: any[], current: any[]) => Number(current[1]) > Number(best[1]) ? current : best) : null;
+
   return (
     <main className="players-page" style={{ paddingBottom: 60 }}>
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "22px 18px 0" }}>
@@ -151,6 +168,32 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
             </div>
           </section>
         </div>
+
+        <section style={{ ...cardStyle, marginTop: 14 }}>
+          <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>RECRUITMENT INTELLIGENCE</div>
+          <h2 style={{ margin: "5px 0 4px" }}>Decision context</h2>
+          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>A factual summary of the available WFM data to support recruitment review. It does not assign an overall player rating.</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginTop: 12 }}>
+            <div style={{ border: "1px solid #eee", borderRadius: 6, padding: 11 }}>
+              <small style={{ color: "#888" }}>AVAILABILITY</small>
+              <strong style={{ display: "block", marginTop: 4 }}>{availabilityLabel}</strong>
+            </div>
+            <div style={{ border: "1px solid #eee", borderRadius: 6, padding: 11 }}>
+              <small style={{ color: "#888" }}>CURRENT OUTPUT</small>
+              <strong style={{ display: "block", marginTop: 4 }}>{latestGoals == null ? "G/90 unavailable" : `G/90 ${latestGoals.toFixed(2)}`} · {latestAssists == null ? "A/90 unavailable" : `A/90 ${latestAssists.toFixed(2)}`}</strong>
+            </div>
+            <div style={{ border: "1px solid #eee", borderRadius: 6, padding: 11 }}>
+              <small style={{ color: "#888" }}>PEER SIGNAL</small>
+              <strong style={{ display: "block", marginTop: 4 }}>{strongestPeerSignal ? `${strongestPeerSignal[0]} · ${pct(strongestPeerSignal[1] as number)} percentile` : "Peer percentile unavailable"}</strong>
+            </div>
+          </div>
+          <div style={{ marginTop: 10, borderTop: "1px solid #eee", paddingTop: 10, fontSize: 12, color: "#555" }}>
+            <strong style={{ color: "#222" }}>Data points to review:</strong>{" "}
+            {latest?.minutes != null ? `${latest.minutes} minutes in ${latest.season || "latest season"}` : "Latest-season minutes unavailable"}{" · "}
+            {latestCreation == null ? "chance-creation data unavailable" : `chance creation ${latestCreation.toFixed(2)}/90`}{" · "}
+            {value?.market_value_usd != null ? `market value ${money(value.market_value_usd)}` : "market value unavailable"}.
+          </div>
+        </section>
 
         <section style={{ ...cardStyle, marginTop: 14 }}>
           <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>PERFORMANCE HISTORY</div>
