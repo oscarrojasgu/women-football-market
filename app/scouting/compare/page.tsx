@@ -24,7 +24,7 @@ export default async function ScoutingComparePage({searchParams}:Props){
   const valueMap=new Map<string,any>(); for(const row of values||[]){if(!valueMap.has(row.player_id))valueMap.set(row.player_id,row)}
   const contractMap=new Map<string,any>(); for(const row of contracts||[]){if(!contractMap.has(row.player_id))contractMap.set(row.player_id,row)}
   const peerMap=new Map<string,any>(); for(const row of peers||[]){const latest=intelMap.get(row.player_id);if(latest?.season===row.season)peerMap.set(row.player_id,row)}
-  const rows=(players||[]).sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id));
+  const rows=(players||[]).sort((a:any,b:any)=>ids.indexOf(a.id)-ids.indexOf(b.id)) as any[];
   const metrics=[["Minutes","minutes"],["G/90","goals_per90"],["A/90","assists_per90"],["xG/90","xg_per90"],["xA/90","xa_per90"],["Chances/90","chances_created_per90"],["Key passes/90","key_passes_per90"],["Tackles/90","tackles_per90"],["Interceptions/90","interceptions_per90"],["Progressive carries/90","progressive_carries_per90"]] as const;
   const percentileMetrics=[["G/90","goals_per90_global_percentile"],["A/90","assists_per90_global_percentile"],["xG/90","xg_per90_global_percentile"],["xA/90","xa_per90_global_percentile"],["Creation","chances_created_per90_global_percentile"],["Key passes","key_passes_per90_global_percentile"],["Tackles","tackles_per90_global_percentile"],["Interceptions","interceptions_per90_global_percentile"],["Progression","progressive_carries_per90_global_percentile"]] as const;
   return <>
