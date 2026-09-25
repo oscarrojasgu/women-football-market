@@ -571,7 +571,7 @@ export default function ClubProfilePage() {
           padding: "32px 24px 60px",
         }}
       >
-        <div style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12, padding: "16px 18px", marginBottom: 24, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <div style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12, padding: "16px 18px", marginBottom: 24, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", justifyContent: "space-between" }}><div style={{display:"flex",gap:12,alignItems:"center",flexWrap:"wrap"}}>
           <div style={{ fontSize: 12, fontWeight: 800, color: "#777", letterSpacing: 1 }}>CLUB CONTEXT</div>
           <select value={selectedSeason} onChange={(event) => setSelectedSeason(event.target.value)} style={{ border: "1px solid #ddd", borderRadius: 8, padding: "9px 12px", background: "#fff", fontSize: 13 }}>
             <option value="all">All seasons</option>
@@ -579,7 +579,7 @@ export default function ClubProfilePage() {
           </select>
           <div style={{ fontSize: 13, color: "#555" }}>
             {competitionsForSeason.length ? competitionsForSeason.join(" · ") : "No competition participation recorded"}
-          </div>
+          </div></div><Link href={`/scouting?club=${id}`} style={{display:"inline-block",border:"1px solid #222",background:"#222",color:"#fff",borderRadius:7,padding:"9px 13px",fontSize:12,fontWeight:700,textDecoration:"none"}}>Scout this club →</Link>
         </div>
 
         <div
