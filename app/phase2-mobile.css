@@ -912,3 +912,38 @@
 @media(max-width:650px){.scout-shortlist-bar select{width:100%;min-width:0}.scout-shortlist-actions{flex-wrap:wrap}.scout-shortlist-actions button,.scout-shortlist-actions select{flex:1 1 140px}.scout-row-actions{left:6px;top:6px}.scout-player{margin-left:54px}}
 
 .scouting-note-editor{grid-column:1/-1;border-top:1px solid #e6e6e3;margin-top:8px;padding-top:8px;display:grid;grid-template-columns:130px 1fr auto;gap:6px;align-items:start}.scouting-note-editor select,.scouting-note-editor textarea{border:1px solid #ccc;border-radius:6px;padding:7px;font:inherit;font-size:12px}.scouting-note-editor textarea{min-height:42px;resize:vertical}.scouting-note-editor button{border:1px solid #ccc;background:#fff;border-radius:6px;padding:7px 9px;font-size:11px;font-weight:700}.scouting-note-item{grid-column:1/-1;background:#f7f7f5;border-radius:6px;padding:7px 9px;font-size:12px;display:flex;gap:8px;align-items:flex-start}.scouting-note-item button{margin-left:auto;border:0;background:transparent;padding:0;color:#777}@media(max-width:650px){.scouting-note-editor{grid-template-columns:1fr}.scouting-note-editor button{width:100%}}
+
+/* GLOBAL PLAYER DISCOVERY — use the shared WFM scouting table system */
+.global-discovery-table .scout-player {
+  margin-left: 0;
+  gap: 8px;
+}
+.global-discovery-table .scout-player input {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  accent-color: #111;
+}
+.global-discovery-table .scout-player a {
+  min-width: 0;
+  color: #111 !important;
+  text-decoration: none !important;
+}
+.global-discovery-table .scout-player a:hover {
+  color: #111 !important;
+}
+.global-discovery-table .scout-player a strong {
+  color: #111 !important;
+}
+.global-discovery-table .scout-row.is-shortlisted {
+  background: #faf9f2;
+}
+@media (max-width:650px) {
+  .global-discovery-table .scout-player {
+    margin-left: 0;
+  }
+  .global-discovery-table .scout-player input {
+    align-self: flex-start;
+    margin-top: 3px;
+  }
+}
