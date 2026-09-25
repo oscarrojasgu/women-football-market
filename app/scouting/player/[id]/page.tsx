@@ -153,6 +153,28 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
         </div>
 
         <section style={{ ...cardStyle, marginTop: 14 }}>
+          <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>SCOUTING WORKFLOW</div>
+          <h2 style={{ margin: "5px 0 4px" }}>Recruitment context</h2>
+          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>Persistent list membership, pipeline status and private scouting context for your WFM account.</p>
+          {!userId ? (
+            <p style={{ color: "#777", fontSize: 12 }}>Sign in to view private scouting workflow information for this player.</p>
+          ) : listRows.length ? (
+            <div style={{ display: "grid", gap: 10 }}>
+              <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+                {listNames.map((list: any) => <span key={list.id} style={{ border: "1px solid #ddd", borderRadius: 5, padding: "6px 9px", fontSize: 11 }}>{list.name}{list.status === "archived" ? " · Archived" : ""}</span>)}
+              </div>
+              {primaryPipeline ? (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
+                  {[["Stage", primaryPipeline.stage],["Priority", primaryPipeline.priority],["Fit", primaryPipeline.fit_status],["Target", primaryPipeline.target_date || "—"]].map(([label, value]) => <div key={label as string} style={{ border: "1px solid #eee", borderRadius: 6, padding: 10 }}><small style={{ color: "#888" }}>{label}</small><strong style={{ display: "block", marginTop: 4, textTransform: "capitalize" }}>{String(value).replace(/_/g, " ")}</strong></div>)}
+                </div>
+              ) : <p style={{ color: "#777", fontSize: 12 }}>This player is on a scouting list but has no pipeline assessment yet.</p>}
+              {primaryPipeline?.next_action && <div style={{ borderTop: "1px solid #eee", paddingTop: 10 }}><small style={{ color: "#888" }}>Next recruitment action</small><strong style={{ display: "block", marginTop: 4 }}>{primaryPipeline.next_action}</strong></div>}
+              {primaryPipeline?.evaluation && <div><small style={{ color: "#888" }}>Recruitment evaluation</small><p style={{ margin: "4px 0 0", whiteSpace: "pre-wrap", fontSize: 12 }}>{primaryPipeline.evaluation}</p></div>}
+            </div>
+          ) : <p style={{ color: "#777", fontSize: 12 }}>This player is not currently on one of your scouting lists.</p>}
+        </section>
+
+        <section style={{ ...cardStyle, marginTop: 14 }}>
           <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>GLOBAL PEER CONTEXT</div>
           <h2 style={{ margin: "5px 0 4px" }}>Performance context</h2>
           <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>Descriptive peer context for the same season and position. These percentiles are research context, not a WFM player rating.</p>
@@ -176,6 +198,12 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
               ))}
             </div>
           ) : <p style={{ color: "#777" }}>Global peer context is not currently available for this player&apos;s latest season.</p>}
+        </section>
+
+        <section style={{ ...cardStyle, marginTop: 14 }}>
+          <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>SCOUTING NOTES</div>
+          <h2 style={{ margin: "5px 0 12px" }}>Recent private notes</h2>
+          {userId && latestNotes.length ? <div style={{ display: "grid", gap: 8 }}>{latestNotes.map((note: any) => <div key={note.id} style={{ borderTop: "1px solid #eee", paddingTop: 9 }}><small style={{ color: "#888", textTransform: "capitalize" }}>{String(note.note_type).replace(/_/g, " ")}</small><p style={{ margin: "4px 0 0", fontSize: 12, whiteSpace: "pre-wrap" }}>{note.content}</p></div>)}</div> : <p style={{ color: "#777", fontSize: 12 }}>{userId ? "No private scouting notes have been added yet." : "Sign in to view private scouting notes."}</p>}
         </section>
 
         <section style={{ ...cardStyle, marginTop: 14 }}>
