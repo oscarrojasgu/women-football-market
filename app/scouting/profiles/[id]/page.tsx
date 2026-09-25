@@ -7,7 +7,7 @@ import { supabase } from "../../../lib/supabase";
 
 type Criteria={positions:string[];roles:string;age_min:number|null;age_max:number|null;nationalities:string;competitions:string[];contract_status:string;salary_min_usd:number|null;salary_max_usd:number|null;market_value_min_usd:number|null;market_value_max_usd:number|null;min_minutes:number|null;goals_per90_min:number|null;assists_per90_min:number|null;xg_per90_min:number|null;xa_per90_min:number|null;chances_created_per90_min:number|null;key_passes_per90_min:number|null;tackles_per90_min:number|null;interceptions_per90_min:number|null;progressive_carries_per90_min:number|null;global_percentile_min:number|null;priorities:string};
 type Profile={id:string;name:string;description:string|null;criteria:Criteria};
-type Player={id:string;full_name:string;date_of_birth:string|null;nationality:string|null;position:string|null;secondary_position:string|null};
+type Player={id:string;full_name:string;date_of_birth:string|null;nationality:string|null;position:string|null;secondary_position:string|null;photo_url:string|null};
 type Intel={player_id:string;season:string;minutes:number|null;goals_per90:number|null;assists_per90:number|null;xg_per90:number|null;xa_per90:number|null;chances_created_per90:number|null;key_passes_per90:number|null;tackles_per90:number|null;interceptions_per90:number|null;progressive_carries_per90:number|null;league:string|null;club_name:string|null};
 type Contract={player_id:string;annual_salary_usd:number|null;status:string|null;end_date:string|null;club:any};
 type Value={player_id:string;market_value_usd:number|null;valuation_date:string};
@@ -31,7 +31,7 @@ export default function GlobalDiscoveryPage(){
 
  useEffect(()=>{if(!id)return;let mounted=true;(async()=>{const auth=await supabase.auth.getUser();if(!mounted)return;const uid=auth.data.user?.id||null;setUserId(uid);const [pr,pl,pg,si,co,mv,pa,listResult]=await Promise.all([
   supabase.from("scouting_profiles").select("id,name,description,criteria").eq("id",id).single(),
-  supabase.from("players").select("id,full_name,date_of_birth,nationality,position,secondary_position"),
+  supabase.from("players").select("id,full_name,date_of_birth,nationality,position,secondary_position,photo_url"),
   supabase.from("player_global_peer_benchmarks").select("player_id,season,goals_per90_global_percentile,assists_per90_global_percentile,xg_per90_global_percentile,xa_per90_global_percentile,chances_created_per90_global_percentile,key_passes_per90_global_percentile,tackles_per90_global_percentile,interceptions_per90_global_percentile,progressive_carries_per90_global_percentile"),
   supabase.from("player_season_intelligence").select("player_id,season,minutes,goals_per90,assists_per90,xg_per90,xa_per90,chances_created_per90,key_passes_per90,tackles_per90,interceptions_per90,progressive_carries_per90,league,club_name"),
   supabase.from("contracts").select("player_id,annual_salary_usd,status,end_date,club:clubs(name)"),
