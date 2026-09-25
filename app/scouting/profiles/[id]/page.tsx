@@ -67,7 +67,85 @@ export default function GlobalDiscoveryPage(){
    return true;
   }).map(p=>({p,i:latestIntel.get(p.id)||null,c:contractMap.get(p.id)||null,v:latestValue.get(p.id)||null,parts:participationMap.get(p.id)||[]}))},[profile,players,contractMap,latestValue,participationMap,latestIntel,globalPeers]);
 
- return <main style={{maxWidth:1120,margin:"0 auto",padding:"28px 20px"}}>{loading?<p>Loading global player discovery…</p>:message?<div><p style={{color:"#b00"}}>{message}</p><Link href="/scouting/profiles">← Scouting Profiles</Link></div>:profile?<><div style={{display:"flex",justifyContent:"space-between",gap:16,flexWrap:"wrap",marginBottom:20}}><div><h1 style={{margin:"0 0 6px",fontSize:28}}>Global Player Discovery</h1><p style={{margin:0,color:"#777"}}>{profile.name} · candidates matching the saved recruitment criteria</p></div><Link href="/scouting/profiles" style={{fontSize:12}}>← Scouting Profiles</Link></div>
-  <section className="intelligence-panel" style={{padding:14,marginBottom:16}}><div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}><strong>{candidates.length} candidate{candidates.length===1?"":"s"}</strong><span style={{color:"#777",fontSize:11}}>matching saved criteria</span><span style={{marginLeft:"auto",fontSize:11}}>{selected.length} selected</span><select value={selectedListId} onChange={e=>setSelectedListId(e.target.value)} style={{padding:"7px 9px",border:"1px solid #ccc",borderRadius:6,minWidth:190}}><option value="">Select scouting list</option>{lists.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}</select><button type="button" onClick={createList} disabled={listBusy} style={{padding:"7px 10px",border:"1px solid #222",background:"#fff",borderRadius:6,fontSize:11}}>New List</button><button type="button" onClick={addSelected} disabled={listBusy||!selected.length||!selectedListId} style={{padding:"7px 10px",border:0,background:"#111",color:"#fff",borderRadius:6,fontSize:11}}>Add Selected</button></div>{message&&<div style={{marginTop:8,fontSize:11,color:"#777"}}>{message}</div>}</section>
-  {!candidates.length?<div className="intelligence-empty">No players currently match this profile. Try widening the criteria.</div>:<div style={{display:"grid",gap:10}}>{candidates.map(({p,i,c,v,parts})=><article key={p.id} className="intelligence-panel" style={{padding:16,border:selected.includes(p.id)?"2px solid #111":undefined}}><div style={{display:"flex",justifyContent:"space-between",gap:14,flexWrap:"wrap"}}><label style={{display:"flex",alignItems:"center",gap:7,fontSize:11}}><input type="checkbox" checked={selected.includes(p.id)} onChange={()=>toggleCandidate(p.id)}/>{existing.has(p.id)?"On list":"Select"}</label><div><Link href={"/players/"+p.id} style={{fontSize:16,fontWeight:700}}>{p.full_name}</Link><div style={{fontSize:11,color:"#777",marginTop:5}}>{p.position||"—"}{p.secondary_position?" / "+p.secondary_position:""} · {p.nationality||"—"} · {age(p.date_of_birth)??"—"} yrs</div></div><div style={{textAlign:"right",fontSize:11}}><div>{c?.club?.name||"No current club"}</div><div style={{color:"#777",marginTop:4}}>{c?.annual_salary_usd!=null?money(c.annual_salary_usd)+" salary":"Salary —"} · {v?.market_value_usd!=null?money(v.market_value_usd)+" value":"Value —"}</div></div></div><div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8,marginTop:12,fontSize:11}}><div><strong>Minutes</strong><br/>{i?.minutes??"—"}</div><div><strong>G/90</strong><br/>{i?.goals_per90?.toFixed(2)??"—"}</div><div><strong>A/90</strong><br/>{i?.assists_per90?.toFixed(2)??"—"}</div><div><strong>xG/90</strong><br/>{i?.xg_per90?.toFixed(2)??"—"}</div><div><strong>Competition</strong><br/>{i?.league||parts[0]?.competition_name||"—"}</div></div></article>)}</div>}</>:null}</main>;
-}
+ return <>
+  <section className="players-scout-hero">
+    <div className="players-scout-shell">
+      <div className="players-scout-eyebrow">WOMEN&apos;S FOOTBALL MARKET</div>
+      <h1>Global Player Discovery</h1>
+      <p>{profile?.name ? profile.name+" · " : ""}Candidates matching the saved recruitment criteria.</p>
+    </div>
+  </section>
+
+  <main className="players-page players-scout-page">
+    {loading ? (
+      <div className="scout-empty">Loading global player discovery…</div>
+    ) : message && !profile ? (
+      <div className="scout-empty"><strong>{message}</strong><Link href="/scouting/profiles">← Scouting Profiles</Link></div>
+    ) : profile ? (
+      <>
+        <div className="scout-control-footer" style={{marginBottom:14}}>
+          <Link href="/scouting/profiles" style={{color:"#111",fontWeight:700,textDecoration:"none"}}>← Scouting Profiles</Link>
+          <span>{candidates.length} candidate{candidates.length===1?"":"s"} matching saved criteria</span>
+        </div>
+
+        <section className="scout-shortlist-bar">
+          <div><strong>{selected.length}</strong> selected</div>
+          <div className="scout-shortlist-actions">
+            <select value={selectedListId} onChange={e=>setSelectedListId(e.target.value)}>
+              <option value="">Select scouting list</option>
+              {lists.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}
+            </select>
+            <button type="button" onClick={createList} disabled={listBusy}>New List</button>
+            <button type="button" onClick={addSelected} disabled={listBusy||!selected.length||!selectedListId}>Add Selected</button>
+          </div>
+        </section>
+
+        {message && <div className="scout-note"><strong>Scouting:</strong> {message}</div>}
+
+        {!candidates.length ? (
+          <div className="scout-empty"><strong>No players currently match this profile</strong><span>Try widening the recruitment criteria.</span></div>
+        ) : (
+          <section className="scout-table-wrap global-discovery-table">
+            <div className="scout-table-header">
+              <span>PLAYER</span>
+              <span>CLUB</span>
+              <span>AGE</span>
+              <span>MINUTES</span>
+              <span>G/90</span>
+              <span>A/90</span>
+              <span>xG/90</span>
+              <span>COMPETITION</span>
+            </div>
+
+            {candidates.map(({p,i,c,v,parts})=>(
+              <article key={p.id} className={`scout-row ${selected.includes(p.id)?"is-shortlisted":""}`}>
+                <span className="scout-player">
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(p.id)}
+                    onChange={()=>toggleCandidate(p.id)}
+                    aria-label={`Select ${p.full_name}`}
+                  />
+                  <Link href={"/players/"+p.id}>
+                    <strong>{p.full_name}</strong>
+                    <small>{p.position||"Position unavailable"}{p.secondary_position?" / "+p.secondary_position:""} · {p.nationality||"Nationality unavailable"}</small>
+                  </Link>
+                </span>
+                <span>
+                  <strong>{c?.club?.name||"No current club"}</strong>
+                  <small>{c?.annual_salary_usd!=null?money(c.annual_salary_usd)+" salary":"Salary —"} · {v?.market_value_usd!=null?money(v.market_value_usd)+" value":"Value —"}</small>
+                </span>
+                <span className="scout-age">{age(p.date_of_birth)??"—"} yrs</span>
+                <span>{i?.minutes??"—"}</span>
+                <span>{i?.goals_per90?.toFixed(2)??"—"}</span>
+                <span>{i?.assists_per90?.toFixed(2)??"—"}</span>
+                <span>{i?.xg_per90?.toFixed(2)??"—"}</span>
+                <span>{i?.league||parts[0]?.competition_name||"—"}</span>
+              </article>
+            ))}
+          </section>
+        )}
+      </>
+    ) : null}
+  </main>
+ </>
