@@ -982,3 +982,14 @@
     box-sizing: border-box !important;
   }
 }
+
+
+/* Consistent content width on mobile */
+@media (max-width:650px) {
+  .players-scout-page {
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+    padding:22px 16px 44px !important;
+  }
+}
