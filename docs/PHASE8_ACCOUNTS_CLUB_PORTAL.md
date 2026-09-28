@@ -1,6 +1,6 @@
 # Phase 8 — Accounts, Club Portal & Commercial Product
 
-Status: In progress — club team and saved-report foundation complete
+Status: In progress — commercial entitlement foundation and private reporting complete
 
 ## Completed foundation
 
@@ -14,28 +14,40 @@ Status: In progress — club team and saved-report foundation complete
 - Admin-controlled club membership assignment
 - Account-role/membership protection
 - Recruitment board search/add/update/remove workflow
-- CI production build verification in progress
-
-## Security model
-
-Club recruitment data is private to active members of the associated club. Users cannot self-assign a club or change protected account membership fields. WFM admins control membership assignment and access-request review.
-
-## Completed in this block
-
 - Club team management foundation
 - Club-admin invitation records with roles
 - Invitation revocation
-- Saved-report database model with private club access controls
-- Commercial-ready separation between public WFM data and private club workspaces
+
+## Private scouting intelligence
+
+- Saved comparison reports from scouting
+- Private club report library
+- Reopen saved reports
+- Edit report name and description
+- Delete saved reports
+- Internal sharing through active club membership
+- Candidate links preserved from saved comparisons
+
+## Commercial entitlement foundation
+
+- Public access-plan catalog
+- User- and club-scoped entitlements
+- Admin-controlled entitlement management
+- Plan feature flags stored as structured JSON
+- Status and effective-date fields for future subscription/billing integration
+- No payment provider is assumed or hard-coded into the product yet
+
+## Security model
+
+Club recruitment data and saved reports are private to active members of the associated club. Users cannot self-assign a club or change protected account membership fields. WFM admins control membership assignment, access-request review, and commercial entitlements.
 
 ## Next commercial layer
 
 1. Club verification and ownership review UI
-2. Club team/member management
-3. Scout organization profiles
-4. Saved reports and export controls
-5. Data-access tiers
-6. Subscription-ready entitlements
-7. Commercial licensing controls
-8. Admin commercial dashboard
-9. Paid intelligence/report products
+2. Scout organization profiles
+3. Saved report export controls
+4. Data-access tier enforcement in application features
+5. Subscription/billing integration boundary
+6. Commercial licensing controls
+7. Admin commercial dashboard
+8. Paid intelligence/report products
