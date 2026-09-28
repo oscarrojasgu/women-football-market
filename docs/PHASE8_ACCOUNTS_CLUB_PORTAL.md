@@ -1,6 +1,6 @@
 # Phase 8 — Accounts, Club Portal & Commercial Product
 
-Status: In progress
+Status: In progress — club team and saved-report foundation complete
 
 ## Completed foundation
 
@@ -19,6 +19,14 @@ Status: In progress
 ## Security model
 
 Club recruitment data is private to active members of the associated club. Users cannot self-assign a club or change protected account membership fields. WFM admins control membership assignment and access-request review.
+
+## Completed in this block
+
+- Club team management foundation
+- Club-admin invitation records with roles
+- Invitation revocation
+- Saved-report database model with private club access controls
+- Commercial-ready separation between public WFM data and private club workspaces
 
 ## Next commercial layer
 
