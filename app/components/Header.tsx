@@ -19,6 +19,7 @@ export default function Header() {
   const router = useRouter()
   const menuRef = useRef<HTMLDivElement>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [userDisplayName, setUserDisplayName] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
@@ -30,6 +31,7 @@ export default function Header() {
       const { data } = await supabase.auth.getUser()
       if (!mounted) return
       setUserEmail(data.user?.email ?? null)
+      setUserDisplayName((data.user?.user_metadata?.display_name as string | undefined) ?? null)
       setUserRole((data.user?.app_metadata?.role as string | undefined) ?? null)
     }
 
@@ -38,6 +40,7 @@ export default function Header() {
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return
       setUserEmail(session?.user?.email ?? null)
+      setUserDisplayName((session?.user?.user_metadata?.display_name as string | undefined) ?? null)
       setUserRole((session?.user?.app_metadata?.role as string | undefined) ?? null)
       if (!session) setMenuOpen(false)
     })
@@ -67,9 +70,9 @@ export default function Header() {
     }
   }, [])
 
-  const displayName = userEmail
+  const displayName = userDisplayName?.trim() || (userEmail
     ? userEmail.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-    : null
+    : null)
 
   const isClubAccount = userRole === 'club' || userRole === 'club_admin' || userRole === 'club_staff'
 
