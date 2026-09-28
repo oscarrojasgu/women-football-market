@@ -15,7 +15,6 @@ function LoginForm(){
  const [message,setMessage]=useState("")
  const [error,setError]=useState("")
  const returnTo=searchParams.get("returnTo")||"/scouting"
- useEffect(()=>{supabase.auth.getUser().then(({data})=>{if(data.user)router.replace(returnTo)})},[router,returnTo])
  const submit=async(e:FormEvent)=>{
   e.preventDefault();setBusy(true);setError("");setMessage("")
   if(mode==="signup"){
