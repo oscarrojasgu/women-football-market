@@ -1524,3 +1524,114 @@ textarea {
     flex: 0 0 auto;
   }
 }
+
+
+/* FINAL HOME PLAYER TABLE ALIGNMENT
+   Match the shared Players / Contracts / Salaries mobile card language. */
+@media (max-width: 650px) {
+  .home-player-table {
+    border: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  .home-player-table-head {
+    display: none !important;
+  }
+
+  .home-player-table .home-player-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 9px 12px !important;
+    padding: 15px !important;
+    margin-bottom: 9px;
+    border: 1px solid #e2e1dc !important;
+    border-radius: 12px;
+    background: #fff !important;
+    min-width: 0 !important;
+    align-items: center !important;
+  }
+
+  .home-player-table .home-player-row:last-child {
+    border-bottom: 1px solid #e2e1dc !important;
+    margin-bottom: 0;
+  }
+
+  .home-player-table .home-player-cell {
+    min-width: 0;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    font-size: 13px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .home-player-table .home-player-cell--player {
+    grid-column: 1 / -1;
+    padding: 0 0 2px !important;
+  }
+
+  .home-player-table .home-player-cell--club {
+    grid-column: 1 / -1;
+  }
+
+  .home-player-table .home-player-cell--league {
+    grid-column: 1;
+    color: #555 !important;
+  }
+
+  .home-player-table .home-player-cell--contract {
+    grid-column: 1;
+  }
+
+  .home-player-table .home-player-cell--salary {
+    grid-column: 1;
+    font-weight: 700;
+  }
+
+  .home-player-table .home-player-cell--confidence {
+    grid-column: 2;
+    grid-row: 3 / span 3;
+    align-self: center;
+    justify-self: end;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+    text-align: right;
+  }
+
+  .home-player-table .home-player-cell small {
+    display: block;
+    margin: 0 0 3px;
+    color: #999;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .7px;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .home-player-table .home-player-cell--player b {
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  .home-player-table .home-player-cell--player > span > small {
+    margin-top: 4px;
+    margin-bottom: 0;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: #888;
+  }
+
+  .home-player-table .home-player-cell--player img {
+    width: 46px !important;
+    height: 46px !important;
+    flex-basis: 46px !important;
+  }
+}
