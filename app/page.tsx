@@ -535,7 +535,7 @@ export default function Home() {
         )}
 
         <div
-          className="table"
+          className="table home-player-table"
           style={{
             border: '1px solid #e3e3e3',
             borderRadius: '14px',
@@ -544,7 +544,7 @@ export default function Home() {
           }}
         >
           <div
-            className="thead"
+            className="thead home-player-table-head"
             style={{
               display: 'grid',
               gridTemplateColumns:
@@ -574,7 +574,7 @@ export default function Home() {
             return (
               <Link
                 href={`/players/${player.id}`}
-                className="row"
+                className="row home-player-row"
                 key={`db-${player.id}`}
                 style={{
                   display: 'grid',
@@ -589,7 +589,7 @@ export default function Home() {
                   fontSize: '14px',
                 }}
               >
-                <span style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                <span className="home-player-cell home-player-cell--player" style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
                   <img
                     src={player.photo_url || '/wfm-player-placeholder.svg'}
                     alt={player.full_name}
@@ -629,24 +629,24 @@ export default function Home() {
                   </span>
                 </span>
 
-                <span>
-                  {contract?.club?.name || 'Unknown'}
+                <span className="home-player-cell home-player-cell--club">
+                  <small>Club</small>{contract?.club?.name || 'Unknown'}
                 </span>
 
-                <span style={{ color: '#666' }}>
-                  {contract?.club?.league || 'Unknown'}
+                <span className="home-player-cell home-player-cell--league" style={{ color: '#666' }}>
+                  <small>League</small>{contract?.club?.league || 'Unknown'}
                 </span>
 
-                <span>
-                  {contract?.end_date || 'Unknown'}
+                <span className="home-player-cell home-player-cell--contract">
+                  <small>Contract</small>{contract?.end_date || 'Unknown'}
                 </span>
 
-                <span>
-                  {formatSalary(contract?.annual_salary ?? null)}
+                <span className="home-player-cell home-player-cell--salary">
+                  <small>Salary</small>{formatSalary(contract?.annual_salary ?? null)}
                 </span>
 
-                <span>
-                  <i
+                <span className="home-player-cell home-player-cell--confidence">
+                  <small>Confidence</small><i
                     className="badge"
                     style={{
                       display: 'inline-block',
