@@ -66,7 +66,7 @@ export default function ImportReviewPage(){
   void run();return()=>{active=false}
  },[search,selected]);
 
- const publish=async()=>{
+ const validate=async()=>{if(!selected)return;setBusy(true);setError("");setMessage("");const {data,error:e}=await supabase.rpc("wfm_validate_player_import",{p_queue_id:selected.id});if(e)setError(e.message);else{setMessage(`Validation score: ${data?.score??0}. Status: ${data?.status||"updated"}.`);setSelected(null);await load()}setBusy(false)};\n\n const publish=async()=>{
   if(!selected)return;
   setBusy(true);setError("");setMessage("");
   const {data,error:e}=await supabase.rpc("wfm_publish_import_queue_item",{p_queue_id:selected.id});
@@ -150,7 +150,7 @@ export default function ImportReviewPage(){
         <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:14}}><button type="button" className="settings-primary" disabled={busy} onClick={()=>void createNew()}>{busy?"Validating…":"Validate & prepare"}</button><button type="button" className="outline" disabled={busy} onClick={()=>setShowCreate(false)}>Cancel</button></div>
        </div>}
       </div>
-      <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:18}}>{selected.status==="ready"&&<button type="button" className="settings-primary" disabled={busy} onClick={()=>void publish()}>{busy?"Publishing…":"Publish to WFM"}</button>}<button type="button" className="outline" disabled={busy} onClick={()=>void action("needs_review")}>Needs review</button><button type="button" className="outline" disabled={busy} onClick={()=>void action("rejected")}>Reject</button></div>
+      <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:18}}>{selected.entity_type==="player"&&(selected.status==="pending"||selected.status==="needs_review")&&<button type="button" className="outline" disabled={busy} onClick={()=>void validate()}>Validate player</button>}{selected.status==="ready"&&<button type="button" className="settings-primary" disabled={busy} onClick={()=>void publish()}>{busy?"Publishing…":"Publish to WFM"}</button>}<button type="button" className="outline" disabled={busy} onClick={()=>void action("needs_review")}>Needs review</button><button type="button" className="outline" disabled={busy} onClick={()=>void action("rejected")}>Reject</button></div>
     </div>:<p className="account-muted">Select an incoming record to review its candidates.</p>}
    </section>
   </div>
