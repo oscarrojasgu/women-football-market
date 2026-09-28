@@ -16,6 +16,15 @@ type Club = {
   logo_url: string | null;
 };
 
+type Source = {
+  id: string;
+  publisher: string | null;
+  url: string | null;
+  published_at: string | null;
+  reliability: string | null;
+  accessed_at: string | null;
+};
+
 type Contract = {
   id: string;
   status: string | null;
@@ -29,6 +38,7 @@ type Contract = {
   currency: string | null;
   notes: string | null;
   club_id: string | null;
+  source: Source | null;
 };
 
 type Transfer = {
@@ -40,6 +50,7 @@ type Transfer = {
   confidence: string | null;
   from_club: Club | null;
   to_club: Club | null;
+  source: Source | null;
   competitionContexts?: {
     club_role: string;
     competition_season?: {
@@ -118,6 +129,7 @@ type PlayerStat = {
   own_goals: number | null;
   confidence: string | null;
   notes: string | null;
+  source: Source | null;
 };
 
 const flagCode = (nationality: string | null) => {
@@ -167,10 +179,10 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   }
 
   const [{ data: contractData }, { data: statsData }, { data: transferData }, { data: valueData }, { data: seasonIntelligenceData }, { data: peerBenchmarkData }] = await Promise.all([
-    supabase.from("contracts").select("id,status,confidence,start_date,end_date,annual_salary,weekly_salary,annual_salary_usd,weekly_salary_usd,currency,notes,club_id").eq("player_id", id).order("start_date", { ascending: false }),
-    supabase.from("player_stats").select("id,club_id,season,competition,appearances,starts,minutes,goals,assists,yellow_cards,red_cards,shots,shots_on_target,key_passes,chances_created,crosses,tackles,tackles_won,interceptions,clearances,blocks,recoveries,dispossessions,dribbles_attempted,dribbles_completed,fouls_committed,fouls_drawn,offsides,passes_attempted,passes_completed,progressive_passes,progressive_carries,duels_won,duels_lost,aerials_won,aerials_lost,xg,xa,sca,gca,saves,shots_on_target_faced,goals_against,clean_sheets,penalty_kicks_saved,penalty_kicks_faced,own_goals,confidence,notes,competition_season:competition_seasons(id,competition:competitions(canonical_name),season:seasons(season_key,label))").eq("player_id", id).order("season", { ascending: false }).order("competition", { ascending: true }),
-    supabase.from("transfers").select("id,transfer_date,transfer_type,fee,currency,confidence,from_club:clubs!transfers_from_club_id_fkey(id,name,league,country,logo_url),to_club:clubs!transfers_to_club_id_fkey(id,name,league,country,logo_url),transfer_competitions:transfer_competitions(club_role,competition_season:competition_seasons(competition:competitions(canonical_name),season:seasons(season_key,label)))").eq("player_id", id).order("transfer_date", { ascending: false }),
-    supabase.from("market_values").select("id,valuation_date,market_value,currency,market_value_usd,confidence,notes,competition_season:competition_seasons(competition:competitions(canonical_name),season:seasons(season_key,label))").eq("player_id", id).order("valuation_date", { ascending: false }),
+    supabase.from("contracts").select("id,status,confidence,start_date,end_date,annual_salary,weekly_salary,annual_salary_usd,weekly_salary_usd,currency,notes,club_id,source:sources(id,publisher,url,published_at,reliability,accessed_at)").eq("player_id", id).order("start_date", { ascending: false }),
+    supabase.from("player_stats").select("id,club_id,season,competition,appearances,starts,minutes,goals,assists,yellow_cards,red_cards,shots,shots_on_target,key_passes,chances_created,crosses,tackles,tackles_won,interceptions,clearances,blocks,recoveries,dispossessions,dribbles_attempted,dribbles_completed,fouls_committed,fouls_drawn,offsides,passes_attempted,passes_completed,progressive_passes,progressive_carries,duels_won,duels_lost,aerials_won,aerials_lost,xg,xa,sca,gca,saves,shots_on_target_faced,goals_against,clean_sheets,penalty_kicks_saved,penalty_kicks_faced,own_goals,confidence,notes,source:sources(id,publisher,url,published_at,reliability,accessed_at),competition_season:competition_seasons(id,competition:competitions(canonical_name),season:seasons(season_key,label))").eq("player_id", id).order("season", { ascending: false }).order("competition", { ascending: true }),
+    supabase.from("transfers").select("id,transfer_date,transfer_type,fee,currency,confidence,source:sources(id,publisher,url,published_at,reliability,accessed_at),from_club:clubs!transfers_from_club_id_fkey(id,name,league,country,logo_url),to_club:clubs!transfers_to_club_id_fkey(id,name,league,country,logo_url),transfer_competitions:transfer_competitions(club_role,competition_season:competition_seasons(competition:competitions(canonical_name),season:seasons(season_key,label)))").eq("player_id", id).order("transfer_date", { ascending: false }),
+    supabase.from("market_values").select("id,valuation_date,market_value,currency,market_value_usd,confidence,notes,source:sources(id,publisher,url,published_at,reliability,accessed_at),competition_season:competition_seasons(competition:competitions(canonical_name),season:seasons(season_key,label))").eq("player_id", id).order("valuation_date", { ascending: false }),
     supabase.from("player_season_intelligence").select("season,club_name,league,position,minutes,goals,assists,goals_per90,assists_per90,xg_per90,xa_per90,chances_created_per90,key_passes_per90,tackles_per90,interceptions_per90,progressive_carries_per90,duels_won_per90").eq("player_id", id).order("season", { ascending: false }),
     supabase.from("player_peer_benchmarks").select("season,league,position,peer_count,goals_per90_percentile,assists_per90_percentile,xg_per90_percentile,xa_per90_percentile,chances_created_per90_percentile,key_passes_per90_percentile,tackles_per90_percentile,interceptions_per90_percentile,progressive_carries_per90_percentile").eq("player_id", id).order("season", { ascending: false }),
   ]);
@@ -354,9 +366,32 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
         <section style={{ marginTop: 16 }}><PlayerStatistics stats={stats} clubs={clubs} /></section>
 
         <section style={{ ...card, marginTop: 16 }}>
-          <h2 style={{ margin: 0, fontSize: 19 }}>Player Data Sources</h2>
-          <p style={{ margin: "5px 0 0", color: "#888", fontSize: 12 }}>WFM keeps source and confidence metadata attached to important records rather than presenting estimates as facts.</p>
-          <div style={{ marginTop: 16, padding: 14, background: "#fafafa", border: "1px solid #eee", borderRadius: 9, fontSize: 12, lineHeight: 1.6 }}>Contract, salary, transfer, market-value and statistics records retain their source/confidence fields in the database. Where a value or date is unknown, WFM displays that uncertainty instead of filling the gap with an unsupported assumption.</div>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
+            <div>
+              <h2 style={{ margin: 0, fontSize: 19 }}>Data Provenance & Trust</h2>
+              <p style={{ margin: "5px 0 0", color: "#888", fontSize: 12 }}>WFM shows the evidence context attached to published player records. Confidence describes the strength of the record, while the source identifies where the information came from.</p>
+            </div>
+            <div style={{ fontSize: 11, color: "#888" }}>{Array.from(new Map([...contracts.map(c => c.source), ...stats.map(s => s.source), ...transfers.map(t => t.source), ...marketValues.map(v => v.source)].filter(Boolean).map(s => [s!.id, s!])).values()).length} linked source{Array.from(new Map([...contracts.map(c => c.source), ...stats.map(s => s.source), ...transfers.map(t => t.source), ...marketValues.map(v => v.source)].filter(Boolean).map(s => [s!.id, s!])).values()).length === 1 ? "" : "s"}</div>
+          </div>
+          <div style={{ marginTop: 16, display: "grid", gap: 9 }}>
+            {Array.from(new Map([...contracts.map(c => c.source), ...stats.map(s => s.source), ...transfers.map(t => t.source), ...marketValues.map(v => v.source)].filter(Boolean).map(s => [s!.id, s!])).values()).map(source => (
+              <article key={source.id} style={{ border: "1px solid #eee", borderRadius: 9, padding: 13, background: "#fafafa" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                  <div>
+                    <strong>{source.publisher || "Source publisher not recorded"}</strong>
+                    <div style={{ marginTop: 4, color: "#777", fontSize: 11 }}>
+                      {source.published_at ? "Published " + dateText(source.published_at) : "Publication date not recorded"}
+                      {source.reliability ? " · " + titleCase(source.reliability) + " reliability" : ""}
+                      {source.accessed_at ? " · Accessed " + new Date(source.accessed_at).toLocaleDateString("en-US") : ""}
+                    </div>
+                  </div>
+                  {source.url && <a href={source.url} target="_blank" rel="noreferrer" style={{ color: "#111", fontSize: 12, fontWeight: 700 }}>View source →</a>}
+                </div>
+              </article>
+            ))}
+            {!Array.from(new Map([...contracts.map(c => c.source), ...stats.map(s => s.source), ...transfers.map(t => t.source), ...marketValues.map(v => v.source)].filter(Boolean).map(s => [s!.id, s!])).values()).length && <div style={{ padding: 14, background: "#fafafa", border: "1px solid #eee", borderRadius: 9, color: "#888", fontSize: 12 }}>No linked source records are currently available for this player. WFM does not infer a source when one is not recorded.</div>}
+          </div>
+          <div style={{ marginTop: 14, color: "#888", fontSize: 11, lineHeight: 1.6 }}>Unknown values remain unknown. A missing source, confidence level, date, salary, transfer fee or valuation is intentionally displayed as unavailable rather than being filled with an unsupported assumption.</div>
         </section>
 
         <div style={{ marginTop: 18, fontSize: 11, color: "#999", lineHeight: 1.6 }}>Profile coverage: {player.full_name} · {contracts.length} contract record{contracts.length === 1 ? "" : "s"} · {marketValues.length} market-value record{marketValues.length === 1 ? "" : "s"} · {transfers.length} transfer record{transfers.length === 1 ? "" : "s"} · {stats.length} club-stat record{stats.length === 1 ? "" : "s"}. Latest transfer: {latestTransfer ? dateText(latestTransfer.transfer_date) : "none recorded"}.</div>
