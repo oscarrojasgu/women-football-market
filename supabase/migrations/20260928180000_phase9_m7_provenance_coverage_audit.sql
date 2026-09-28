@@ -14,7 +14,7 @@ returns table (
   coverage_percent numeric
 )
 language sql
-security definer
+security invoker
 set search_path = public
 as $$
   with linked as (
