@@ -44,3 +44,28 @@ export default function CoveragePage(){
    setRows(coverage.map(r=>r.competition_id?{...r,current_clubs:clubCounts.get(r.competition_id)??0,current_seasons:seasonCounts.get(r.competition_id)??0,current_players:playerCounts.get(r.competition_id)?.size??0}:r));
   }else setRows(coverage);
 
+  setLoading(false);
+ };
+ const refreshCoverage=async()=>{setRefreshing(true);setError("");setMessage("");await load();setMessage("Coverage counts refreshed from current WFM records.");setRefreshing(false)};
+ const setCoverageStatus=async(id:string,next:string)=>{
+  setBusy(id);setError("");setMessage("");
+  const {error:e}=await supabase.from("wfm_competition_coverage").update({status:next}).eq("id",id);
+  if(e)setError(e.message);else{setMessage("Coverage status updated.");await load()}
+  setBusy(null);
+ };
+ useEffect(()=>{void load()},[]);
+ const filtered=useMemo(()=>status==="all"?rows:rows.filter(r=>r.status===status),[rows,status]);
+ if(loading)return <main className="players-scout-page"><div className="panel"><p>Loading coverage…</p></div></main>;
+ if(!authorized)return <main className="players-scout-page"><div className="panel"><p>Admin access required.</p></div></main>;
+ return <main className="players-scout-page">
+  <div className="panel">
+   <div className="panel-header"><div><div className="eyebrow">PHASE 9 · DATA SCALE</div><h1>Competition Coverage</h1><p>Track league-by-league coverage targets and current WFM inventory.</p></div><div className="actions"><Link href="/admin/data" className="outline">Data administration</Link><Link href="/admin/data/review" className="outline">Review queue</Link><button type="button" className="outline" disabled={refreshing} onClick={()=>void refreshCoverage()}>{refreshing?"Refreshing…":"Refresh counts"}</button></div></div>
+   {error&&<div className="alert error">{error}</div>}{message&&<div className="alert success">{message}</div>}
+   <div className="coverage-summary"><div><strong>{rows.length}</strong><span>Tracked leagues</span></div><div><strong>{rows.reduce((n,r)=>n+r.current_players,0)}</strong><span>Players</span></div><div><strong>{rows.reduce((n,r)=>n+r.current_clubs,0)}</strong><span>Clubs</span></div><div><strong>{rows.reduce((n,r)=>n+r.current_seasons,0)}</strong><span>Seasons</span></div></div>
+   <div className="filter-row"><label>Status<select value={status} onChange={e=>setStatus(e.target.value)}><option value="all">All</option><option value="planned">Planned</option><option value="in_progress">In progress</option><option value="active">Active</option><option value="complete">Complete</option><option value="paused">Paused</option></select></label></div>
+   <div className="table"><div className="thead"><span>Priority</span><span>Competition</span><span>Country</span><span>Targets</span><span>Current</span><span>Status</span><span>Action</span></div>
+    {filtered.map(r=><div className="row" key={r.id}><span>P{r.priority}</span><span><strong>{r.competition_name}</strong><small>{r.tier_label||"—"}</small></span><span>{r.country||"—"}</span><span>{r.target_players} players · {r.target_clubs} clubs · {r.target_seasons} seasons</span><span>{r.current_players} players · {r.current_clubs} clubs · {r.current_seasons} seasons</span><span>{r.status}</span><span>{r.status==="planned"&&<button disabled={busy===r.id} onClick={()=>void setCoverageStatus(r.id,"in_progress")}>Start</button>}{r.status==="in_progress"&&<button disabled={busy===r.id} onClick={()=>void setCoverageStatus(r.id,"active")}>Activate</button>}{r.status==="active"&&<button disabled={busy===r.id} onClick={()=>void setCoverageStatus(r.id,"complete")}>Complete</button>}</span></div>)}
+   </div>
+  </div>
+ </main>;
+}
