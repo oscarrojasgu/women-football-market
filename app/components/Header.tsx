@@ -12,6 +12,7 @@ const pages = [
   { href: '/transfers', label: 'Transfers' },
   { href: '/salaries', label: 'Salaries' },
   { href: '/clubs', label: 'Clubs' },
+  { href: '/competitions', label: 'Competitions' },
 ]
 
 export default function Header() {
