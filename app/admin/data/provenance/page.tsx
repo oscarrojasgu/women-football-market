@@ -24,7 +24,7 @@ export default function ProvenancePage() {
   const [reliability, setReliability] = useState("all");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [counts, setCounts] = useState({ sources: 0, linkedRecords: 0, missingAccess: 0, missingPublished: 0 });
+  const [counts, setCounts] = useState({ sources: 0, linkedRecords: 0, missingAccess: 0, missingPublished: 0, missingRecordSources: 0, coveragePercent: 0 });
 
   const load = async () => {
     const { data: u } = await supabase.auth.getUser();
@@ -57,6 +57,8 @@ export default function ProvenancePage() {
     }
 
     const sourceRows = (data || []) as Source[];
+    const { data: coverage } = await supabase.rpc("wfm_provenance_coverage");
+    const audit = coverage?.[0] || coverage || {};
     const sourceIds = sourceRows.map((s) => s.id);
 
     const usageTables = ["contracts", "transfers", "player_stats", "market_values"];
@@ -81,7 +83,7 @@ export default function ProvenancePage() {
     }
 
     setRows(sourceRows.map((source) => ({ ...source, usage: usageBySource.get(source.id) || 0 })));
-    setCounts({ sources: sourceRows.length, linkedRecords, missingAccess, missingPublished });
+    setCounts({ sources: sourceRows.length, linkedRecords, missingAccess, missingPublished, missingRecordSources: Number(audit.records_missing_source || 0), coveragePercent: Number(audit.coverage_percent || 0) });
     setLoading(false);
   };
 
@@ -156,6 +158,8 @@ export default function ProvenancePage() {
           <div><strong>{counts.linkedRecords}</strong><span>Linked records</span></div>
           <div><strong>{counts.missingPublished}</strong><span>Missing publication date</span></div>
           <div><strong>{counts.missingAccess}</strong><span>Missing access date</span></div>
+          <div><strong>{counts.missingRecordSources}</strong><span>Records missing source</span></div>
+          <div><strong>{counts.coveragePercent}%</strong><span>Traceable records</span></div>
         </div>
 
         <div className="filter-row">
