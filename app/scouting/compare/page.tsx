@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { supabase } from "../../lib/supabase";
 import ShortlistCompareActions from "./ShortlistCompareActions";
+import SaveComparisonReport from "./SaveComparisonReport";
 
 type Props={searchParams:Promise<{players?:string;returnTo?:string}>};
 
@@ -34,29 +35,18 @@ export default async function ScoutingComparePage({searchParams}:Props){
   return <>
     <section className="players-scout-hero"><div className="players-scout-shell"><div className="players-scout-eyebrow">WOMEN'S FOOTBALL MARKET</div><h1>Scouting Comparison</h1><p>Side-by-side descriptive context for the selected recruitment candidates.</p></div></section>
     <main className="players-page players-scout-page">
-      <div className="scout-control-footer" style={{marginBottom:14}}><Link href={returnTo} style={{color:"#111",fontWeight:700,textDecoration:"none"}}>← Scouting Workspace</Link><span>{rows.length} players compared</span></div>
+      <div className="scout-control-footer" style={{marginBottom:14}}><div style={{display:"flex",gap:12,alignItems:"center",flexWrap:"wrap"}}><Link href={returnTo} style={{color:"#111",fontWeight:700,textDecoration:"none"}}>← Scouting Workspace</Link><SaveComparisonReport playerIds={rows.map(p=>p.id)}/></div><span>{rows.length} players compared</span></div>
       <section className="scout-table-wrap" style={{overflowX:"auto"}}>
         <div style={{minWidth:760,padding:16}}>
           <div style={{display:"grid",gridTemplateColumns:"180px repeat("+rows.length+",minmax(170px,1fr))",gap:8,borderBottom:"1px solid #ddd",paddingBottom:12}}>
             <div><small style={{color:"#888"}}>PLAYER</small></div>
             {rows.map(p=><div key={p.id}><div style={{display:"flex",alignItems:"center",gap:8}}>{p.photo_url?<img src={p.photo_url} alt="" className="scout-player-photo"/>:<span className="scout-player-photo scout-player-photo-empty">{p.full_name?.charAt(0)||"?"}</span>}<strong>{p.full_name}</strong></div><small style={{color:"#777"}}>{p.position||"Position unavailable"} · {p.nationality||"Nationality unavailable"}</small></div>)}
           </div>
-          <div style={{marginTop:14}}>
-            <div style={{fontSize:10,color:"#888",letterSpacing:".08em",fontWeight:800}}>PLAYER CONTEXT</div>
-            {([
-              ["Age",(p:any):ReactNode=>age(p.date_of_birth)==null?"—":age(p.date_of_birth)+" yrs"],
-              ["Club",(p:any):ReactNode=>contractMap.get(p.id)?.club?.name||"No current club"],
-              ["Contract",(p:any):ReactNode=>contractMap.get(p.id)?.status||"—"],
-              ["Salary",(p:any):ReactNode=>money(contractMap.get(p.id)?.annual_salary_usd??null)],
-              ["Market value",(p:any):ReactNode=>money(valueMap.get(p.id)?.market_value_usd??null)]
-            ] as Array<[string,(p:any)=>ReactNode]>).map(([label,getter])=><div key={label} style={{display:"grid",gridTemplateColumns:"180px repeat("+rows.length+",minmax(170px,1fr))",gap:8,borderBottom:"1px solid #eee",padding:"9px 0"}}><strong style={{fontSize:11}}>{label}</strong>{rows.map((p:any)=><span key={p.id} style={{fontSize:12}}>{getter(p)}</span>)}</div>)}
+          <div style={{marginTop:14}}><div style={{fontSize:10,color:"#888",letterSpacing:".08em",fontWeight:800}}>PLAYER CONTEXT</div>
+            {([["Age",(p:any):ReactNode=>age(p.date_of_birth)==null?"—":age(p.date_of_birth)+" yrs"],["Club",(p:any):ReactNode=>contractMap.get(p.id)?.club?.name||"No current club"],["Contract",(p:any):ReactNode=>contractMap.get(p.id)?.status||"—"],["Salary",(p:any):ReactNode=>money(contractMap.get(p.id)?.annual_salary_usd??null)],["Market value",(p:any):ReactNode=>money(valueMap.get(p.id)?.market_value_usd??null)]] as Array<[string,(p:any)=>ReactNode]>).map(([label,getter])=><div key={label} style={{display:"grid",gridTemplateColumns:"180px repeat("+rows.length+",minmax(170px,1fr))",gap:8,borderBottom:"1px solid #eee",padding:"9px 0"}}><strong style={{fontSize:11}}>{label}</strong>{rows.map((p:any)=><span key={p.id} style={{fontSize:12}}>{getter(p)}</span>)}</div>)}
           </div>
-          <div style={{marginTop:20}}><div style={{fontSize:10,color:"#888",letterSpacing:".08em",fontWeight:800}}>LATEST-SEASON PERFORMANCE</div>
-            {metrics.map(([label,key])=><div key={key} style={{display:"grid",gridTemplateColumns:"180px repeat("+rows.length+",minmax(170px,1fr))",gap:8,borderBottom:"1px solid #eee",padding:"9px 0"}}><strong style={{fontSize:11}}>{label}</strong>{rows.map(p=>{const i=intelMap.get(p.id);const v=i?.[key];return <span key={p.id} style={{fontSize:12}}>{v==null?"—":key==="minutes"?v:Number(v).toFixed(2)}</span>})}</div>)}
-          </div>
-          <div style={{marginTop:20}}><div style={{fontSize:10,color:"#888",letterSpacing:".08em",fontWeight:800}}>GLOBAL PEER CONTEXT</div><p style={{fontSize:11,color:"#777"}}>Percentiles use each player's latest intelligence season and the corresponding global peer population. They are descriptive research context, not a player rating.</p>
-            {percentileMetrics.map(([label,key])=><div key={key} style={{display:"grid",gridTemplateColumns:"180px repeat("+rows.length+",minmax(170px,1fr))",gap:8,borderBottom:"1px solid #eee",padding:"9px 0"}}><strong style={{fontSize:11}}>{label}</strong>{rows.map(p=><span key={p.id} style={{fontSize:12}}>{pct(peerMap.get(p.id)?.[key]??null)}</span>)}</div>)}
-          </div>
+          <div style={{marginTop:20}}><div style={{fontSize:10,color:"#888",letterSpacing:".08em",fontWeight:800}}>LATEST-SEASON PERFORMANCE</div>{metrics.map(([label,key])=><div key={key} style={{display:"grid",gridTemplateColumns:"180px repeat("+rows.length+",minmax(170px,1fr))",gap:8,borderBottom:"1px solid #eee",padding:"9px 0"}}><strong style={{fontSize:11}}>{label}</strong>{rows.map(p=>{const i=intelMap.get(p.id);const v=i?.[key];return <span key={p.id} style={{fontSize:12}}>{v==null?"—":key==="minutes"?v:Number(v).toFixed(2)}</span>})}</div>)}</div>
+          <div style={{marginTop:20}}><div style={{fontSize:10,color:"#888",letterSpacing:".08em",fontWeight:800}}>GLOBAL PEER CONTEXT</div><p style={{fontSize:11,color:"#777"}}>Percentiles use each player's latest intelligence season and the corresponding global peer population. They are descriptive research context, not a player rating.</p>{percentileMetrics.map(([label,key])=><div key={key} style={{display:"grid",gridTemplateColumns:"180px repeat("+rows.length+",minmax(170px,1fr))",gap:8,borderBottom:"1px solid #eee",padding:"9px 0"}}><strong style={{fontSize:11}}>{label}</strong>{rows.map(p=><span key={p.id} style={{fontSize:12}}>{pct(peerMap.get(p.id)?.[key]??null)}</span>)}</div>)}</div>
         </div>
       </section>
       <div className="scout-note" style={{marginTop:14}}>Comparison is limited to documented WFM data. Missing values remain unavailable rather than being treated as zero, and the page does not assign an overall winner or player rating.</div>
