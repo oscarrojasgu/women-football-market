@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { FormEvent, useEffect, useState } from 'react'
 import { supabase } from '../../../lib/supabase'
 
-type Member = { user_id: string; role: string; status: string; created_at: string }
+type Member = { user_id: string; role: string; status: string; created_at: string; display_name?: string | null }
 type Invite = { id: string; email: string; role: string; status: string; created_at: string }
 
 export default function ClubTeamPage() {
@@ -17,6 +17,7 @@ export default function ClubTeamPage() {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [memberName, setMemberName] = useState<Record<string,string>>({})
 
   const load = async () => {
     setLoading(true)
@@ -29,7 +30,16 @@ export default function ClubTeamPage() {
       supabase.from('club_account_members').select('user_id,role,status,created_at').eq('club_id', membership.club_id).order('created_at'),
       supabase.from('club_account_invitations').select('id,email,role,status,created_at').eq('club_id', membership.club_id).order('created_at',{ascending:false}),
     ])
-    setMembers((memberRows ?? []) as Member[])
+    const loadedMembers = (memberRows ?? []) as Member[]
+    setMembers(loadedMembers)
+    if (loadedMembers.length) {
+      const names: Record<string,string> = {}
+      for (const member of loadedMembers) {
+        const { data: profile } = await supabase.from('account_profiles').select('display_name').eq('user_id', member.user_id).maybeSingle()
+        if (profile?.display_name) names[member.user_id] = profile.display_name
+      }
+      setMemberName(names)
+    }
     setInvites((inviteRows ?? []) as Invite[])
     setLoading(false)
   }
@@ -80,7 +90,7 @@ export default function ClubTeamPage() {
 
       <section className="settings-section">
         <div className="settings-section-heading"><span>MEMBERS</span><h2>Current team</h2></div>
-        {members.length ? members.map(member => <div className="account-membership-row" key={member.user_id}><div><strong>{member.user_id}</strong><small>{member.role} · {member.status}</small></div></div>) : <p className="account-muted">No active members.</p>}
+        {members.length ? members.map(member => <div className="account-membership-row" key={member.user_id}><div><strong>{memberName[member.user_id] || 'WFM member'}</strong><small>{member.role} · {member.status}</small></div></div>) : <p className="account-muted">No active members.</p>}
       </section>
     </div>}
 
