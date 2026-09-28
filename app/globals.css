@@ -1338,3 +1338,104 @@ select {
   .admin-request-card { display: block; }
   .admin-request-actions { margin-top: 15px; }
 }
+
+
+/* =========================
+   GLOBAL RESPONSIVE / AD INVENTORY
+========================= */
+
+/* Reserved inventory keeps future advertising from changing page geometry when a provider is connected. */
+.ad-slot {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  color: #aaa;
+  background: #f5f4ef;
+  border-bottom: 1px solid #e7e5df;
+  overflow: hidden;
+}
+
+.ad-slot span {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.ad-slot--top,
+.ad-slot--leaderboard {
+  min-height: 90px;
+  padding: 12px 20px;
+}
+
+.ad-slot--inline {
+  min-height: 180px;
+  margin: 24px 0;
+  border: 1px solid #e7e5df;
+  border-radius: 12px;
+}
+
+.ad-slot--sidebar {
+  min-height: 250px;
+  border: 1px solid #e7e5df;
+  border-radius: 12px;
+}
+
+/* Prevent long database values and inline layouts from creating accidental viewport overflow. */
+main,
+main > *,
+section,
+article,
+.card,
+.table,
+.salary-table-wrap,
+.scout-table-wrap {
+  min-width: 0;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+@media (max-width: 900px) {
+  .ad-slot--top,
+  .ad-slot--leaderboard {
+    min-height: 70px;
+  }
+}
+
+@media (max-width: 650px) {
+  .ad-slot--top,
+  .ad-slot--leaderboard {
+    min-height: 58px;
+    padding: 8px 16px;
+  }
+
+  .ad-slot--inline {
+    min-height: 120px;
+    margin: 18px 0;
+    border-radius: 10px;
+  }
+
+  .ad-slot--sidebar {
+    min-height: 180px;
+  }
+
+  /* Keep fixed/sticky UI clear of iPhone safe areas. */
+  .mobile-nav {
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+}
