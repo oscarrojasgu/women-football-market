@@ -78,12 +78,12 @@ export default function ImportReviewPage(){
  const action=async(status:string,matchId?:string)=>{
   if(!selected)return;
   setBusy(true);setError("");setMessage("");
-  const patch:Record<string,unknown>={status};
+  const patch:Record<string,unknown>={status:status==="matched"?"ready":status};
   if(selected.entity_type==="player"&&matchId)patch.matched_player_id=matchId;
   if(selected.entity_type==="club"&&matchId)patch.matched_club_id=matchId;
   const {error:e}=await supabase.from("entity_import_queue").update(patch).eq("id",selected.id);
   if(e)setError(e.message);
-  else{setMessage(status==="matched"?"Entity matched.":"Record marked "+status+".");setSelected(null);await load()}
+  else{setMessage(status==="matched"?"Entity matched and prepared for publishing.":"Record marked "+status+".");setSelected(null);await load()}
   setBusy(false);
  };
 
