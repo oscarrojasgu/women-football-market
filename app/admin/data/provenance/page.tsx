@@ -141,7 +141,7 @@ export default function ProvenancePage() {
           </div>
           <div className="actions">
             <Link href="/admin/data" className="outline">Data administration</Link>
-            <Link href="/admin/data/players" className="outline">Player coverage</Link>
+            <Link href="/admin/data/players" className="outline">Player coverage</Link><Link href="/admin/data/history" className="outline">Historical data</Link>
             <button type="button" className="outline" disabled={refreshing} onClick={() => void refresh()}>
               {refreshing ? "Refreshing…" : "Refresh inventory"}
             </button>
