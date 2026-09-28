@@ -1,11 +1,11 @@
 'use client'
 
 import Link from "next/link"
-import { FormEvent, useEffect, useState } from "react"
+import { FormEvent, Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { supabase } from "../lib/supabase"
 
-export default function LoginPage(){
+function LoginForm(){
  const router=useRouter()
  const searchParams=useSearchParams()
  const [mode,setMode]=useState<"signin"|"signup">("signin")
@@ -50,4 +50,8 @@ export default function LoginPage(){
    <Link href={returnTo} style={{display:"inline-block",marginTop:20,fontSize:12,color:"#555"}}>← Return to WFM</Link>
   </section>
  </main>
+}
+
+export default function LoginPage(){
+ return <Suspense fallback={<main style={{minHeight:"calc(100vh - 76px)",display:"grid",placeItems:"center",padding:"40px 20px",background:"#f5f4ef"}}><div>Loading WFM sign in…</div></main>}><LoginForm/></Suspense>
 }
