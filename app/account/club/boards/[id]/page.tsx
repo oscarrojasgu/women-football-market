@@ -30,7 +30,7 @@ export default function ClubRecruitmentBoardPage() {
       .eq('id', boardId)
       .single()
     if (boardError || !boardData) { setError('Recruitment board not found or you do not have access.'); setLoading(false); return }
-    setBoard(boardData as Board)
+    const normalizedBoard = { ...boardData, club: Array.isArray(boardData.club) ? boardData.club[0] ?? null : boardData.club ?? null }\n    setBoard(normalizedBoard as Board)
 
     const { data: rowData, error: rowError } = await supabase
       .from('club_recruitment_board_players')
@@ -38,7 +38,7 @@ export default function ClubRecruitmentBoardPage() {
       .eq('board_id', boardId)
       .order('created_at', { ascending: false })
     if (rowError) setError(rowError.message)
-    setRows((rowData ?? []) as BoardPlayer[])
+    setRows((rowData ?? []).map((row: any) => ({ ...row, player: Array.isArray(row.player) ? row.player[0] ?? null : row.player ?? null })) as BoardPlayer[])
     setLoading(false)
   }
 
