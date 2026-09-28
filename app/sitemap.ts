@@ -4,7 +4,7 @@ const baseUrl = "https://women-football-market.vercel.app";
 
 type SitemapRow = { id: string };
 
-async function fetchIds(table: "players" | "clubs"): Promise<SitemapRow[]> {
+async function fetchIds(table: "players" | "clubs" | "competitions"): Promise<SitemapRow[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -28,9 +28,10 @@ async function fetchIds(table: "players" | "clubs"): Promise<SitemapRow[]> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [players, clubs] = await Promise.all([
+  const [players, clubs, competitions] = await Promise.all([
     fetchIds("players"),
     fetchIds("clubs"),
+    fetchIds("competitions"),
   ]);
 
   const now = new Date();
@@ -39,11 +40,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: baseUrl, lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: `${baseUrl}/players`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: `${baseUrl}/clubs`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
+    { url: `${baseUrl}/competitions`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: `${baseUrl}/contracts`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
     { url: `${baseUrl}/salaries`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
     { url: `${baseUrl}/transfers`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
     ...players.map((player: SitemapRow) => ({
       url: `${baseUrl}/players/${player.id}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
+    ...competitions.map((competition: SitemapRow) => ({
+      url: `${baseUrl}/competitions/${competition.id}`,
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.7,
