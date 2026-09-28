@@ -42,7 +42,13 @@ export default function Header() {
 
       <div className="header-meta">
         <span className="header-status">LIVE DATABASE</span>
-        <Link href="/login" className="login">Sign in</Link>
+        <Link
+          href="/login"
+          className="login"
+          aria-label="Sign in to Women’s Football Market"
+        >
+          Sign in
+        </Link>
       </div>
     </nav>
   )
