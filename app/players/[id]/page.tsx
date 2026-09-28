@@ -155,7 +155,7 @@ const flagCode = (nationality: string | null) => {
   return map[key] || null;
 };
 
-const normalizeSource = (value: Source | Source[] | null | undefined): Source | null => Array.isArray(value) ? value[0] || null : value || null;
+const normalizeSource = (value: unknown): Source | null => Array.isArray(value) ? ((value[0] as Source | undefined) || null) : ((value as Source | null | undefined) || null);
 const dateText = (value: string | null) => value ? new Date(`${value}T00:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
 const usd = (value: number | null) => value == null ? "—" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
 const original = (value: number | null, currency: string | null) => value == null ? "—" : new Intl.NumberFormat("en-US", { style: "currency", currency: currency || "USD", maximumFractionDigits: 0 }).format(value);
@@ -189,14 +189,14 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     supabase.from("player_peer_benchmarks").select("season,league,position,peer_count,goals_per90_percentile,assists_per90_percentile,xg_per90_percentile,xa_per90_percentile,chances_created_per90_percentile,key_passes_per90_percentile,tackles_per90_percentile,interceptions_per90_percentile,progressive_carries_per90_percentile").eq("player_id", id).order("season", { ascending: false }),
   ]);
 
-  const contracts: Contract[] = (contractData || []).map((item: any) => ({ ...item, source: normalizeSource(item.source) }));
+  const contracts: Contract[] = (contractData || []).map((item: any): Contract => ({ ...item, source: normalizeSource(item.source) }));
   const stats = (statsData || []).map((stat: any) => ({
     ...stat,
     source: normalizeSource(stat.source),
     competition: stat.competition_season?.competition?.canonical_name || stat.competition,
     season: stat.competition_season?.season?.season_key || stat.season,
   })) as PlayerStat[];
-  const marketValues: MarketValue[] = (valueData || []).map((item: any) => ({ ...item, source: normalizeSource(item.source) }));
+  const marketValues: MarketValue[] = (valueData || []).map((item: any): MarketValue => ({ ...item, source: normalizeSource(item.source) }));
   const transfers: Transfer[] = (transferData || []).map((item: any) => ({
     ...item,
     source: normalizeSource(item.source),
