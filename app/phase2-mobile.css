@@ -949,3 +949,36 @@
 }
 
 .global-discovery-table .scout-player{display:flex;align-items:center;gap:10px;min-width:0}.global-discovery-table .scout-player-photo{width:48px;height:48px;flex:0 0 48px;border-radius:50%;object-fit:cover;object-position:center top;background:#f1f0eb;display:block}.global-discovery-table .scout-player-photo-empty{display:flex;align-items:center;justify-content:center;font-weight:800;color:#999;font-size:16px}.global-discovery-table .scout-player>a{min-width:0}.global-discovery-table .scout-player>a strong,.global-discovery-table .scout-player>a small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+
+/* FINAL HOME DIRECTORY MOBILE OVERRIDE
+   The home directory uses the same card treatment as Players/Contracts/Salaries.
+   Never render the desktop column header on narrow screens. */
+@media (max-width: 650px) {
+  .home-player-table .home-player-table-head,
+  .home-player-table > .thead.home-player-table-head {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .home-player-table {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .home-player-table .home-player-row {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
