@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { supabase } from "../../../../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 
 type Coverage={
  id:string; competition_id:string|null; competition_name:string; country:string|null; tier_label:string|null;
