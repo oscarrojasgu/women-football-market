@@ -1,6 +1,6 @@
 # Phase 8 — Accounts, Club Portal & Commercial Product
 
-Status: In progress — commercial entitlement foundation and private reporting complete
+Status: Complete — Phase 8 productization and commercialization foundation complete
 
 ## Completed foundation
 
@@ -51,3 +51,22 @@ Club recruitment data and saved reports are private to active members of the ass
 6. Commercial licensing controls
 7. Admin commercial dashboard
 8. Paid intelligence/report products
+
+
+## Phase 8 completion
+
+The account, club and commercial foundation is now complete for the current launch architecture.
+
+### Completed commercial workflow
+
+Account → Club Access Request → WFM Review → Club Membership → Club Team → Recruitment Boards → Scouting Discovery → Player Comparison → Private Saved Report Library → Commercial Entitlement
+
+### Completion notes
+
+- Club verification/access remains controlled through WFM review rather than self-assigned permissions.
+- Private club records remain protected by database RLS.
+- Commercial plans are represented independently from authentication and club membership.
+- Entitlements support future billing-provider integration without coupling the database to a specific payment processor.
+- The commercial admin dashboard provides controlled plan activation and manual entitlement provisioning.
+- Paid exports/licensing and billing can now be implemented against the entitlement boundary rather than changing the core scouting data model.
+- No public/private boundary is removed by the commercial layer.
