@@ -31,6 +31,8 @@ type Player = {
 
 type Source = { id: string; publisher: string | null; url: string | null; published_at: string | null; reliability: string | null; accessed_at: string | null }
 
+const normalizeSource = (value: Source | Source[] | null | undefined): Source | null => Array.isArray(value) ? value[0] || null : value || null
+
 type Contract = {
   id: string
   player_id: string
@@ -195,6 +197,7 @@ export default function ClubProfilePage() {
       const contractsWithPlayers: Contract[] =
         contractRows.map((contract) => ({
           ...contract,
+          source: normalizeSource(contract.source),
           player:
             playerMap[contract.player_id] || null,
         }))
@@ -289,6 +292,7 @@ export default function ClubProfilePage() {
       const transfersWithDetails: Transfer[] =
         transferRows.map((transfer) => ({
           ...transfer,
+          source: normalizeSource(transfer.source),
           player:
             transferPlayerMap[transfer.player_id] ||
             null,
