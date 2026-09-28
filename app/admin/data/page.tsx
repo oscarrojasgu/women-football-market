@@ -28,7 +28,7 @@ function normalize(row:Record<string,string>):CsvRow{
  const entity=(row.entity_type||row.type||"").toLowerCase();
  const id=row.external_id||row.provider_id||row.id||"";
  const name=row.external_name||row.name||row.player_name||row.club_name||"";
- const error=!["player","club"].includes(entity)?"entity_type must be player or club":!id?"external_id is required":"";
+ const error=!['player','club'].includes(entity)?"entity_type must be player or club":!id?"external_id is required":"";
  return {entity_type:entity,external_id:id,external_name:name,country:row.country||row.nationality||"",competition:row.competition||row.league||"",season:row.season||"",raw:row,valid:!error,error};
 }
 
@@ -81,7 +81,7 @@ export default function DataAdminPage(){
  if(loading)return <main className="account-page"><div className="account-card">Loading data administration…</div></main>;
  if(!authorized)return <main className="account-page"><div className="account-card"><div className="eyebrow">ADMIN</div><h1>Access restricted</h1><p className="account-muted">This workspace is limited to WFM administrators.</p></div></main>;
  return <main className="account-page"><section className="account-card">
-  <div className="account-card-top"><div><div className="eyebrow">WFM ADMIN · DATA</div><h1>Data administration</h1><p>Import source data into a controlled review queue before anything is published to WFM.</p></div><div style={{display:"flex",gap:10,flexWrap:"wrap"}}><Link href="/admin/data/review" className="outline">Review queue</Link><Link href="/admin/data/players" className="outline">Player coverage</Link><Link href="/admin/data/coverage" className="outline">League coverage</Link><Link href="/admin/commercial" className="outline">Commercial</Link><Link href="/admin/club-access" className="outline">Club access</Link></div></div>
+  <div className="account-card-top"><div><div className="eyebrow">WFM ADMIN · DATA</div><h1>Data administration</h1><p>Import source data into a controlled review queue before anything is published to WFM.</p></div><div style={{display:"flex",gap:10,flexWrap:"wrap"}}><Link href="/admin/data/review" className="outline">Review queue</Link><Link href="/admin/data/history" className="outline">Historical data</Link><Link href="/admin/data/players" className="outline">Player coverage</Link><Link href="/admin/data/coverage" className="outline">League coverage</Link><Link href="/admin/commercial" className="outline">Commercial</Link><Link href="/admin/club-access" className="outline">Club access</Link></div></div>
   {error&&<div className="account-message account-error">{error}</div>}{message&&<div className="account-message account-success">{message}</div>}
   <div className="club-workspace-grid">
    <section className="settings-section"><div className="settings-section-heading"><span>CSV IMPORT</span><h2>Upload source file</h2></div>
