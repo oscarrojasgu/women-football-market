@@ -17,7 +17,7 @@ export default function CoveragePage(){
   const {data:u}=await supabase.auth.getUser(); if(!u.user){setLoading(false);return}
   const {data:a}=await supabase.from("wfm_admins").select("user_id").eq("user_id",u.user.id).maybeSingle();
   setAuthorized(!!a); if(!a){setLoading(false);return}
-  const {data,e}=await supabase.from("wfm_competition_coverage").select("*").order("priority",{ascending:true}).order("country",{ascending:true}).order("competition_name",{ascending:true});
+  const {data,error:e}=await supabase.from("wfm_competition_coverage").select("*").order("priority",{ascending:true}).order("country",{ascending:true}).order("competition_name",{ascending:true});
   if(e)setError(e.message); setRows((data??[]) as Coverage[]); setLoading(false);
  };
  useEffect(()=>{void load()},[]);
