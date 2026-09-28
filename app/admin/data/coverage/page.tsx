@@ -11,34 +11,36 @@ type Coverage={
 };
 
 export default function CoveragePage(){
- const [authorized,setAuthorized]=useState(false),[loading,setLoading]=useState(true),[rows,setRows]=useState<Coverage[]>([]);
+ const [authorized,setAuthorized]=useState(false),[loading,setLoading]=useState(true),[refreshing,setRefreshing]=useState(false),[rows,setRows]=useState<Coverage[]>([]);
  const [status,setStatus]=useState("all"),[busy,setBusy]=useState<string|null>(null),[error,setError]=useState(""),[message,setMessage]=useState("");
  const load=async()=>{
   const {data:u}=await supabase.auth.getUser(); if(!u.user){setLoading(false);return}
   const {data:a}=await supabase.from("wfm_admins").select("user_id").eq("user_id",u.user.id).maybeSingle();
   setAuthorized(!!a); if(!a){setLoading(false);return}
   const {data,error:e}=await supabase.from("wfm_competition_coverage").select("*").order("priority",{ascending:true}).order("country",{ascending:true}).order("competition_name",{ascending:true});
-  if(e)setError(e.message); setRows((data??[]) as Coverage[]); setLoading(false);
- };
- useEffect(()=>{void load()},[]);
- const filtered=useMemo(()=>status==="all"?rows:rows.filter(r=>r.status===status),[rows,status]);
- const totals=useMemo(()=>rows.reduce((a,r)=>({players:a.players+r.current_players,clubs:a.clubs+r.current_clubs,targetPlayers:a.targetPlayers+r.target_players,targetClubs:a.targetClubs+r.target_clubs}),{players:0,clubs:0,targetPlayers:0,targetClubs:0}),[rows]);
- const setCoverageStatus=async(id:string,next:string)=>{
-  setBusy(id);setError("");setMessage("");
-  const {error:e}=await supabase.from("wfm_competition_coverage").update({status:next}).eq("id",id);
-  if(e)setError(e.message);else{setMessage("Coverage status updated.");await load()} setBusy(null);
- };
- if(loading)return <main className="account-page"><div className="account-card">Loading competition coverage…</div></main>;
- if(!authorized)return <main className="account-page"><div className="account-card"><div className="eyebrow">ADMIN</div><h1>Access restricted</h1><p className="account-muted">This workspace is limited to WFM administrators.</p></div></main>;
- return <main className="account-page"><section className="account-card">
-  <div className="account-card-top"><div><div className="eyebrow">WFM ADMIN · PHASE 9 · M3</div><h1>Core league expansion</h1><p>Track league coverage targets before importing players, clubs, contracts and performance data.</p></div><div style={{display:"flex",gap:10,flexWrap:"wrap"}}><Link href="/admin/data" className="outline">Data administration</Link><Link href="/admin/data/review" className="outline">Review queue</Link></div></div>
-  {error&&<div className="account-message account-error">{error}</div>}{message&&<div className="account-message account-success">{message}</div>}
-  <section className="settings-section"><div className="settings-section-heading"><span>PROGRAM TARGETS</span><h2>Coverage plan</h2></div>
-   <div className="club-workspace-grid"><div className="account-membership-row"><div><strong>{rows.length}</strong><small>Tracked competitions</small></div></div><div className="account-membership-row"><div><strong>{totals.players}/{totals.targetPlayers}</strong><small>Players covered / target</small></div></div><div className="account-membership-row"><div><strong>{totals.clubs}/{totals.targetClubs}</strong><small>Clubs covered / target</small></div></div></div>
-  </section>
-  <section className="settings-section" style={{marginTop:24}}><div className="settings-section-heading"><span>LEAGUES</span><h2>{filtered.length} competitions</h2></div>
-   <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:14}}>{["all","planned","in_progress","active","paused","complete"].map(s=><button key={s} type="button" className="outline" onClick={()=>setStatus(s)}>{s.replaceAll("_"," ")}</button>)}</div>
-   {filtered.length?filtered.map(r=><div key={r.id} className="account-membership-row"><div style={{minWidth:0}}><strong>{r.competition_name}</strong><small>{r.country||"—"} · {r.tier_label||"Unclassified"} · Priority {r.priority}</small><small>Players {r.current_players}/{r.target_players} · Clubs {r.current_clubs}/{r.target_clubs} · Seasons {r.current_seasons}/{r.target_seasons}</small><small>Scope: {r.data_scope.join(", ")}</small></div><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}><span className="account-status-pill">{r.status}</span>{r.status==="planned"&&<button className="outline" disabled={busy===r.id} onClick={()=>void setCoverageStatus(r.id,"in_progress")}>Start</button>}{r.status==="in_progress"&&<button className="outline" disabled={busy===r.id} onClick={()=>void setCoverageStatus(r.id,"active")}>Activate</button>}{r.status==="active"&&<button className="outline" disabled={busy===r.id} onClick={()=>void setCoverageStatus(r.id,"complete")}>Complete</button>}</div></div>):<p className="account-muted">No competitions match this status.</p>}
-  </section>
- </section></main>;
-}
+  if(e){setError(e.message);setRows([]);setLoading(false);return}
+  const coverage=(data??[]) as Coverage[];
+  const competitionIds=coverage.map(r=>r.competition_id).filter((id):id is string=>!!id);
+  if(competitionIds.length){
+   const {data:clubs}=await supabase.from("clubs").select("id,competition_id").in("competition_id",competitionIds);
+   const clubIds=(clubs??[]).map((club:{id:string})=>club.id);
+   const [{data:seasons},{data:clubCompetitions}]=await Promise.all([
+    supabase.from("competition_seasons").select("id,competition_id").in("competition_id",competitionIds),
+    clubIds.length?supabase.from("club_competitions").select("id,club_id,competition_season_id").in("club_id",clubIds):Promise.resolve({data:[]})
+   ]);
+   const clubCounts=new Map<string,number>();
+   (clubs??[]).forEach((club:{competition_id:string|null})=>{if(club.competition_id)clubCounts.set(club.competition_id,(clubCounts.get(club.competition_id)??0)+1)});
+   const seasonCounts=new Map<string,number>();
+   const seasonToCompetition=new Map<string,string>();
+   (seasons??[]).forEach((season:{id:string;competition_id:string})=>{seasonCounts.set(season.competition_id,(seasonCounts.get(season.competition_id)??0)+1);seasonToCompetition.set(season.id,season.competition_id)});
+   const clubCompetitionToCompetition=new Map<string,string>();
+   (clubCompetitions??[]).forEach((cc:{id:string;competition_season_id:string})=>{const competitionId=seasonToCompetition.get(cc.competition_season_id);if(competitionId)clubCompetitionToCompetition.set(cc.id,competitionId)});
+   const playerCounts=new Map<string,Set<string>>();
+   const ccIds=[...clubCompetitionToCompetition.keys()];
+   if(ccIds.length){
+    const {data:playerLinks}=await supabase.from("player_competitions").select("player_id,club_competition_id").in("club_competition_id",ccIds);
+    (playerLinks??[]).forEach((p:{player_id:string;club_competition_id:string})=>{const competitionId=clubCompetitionToCompetition.get(p.club_competition_id);if(competitionId){if(!playerCounts.has(competitionId))playerCounts.set(competitionId,new Set());playerCounts.get(competitionId)!.add(p.player_id)}});
+   }
+   setRows(coverage.map(r=>r.competition_id?{...r,current_clubs:clubCounts.get(r.competition_id)??0,current_seasons:seasonCounts.get(r.competition_id)??0,current_players:playerCounts.get(r.competition_id)?.size??0}:r));
+  }else setRows(coverage);
+
