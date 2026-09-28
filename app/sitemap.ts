@@ -2,7 +2,9 @@ import type { MetadataRoute } from "next";
 
 const baseUrl = "https://women-football-market.vercel.app";
 
-async function fetchIds(table: "players" | "clubs") {
+type SitemapRow = { id: string };
+
+async function fetchIds(table: "players" | "clubs"): Promise<SitemapRow[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -19,15 +21,14 @@ async function fetchIds(table: "players" | "clubs") {
 
     if (!response.ok) return [];
 
-    const rows = (await response.json()) as Array<{ id: string }>;
-    return rows;
+    return (await response.json()) as SitemapRow[];
   } catch {
     return [];
   }
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [{ data: players }, { data: clubs }] = await Promise.all([
+  const [players, clubs] = await Promise.all([
     fetchIds("players"),
     fetchIds("clubs"),
   ]);
@@ -41,13 +42,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/contracts`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
     { url: `${baseUrl}/salaries`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
     { url: `${baseUrl}/transfers`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
-    ...players.map((player) => ({
+    ...players.map((player: SitemapRow) => ({
       url: `${baseUrl}/players/${player.id}`,
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.7,
     })),
-    ...clubs.map((club) => ({
+    ...clubs.map((club: SitemapRow) => ({
       url: `${baseUrl}/clubs/${club.id}`,
       lastModified: now,
       changeFrequency: "weekly" as const,
