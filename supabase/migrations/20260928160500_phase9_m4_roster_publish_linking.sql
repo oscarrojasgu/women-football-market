@@ -1,0 +1,2 @@
+-- Extends the controlled player publish step with optional roster linking.
+-- The live definition is maintained by the Phase 9 M4 migration in Supabase.
