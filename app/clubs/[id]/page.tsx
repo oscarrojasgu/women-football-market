@@ -29,6 +29,8 @@ type Player = {
   photo_url: string | null
 }
 
+type Source = { id: string; publisher: string | null; url: string | null; published_at: string | null; reliability: string | null; accessed_at: string | null }
+
 type Contract = {
   id: string
   player_id: string
@@ -40,6 +42,7 @@ type Contract = {
   weekly_salary: number | null
   currency: string | null
   player: Player | null
+  source: Source | null
 }
 
 type Transfer = {
@@ -55,6 +58,7 @@ type Transfer = {
   player: Player | null
   from_club: Club | null
   to_club: Club | null
+  source: Source | null
 }
 
 function formatSalary(
@@ -152,7 +156,8 @@ export default function ClubProfilePage() {
           end_date,
           annual_salary,
           weekly_salary,
-          currency
+          currency,
+          source:sources(id,publisher,url,published_at,reliability,accessed_at)
         `)
         .eq("club_id", id)
         .order("start_date", { ascending: false })
@@ -205,7 +210,8 @@ export default function ClubProfilePage() {
           transfer_type,
           fee,
           currency,
-          confidence
+          confidence,
+          source:sources(id,publisher,url,published_at,reliability,accessed_at)
         `)
         .or(
           `from_club_id.eq.${id},to_club_id.eq.${id}`
@@ -371,6 +377,14 @@ export default function ClubProfilePage() {
     )
   }, [salaryRecords])
 
+  const linkedSources = useMemo(() => {
+    const map = new Map<string, Source>()
+    for (const record of [...contracts, ...transfers]) {
+      if (record.source?.id) map.set(record.source.id, record.source)
+    }
+    return Array.from(map.values())
+  }, [contracts, transfers])
+
   const incomingTransfers = transfers.filter(
     (transfer) =>
       transfer.to_club?.id === id
@@ -486,6 +500,39 @@ export default function ClubProfilePage() {
       }}
     >
       
+
+      <section style={{ maxWidth: 1200, margin: "16px auto 0", padding: "0 24px" }}>
+        <div style={{ background: "#fff", border: "1px solid #e1e1e1", borderRadius: 14, padding: 20 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+            <div>
+              <h2 style={{ margin: 0, fontSize: 20 }}>Data Provenance & Trust</h2>
+              <p style={{ margin: "5px 0 0", color: "#777", fontSize: 12 }}>Source context attached to published club records. WFM keeps uncertainty visible rather than presenting unsupported assumptions as facts.</p>
+            </div>
+            <div style={{ fontSize: 11, color: "#888" }}>{linkedSources.length} linked source{linkedSources.length === 1 ? "" : "s"}</div>
+          </div>
+          {linkedSources.length > 0 ? (
+            <div style={{ marginTop: 14, display: "grid", gap: 8 }}>
+              {linkedSources.map(source => (
+                <div key={source.id} style={{ borderTop: "1px solid #eee", paddingTop: 10, display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", fontSize: 12 }}>
+                  <div>
+                    <strong>{source.publisher || "Source publisher not recorded"}</strong>
+                    <div style={{ marginTop: 3, color: "#888", fontSize: 11 }}>
+                      {source.published_at ? "Published " + formatDate(source.published_at) : "Publication date not recorded"}
+                      {source.reliability ? " · " + source.reliability + " reliability" : ""}
+                      {source.accessed_at ? " · Accessed " + new Date(source.accessed_at).toLocaleDateString("en-US") : ""}
+                    </div>
+                  </div>
+                  {source.url ? <a href={source.url} target="_blank" rel="noreferrer" style={{ color: "#111", fontWeight: 700 }}>View source →</a> : null}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ marginTop: 14, padding: 12, background: "#fafafa", border: "1px solid #eee", borderRadius: 9, color: "#888", fontSize: 12 }}>
+              No linked source records are currently available for this club. WFM does not infer a source when one is not recorded.
+            </div>
+          )}
+        </div>
+      </section>
 
       <section
         style={{
