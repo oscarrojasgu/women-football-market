@@ -81,7 +81,7 @@ export default function Header() {
               <div className="account-dropdown-header"><strong>{displayName}</strong><span>{isClubAccount ? 'Club account' : 'Scout account'}</span><small>{userEmail}</small></div>
               <div className="account-dropdown-links">
                 <Link href="/account/settings" role="menuitem" onClick={() => setMenuOpen(false)}>Edit profile & settings</Link>
-                <Link href={isClubAccount ? '/account/club' : '/scouting'} role="menuitem" onClick={() => setMenuOpen(false)}>{isClubAccount ? 'Club workspace' : 'Scouting workspace'}</Link>
+                <Link href={isClubAccount ? '/account/club' : '/scouting'} role="menuitem" onClick={() => setMenuOpen(false)}>{isClubAccount ? 'Club workspace' : 'Scouting workspace'}</Link>{isClubAccount && <Link href="/account/club/reports" role="menuitem" onClick={() => setMenuOpen(false)}>Saved reports</Link>}
               </div>
               <button type="button" className="account-signout" role="menuitem" onClick={signOut} disabled={signingOut}>{signingOut ? 'Signing out…' : 'Sign out'}</button>
             </div>}
