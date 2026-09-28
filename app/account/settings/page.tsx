@@ -21,6 +21,7 @@ export default function AccountSettingsPage() {
   const [requestMessage, setRequestMessage] = useState('')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [entitlements, setEntitlements] = useState<any[]>([])
 
   const load = async () => {
     const { data, error: userError } = await supabase.auth.getUser()
@@ -41,9 +42,10 @@ export default function AccountSettingsPage() {
           : user.email?.split('@')[0] ?? ''
     )
 
-    const [{ data: memberRows }, { data: clubRows }] = await Promise.all([
+    const [{ data: memberRows }, { data: clubRows }, { data: entitlementRows }] = await Promise.all([
       supabase.from('club_account_members').select('club_id,role,status,club:clubs(id,name,country)').eq('user_id', user.id),
       supabase.from('clubs').select('id,name,country').order('name'),
+      supabase.from('wfm_account_entitlements').select('id,plan_code,status,starts_at,ends_at,club_id').eq('user_id', user.id).order('starts_at',{ascending:false}),
     ])
     setMemberships((memberRows ?? []).map((row: any) => ({
       club_id: row.club_id,
@@ -52,6 +54,7 @@ export default function AccountSettingsPage() {
       club: Array.isArray(row.club) ? row.club[0] ?? null : row.club ?? null,
     })))
     setClubs((clubRows ?? []) as Club[])
+    setEntitlements(entitlementRows ?? [])
     setLoading(false)
   }
 
@@ -119,6 +122,15 @@ export default function AccountSettingsPage() {
             <label>New password<input value={newPassword} onChange={e => setNewPassword(e.target.value)} type="password" autoComplete="new-password" minLength={8} placeholder="At least 8 characters" /></label>
             <button type="submit" className="settings-primary" disabled={saving || newPassword.length < 8}>{saving ? 'Updating…' : 'Update password'}</button>
           </form>
+        </div>
+
+
+        <div className="account-settings-grid">
+          <section className="settings-section">
+            <div className="settings-section-heading"><span>ACCESS PLAN</span><h2>Commercial access</h2></div>
+            {entitlements.length ? entitlements.map(e => <div key={e.id} className="account-membership-row"><div><strong>{String(e.plan_code).replaceAll('_',' ')}</strong><small>{e.club_id ? 'Club entitlement' : 'Account entitlement'} · active from {new Date(e.starts_at).toLocaleDateString()}</small></div><span className="account-status-pill">{e.status}</span></div>) : <p className="account-muted">No paid or commercial entitlement is assigned to this account. Public WFM access remains available.</p>}
+          </section>
+          <section className="settings-section"><div className="settings-section-heading"><span>COMMERCIAL NOTE</span><h2>WFM access</h2></div><p className="account-muted">Commercial plans and licensing are managed by WFM. Payment and subscription processing are intentionally kept outside the current account settings until the billing integration is enabled.</p></section>
         </div>
 
         <div className="account-settings-grid">
