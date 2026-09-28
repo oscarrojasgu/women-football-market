@@ -30,7 +30,8 @@ export default function ClubRecruitmentBoardPage() {
       .eq('id', boardId)
       .single()
     if (boardError || !boardData) { setError('Recruitment board not found or you do not have access.'); setLoading(false); return }
-    const normalizedBoard = { ...boardData, club: Array.isArray(boardData.club) ? boardData.club[0] ?? null : boardData.club ?? null }\n    setBoard(normalizedBoard as Board)
+    const normalizedBoard = { ...boardData, club: Array.isArray(boardData.club) ? boardData.club[0] ?? null : boardData.club ?? null }
+    setBoard(normalizedBoard as Board)
 
     const { data: rowData, error: rowError } = await supabase
       .from('club_recruitment_board_players')
