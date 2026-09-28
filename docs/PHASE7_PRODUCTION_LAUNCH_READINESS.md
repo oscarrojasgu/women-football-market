@@ -1,6 +1,6 @@
 # Phase 7 — Production & Launch Readiness
 
-Status: In Progress
+Status: In Progress — verification gate remains open
 
 ## Completed in this launch-readiness pass
 
@@ -33,6 +33,8 @@ Status: In Progress
 ### Dependency stability
 - Replaced direct `latest` dependency tags with pinned versions.
 - Added a GitHub Actions production-build workflow.
+- Added route-level and global production error boundaries (`app/error.tsx` and `app/global-error.tsx`).
+- Added a custom root `app/not-found.tsx` page.
 - A committed lockfile is still recommended before final production launch because the repository currently has no npm lockfile.
 
 ## Current Supabase findings
@@ -55,7 +57,7 @@ A successful workflow run is still required before treating the production build
 
 ## Production verification still required
 
-- Verify the new GitHub Actions production build succeeds.
+- Verify the new GitHub Actions production build succeeds; the workflow has been added but a verified successful run is not yet available through the current GitHub connector.
 - Confirm the Vercel deployment is healthy.
 - Test public player and club pages.
 - Test authenticated scouting workflows.
