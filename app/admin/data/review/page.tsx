@@ -66,7 +66,9 @@ export default function ImportReviewPage(){
   void run();return()=>{active=false}
  },[search,selected]);
 
- const validate=async()=>{if(!selected)return;setBusy(true);setError("");setMessage("");const {data,error:e}=await supabase.rpc("wfm_validate_player_import",{p_queue_id:selected.id});if(e)setError(e.message);else{setMessage(`Validation score: ${data?.score??0}. Status: ${data?.status||"updated"}.`);setSelected(null);await load()}setBusy(false)};\n\n const publish=async()=>{
+ const validate=async()=>{if(!selected)return;setBusy(true);setError("");setMessage("");const {data,error:e}=await supabase.rpc("wfm_validate_player_import",{p_queue_id:selected.id});if(e)setError(e.message);else{setMessage(`Validation score: ${data?.score??0}. Status: ${data?.status||"updated"}.`);setSelected(null);await load()}setBusy(false)};
+
+ const publish=async()=>{
   if(!selected)return;
   setBusy(true);setError("");setMessage("");
   const {data,error:e}=await supabase.rpc("wfm_publish_import_queue_item",{p_queue_id:selected.id});
