@@ -68,6 +68,7 @@ type MarketValue = {
   market_value_usd: number | null;
   confidence: string | null;
   notes: string | null;
+  source: Source | null;
   competition_season?: {
     competition?: { canonical_name: string | null } | null;
     season?: { season_key: string; label: string | null } | null;
