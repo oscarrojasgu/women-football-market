@@ -8,48 +8,62 @@ Status: In Progress
 - Converted `public.player_season_intelligence` to a security-invoker view.
 - Converted `public.player_global_peer_benchmarks` to a security-invoker view.
 - Removed the duplicate `player_stats` player/season index.
-- Re-ran Supabase security and performance advisors after the changes.
+- Re-ran Supabase security and performance advisors.
+- Confirmed the remaining Auth security warning is leaked-password protection, which is unavailable on the current Supabase plan.
+
+### Database performance
+- Added indexes for previously unindexed foreign keys identified by the Supabase performance advisor.
+- Consolidated overlapping permissive SELECT policies across contributor, verification, claims, representation, and submission tables.
+- Split admin write access for salary-exchange and transfer-competition data into action-specific policies so public read access does not require an overlapping SELECT policy.
+- Preserved the existing admin authorization predicate based on `wfm_admins`.
+- Re-ran the performance advisor after RLS changes; the multiple-permissive-policy warning is cleared.
+- Supabase still reports unused indexes. These are retained for now because WFM is actively expanding and removing them solely from current usage counters could create future regressions.
 
 ### Application security review
 - Confirmed the browser client uses only `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 - No `service_role` or service-role secret was found in the GitHub code search.
-- Reviewed Edge Functions using secret authentication and confirmed the ingestion functions use server-side Supabase access rather than exposing privileged credentials to the browser.
+- Reviewed Edge Functions using secret authentication and confirmed privileged Supabase access remains server-side.
 
 ### SEO / discovery
 - Added `app/robots.ts`.
 - Added `app/sitemap.ts` with public player and club URLs.
 - Excluded admin, API, contributor, scouting, and comparison areas from search indexing.
-- Expanded global metadata, Open Graph metadata, Twitter metadata, canonical metadata base, and the title template.
+- Expanded global metadata, Open Graph metadata, Twitter metadata, canonical metadata base, and title templates.
 
 ### Dependency stability
-- Replaced direct `latest` dependency tags with pinned versions for Next.js, React, Supabase, TypeScript, React type packages, Tailwind CSS, and PostCSS.
-- A lockfile is still recommended before final production launch because transitive dependencies remain resolver-controlled.
+- Replaced direct `latest` dependency tags with pinned versions.
+- Added a GitHub Actions production-build workflow.
+- A committed lockfile is still recommended before final production launch because the repository currently has no npm lockfile.
 
 ## Current Supabase findings
 
-### Remaining security item
-Supabase reports leaked-password protection as disabled. This is an Auth configuration setting and should be enabled in Supabase Auth before production launch.
+### Auth configuration
+Leaked-password protection remains unavailable on the current Supabase plan. Enable it if WFM moves to a plan that supports the feature.
 
-### Remaining performance findings
-The advisor still reports:
-- unindexed foreign keys
-- unused indexes
-- multiple permissive RLS policies
+### Performance
+The remaining advisor findings are unused indexes. They are informational and are not being removed blindly.
 
-These are performance/maintenance findings rather than current security failures. They should be reviewed against actual WFM query patterns before indexes or policies are removed or consolidated.
+## Automated verification
+
+GitHub Actions now runs:
+- dependency installation
+- `npm run build`
+
+on pushes and pull requests targeting `main`, plus manual workflow dispatch.
+
+A successful workflow run is still required before treating the production build as verified.
 
 ## Production verification still required
 
-- Run the production build after the dependency pinning and SEO changes.
-- Confirm Vercel deployment is healthy.
+- Verify the new GitHub Actions production build succeeds.
+- Confirm the Vercel deployment is healthy.
 - Test public player and club pages.
 - Test authenticated scouting workflows.
 - Test admin/contributor/verification boundaries with separate accounts.
-- Confirm sitemap and robots endpoints.
-- Enable leaked-password protection.
-- Review final Supabase advisors.
-- Perform final mobile and desktop smoke test.
+- Confirm sitemap and robots endpoints in the deployed environment.
+- Perform final mobile and desktop smoke tests.
+- Add/commit the npm lockfile before final production launch.
 
 ## Launch gate
 
-WFM should not be treated as fully production-ready until the build/deployment verification and Auth configuration checks above are completed.
+WFM should not be treated as fully production-ready until automated build verification, deployment verification, authenticated boundary testing, and final browser smoke tests are complete.
