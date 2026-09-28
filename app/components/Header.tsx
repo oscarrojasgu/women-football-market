@@ -42,7 +42,7 @@ export default function Header() {
 
       <div className="header-meta">
         <span className="header-status">LIVE DATABASE</span>
-        <button className="login" type="button">Sign in</button>
+        <Link href="/login" className="login">Sign in</Link>
       </div>
     </nav>
   )
