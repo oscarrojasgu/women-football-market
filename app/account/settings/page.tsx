@@ -45,7 +45,12 @@ export default function AccountSettingsPage() {
       supabase.from('club_account_members').select('club_id,role,status,club:clubs(id,name,country)').eq('user_id', user.id),
       supabase.from('clubs').select('id,name,country').order('name'),
     ])
-    setMemberships((memberRows ?? []).map((row: any) => ({\n      club_id: row.club_id,\n      role: row.role,\n      status: row.status,\n      club: Array.isArray(row.club) ? row.club[0] ?? null : row.club ?? null,\n    })))
+    setMemberships((memberRows ?? []).map((row: any) => ({
+      club_id: row.club_id,
+      role: row.role,
+      status: row.status,
+      club: Array.isArray(row.club) ? row.club[0] ?? null : row.club ?? null,
+    })))
     setClubs((clubRows ?? []) as Club[])
     setLoading(false)
   }
