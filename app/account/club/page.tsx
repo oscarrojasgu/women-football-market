@@ -30,7 +30,8 @@ export default function ClubWorkspacePage() {
       .eq('status', 'active')
       .limit(1)
 
-    const rawMember = (membershipRows ?? [])[0] ?? null\n    const member = rawMember ? { ...rawMember, club: Array.isArray(rawMember.club) ? rawMember.club[0] ?? null : rawMember.club ?? null } as Membership : null
+    const rawMember = (membershipRows ?? [])[0] ?? null
+    const member = rawMember ? { ...rawMember, club: Array.isArray(rawMember.club) ? rawMember.club[0] ?? null : rawMember.club ?? null } as Membership : null
     setMembership(member)
     if (!member) { setLoading(false); return }
 
