@@ -35,6 +35,52 @@ type ContractInfo = {
     | null
 }
 
+
+
+type MatchTickerItem = {
+  id: string
+  competition: string
+  home: string
+  away: string
+  homeScore: number | null
+  awayScore: number | null
+  status: string
+}
+
+const matchTickerItems: MatchTickerItem[] = []
+
+function MatchTicker() {
+  const items = matchTickerItems
+  return (
+    <section className="wfm-match-ticker" aria-label="Women's football match center">
+      <div className="wfm-match-ticker-label">
+        <span className="wfm-live-dot" />
+        MATCH CENTER
+      </div>
+      <div className="wfm-match-ticker-viewport">
+        {items.length ? (
+          <div className="wfm-match-ticker-track">
+            {[...items, ...items].map((match, index) => (
+              <Link key={match.id + '-' + index} href={'/matches/' + match.id} className="wfm-match-ticker-item">
+                <span className="wfm-match-competition">{match.competition}</span>
+                <span className="wfm-match-team">{match.home}</span>
+                <strong>{match.homeScore ?? '—'}</strong>
+                <span className="wfm-match-team">{match.away}</span>
+                <strong>{match.awayScore ?? '—'}</strong>
+                <span className="wfm-match-status">{match.status}</span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="wfm-match-ticker-empty">
+            Match center ready — live scores and fixtures will appear here.
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
 function calculateAge(dateOfBirth: string | null) {
   if (!dateOfBirth) return null
 
@@ -354,6 +400,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <MatchTicker />
 
       {/* STATS */}
       <section
