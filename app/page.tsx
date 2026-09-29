@@ -19,6 +19,8 @@ type ContractInfo = {
   player_id: string
   annual_salary: number | null
   weekly_salary: number | null
+  annual_salary_usd: number | null
+  weekly_salary_usd: number | null
   currency: string | null
   status: string | null
   start_date: string | null
