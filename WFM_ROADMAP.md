@@ -295,6 +295,19 @@ The homepage Match Center is factual infrastructure, not a prediction or editori
 Homepage intelligence must be sourced, timestamped and distinguish factual WFM data from external editorial/news content. No fabricated news, predictions or unsupported rankings.
 
 
+## M19 — Global Data Acquisition & Coverage Expansion — IN PROGRESS
+
+- [ ] Complete first production acquisition wave
+- [ ] Reconcile current clubs and players against canonical WFM entities
+- [ ] Import source-linked statistics after relationship validation
+- [ ] Run integrity audits after acquisition batches
+- [ ] Verify scouting peer-sample readiness
+- [ ] Reuse the controlled source pipeline for subsequent competitions
+
+### M19 design rule
+
+Global data growth is evidence-first. No unsupported records are created to improve coverage counts.
+
 ## M18 — Global Coverage & Data Expansion — COMPLETE
 
 - [x] Audit current competition/player/stat coverage gaps
