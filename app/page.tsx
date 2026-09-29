@@ -673,7 +673,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PLAYER DATABASE */
+      {/* PLAYER DATABASE */}
       <section
         className="content"
         style={{
