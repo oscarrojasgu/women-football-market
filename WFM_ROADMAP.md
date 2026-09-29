@@ -276,3 +276,16 @@ Do not randomly add isolated features. Work through the current phase systematic
 ### M16 design rule
 
 The homepage Match Center is factual infrastructure, not a prediction or editorial ranking system. Provider data must pass through an explicit WFM competition allowlist before publication.
+
+## M17 — Homepage Intelligence Layer — IN PROGRESS
+
+- [x] Add latest transfer activity to the homepage
+- [x] Add contract-watch panel using existing WFM contract records
+- [x] Add cross-navigation from match → player → club → competition → scouting
+- [ ] Add source-linked women's football news feed
+- [ ] Add automated source ingestion and freshness controls
+- [ ] Add league/competition story modules after news-source validation
+
+### M17 design rule
+
+Homepage intelligence must be sourced, timestamped and distinguish factual WFM data from external editorial/news content. No fabricated news, predictions or unsupported rankings.
