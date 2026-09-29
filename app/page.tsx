@@ -48,6 +48,16 @@ type HomeTransfer = {
   to_club: { name: string } | null
 }
 
+type HomeNewsItem = {
+  id: string
+  title: string
+  url: string
+  publisher: string
+  published_at: string
+  summary: string | null
+  competition_name: string | null
+}
+
 type MatchTickerItem = {
   id: string
   competition: string
@@ -132,6 +142,7 @@ export default function Home() {
   const [contracts, setContracts] = useState<ContractInfo[]>([])
   const [matchTickerItems, setMatchTickerItems] = useState<MatchTickerItem[]>([])
   const [homeTransfers, setHomeTransfers] = useState<HomeTransfer[]>([])
+  const [homeNews, setHomeNews] = useState<HomeNewsItem[]>([])
   const [databaseStats, setDatabaseStats] = useState({
     players: 0,
     clubs: 0,
@@ -210,6 +221,23 @@ export default function Home() {
     }
 
     loadPlayers()
+  }, [])
+
+  useEffect(() => {
+    async function loadHomeNews() {
+      const { data, error } = await supabase
+        .from('wfm_news_items')
+        .select('id,title,url,publisher,published_at,summary,competition_name')
+        .eq('active', true)
+        .order('published_at', { ascending: false })
+        .limit(5)
+      if (error) {
+        console.error('Error loading homepage news:', error)
+        return
+      }
+      setHomeNews((data || []) as HomeNewsItem[])
+    }
+    loadHomeNews()
   }, [])
 
   useEffect(() => {
@@ -630,6 +658,19 @@ export default function Home() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr 1fr', gap: '12px' }}>
+          <div style={{ background: '#fff', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', minHeight: '245px' }}>
+            <div style={{ fontSize: '10px', color: '#888', fontWeight: 800, letterSpacing: '1px' }}>WOMEN’S FOOTBALL NEWS</div>
+            <h3 style={{ margin: '13px 0 12px', fontSize: '20px' }}>Latest from the game</h3>
+            <div style={{ display: 'grid', gap: '12px' }}>
+              {homeNews.slice(0, 4).map(item => (
+                <a key={item.id} href={item.url} target="_blank" rel="noreferrer" style={{ color: '#111', textDecoration: 'none' }}>
+                  <strong style={{ display: 'block', fontSize: '13px', lineHeight: 1.35 }}>{item.title}</strong>
+                  <small style={{ display: 'block', marginTop: '4px', color: '#888' }}>{item.publisher} · {new Date(item.published_at).toLocaleDateString()}</small>
+                </a>
+              ))}
+              {!homeNews.length && <div style={{ color: '#777', fontSize: '13px', lineHeight: 1.5 }}>Source-linked news will appear here as WFM publishes verified external stories.</div>}
+            </div>
+          </div>
           <div style={{ background: '#111', color: '#fff', borderRadius: '14px', padding: '22px', minHeight: '245px' }}>
             <div style={{ fontSize: '10px', color: '#aaa', fontWeight: 800, letterSpacing: '1px' }}>LATEST TRANSFERS</div>
             <div style={{ marginTop: '16px', display: 'grid', gap: '13px' }}>
