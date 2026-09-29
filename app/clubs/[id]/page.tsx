@@ -698,25 +698,3 @@ export default function ClubProfilePage() {
   );
 }
 
-  background: "#fff",
-  border: "1px solid #e5e5e5",
-  borderRadius: 12,
-  padding: "18px 20px",
-}
-
-const statLabel = {
-  fontSize: 12,
-  color: "#777",
-  marginBottom: 6,
-}
-
-const statValue = {
-  fontSize: 26,
-  fontWeight: 750,
-}
-
-const statSubtext = {
-  fontSize: 11,
-  color: "#888",
-  marginTop: 5,
-}
