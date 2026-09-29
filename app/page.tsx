@@ -80,6 +80,8 @@ export default function Home() {
     transfers: 0,
   })
   const [loading, setLoading] = useState(true)
+  const [homeSort, setHomeSort] = useState<'player'|'club'|'league'|'contract'|'salary'|'confidence'>('player')
+  const [homeSortDir, setHomeSortDir] = useState<'asc'|'desc'>('asc')
 
   useEffect(() => {
     async function loadPlayers() {
@@ -203,6 +205,34 @@ export default function Home() {
         .includes(search)
     })
   }, [q, databasePlayers, contracts])
+
+  const sortedDatabasePlayers = useMemo(() => {
+    const rows = [...filteredDatabasePlayers];
+    const value = (player: Player) => {
+      const contract = contracts.find(item => item.player_id === player.id);
+      if (homeSort === 'player') return player.full_name || '';
+      if (homeSort === 'club') return contract?.club?.name || '';
+      if (homeSort === 'league') return contract?.club?.league || '';
+      if (homeSort === 'contract') return contract?.end_date || '';
+      if (homeSort === 'salary') return contract?.annual_salary_usd ?? null;
+      return contract?.confidence || '';
+    };
+    rows.sort((a,b) => {
+      const av=value(a), bv=value(b);
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      const cmp = typeof av === 'number' && typeof bv === 'number' ? av-bv : String(av).localeCompare(String(bv), undefined, {numeric:true,sensitivity:'base'});
+      return homeSortDir === 'asc' ? cmp : -cmp;
+    });
+    return rows;
+  }, [filteredDatabasePlayers, contracts, homeSort, homeSortDir]);
+
+  const changeHomeSort = (key: typeof homeSort) => {
+    if (homeSort === key) setHomeSortDir(dir => dir === 'asc' ? 'desc' : 'asc');
+    else { setHomeSort(key); setHomeSortDir(key === 'player' || key === 'club' || key === 'league' || key === 'confidence' ? 'asc' : 'desc'); }
+  };
+  const homeSortIndicator = (key: typeof homeSort) => homeSort === key ? (homeSortDir === 'asc' ? '↑' : '↓') : '';
 
   const hasDatabaseResults = filteredDatabasePlayers.length > 0
 
@@ -544,7 +574,7 @@ export default function Home() {
           }}
         >
           <div
-            className="thead home-player-table-head"
+            className="thead home-player-table-head wfm-sortable-header"
             style={{
               display: 'grid',
               gridTemplateColumns:
@@ -559,15 +589,16 @@ export default function Home() {
               letterSpacing: '0.8px',
             }}
           >
-            <span>PLAYER</span>
-            <span>CLUB</span>
-            <span>LEAGUE</span>
-            <span>CONTRACT</span>
-            <span>SALARY</span>
-            <span>CONFIDENCE</span>
+            {([
+              ['PLAYER','player'],['CLUB','club'],['LEAGUE','league'],['CONTRACT','contract'],['SALARY','salary'],['CONFIDENCE','confidence']
+            ] as const).map(([label,key]) => (
+              <button key={key} type="button" onClick={() => changeHomeSort(key)}>
+                <span>{label}</span><span className="wfm-sort-indicator">{homeSortIndicator(key)}</span>
+              </button>
+            ))}
           </div>
 
-          {filteredDatabasePlayers.map((player) => {
+          {sortedDatabasePlayers.map((player) => {
             const age = calculateAge(player.date_of_birth)
             const contract = getContract(player.id)
 
