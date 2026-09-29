@@ -28,7 +28,9 @@ function positionMatch(p:Player, wanted:string[]){if(!wanted.length)return true;
 export default function GlobalDiscoveryPage(){
  const params=useParams<{id:string}>();const id=Array.isArray(params?.id)?params.id[0]:params?.id;
  const [profile,setProfile]=useState<Profile|null>(null);const [players,setPlayers]=useState<Player[]>([]);const [intel,setIntel]=useState<Intel[]>([]);const [contracts,setContracts]=useState<Contract[]>([]);const [values,setValues]=useState<Value[]>([]);const [participations,setParticipations]=useState<Participation[]>([]);const [loading,setLoading]=useState(true);const [message,setMessage]=useState("");
- const [userId,setUserId]=useState<string|null>(null);const [clubContext,setClubContext]=useState<ClubContext|null>(null);const [globalPeers,setGlobalPeers]=useState<Map<string,GlobalPeer>>(new Map());const [lists,setLists]=useState<ScoutingList[]>([]);const [selectedListId,setSelectedListId]=useState("");const [selected,setSelected]=useState<string[]>([]);const [existing,setExisting]=useState<Set<string>>(new Set());const [listBusy,setListBusy]=useState(false);
+ const [userId,setUserId]=useState<string|null>(null);
+ const [sortKey,setSortKey]=useState<"player"|"club"|"age"|"minutes"|"goals"|"assists"|"xg"|"competition">("player");
+ const [sortDir,setSortDir]=useState<"asc"|"desc">("asc");const [clubContext,setClubContext]=useState<ClubContext|null>(null);const [globalPeers,setGlobalPeers]=useState<Map<string,GlobalPeer>>(new Map());const [lists,setLists]=useState<ScoutingList[]>([]);const [selectedListId,setSelectedListId]=useState("");const [selected,setSelected]=useState<string[]>([]);const [existing,setExisting]=useState<Set<string>>(new Set());const [listBusy,setListBusy]=useState(false);
 
  useEffect(()=>{if(!id)return;let mounted=true;(async()=>{const auth=await supabase.auth.getUser();if(!mounted)return;const uid=auth.data.user?.id||null;setUserId(uid);const [pr,pl,pg,si,co,mv,pa,listResult]=await Promise.all([
   supabase.from("scouting_profiles").select("id,name,description,club_id,criteria").eq("id",id).single(),
@@ -67,6 +69,35 @@ export default function GlobalDiscoveryPage(){
    if(c.global_percentile_min!==null){const i=latestIntel.get(p.id);const peer=i?globalPeers.get(`${p.id}|${i.season}`):undefined;if(!peer)return false;const percentiles=[peer.goals_per90_global_percentile,peer.assists_per90_global_percentile,peer.xg_per90_global_percentile,peer.xa_per90_global_percentile,peer.chances_created_per90_global_percentile,peer.key_passes_per90_global_percentile,peer.tackles_per90_global_percentile,peer.interceptions_per90_global_percentile,peer.progressive_carries_per90_global_percentile].filter((v):v is number=>v!==null);const minimumPercentile=c.global_percentile_min/100;if(!percentiles.length||Math.max(...percentiles)<minimumPercentile)return false;}
    return true;
   }).map(p=>({p,i:latestIntel.get(p.id)||null,c:contractMap.get(p.id)||null,v:latestValue.get(p.id)||null,parts:participationMap.get(p.id)||[]}))},[profile,players,contractMap,latestValue,participationMap,latestIntel,globalPeers]);
+
+ const sortedCandidates=useMemo(()=>{
+   const rows=[...candidates];
+   const value=(row:(typeof candidates)[number])=>{
+     if(sortKey==="player")return row.p.full_name||"";
+     if(sortKey==="club")return row.c?.club?.name||"";
+     if(sortKey==="age")return age(row.p.date_of_birth);
+     if(sortKey==="minutes")return row.i?.minutes;
+     if(sortKey==="goals")return row.i?.goals_per90;
+     if(sortKey==="assists")return row.i?.assists_per90;
+     if(sortKey==="xg")return row.i?.xg_per90;
+     return row.i?.league||row.parts[0]?.competition_name||"";
+   };
+   rows.sort((a,b)=>{
+     const av=value(a),bv=value(b);
+     if(av==null&&bv==null)return 0;
+     if(av==null)return 1;
+     if(bv==null)return -1;
+     const cmp=typeof av==="number"&&typeof bv==="number"?av-bv:String(av).localeCompare(String(bv),undefined,{numeric:true,sensitivity:"base"});
+     return sortDir==="asc"?cmp:-cmp;
+   });
+   return rows;
+ },[candidates,sortKey,sortDir]);
+
+ const changeSort=(key:typeof sortKey)=>{
+   if(sortKey===key)setSortDir(d=>d==="asc"?"desc":"asc");
+   else {setSortKey(key);setSortDir(key==="player"||key==="club"||key==="competition"?"asc":"desc");}
+ };
+ const sortIndicator=(key:typeof sortKey)=>sortKey===key?(sortDir==="asc"?" ↑":" ↓"):"";
 
  return <>
   <section className="players-scout-hero">
@@ -108,18 +139,31 @@ export default function GlobalDiscoveryPage(){
           <div className="scout-empty"><strong>No players currently match this profile</strong><span>Try widening the recruitment criteria.</span></div>
         ) : (
           <section className="scout-table-wrap global-discovery-table">
+            <div className="scout-sort-mobile">
+              <label htmlFor="global-discovery-sort">SORT BY</label>
+              <select id="global-discovery-sort" value={sortKey} onChange={e=>changeSort(e.target.value as typeof sortKey)}>
+                <option value="player">Player{sortIndicator("player")}</option>
+                <option value="club">Club{sortIndicator("club")}</option>
+                <option value="age">Age{sortIndicator("age")}</option>
+                <option value="minutes">Minutes{sortIndicator("minutes")}</option>
+                <option value="goals">G/90{sortIndicator("goals")}</option>
+                <option value="assists">A/90{sortIndicator("assists")}</option>
+                <option value="xg">xG/90{sortIndicator("xg")}</option>
+                <option value="competition">Competition{sortIndicator("competition")}</option>
+              </select>
+            </div>
             <div className="scout-table-header">
-              <span>PLAYER</span>
-              <span>CLUB</span>
-              <span>AGE</span>
-              <span>MINUTES</span>
-              <span>G/90</span>
-              <span>A/90</span>
-              <span>xG/90</span>
-              <span>COMPETITION</span>
+              <button type="button" onClick={()=>changeSort("player")}>PLAYER{sortIndicator("player")}</button>
+              <button type="button" onClick={()=>changeSort("club")}>CLUB{sortIndicator("club")}</button>
+              <button type="button" onClick={()=>changeSort("age")}>AGE{sortIndicator("age")}</button>
+              <button type="button" onClick={()=>changeSort("minutes")}>MINUTES{sortIndicator("minutes")}</button>
+              <button type="button" onClick={()=>changeSort("goals")}>G/90{sortIndicator("goals")}</button>
+              <button type="button" onClick={()=>changeSort("assists")}>A/90{sortIndicator("assists")}</button>
+              <button type="button" onClick={()=>changeSort("xg")}>xG/90{sortIndicator("xg")}</button>
+              <button type="button" onClick={()=>changeSort("competition")}>COMPETITION{sortIndicator("competition")}</button>
             </div>
 
-            {candidates.map(({p,i,c,v,parts})=>(
+            {sortedCandidates.map(({p,i,c,v,parts})=>(
               <article key={p.id} className={`scout-row ${selected.includes(p.id)?"is-shortlisted":""}`}>
                 <span className="scout-player">
                   <input
