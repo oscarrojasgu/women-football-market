@@ -140,6 +140,7 @@ export default function MatchCenterAdminPage() {
             </div>
           ))}
         </div>
+        </div>
       </div>
     </main>
   )
