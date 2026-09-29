@@ -39,7 +39,6 @@ export default {
     );
 
     const {data:secret}=await supabaseAdmin
-      .schema("private")
       .from("wfm_internal_cron_secrets")
       .select("token")
       .eq("name","news_ingestion")
