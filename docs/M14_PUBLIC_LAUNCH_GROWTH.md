@@ -72,18 +72,18 @@ M14 does not mark WFM as fully production-ready by itself. The following remain 
 
 These are launch verification tasks, not reasons to add another major application layer.
 
-## Next phase
+## M15 completion
 
-After the production gates are closed, the roadmap should move to measured launch operations:
+M15 is now implemented as the Launch Operations & Data Growth layer.
 
-**M15 — Launch Operations & Data Growth**
+See `docs/M15_LAUNCH_OPERATIONS_DATA_GROWTH.md` for the operational model, source-acquisition workflow, quality monitoring, onboarding visibility and commercial controls.
 
-Focus:
-- first real contributor/club onboarding
-- data-source acquisition workflow
-- data coverage expansion
-- usage/quality monitoring
-- controlled commercial onboarding
-- operational metrics
+The remaining production-readiness gates from M9/M14 are still separate verification tasks:
+- reproducible npm lockfile
+- real-browser route smoke testing
+- authentication/RLS boundary testing
+- commercial end-to-end smoke testing
+- responsive desktop/tablet/mobile testing
+- final production build after those checks
 
-The goal is to grow the data and user base without destabilizing the existing WFM architecture.
+M15 deliberately does not treat those manual gates as complete merely because the operational layer exists.
