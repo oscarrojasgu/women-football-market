@@ -47,7 +47,6 @@ type MatchTickerItem = {
   status: string
 }
 
-const matchTickerItems: MatchTickerItem[] = []
 
 function MatchTicker({ items }: { items: MatchTickerItem[] }) {
   return (
