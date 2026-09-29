@@ -74,6 +74,8 @@ export default function ContractsPage() {
   const [status, setStatus] = useState("All");
   const [league, setLeague] = useState("All");
   const [expiry, setExpiry] = useState("All");
+  const [sortKey, setSortKey] = useState<"player"|"club"|"status"|"expiry"|"salary"|"confidence">("expiry");
+  const [sortDir, setSortDir] = useState<"asc"|"desc">("asc");
 
   useEffect(() => {
     async function loadContracts() {
@@ -125,6 +127,32 @@ export default function ContractsPage() {
       return matchesSearch && matchesStatus && matchesLeague && matchesExpiry;
     });
   }, [contracts, search, status, league, expiry]);
+
+  const sortedContracts = useMemo(() => {
+    const rows = [...filteredContracts];
+    const value = (c: Contract) => {
+      if (sortKey === "player") return c.player?.full_name || "";
+      if (sortKey === "club") return c.club?.name || "";
+      if (sortKey === "status") return c.status || "";
+      if (sortKey === "expiry") return c.end_date || "";
+      if (sortKey === "salary") return c.annual_salary_usd;
+      return c.confidence || "";
+    };
+    rows.sort((a,b) => {
+      const av=value(a), bv=value(b);
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      const cmp = typeof av === "number" && typeof bv === "number" ? av-bv : String(av).localeCompare(String(bv), undefined, {numeric:true,sensitivity:"base"});
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+    return rows;
+  }, [filteredContracts, sortKey, sortDir]);
+  const changeSort = (key: typeof sortKey) => {
+    if (sortKey === key) setSortDir(d => d === "asc" ? "desc" : "asc");
+    else { setSortKey(key); setSortDir(key === "player" || key === "club" || key === "status" || key === "confidence" ? "asc" : "desc"); }
+  };
+  const sortIndicator = (key: typeof sortKey) => sortKey === key ? (sortDir === "asc" ? " ↑" : " ↓") : "";
 
   const hasFilters = search !== "" || status !== "All" || league !== "All" || expiry !== "All";
 
@@ -191,12 +219,12 @@ export default function ContractsPage() {
 
         <section className="scout-table-wrap contracts-scout-table">
           <div className="scout-table-header contracts-table-header">
-            <span>PLAYER</span>
-            <span>CLUB</span>
-            <span>STATUS</span>
-            <span>EXPIRY</span>
-            <span>SALARY</span>
-            <span>CONFIDENCE</span>
+            <button type="button" onClick={()=>changeSort("player")}>PLAYER{sortIndicator("player")}</button>
+            <button type="button" onClick={()=>changeSort("club")}>CLUB{sortIndicator("club")}</button>
+            <button type="button" onClick={()=>changeSort("status")}>STATUS{sortIndicator("status")}</button>
+            <button type="button" onClick={()=>changeSort("expiry")}>EXPIRY{sortIndicator("expiry")}</button>
+            <button type="button" onClick={()=>changeSort("salary")}>SALARY{sortIndicator("salary")}</button>
+            <button type="button" onClick={()=>changeSort("confidence")}>CONFIDENCE{sortIndicator("confidence")}</button>
           </div>
 
           {loading ? (
@@ -208,7 +236,7 @@ export default function ContractsPage() {
               <button type="button" onClick={clearFilters}>Reset contract filters</button>
             </div>
           ) : (
-            filteredContracts.map(c => {
+            sortedContracts.map(c => {
               const days = daysUntil(c.end_date);
               const urgent = days !== null && days >= 0 && days <= 90;
 
