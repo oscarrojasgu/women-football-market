@@ -455,668 +455,247 @@ export default function ClubProfilePage() {
 
   if (loading) {
     return (
-      <main
-        style={{
-          minHeight: "100vh",
-          background: "#f5f4ef",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            padding: "80px 24px",
-          }}
-        >
-          Loading club...
-        </div>
-      </main>
-    )
+      <>
+        <section className="players-scout-hero">
+          <div className="players-scout-shell">
+            <div className="players-scout-eyebrow">WOMEN&apos;S FOOTBALL MARKET</div>
+            <h1>Club Profile</h1>
+            <p>Loading club information, squad records, contract context and transfer activity.</p>
+          </div>
+        </section>
+        <main className="players-page players-scout-page clubs-profile-page">
+          <div className="scout-empty">Loading club...</div>
+        </main>
+      </>
+    );
   }
 
   if (!club) {
     return (
-      <main
-        style={{
-          minHeight: "100vh",
-          background: "#f5f4ef",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            padding: "80px 24px",
-          }}
-        >
-          Club not found.
-        </div>
-      </main>
-    )
+      <>
+        <section className="players-scout-hero">
+          <div className="players-scout-shell">
+            <div className="players-scout-eyebrow">WOMEN&apos;S FOOTBALL MARKET</div>
+            <h1>Club Profile</h1>
+            <p>The requested club could not be found.</p>
+          </div>
+        </section>
+        <main className="players-page players-scout-page clubs-profile-page">
+          <div className="scout-empty">Club not found.</div>
+        </main>
+      </>
+    );
   }
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: "#f5f4ef",
-        color: "#111",
-      }}
-    >
-      
-
-      <section style={{ maxWidth: 1200, margin: "16px auto 0", padding: "0 24px" }}>
-        <div style={{ background: "#fff", border: "1px solid #e1e1e1", borderRadius: 14, padding: 20 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-            <div>
-              <h2 style={{ margin: 0, fontSize: 20 }}>Data Provenance & Trust</h2>
-              <p style={{ margin: "5px 0 0", color: "#777", fontSize: 12 }}>Source context attached to published club records. WFM keeps uncertainty visible rather than presenting unsupported assumptions as facts.</p>
-            </div>
-            <div style={{ fontSize: 11, color: "#888" }}>{linkedSources.length} linked source{linkedSources.length === 1 ? "" : "s"}</div>
-          </div>
-          {linkedSources.length > 0 ? (
-            <div style={{ marginTop: 14, display: "grid", gap: 8 }}>
-              {linkedSources.map(source => (
-                <div key={source.id} style={{ borderTop: "1px solid #eee", paddingTop: 10, display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", fontSize: 12 }}>
-                  <div>
-                    <strong>{source.publisher || "Source publisher not recorded"}</strong>
-                    <div style={{ marginTop: 3, color: "#888", fontSize: 11 }}>
-                      {source.published_at ? "Published " + formatDate(source.published_at) : "Publication date not recorded"}
-                      {source.reliability ? " · " + source.reliability + " reliability" : ""}
-                      {source.accessed_at ? " · Accessed " + new Date(source.accessed_at).toLocaleDateString("en-US") : ""}
-                    </div>
-                  </div>
-                  {source.url ? <a href={source.url} target="_blank" rel="noreferrer" style={{ color: "#111", fontWeight: 700 }}>View source →</a> : null}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{ marginTop: 14, padding: 12, background: "#fafafa", border: "1px solid #eee", borderRadius: 9, color: "#888", fontSize: 12 }}>
-              No linked source records are currently available for this club. WFM does not infer a source when one is not recorded.
-            </div>
-          )}
-        </div>
-      </section>
-
-      <section
-        style={{
-          background: "#111",
-          color: "#fff",
-          padding: "55px 6vw 50px",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 24,
-            }}
-          >
+    <>
+      <section className="players-scout-hero club-profile-hero">
+        <div className="players-scout-shell">
+          <div className="club-profile-heading">
             {club.logo_url ? (
               <img
                 src={club.logo_url}
                 alt={club.name}
-                style={{
-                  width: 90,
-                  height: 90,
-                  objectFit: "contain",
-                  background: "#fff",
-                  borderRadius: 12,
-                  padding: 10,
+                className="club-profile-logo"
+                onError={(event) => {
+                  event.currentTarget.style.display = "none";
                 }}
               />
             ) : null}
-
-            <div>
-              <div
-                style={{
-                  fontSize: 12,
-                  letterSpacing: 2,
-                  fontWeight: 700,
-                  marginBottom: 12,
-                  color: "#aaa",
-                }}
-              >
-                CLUB PROFILE
+            <div className="club-profile-heading-copy">
+              <div className="players-scout-eyebrow">CLUB PROFILE</div>
+              <div className="club-profile-title-row">
+                <h1>{club.name}</h1>
+                {officialVerification ? (
+                  <span className="club-verified-badge">✓ OFFICIAL WFM REPRESENTATIVE</span>
+                ) : null}
               </div>
-
-              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                <h1
-                  style={{
-                    fontSize: 46,
-                    lineHeight: 1.05,
-                    margin: 0,
-                  }}
-                >
-                  {club.name}
-                </h1>
-                {officialVerification && <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 8px", borderRadius: 999, background: "#e8f2ea", color: "#245b32", fontSize: 10, fontWeight: 800, letterSpacing: ".04em" }}>✓ OFFICIAL WFM REPRESENTATIVE</span>}
-              </div>
-
-              <div
-                style={{
-                  marginTop: 12,
-                  color: "#bbb",
-                  fontSize: 16,
-                }}
-              >
-  {[club.country, currentCompetitionLabel]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </div>
+              <p>{[club.country, currentCompetitionLabel].filter(Boolean).join(" · ")}</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          padding: "32px 24px 60px",
-        }}
-      >
-        <div style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12, padding: "16px 18px", marginBottom: 24, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", justifyContent: "space-between" }}><div style={{display:"flex",gap:12,alignItems:"center",flexWrap:"wrap"}}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: "#777", letterSpacing: 1 }}>CLUB CONTEXT</div>
-          <select value={selectedSeason} onChange={(event) => setSelectedSeason(event.target.value)} style={{ border: "1px solid #ddd", borderRadius: 8, padding: "9px 12px", background: "#fff", fontSize: 13 }}>
-            <option value="all">All seasons</option>
-            {seasons.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
-          </select>
-          <div style={{ fontSize: 13, color: "#555" }}>
-            {competitionsForSeason.length ? competitionsForSeason.join(" · ") : "No competition participation recorded"}
-          </div></div><Link href={`/scouting?club=${id}`} style={{display:"inline-block",border:"1px solid #222",background:"#222",color:"#fff",borderRadius:7,padding:"9px 13px",fontSize:12,fontWeight:700,textDecoration:"none"}}>Scout this club →</Link>
-        </div>
+      <main className="players-page players-scout-page clubs-profile-page">
+        <section className="scout-stat-grid">
+          <div className="scout-stat"><span>ACTIVE PLAYERS</span><strong>{currentContracts.length}</strong></div>
+          <div className="scout-stat"><span>CONTRACT RECORDS</span><strong>{contracts.length}</strong></div>
+          <div className="scout-stat"><span>KNOWN PAYROLL</span><strong>{formatSalary(totalKnownPayroll, "USD")}</strong></div>
+          <div className="scout-stat"><span>TRANSFER RECORDS</span><strong>{transfers.length}</strong></div>
+        </section>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit, minmax(180px, 1fr))",
-            gap: 14,
-            marginBottom: 24,
-          }}
-        >
-          {[
-            ["Players", currentContracts.length.toString()],
-            ["Contracts", contracts.length.toString()],
-            ["Known Payroll", formatSalary(totalKnownPayroll, "USD")],
-            ["Transfers", transfers.length.toString()],
-            [
-              "Highest Salary",
-              highestPaidPlayer
-                ? formatSalary(
-                    highestPaidPlayer.annual_salary,
-                    highestPaidPlayer.currency
-                  )
-                : "Unknown",
-            ],
-          ].map(([label, value]) => (
-            <div
-              key={label}
-              style={{
-                background: "#fff",
-                border: "1px solid #e5e5e5",
-                borderRadius: 12,
-                padding: "18px 20px",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 12,
-                  color: "#777",
-                  marginBottom: 6,
-                }}
-              >
-                {label}
-              </div>
-
-              <div
-                style={{
-                  fontSize: 26,
-                  fontWeight: 750,
-                }}
-              >
-                {value}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <section
-          style={{
-            marginBottom: 40,
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: 16,
-            }}
-          >
+        <section className="club-context-card">
+          <div className="club-context-main">
             <div>
-              <h2
-                style={{
-                  margin: 0,
-                  fontSize: 26,
-                }}
-              >
-                <div style={{ marginBottom: 24, padding: "20px", background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12 }}>
-                  <div style={{ fontSize: 11, letterSpacing: 1.5, fontWeight: 800, color: "#777" }}>CLUB INTELLIGENCE</div>
-                  <h2 style={{ margin: "5px 0 0", fontSize: 26 }}>Squad & Contract Context</h2>
-                  <p style={{ margin: "6px 0 16px", color: "#666" }}>Descriptive intelligence derived from WFM roster, contract and transfer records. It does not assign a recruitment need or player rating.</p>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 12 }}>
-                    <div><small>Contracts expiring ≤180 days</small><strong style={{display:"block",fontSize:24}}>{clubIntelligence.expiring180.length}</strong></div>
-                    <div><small>Salary data unavailable</small><strong style={{display:"block",fontSize:24}}>{clubIntelligence.unknownSalary}</strong></div>
-                    <div><small>Incoming transfers</small><strong style={{display:"block",fontSize:24}}>{clubIntelligence.incoming}</strong></div>
-                    <div><small>Outgoing transfers</small><strong style={{display:"block",fontSize:24}}>{clubIntelligence.outgoing}</strong></div>
-                  </div>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:20,marginTop:18}}>
-                    <div><h3 style={{margin:"0 0 8px"}}>Position mix</h3>{clubIntelligence.positions.map(([position,count])=><div key={position} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid #eee"}}><span>{position}</span><strong>{count}</strong></div>)}</div>
-                    <div><h3 style={{margin:"0 0 8px"}}>Contracts ending soon</h3>{clubIntelligence.expiring180.length?clubIntelligence.expiring180.slice(0,8).map(contract=><div key={contract.id} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid #eee"}}><Link href={contract.player?"/players/"+contract.player.id:"#"}>{contract.player?.full_name||"Unknown player"}</Link><span>{formatDate(contract.end_date)}</span></div>):<span style={{color:"#777"}}>No active contracts ending within 180 days based on available dates.</span>}</div>
-                  </div>
-                </div>
-
-                Current Players
-              </h2>
-
-              <p
-                style={{
-                  margin: "6px 0 0",
-                  color: "#666",
-                }}
-              >
-                Active roster and known contract information for the club profile. Competition and season participation is shown above.
-              </p>
+              <span className="club-section-eyebrow">CLUB CONTEXT</span>
+              <h2>Competition &amp; Season</h2>
+              <p>{competitionsForSeason.length ? competitionsForSeason.join(" · ") : "No competition participation recorded."}</p>
             </div>
+            <div className="club-context-controls">
+              <label>
+                <span>Season</span>
+                <select value={selectedSeason} onChange={(event) => setSelectedSeason(event.target.value)}>
+                  <option value="all">All seasons</option>
+                  {seasons.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+                </select>
+              </label>
+              <Link href={`/scouting?club=${id}`} className="club-dark-button">Scout this club →</Link>
+            </div>
+          </div>
+        </section>
 
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: 8,
-                padding: "10px 12px",
-                background: "#fff",
-                fontSize: 14,
-              }}
-            >
+        <section className="club-intelligence-card">
+          <div className="club-section-heading">
+            <div>
+              <span className="club-section-eyebrow">CLUB INTELLIGENCE</span>
+              <h2>Squad &amp; Contract Context</h2>
+              <p>Descriptive intelligence derived from WFM roster, contract and transfer records. It does not assign a recruitment need or player rating.</p>
+            </div>
+          </div>
+
+          <div className="club-mini-stat-grid">
+            <div><span>CONTRACTS EXPIRING ≤180 DAYS</span><strong>{clubIntelligence.expiring180.length}</strong></div>
+            <div><span>SALARY DATA UNAVAILABLE</span><strong>{clubIntelligence.unknownSalary}</strong></div>
+            <div><span>INCOMING TRANSFERS</span><strong>{clubIntelligence.incoming}</strong></div>
+            <div><span>OUTGOING TRANSFERS</span><strong>{clubIntelligence.outgoing}</strong></div>
+          </div>
+
+          <div className="club-intelligence-grid">
+            <div>
+              <h3>Position mix</h3>
+              {clubIntelligence.positions.length ? clubIntelligence.positions.map(([position, count]) => (
+                <div className="club-intelligence-line" key={position}><span>{position}</span><strong>{count}</strong></div>
+              )) : <p className="club-muted">No position data recorded.</p>}
+            </div>
+            <div>
+              <h3>Contracts ending soon</h3>
+              {clubIntelligence.expiring180.length ? clubIntelligence.expiring180.slice(0, 8).map(contract => (
+                <div className="club-intelligence-line" key={contract.id}>
+                  <Link href={contract.player ? `/players/${contract.player.id}` : "#"}>{contract.player?.full_name || "Unknown player"}</Link>
+                  <span>{formatDate(contract.end_date)}</span>
+                </div>
+              )) : <p className="club-muted">No active contracts ending within 180 days based on available dates.</p>}
+            </div>
+          </div>
+        </section>
+
+        <section className="club-profile-section">
+          <div className="club-profile-section-heading">
+            <div>
+              <span className="club-section-eyebrow">SQUAD</span>
+              <h2>Current Players</h2>
+              <p>Active roster and known contract information for the club profile.</p>
+            </div>
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="club-sort-select">
               <option value="salary">Sort by Salary</option>
               <option value="name">Sort by Name</option>
               <option value="position">Sort by Position</option>
             </select>
           </div>
 
-          <div
-            style={{
-              background: "#fff",
-              border: "1px solid #e5e5e5",
-              borderRadius: 12,
-              overflow: "hidden",
-            }}
-          >
-            <div style={{ overflowX: "auto" }}>
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  minWidth: 900,
-                }}
-              >
-                <thead>
-                  <tr
-                    style={{
-                      borderBottom: "1px solid #e5e5e5",
-                      textAlign: "left",
-                    }}
-                  >
-                    {["Player", "Status", "End Date", "Annual Salary"].map(
-                      (heading) => (
-                        <th
-                          key={heading}
-                          style={{
-                            padding: "15px 16px",
-                            fontSize: 11,
-                            letterSpacing: 1,
-                            textTransform: "uppercase",
-                            color: "#888",
-                            fontWeight: 700,
-                          }}
-                        >
-                          {heading}
-                        </th>
-                      )
-                    )}
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {sortedContracts.map((contract) => {
-                    const player = contract.player
-
-                    return (
-                      <tr
-                        key={contract.id}
-                        style={{
-                          borderBottom: "1px solid #eee",
-                        }}
-                      >
-                        <td
-                          style={{
-                            padding: "16px",
-                            fontWeight: 650,
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 12,
-                            }}
-                          >
-                            {player?.photo_url ? (
-                              <img
-                                src={player.photo_url}
-                                alt={player.full_name}
-                                style={{
-                                  width: 42,
-                                  height: 42,
-                                  borderRadius: "50%",
-                                  objectFit: "contain",
-                                  objectPosition: "center",
-                                  display: "block",
-                                  flexShrink: 0,
-                                  background: "#f3f3f3",
-                                }}
-                              />
-                            ) : (
-                              <div
-                                style={{
-                                  width: 42,
-                                  height: 42,
-                                  borderRadius: "50%",
-                                  background: "#eee",
-                                  flexShrink: 0,
-                                }}
-                              />
-                            )}
-
-                            <div>
-                              {player ? (
-                                <Link
-                                  href={`/players/${player.id}`}
-                                  style={{
-                                    color: "#111",
-                                    textDecoration: "none",
-                                    fontWeight: 700,
-                                  }}
-                                >
-                                  {player.full_name}
-                                </Link>
-                              ) : (
-                                <div>Unknown Player</div>
-                              )}
-
-                              <div
-                                style={{
-                                  color: "#777",
-                                  fontSize: 13,
-                                  marginTop: 3,
-                                }}
-                              >
-                                {[player?.nationality, player?.position]
-                                  .filter(Boolean)
-                                  .join(" · ")}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td
-                          style={{
-                            padding: "16px",
-                            fontSize: 13,
-                            fontWeight: 600,
-                          }}
-                        >
-                          {contract.status || "Unknown"}
-                        </td>
-
-                        <td
-                          style={{
-                            padding: "16px",
-                            fontSize: 14,
-                            color: "#555",
-                          }}
-                        >
-                          {formatDate(contract.end_date)}
-                        </td>
-
-                        <td
-                          style={{
-                            padding: "16px",
-                            fontWeight: 700,
-                          }}
-                        >
-                          {formatSalary(
-                            contract.annual_salary,
-                            contract.currency
-                          )}
-
-                          {contract.annual_salary !== null && (
-                            <div
-                              style={{
-                                fontSize: 11,
-                                color: "#888",
-                                marginTop: 3,
-                              }}
-                            >
-                              #{salaryRecords.findIndex(
-                                (record) => record.id === contract.id
-                              ) + 1} roster salary
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-
-              {sortedContracts.length === 0 && (
-                <div
-                  style={{
-                    padding: 30,
-                    color: "#777",
-                  }}
-                >
-                  No active players found.
-                </div>
-              )}
+          <div className="club-player-table">
+            <div className="club-player-table-header">
+              <span>PLAYER</span><span>STATUS</span><span>EXPIRY</span><span>ANNUAL SALARY</span>
             </div>
+
+            {sortedContracts.map((contract) => {
+              const player = contract.player;
+              return (
+                <div className="club-player-row" key={contract.id}>
+                  <span className="club-player-cell club-player">
+                    <Link href={player ? `/players/${player.id}` : "#"} className="club-player-link">
+                      {player?.photo_url ? (
+                        <img src={player.photo_url} alt={player.full_name} onError={(event) => { event.currentTarget.src = "/wfm-player-placeholder.svg"; }} />
+                      ) : (
+                        <img src="/wfm-player-placeholder.svg" alt="" />
+                      )}
+                      <span>
+                        <strong>{player?.full_name || "Unknown Player"}</strong>
+                        <small>{[player?.position, player?.nationality].filter(Boolean).join(" · ") || "Player details unavailable"}</small>
+                      </span>
+                    </Link>
+                  </span>
+                  <span className="club-player-cell" data-label="Status">{contract.status || "Unknown"}</span>
+                  <span className="club-player-cell" data-label="Expiry">
+                    <strong>{formatDate(contract.end_date)}</strong>
+                    <small>{contract.end_date ? "Contract end date" : "End date unavailable"}</small>
+                  </span>
+                  <span className="club-player-cell club-salary-cell" data-label="Salary">
+                    <strong>{formatSalary(contract.annual_salary, contract.currency)}</strong>
+                    {contract.annual_salary !== null ? <small>Roster salary</small> : null}
+                  </span>
+                </div>
+              );
+            })}
+
+            {sortedContracts.length === 0 ? <div className="scout-empty">No active players found.</div> : null}
           </div>
         </section>
 
-        <section>
-          <h2
-            style={{
-              margin: "0 0 16px",
-              fontSize: 26,
-            }}
-          >
-            Transfer Activity
-          </h2>
-
-          <div
-            style={{
-              background: "#fff",
-              border: "1px solid #e5e5e5",
-              borderRadius: 12,
-              overflow: "hidden",
-            }}
-          >
-            <div style={{ overflowX: "auto" }}>
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  minWidth: 900,
-                }}
-              >
-                <thead>
-                  <tr
-                    style={{
-                      borderBottom: "1px solid #e5e5e5",
-                      textAlign: "left",
-                    }}
-                  >
-                    {["Player", "From", "", "To", "Date", "Fee"].map(
-                      (heading, index) => (
-                        <th
-                          key={`${heading}-${index}`}
-                          style={{
-                            padding: "15px 16px",
-                            fontSize: 11,
-                            letterSpacing: 1,
-                            textTransform: "uppercase",
-                            color: "#888",
-                            fontWeight: 700,
-                          }}
-                        >
-                          {heading}
-                        </th>
-                      )
-                    )}
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {transfers.map((transfer) => (
-                    <tr
-                      key={transfer.id}
-                      style={{
-                        borderBottom: "1px solid #eee",
-                      }}
-                    >
-                      <td
-                        style={{
-                          padding: "16px",
-                          fontWeight: 650,
-                        }}
-                      >
-                        <Link
-                          href={`/players/${transfer.player?.id}`}
-                          style={{
-                            color: "#111",
-                            textDecoration: "none",
-                          }}
-                        >
-                          {transfer.player?.full_name || "Unknown Player"}
-                        </Link>
-                      </td>
-
-                      <td style={{ padding: "16px" }}>
-                        {transfer.from_club ? (
-                          <Link
-                            href={`/clubs/${transfer.from_club.id}`}
-                            style={{
-                              color: "#111",
-                              textDecoration: "none",
-                            }}
-                          >
-                            {transfer.from_club.name}
-                          </Link>
-                        ) : (
-                          "Unknown"
-                        )}
-                      </td>
-
-                      <td
-                        style={{
-                          padding: "16px",
-                          color: "#999",
-                          textAlign: "center",
-                        }}
-                      >
-                        →
-                      </td>
-
-                      <td style={{ padding: "16px" }}>
-                        {transfer.to_club ? (
-                          <Link
-                            href={`/clubs/${transfer.to_club.id}`}
-                            style={{
-                              color: "#111",
-                              textDecoration: "none",
-                            }}
-                          >
-                            {transfer.to_club.name}
-                          </Link>
-                        ) : (
-                          "Unknown"
-                        )}
-                      </td>
-
-                      <td
-                        style={{
-                          padding: "16px",
-                        }}
-                      >
-                        {formatDate(transfer.transfer_date)}
-                      </td>
-
-                      <td
-                        style={{
-                          padding: "16px",
-                          fontWeight: 650,
-                        }}
-                      >
-                        {transfer.fee !== null
-                          ? formatSalary(transfer.fee, transfer.currency)
-                          : transfer.transfer_type || "Unknown"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {transfers.length === 0 && (
-                <div
-                  style={{
-                    padding: 30,
-                    color: "#777",
-                  }}
-                >
-                  No transfer activity found.
-                </div>
-              )}
+        <section className="club-profile-section">
+          <div className="club-profile-section-heading">
+            <div>
+              <span className="club-section-eyebrow">MARKET ACTIVITY</span>
+              <h2>Transfer Activity</h2>
+              <p>Recorded incoming and outgoing transfer activity connected to this club.</p>
             </div>
           </div>
-        </section>
-      </section>
 
-      <footer
-        style={{
-          borderTop: "1px solid #ddd",
-          padding: "30px 24px",
-          color: "#777",
-          fontSize: 13,
-          textAlign: "center",
-        }}
-      >
-        Women Football Market · Data focused
-        on the women&apos;s game
+          <div className="club-transfer-table">
+            <div className="club-transfer-header">
+              <span>PLAYER</span><span>FROM</span><span></span><span>TO</span><span>DATE</span><span>FEE</span>
+            </div>
+            {transfers.map((transfer) => (
+              <div className="club-transfer-row" key={transfer.id}>
+                <span><Link href={transfer.player ? `/players/${transfer.player.id}` : "#"}>{transfer.player?.full_name || "Unknown Player"}</Link></span>
+                <span>{transfer.from_club ? <Link href={`/clubs/${transfer.from_club.id}`}>{transfer.from_club.name}</Link> : "Unknown"}</span>
+                <span className="club-transfer-arrow">→</span>
+                <span>{transfer.to_club ? <Link href={`/clubs/${transfer.to_club.id}`}>{transfer.to_club.name}</Link> : "Unknown"}</span>
+                <span>{formatDate(transfer.transfer_date)}</span>
+                <span><strong>{transfer.fee !== null ? formatSalary(transfer.fee, transfer.currency) : transfer.transfer_type || "Unknown"}</strong></span>
+              </div>
+            ))}
+            {transfers.length === 0 ? <div className="scout-empty">No transfer activity found.</div> : null}
+          </div>
+        </section>
+
+        <section className="club-provenance-card">
+          <div className="club-section-heading">
+            <div>
+              <span className="club-section-eyebrow">DATA PROVENANCE</span>
+              <h2>Source Context</h2>
+              <p>WFM keeps uncertainty visible rather than presenting unsupported assumptions as facts.</p>
+            </div>
+            <span className="club-source-count">{linkedSources.length} linked source{linkedSources.length === 1 ? "" : "s"}</span>
+          </div>
+
+          {linkedSources.length > 0 ? (
+            <div className="club-source-list">
+              {linkedSources.map(source => (
+                <div className="club-source-row" key={source.id}>
+                  <div>
+                    <strong>{source.publisher || "Source publisher not recorded"}</strong>
+                    <small>
+                      {source.published_at ? "Published " + formatDate(source.published_at) : "Publication date not recorded"}
+                      {source.reliability ? " · " + source.reliability + " reliability" : ""}
+                      {source.accessed_at ? " · Accessed " + new Date(source.accessed_at).toLocaleDateString("en-US") : ""}
+                    </small>
+                  </div>
+                  {source.url ? <a href={source.url} target="_blank" rel="noreferrer">View source →</a> : null}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="club-source-empty">No linked source records are currently available for this club. WFM does not infer a source when one is not recorded.</div>
+          )}
+        </section>
+      </main>
+
+      <footer className="club-profile-footer">
+        Women&apos;s Football Market · Data focused on the women&apos;s game
       </footer>
-    </main>
-  )
-}
+    </>
+  );
 
 const statCard = {
   background: "#fff",
