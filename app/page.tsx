@@ -657,7 +657,7 @@ export default function Home() {
           <Link href="/transfers" style={{ color: '#111', textDecoration: 'none', fontSize: '13px', fontWeight: 800 }}>View market activity →</Link>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr 1fr', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr 1fr 1fr', gap: '12px' }}>
           <div style={{ background: '#fff', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', minHeight: '245px' }}>
             <div style={{ fontSize: '10px', color: '#888', fontWeight: 800, letterSpacing: '1px' }}>WOMEN’S FOOTBALL NEWS</div>
             <h3 style={{ margin: '13px 0 12px', fontSize: '20px' }}>Latest from the game</h3>
