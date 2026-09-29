@@ -67,9 +67,9 @@ export default function MatchCenterAdminPage() {
     const start = new Date(today.getTime() - 24*60*60*1000).toISOString().slice(0,10)
     const end = new Date(today.getTime() + 3*24*60*60*1000).toISOString().slice(0,10)
     try {
-      const response = await fetch('/api/admin/match-center-sync', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({start_date:start,end_date:end}) })
-      const payload = await response.json()
-      if (!response.ok) throw new Error(payload.error || 'Match sync failed.')
+      const { data:payload, error:invokeError } = await supabase.functions.invoke('sync-sportmonks-match-fixtures', { body:{start_date:start,end_date:end} })
+      if (invokeError) throw invokeError
+      if (!payload?.ok) throw new Error(payload?.error || 'Match sync failed.')
       setMessage(`Match sync complete: ${payload.inserted ?? 0} added, ${payload.updated ?? 0} updated.`)
     } catch (e) { setError(e instanceof Error ? e.message : String(e)) }
     setBusy(false)
