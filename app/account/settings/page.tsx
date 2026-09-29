@@ -103,7 +103,7 @@ export default function AccountSettingsPage() {
       <section className="account-card">
         <div className="account-card-top">
           <div><div className="eyebrow">ACCOUNT</div><h1>Profile & settings</h1><p>Manage your WFM identity, security and professional access.</p></div>
-          <Link href={memberships.length ? '/account/club' : '/scouting'} className="outline">{memberships.length ? 'Club workspace' : 'Scouting workspace'}</Link>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}><Link href={memberships.length ? '/account/club' : '/scouting'} className="outline">{memberships.length ? 'Club workspace' : 'Scouting workspace'}</Link><Link href="/account/agency" className="outline">Agent / agency workspace</Link></div>
         </div>
 
         {error && <div className="account-message account-error">{error}</div>}
