@@ -430,7 +430,7 @@ export default function ClubsPage() {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', minWidth: 900, borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ background: '#fafafa', borderBottom: '1px solid #e8e8e8' }}>
+                <tr className="wfm-club-sortable-header" style={{ background: '#fafafa', borderBottom: '1px solid #e8e8e8' }}>
                   {[
                     ['Club','name'],['Competition','competition'],['Season','season'],['Country','country'],['Active roster','players'],['Known payroll','payroll'],['Squad market value','value'],['Transfers','transfers']
                   ].map(([heading,key], index) => (
