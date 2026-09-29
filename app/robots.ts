@@ -5,10 +5,18 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/players", "/clubs", "/contracts", "/salaries", "/transfers"],
-        disallow: ["/admin", "/api", "/contributor", "/scouting", "/compare"]
-      }
+        allow: [
+          "/",
+          "/players",
+          "/clubs",
+          "/competitions",
+          "/contracts",
+          "/salaries",
+          "/transfers",
+        ],
+        disallow: ["/admin", "/api", "/contributor", "/scouting", "/compare"],
+      },
     ],
-    sitemap: "https://women-football-market.vercel.app/sitemap.xml"
+    sitemap: "https://women-football-market.vercel.app/sitemap.xml",
   };
 }
