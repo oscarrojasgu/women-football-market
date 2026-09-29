@@ -128,7 +128,7 @@ export default function MatchCenterAdminPage() {
               <button disabled={busy} onClick={()=>addDiscovered(source)} style={{padding:'7px 10px',border:0,borderRadius:6,background:'#111',color:'#fff',fontWeight:800}}>Add</button>
             </div>)}
           </div>
-        </div>
+        </div>}
 
         <div style={{background:'#fff',border:'1px solid #e3e3e3',borderRadius:14,overflow:'hidden'}}>
           {sources.length === 0 ? <div style={{padding:30,color:'#777'}}>No competitions configured yet.</div> : sources.map(source => (
