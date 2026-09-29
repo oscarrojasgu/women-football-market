@@ -102,12 +102,19 @@ export default {
           else existing ? results.updated++ : results.inserted++;
         }
 
+        const newestItem=feedItems.reduce<string|null>((latest,item)=>{
+          const d=new Date(item.published);
+          if(Number.isNaN(d.getTime())) return latest;
+          return !latest || d.toISOString()>latest ? d.toISOString() : latest;
+        },null);
         await supabaseAdmin
           .from("wfm_news_sources")
           .update({
             last_checked_at:new Date().toISOString(),
             last_success_at:new Date().toISOString(),
             last_error:null,
+            consecutive_failures:0,
+            last_item_published_at:newestItem,
             updated_at:new Date().toISOString()
           })
           .eq("id",source.id);
@@ -119,6 +126,7 @@ export default {
           .update({
             last_checked_at:new Date().toISOString(),
             last_error:message,
+            consecutive_failures: (await supabaseAdmin.from("wfm_news_sources").select("consecutive_failures").eq("id",source.id).maybeSingle()).data?.consecutive_failures ? ((await supabaseAdmin.from("wfm_news_sources").select("consecutive_failures").eq("id",source.id).maybeSingle()).data?.consecutive_failures || 0)+1 : 1,
             updated_at:new Date().toISOString()
           })
           .eq("id",source.id);
