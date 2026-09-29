@@ -28,6 +28,10 @@ function items(xml:string) {
 
 export default withSupabase({auth:"user"}, async (req,ctx)=>{
   if(req.method!=="POST") return Response.json({error:"POST required"},{status:405});
+  const {data:userData}=await ctx.supabase.auth.getUser();
+  if(!userData.user) return Response.json({error:"Authentication required"},{status:401});
+  const {data:admin}=await ctx.supabase.from("wfm_admins").select("user_id").eq("user_id",userData.user.id).maybeSingle();
+  if(!admin) return Response.json({error:"Admin access required"},{status:403});
   const {data:sources,error:sourceError}=await ctx.supabaseAdmin.from("wfm_news_sources").select("id,publisher,feed_url").eq("active",true);
   if(sourceError) return Response.json({error:sourceError.message},{status:500});
   const results={sources:0,feeds_ok:0,items_seen:0,inserted:0,updated:0,errors:[] as string[]};
