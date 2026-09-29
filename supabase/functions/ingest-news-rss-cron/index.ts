@@ -12,7 +12,7 @@ function tag(xml:string, name:string) {
   return m ? textOf(m[1]) : "";
 }
 function items(xml:string) {
-  const blocks=[...xml.matchAll(/<(item|entry)\\b[\\s\\S]*?<\\/(item|entry)>/gi)].map(m=>m[0]);
+    const blocks=[...xml.matchAll(/<(item|entry)\b[\s\S]*?<\/(item|entry)>/gi)].map(m=>m[0]);
   return blocks.slice(0,20).map(block=>{
     const title=tag(block,"title");
     const linkTag=block.match(/<link\\b[^>]*href=["']([^"']+)["'][^>]*>/i);
