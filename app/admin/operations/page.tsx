@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { supabase } from "../lib/supabase";
+import { supabase } from "../../lib/supabase";
 
 type Run={id:string;provider:string;run_type:string;status:string;started_at:string;finished_at:string|null;records_received:number;records_inserted:number;records_updated:number;records_rejected:number;error_message:string|null};
 type Coverage={competition_name:string;country:string|null;priority:number;status:string;current_players:number;current_clubs:number;current_seasons:number;target_players:number;target_clubs:number;target_seasons:number};
