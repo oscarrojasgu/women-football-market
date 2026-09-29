@@ -1212,3 +1212,71 @@
   .club-source-row { align-items:flex-start; flex-direction:column; gap:8px; }
   .club-profile-footer { width:calc(100% - 32px); padding-bottom:38px; }
 }
+
+/* Player profile personal information — mobile containment */
+.player-personal-info {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.player-personal-grid {
+  min-width: 0;
+}
+
+.player-personal-grid > * {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.player-personal-grid strong,
+.player-personal-grid div {
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  .player-personal-info {
+    padding: 16px !important;
+    border-radius: 12px !important;
+  }
+
+  .player-personal-info > div:first-child {
+    align-items: flex-start;
+  }
+
+  .player-personal-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 10px !important;
+    margin-top: 14px !important;
+  }
+
+  .player-personal-grid > * {
+    grid-column: auto !important;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px !important;
+  }
+
+  .player-personal-grid [style*="font-weight"] {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1050px) {
+  .player-personal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .player-personal-grid > * {
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .player-personal-grid > *[style*="span 2"] {
+    grid-column: span 2 !important;
+  }
+}
+
