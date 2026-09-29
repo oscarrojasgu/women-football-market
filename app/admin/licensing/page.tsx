@@ -1,6 +1,6 @@
 'use client'
 import { useEffect,useState } from 'react'
-import { supabase } from '../../../lib/supabase'
+import { supabase } from '../../lib/supabase'
 type Req={id:string;status:string;requested_term:string;intended_use:string;created_at:string;requested_by:string;club_id:string|null;product:{id:string;name:string;code:string}|null}
 export default function LicensingAdmin(){
  const [allowed,setAllowed]=useState(false),[loading,setLoading]=useState(true),[rows,setRows]=useState<Req[]>([]),[error,setError]=useState(''),[notice,setNotice]=useState(''),[busy,setBusy]=useState<string|null>(null)
