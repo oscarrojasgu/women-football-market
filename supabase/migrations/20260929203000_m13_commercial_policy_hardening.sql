@@ -1,0 +1,24 @@
+-- M13 commercial policy and index hardening
+drop policy if exists "WFM admins manage license products" on public.wfm_license_products;
+create policy "WFM admins insert license products" on public.wfm_license_products for insert to authenticated with check(private.is_wfm_admin());
+create policy "WFM admins update license products" on public.wfm_license_products for update to authenticated using(private.is_wfm_admin()) with check(private.is_wfm_admin());
+create policy "WFM admins delete license products" on public.wfm_license_products for delete to authenticated using(private.is_wfm_admin());
+drop policy if exists "WFM admins manage agreements" on public.wfm_license_agreements;
+create policy "WFM admins insert agreements" on public.wfm_license_agreements for insert to authenticated with check(private.is_wfm_admin());
+create policy "WFM admins update agreements" on public.wfm_license_agreements for update to authenticated using(private.is_wfm_admin()) with check(private.is_wfm_admin());
+create policy "WFM admins delete agreements" on public.wfm_license_agreements for delete to authenticated using(private.is_wfm_admin());
+create index if not exists wfm_license_agreements_request_idx on public.wfm_license_agreements(request_id);
+create index if not exists wfm_license_agreements_created_by_idx on public.wfm_license_agreements(created_by);
+create index if not exists wfm_license_requests_reviewed_by_idx on public.wfm_license_requests(reviewed_by);
+drop policy if exists "Anyone can view active access plans" on public.wfm_access_plans;
+drop policy if exists "WFM admins manage access plans" on public.wfm_access_plans;
+create policy "Access plans readable and admin managed" on public.wfm_access_plans for select to anon,authenticated using(active=true or private.is_wfm_admin());
+create policy "WFM admins insert access plans" on public.wfm_access_plans for insert to authenticated with check(private.is_wfm_admin());
+create policy "WFM admins update access plans" on public.wfm_access_plans for update to authenticated using(private.is_wfm_admin()) with check(private.is_wfm_admin());
+create policy "WFM admins delete access plans" on public.wfm_access_plans for delete to authenticated using(private.is_wfm_admin());
+drop policy if exists "Users can view their entitlements" on public.wfm_account_entitlements;
+drop policy if exists "WFM admins manage entitlements" on public.wfm_account_entitlements;
+create policy "Entitlements readable by owner or admin" on public.wfm_account_entitlements for select to authenticated using((select auth.uid())=user_id or (club_id is not null and private.is_club_member(club_id)) or private.is_wfm_admin());
+create policy "WFM admins insert entitlements" on public.wfm_account_entitlements for insert to authenticated with check(private.is_wfm_admin());
+create policy "WFM admins update entitlements" on public.wfm_account_entitlements for update to authenticated using(private.is_wfm_admin()) with check(private.is_wfm_admin());
+create policy "WFM admins delete entitlements" on public.wfm_account_entitlements for delete to authenticated using(private.is_wfm_admin());
