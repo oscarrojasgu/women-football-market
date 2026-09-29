@@ -1096,3 +1096,119 @@
   .club-source-row { align-items:flex-start; flex-direction:column; }
   .club-source-row a { white-space:normal; }
 }
+
+
+/* CLUB PROFILE — match the WFM intelligence/public database visual system */
+.clubs-profile-page {
+  width: min(1200px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 28px 0 60px;
+  box-sizing: border-box;
+}
+.club-profile-hero { padding-top: 48px; padding-bottom: 46px; }
+.club-profile-heading { display:flex; align-items:center; gap:22px; min-width:0; }
+.club-profile-logo { width:88px; height:88px; flex:0 0 88px; object-fit:contain; background:#fff; border-radius:14px; padding:10px; box-sizing:border-box; }
+.club-profile-heading-copy { min-width:0; }
+.club-profile-title-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.club-profile-title-row h1 { margin:0; }
+.club-profile-heading-copy p { margin:12px 0 0; color:#c8c8c8; font-size:16px; }
+.club-verified-badge { display:inline-flex; align-items:center; min-height:24px; padding:5px 9px; border-radius:999px; background:#e8f2ea; color:#245b32; font-size:10px; font-weight:800; letter-spacing:.4px; }
+.club-context-card,.club-intelligence-card,.club-profile-section,.club-provenance-card {
+  background:#fff; border:1px solid #e2e1dc; border-radius:14px; margin-bottom:16px; overflow:hidden;
+}
+.club-context-card { padding:18px; }
+.club-context-main,.club-profile-section-heading,.club-section-heading {
+  display:flex; align-items:flex-start; justify-content:space-between; gap:18px;
+}
+.club-context-main > div:first-child,.club-profile-section-heading > div:first-child,.club-section-heading > div:first-child { min-width:0; }
+.club-section-eyebrow { display:block; color:#888; font-size:10px; font-weight:800; letter-spacing:.9px; margin-bottom:6px; }
+.club-context-card h2,.club-intelligence-card h2,.club-profile-section h2,.club-provenance-card h2 { margin:0; font-size:21px; line-height:1.2; color:#111; }
+.club-context-card p,.club-intelligence-card p,.club-profile-section-heading p,.club-provenance-card p { margin:7px 0 0; color:#777; font-size:12px; line-height:1.5; }
+.club-context-controls { display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap; }
+.club-context-controls label { display:flex; flex-direction:column; gap:5px; color:#777; font-size:10px; font-weight:800; }
+.club-context-controls select,.club-sort-select { min-height:40px; border:1px solid #d9d8d3; border-radius:9px; padding:8px 11px; background:#fff; color:#111; font-size:13px; }
+.club-dark-button { display:inline-flex; align-items:center; justify-content:center; min-height:40px; padding:0 13px; border-radius:9px; background:#111; color:#fff !important; text-decoration:none !important; font-size:12px; font-weight:800; }
+.club-intelligence-card { padding:18px; }
+.club-mini-stat-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:9px; margin-top:16px; }
+.club-mini-stat-grid > div { min-width:0; background:#f5f4ef; border:1px solid #e2e1dc; border-radius:10px; padding:13px; }
+.club-mini-stat-grid span { display:block; color:#777; font-size:9px; font-weight:800; letter-spacing:.5px; line-height:1.35; }
+.club-mini-stat-grid strong { display:block; margin-top:5px; color:#111; font-size:21px; }
+.club-intelligence-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
+.club-intelligence-grid > div { min-width:0; border-top:1px solid #eee; padding-top:14px; }
+.club-intelligence-grid h3 { margin:0 0 9px; font-size:13px; color:#222; }
+.club-intelligence-line { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:31px; border-bottom:1px solid #eee; font-size:12px; }
+.club-intelligence-line a { color:#111; font-weight:700; text-decoration:none; }
+.club-intelligence-line a:hover { text-decoration:underline; }
+.club-intelligence-line span,.club-muted { color:#777; }
+.club-profile-section-heading { padding:18px; border-bottom:1px solid #e5e5e5; }
+.club-player-table,.club-transfer-table { width:100%; }
+.club-player-table-header,.club-player-row { display:grid; grid-template-columns:minmax(280px,2fr) minmax(100px,.7fr) minmax(150px,1fr) minmax(140px,.9fr); gap:14px; align-items:center; }
+.club-player-table-header { padding:11px 18px; background:#fafafa; color:#777; font-size:9px; font-weight:800; letter-spacing:.8px; }
+.club-player-row { padding:13px 18px; border-top:1px solid #eee; color:#111; font-size:12px; }
+.club-player-cell { min-width:0; }
+.club-player-link { display:flex; align-items:center; gap:10px; min-width:0; color:#111; text-decoration:none; }
+.club-player-link img { width:44px; height:44px; flex:0 0 44px; object-fit:cover; object-position:center; border-radius:50%; background:#eee; }
+.club-player-link > span { min-width:0; }
+.club-player-link strong,.club-player-cell > strong { display:block; font-size:13px; font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.club-player-link small,.club-player-cell small { display:block; margin-top:3px; color:#888; font-size:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.club-salary-cell { text-align:right; }
+.club-sort-select { min-width:150px; }
+.club-transfer-header,.club-transfer-row { display:grid; grid-template-columns:minmax(170px,1.2fr) minmax(150px,1fr) 32px minmax(150px,1fr) minmax(120px,.8fr) minmax(110px,.7fr); gap:12px; align-items:center; }
+.club-transfer-header { padding:11px 18px; background:#fafafa; color:#777; font-size:9px; font-weight:800; letter-spacing:.8px; }
+.club-transfer-row { padding:13px 18px; border-top:1px solid #eee; font-size:12px; }
+.club-transfer-row > span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.club-transfer-row a { color:#111; text-decoration:none; font-weight:700; }
+.club-transfer-row a:hover { text-decoration:underline; }
+.club-transfer-arrow { text-align:center; color:#999; }
+.club-provenance-card { padding:18px; }
+.club-source-count { color:#777; font-size:11px; font-weight:700; white-space:nowrap; }
+.club-source-list { margin-top:15px; border-top:1px solid #eee; }
+.club-source-row { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:13px 0; border-bottom:1px solid #eee; }
+.club-source-row > div { min-width:0; }
+.club-source-row strong { display:block; color:#222; font-size:12px; }
+.club-source-row small { display:block; margin-top:4px; color:#888; font-size:10px; line-height:1.4; }
+.club-source-row a { color:#111; font-size:11px; font-weight:800; text-decoration:none; white-space:nowrap; }
+.club-source-empty { margin-top:15px; padding:13px; background:#f5f4ef; border-radius:9px; color:#777; font-size:11px; line-height:1.5; }
+.club-profile-footer { width:min(1200px,calc(100% - 48px)); margin:0 auto; padding:0 0 50px; color:#888; font-size:11px; }
+@media (max-width:1000px) and (min-width:651px) {
+  .clubs-profile-page { width:calc(100% - 40px); }
+  .club-mini-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .club-player-table,.club-transfer-table { overflow-x:auto; }
+  .club-player-table-header,.club-player-row { min-width:820px; }
+  .club-transfer-header,.club-transfer-row { min-width:900px; }
+}
+@media (max-width:650px) {
+  .clubs-profile-page { width:100%; padding:22px 16px 44px; }
+  .club-profile-hero { padding:32px 16px 34px; }
+  .club-profile-heading { align-items:flex-start; gap:14px; }
+  .club-profile-logo { width:64px; height:64px; flex-basis:64px; border-radius:11px; padding:7px; }
+  .club-profile-title-row { gap:7px; }
+  .club-profile-title-row h1 { font-size:32px !important; line-height:1.05; letter-spacing:-1.3px; }
+  .club-profile-heading-copy p { margin-top:8px; font-size:13px; }
+  .club-verified-badge { font-size:8px; padding:4px 7px; }
+  .club-context-main,.club-profile-section-heading,.club-section-heading { flex-direction:column; gap:13px; }
+  .club-context-controls { width:100%; flex-direction:column; align-items:stretch; }
+  .club-context-controls label,.club-context-controls select,.club-dark-button,.club-sort-select { width:100%; box-sizing:border-box; }
+  .club-mini-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  .club-mini-stat-grid > div { padding:11px; }
+  .club-mini-stat-grid strong { font-size:18px; }
+  .club-intelligence-grid { grid-template-columns:1fr; gap:18px; }
+  .club-profile-section-heading { padding:15px; }
+  .club-sort-select { min-height:44px; font-size:16px; }
+  .club-player-table,.club-transfer-table { overflow:visible; }
+  .club-player-table-header,.club-transfer-header { display:none; }
+  .club-player-row { display:grid; grid-template-columns:1fr auto; gap:9px 12px; padding:14px 15px; }
+  .club-player-row .club-player { grid-column:1 / -1; }
+  .club-player-row .club-player-cell[data-label="Status"] { grid-column:1; }
+  .club-player-row .club-player-cell[data-label="Expiry"] { grid-column:1; }
+  .club-player-row .club-salary-cell { grid-column:2; grid-row:2 / span 2; align-self:center; text-align:right; }
+  .club-player-row .club-player-cell[data-label]::before { content:attr(data-label) " "; color:#888; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.4px; }
+  .club-transfer-row { display:grid; grid-template-columns:1fr 1fr; gap:8px 12px; padding:14px 15px; }
+  .club-transfer-row > span:nth-child(1) { grid-column:1 / -1; }
+  .club-transfer-row > span:nth-child(3) { display:none; }
+  .club-transfer-row > span:nth-child(4) { grid-column:2; }
+  .club-transfer-row > span:nth-child(5) { grid-column:1; }
+  .club-transfer-row > span:nth-child(6) { grid-column:2; text-align:right; }
+  .club-source-row { align-items:flex-start; flex-direction:column; gap:8px; }
+  .club-profile-footer { width:calc(100% - 32px); padding-bottom:38px; }
+}
