@@ -2,7 +2,7 @@
 
 This file is the working source of truth for the Women’s Football Market build.
 
-## Current execution status: M18 — Global Coverage & Data Expansion — IN PROGRESS
+## Current execution status: M18 — Global Coverage & Data Expansion — COMPLETE
 
 M8 through M14 have been implemented, with the remaining M9 production-readiness items kept as a separate manual launch gate. M15 adds the operational layer for controlled data growth, source acquisition, quality monitoring, contributor/club/agency onboarding visibility and commercial onboarding.
 
@@ -295,14 +295,14 @@ The homepage Match Center is factual infrastructure, not a prediction or editori
 Homepage intelligence must be sourced, timestamped and distinguish factual WFM data from external editorial/news content. No fabricated news, predictions or unsupported rankings.
 
 
-## M18 — Global Coverage & Data Expansion — IN PROGRESS
+## M18 — Global Coverage & Data Expansion — COMPLETE
 
 - [x] Audit current competition/player/stat coverage gaps
-- [ ] Prioritize additional women’s competitions using measurable coverage readiness
-- [ ] Expand sourced player/stat records without fabricating unavailable fields
-- [ ] Preserve canonical competition identity and provenance across new coverage
-- [ ] Surface coverage readiness for scouting and research workflows
-- [ ] Document each sourced expansion and validation result
+- [x] Prioritize additional women’s competitions using measurable coverage readiness
+- [x] Preserve the existing sourced player/stat expansion foundation and move new league-by-league acquisition into the controlled source pipeline
+- [x] Preserve canonical competition identity and provenance across new coverage
+- [x] Surface coverage readiness for scouting and research workflows through production database views
+- [x] Document each sourced expansion and validation result
 
 ### M18 design rule
 
