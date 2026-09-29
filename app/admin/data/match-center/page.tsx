@@ -13,6 +13,13 @@ type CompetitionSource = {
   priority: number
 }
 
+type DiscoveredCompetition = {
+  id: string
+  name: string
+  country: string | null
+  active: boolean
+}
+
 export default function MatchCenterAdminPage() {
   const [authorized, setAuthorized] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -23,7 +30,7 @@ export default function MatchCenterAdminPage() {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
-  const [discovered, setDiscovered] = useState<CompetitionSource[]>([])
+  const [discovered, setDiscovered] = useState<DiscoveredCompetition[]>([])
 
   const load = async () => {
     const { data: user } = await supabase.auth.getUser()
@@ -60,11 +67,11 @@ export default function MatchCenterAdminPage() {
     const { data, error: invokeError } = await supabase.functions.invoke('discover-sportmonks-womens-leagues', { body:{} })
     if (invokeError) setError(invokeError.message)
     else if (data?.error) setError(data.error)
-    else { setDiscovered((data?.competitions || []) as CompetitionSource[]); setMessage(`Found ${data?.competitions?.length || 0} women's competitions available from Sportmonks.`) }
+    else { setDiscovered((data?.competitions || []) as DiscoveredCompetition[]); setMessage(`Found ${data?.competitions?.length || 0} women's competitions available from Sportmonks.`) }
     setBusy(false)
   }
 
-  const addDiscovered = async (source: CompetitionSource) => {
+  const addDiscovered = async (source: DiscoveredCompetition) => {
     setBusy(true); setError('')
     const { error: insertError } = await supabase.from('wfm_match_competitions').upsert({
       provider:'sportmonks', external_league_id:source.id, competition_name:source.name, country:source.country || null, active:true, priority:50
