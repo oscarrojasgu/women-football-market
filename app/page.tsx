@@ -216,7 +216,7 @@ export default function Home() {
     async function loadHomeTransfers() {
       const { data, error } = await supabase
         .from('transfers')
-        .select('id,player_id,transfer_date,transfer_type,confidence')
+        .select('id,player_id,from_club_id,to_club_id,transfer_date,transfer_type,confidence')
         .order('transfer_date', { ascending: false })
         .limit(6)
       if (error) {
