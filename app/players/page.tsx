@@ -156,6 +156,17 @@ export default function PlayersPage() {
   const router = useRouter();
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const incomingLeague = params.get("league");
+    const incomingSeason = params.get("season");
+    const incomingSearch = params.get("q");
+
+    if (incomingLeague) setLeague(incomingLeague);
+    if (incomingSeason) setSeason(incomingSeason);
+    if (incomingSearch) setSearch(incomingSearch);
+  }, []);
+
+  useEffect(() => {
     let mounted = true;
 
     async function loadScoutingWorkspace() {
