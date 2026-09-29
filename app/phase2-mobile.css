@@ -1403,3 +1403,97 @@
   letter-spacing:.7px !important;
 }
 .wfm-club-sortable-header th button:hover { color:#111 !important; text-decoration:underline; }
+
+
+/* Homepage match ticker */
+.wfm-match-ticker {
+  width:100%;
+  display:flex;
+  align-items:stretch;
+  background:#111;
+  color:#fff;
+  border-top:1px solid #2b2b2b;
+  border-bottom:1px solid #2b2b2b;
+  overflow:hidden;
+}
+.wfm-match-ticker-label {
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 18px;
+  background:#1b1b1b;
+  color:#c9ff3d;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.9px;
+  white-space:nowrap;
+  z-index:2;
+}
+.wfm-live-dot {
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#c9ff3d;
+  box-shadow:0 0 0 3px rgba(201,255,61,.12);
+}
+.wfm-match-ticker-viewport {
+  min-width:0;
+  flex:1;
+  overflow:hidden;
+}
+.wfm-match-ticker-track {
+  width:max-content;
+  display:flex;
+  align-items:stretch;
+  animation:wfm-match-ticker-scroll 32s linear infinite;
+}
+.wfm-match-ticker-track:hover { animation-play-state:paused; }
+.wfm-match-ticker-item {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-height:44px;
+  padding:0 22px;
+  border-right:1px solid #303030;
+  color:#fff;
+  text-decoration:none;
+  white-space:nowrap;
+  font-size:12px;
+}
+.wfm-match-ticker-item:hover { background:#191919; }
+.wfm-match-competition {
+  color:#999;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.6px;
+  text-transform:uppercase;
+}
+.wfm-match-team { font-weight:700; }
+.wfm-match-status {
+  color:#999;
+  font-size:9px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+.wfm-match-ticker-empty {
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  padding:0 20px;
+  color:#999;
+  font-size:11px;
+  white-space:nowrap;
+}
+@keyframes wfm-match-ticker-scroll {
+  from { transform:translateX(0); }
+  to { transform:translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wfm-match-ticker-track { animation:none; }
+}
+@media (max-width:650px) {
+  .wfm-match-ticker-label { padding:11px 13px; font-size:9px; }
+  .wfm-match-ticker-item { min-height:42px; padding:0 16px; gap:7px; }
+  .wfm-match-ticker-empty { min-height:42px; padding:0 14px; font-size:10px; }
+}
