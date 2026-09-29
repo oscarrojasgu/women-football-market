@@ -128,3 +128,53 @@ FIFA's current 2026 women's-football calendar shows active competition across al
 No unsupported player, statistic, salary, contract, transfer, club, or competition record was created during this audit.
 
 The next implementation step is **M18.2 — Coverage Readiness & Expansion Queue**: convert the measured gaps above into a controlled source-acquisition queue and validate the first new competition before importing records.
+
+
+## M18.2 — Coverage readiness & expansion queue
+
+The live production database now exposes two security-invoker coverage views:
+
+- `public.wfm_global_coverage_readiness`
+- `public.wfm_coverage_readiness_summary`
+
+Readiness is derived from canonical competition identity, active competition-season structure, current club coverage, and sourced player-stat coverage. The readiness model distinguishes:
+
+- `scouting_ready`
+- `player_import_ready`
+- `structure_partial`
+- `needs_club_coverage`
+- `needs_season_coverage`
+- `needs_structure`
+
+The model uses a five-player minimum as the practical peer-sample threshold already established by WFM scouting intelligence.
+
+### Approved source queue
+
+The existing `wfm_source_pipeline` was extended rather than creating a duplicate queue. The first approved global source candidates are:
+
+- FMF — Liga MX Femenil
+- Liga F — Spain
+- CBF — Brasileirão Feminino A1
+- DIMAYOR — Liga Femenina BetPlay
+- Northern Super League — Canada
+
+These were selected because their official/public sources expose competition structure and/or player/statistical information. Current web validation confirms Liga F publishes standings and player statistics, FMF identifies Liga MX Femenil and its player/statistics coverage, CBF publishes current Brasileirão Feminino competition materials, DIMAYOR publishes Liga Femenina standings/fixtures, and Northern Super League publishes player statistics.
+
+No player or statistic rows were created from these source checks alone. The source queue is the controlled acquisition layer; accepted records still require evidence, matching, canonical IDs, source IDs, confidence and validation.
+
+## M18 result
+
+**M18 global coverage framework complete.**
+
+Completed:
+
+- live global coverage audit
+- measurable readiness model
+- expansion priority calculation
+- controlled source-acquisition queue using the existing source pipeline
+- official-source validation for the first expansion batch
+- canonical competition/provenance preservation
+- scouting-readiness threshold enforcement
+- explicit unknown-data policy
+
+Ongoing league-by-league player/stat acquisition is intentionally moved into the next operational data-growth cycle rather than treating global coverage as a one-time bulk import. This prevents unsupported records and keeps every accepted record auditable.
