@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { supabase } from "../../../../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 
 type Source={id:string;publisher:string;feed_url:string;active:boolean;last_checked_at:string|null;last_success_at:string|null;last_error:string|null};
 
