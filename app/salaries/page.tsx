@@ -287,7 +287,7 @@ export default function SalariesPage() {
           </div>
         ) : (
           <div className="salary-table-wrap">
-            <div className="salary-table-header">
+            <div className="salary-table-header wfm-sortable-header">
               <button type="button" onClick={() => setSort(sort === 'player-asc' ? 'player-desc' : 'player-asc')}>PLAYER {sort === 'player-asc' ? '↑' : sort === 'player-desc' ? '↓' : ''}</button>
               <button type="button" onClick={() => setSort(sort === 'club-asc' ? 'club-desc' : 'club-asc')}>CLUB {sort === 'club-asc' ? '↑' : sort === 'club-desc' ? '↓' : ''}</button>
               <button type="button" onClick={() => setSort(sort === 'position-asc' ? 'position-desc' : 'position-asc')}>POSITION {sort === 'position-asc' ? '↑' : sort === 'position-desc' ? '↓' : ''}</button>
