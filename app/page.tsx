@@ -58,6 +58,16 @@ type HomeNewsItem = {
   competition_name: string | null
 }
 
+type HomeCompetition = {
+  id: string
+  canonical_name: string
+  country: string | null
+  active: boolean | null
+  newsCount: number
+  recentMatches: number
+  nextMatch: string | null
+}
+
 type MatchTickerItem = {
   id: string
   competition: string
@@ -143,6 +153,7 @@ export default function Home() {
   const [matchTickerItems, setMatchTickerItems] = useState<MatchTickerItem[]>([])
   const [homeTransfers, setHomeTransfers] = useState<HomeTransfer[]>([])
   const [homeNews, setHomeNews] = useState<HomeNewsItem[]>([])
+  const [homeCompetitions, setHomeCompetitions] = useState<HomeCompetition[]>([])
   const [databaseStats, setDatabaseStats] = useState({
     players: 0,
     clubs: 0,
@@ -268,6 +279,69 @@ export default function Home() {
       })) as HomeTransfer[])
     }
     loadHomeTransfers()
+  }, [])
+
+  useEffect(() => {
+    async function loadHomeCompetitions() {
+      const { data: competitionRows, error: competitionError } = await supabase
+        .from('competitions')
+        .select('id,canonical_name,country,active')
+        .eq('active', true)
+        .order('canonical_name')
+        .limit(8)
+
+      if (competitionError) {
+        console.error('Error loading homepage competitions:', competitionError)
+        return
+      }
+
+      const rows = competitionRows || []
+      if (!rows.length) {
+        setHomeCompetitions([])
+        return
+      }
+
+      const ids = rows.map(row => row.id)
+      const { data: matches } = await supabase
+        .from('wfm_match_fixtures')
+        .select('competition_id,kickoff_at,status')
+        .in('competition_id', ids)
+        .gte('kickoff_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+        .lte('kickoff_at', new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString())
+        .order('kickoff_at', { ascending: true })
+        .limit(200)
+
+      const names = rows.map(row => row.canonical_name).filter(Boolean)
+      const { data: news } = names.length
+        ? await supabase
+            .from('wfm_news_items')
+            .select('competition_name')
+            .eq('active', true)
+            .in('competition_name', names)
+            .order('published_at', { ascending: false })
+            .limit(200)
+        : { data: [] }
+
+      const matchRows = matches || []
+      const newsRows = news || []
+
+      setHomeCompetitions(rows.map(row => {
+        const competitionMatches = matchRows.filter(match => match.competition_id === row.id)
+        const competitionNews = newsRows.filter(item => item.competition_name === row.canonical_name)
+        const next = competitionMatches.find(match => match.status === 'scheduled')
+        return {
+          id: row.id,
+          canonical_name: row.canonical_name,
+          country: row.country,
+          active: row.active,
+          newsCount: competitionNews.length,
+          recentMatches: competitionMatches.length,
+          nextMatch: next?.kickoff_at || null,
+        }
+      }).filter(row => row.newsCount > 0 || row.recentMatches > 0).slice(0, 4))
+    }
+
+    loadHomeCompetitions()
   }, [])
 
   useEffect(() => {
@@ -713,6 +787,33 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* COMPETITION WATCH */}
+      {homeCompetitions.length > 0 && (
+        <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px 55px' }}>
+          <div className="sectionhead" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '20px' }}>
+            <div>
+              <span className="eyebrow" style={{ fontSize: '13px', color: '#777', fontWeight: 700, letterSpacing: '1.2px' }}>COMPETITION WATCH</span>
+              <h2 style={{ margin: '8px 0 0', fontSize: '30px', lineHeight: 1.1, letterSpacing: '-.5px' }}>Follow the competitions.</h2>
+            </div>
+            <Link href="/competitions" style={{ color: '#111', textDecoration: 'none', fontSize: '13px', fontWeight: 800 }}>View all competitions →</Link>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+            {homeCompetitions.map(competition => (
+              <Link key={competition.id} href={`/competitions/${competition.id}`} style={{ background: '#fff', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '20px', color: '#111', textDecoration: 'none', minHeight: '155px' }}>
+                <div style={{ fontSize: '10px', color: '#888', fontWeight: 800, letterSpacing: '1px' }}>COMPETITION</div>
+                <h3 style={{ margin: '10px 0 5px', fontSize: '19px', lineHeight: 1.15 }}>{competition.canonical_name}</h3>
+                <div style={{ color: '#777', fontSize: '12px' }}>{competition.country || 'International'}</div>
+                <div style={{ display: 'flex', gap: '14px', marginTop: '18px', fontSize: '11px', color: '#555' }}>
+                  <span><strong>{competition.recentMatches}</strong> match records</span>
+                  <span><strong>{competition.newsCount}</strong> news</span>
+                </div>
+                {competition.nextMatch && <div style={{ marginTop: '9px', fontSize: '11px', color: '#888' }}>Next: {new Date(competition.nextMatch).toLocaleDateString()}</div>}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* PLAYER DATABASE */}
       <section
