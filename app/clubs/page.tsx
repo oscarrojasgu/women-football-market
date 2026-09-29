@@ -41,7 +41,7 @@ type TransferRecord = {
   to_club_id: string | null
 }
 
-type SortKey = 'name' | 'players' | 'payroll' | 'value'
+type SortKey = 'name' | 'competition' | 'season' | 'country' | 'players' | 'payroll' | 'value' | 'transfers'
 
 function formatMoney(value: number | null) {
   if (value === null || !Number.isFinite(value)) return '—'
@@ -287,10 +287,12 @@ export default function ClubsPage() {
       const bStats = clubStats[b.id]
 
       let result = 0
+      const display = (club: Club, key: SortKey) => { const participation = participationByClub.get(club.id) || []; const match = participation.find(row => (leagueFilter === 'all' || row.competition_name === leagueFilter) && (seasonFilter === 'all' || row.season_key === seasonFilter)); if (key === 'competition') return match?.competition_name || participation[0]?.competition_name || club.league || ''; if (key === 'season') return match?.season_label || match?.season_key || ''; if (key === 'country') return club.country || ''; return club.name }
       if (sortBy === 'players') result = bStats.playerIds.size - aStats.playerIds.size
       else if (sortBy === 'payroll') result = bStats.payroll - aStats.payroll
       else if (sortBy === 'value') result = bStats.marketValue - aStats.marketValue
-      else result = a.name.localeCompare(b.name)
+      else if (sortBy === 'transfers') result = bStats.transfers - aStats.transfers
+      else result = display(a, sortBy).localeCompare(display(b, sortBy), undefined, {numeric:true,sensitivity:'base'})
       if (result === 0) result = a.name.localeCompare(b.name)
       return sortDir === 'asc' ? result : -result
     })
@@ -430,7 +432,7 @@ export default function ClubsPage() {
               <thead>
                 <tr style={{ background: '#fafafa', borderBottom: '1px solid #e8e8e8' }}>
                   {[
-                    ['Club','name'],['Competition','name'],['Season','name'],['Country','name'],['Active roster','players'],['Known payroll','payroll'],['Squad market value','value'],['Transfers','players']
+                    ['Club','name'],['Competition','competition'],['Season','season'],['Country','country'],['Active roster','players'],['Known payroll','payroll'],['Squad market value','value'],['Transfers','transfers']
                   ].map(([heading,key], index) => (
                     <th key={heading} style={{ textAlign: index === 0 ? 'left' : index >= 3 ? 'right' : 'left', padding: '13px 18px', fontSize: 10, color: '#888', letterSpacing: 0.9, textTransform: 'uppercase', fontWeight: 800 }}>
                       <button type="button" onClick={() => changeSort(key as SortKey)} style={{border:0,background:'transparent',padding:0,font:'inherit',color:'inherit',fontWeight:800,cursor:'pointer',textTransform:'uppercase',letterSpacing:'inherit'}}>
