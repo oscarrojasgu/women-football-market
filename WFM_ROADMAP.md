@@ -282,9 +282,13 @@ The homepage Match Center is factual infrastructure, not a prediction or editori
 - [x] Add latest transfer activity to the homepage
 - [x] Add contract-watch panel using existing WFM contract records
 - [x] Add cross-navigation from match → player → club → competition → scouting
-- [ ] Add source-linked women's football news feed
-- [ ] Add automated source ingestion and freshness controls
+- [x] Add source-linked women's football news feed
+- [x] Add automated source ingestion and freshness controls
 - [ ] Add league/competition story modules after news-source validation
+- [x] Add approved RSS source registry
+- [x] Add protected 30-minute Supabase Cron ingestion
+- [x] Add source freshness/error tracking
+- [x] Verify first production ingestion: 20 items, 0 errors
 
 ### M17 design rule
 
