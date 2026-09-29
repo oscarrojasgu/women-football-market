@@ -12,7 +12,11 @@ export default function CompetitionsPage(){
  useEffect(()=>{(async()=>{const [c,s]=await Promise.all([
   supabase.from("competitions").select("id,canonical_name,country,competition_type,level_label,active,logo_url").order("canonical_name"),
   supabase.from("competition_seasons").select("id,competition_id,active,season:seasons(season_key,label),club_competitions(club_id),player_competitions(player_id,club_competition_id)").order("created_at",{ascending:false})
- ]);setCompetitions((c.data||[]) as Competition[]);const rows:any[]=s.data||[];setSeasons(rows.map(r=>{const x=Array.isArray(r.season)?r.season[0]:r.season;const clubs=new Set((r.club_competitions||[]).map((x:any)=>x.club_id)).size;const players=new Set((r.player_competitions||[]).map((x:any)=>x.player_id)).size;return {competition_id:r.competition_id,competition_season_id:r.id,season_key:x?.season_key||"—",season_label:x?.label||x?.season_key||"—",active:r.active,clubs,players}}));setLoading(false)})()},[])
+ ]);
+  let competitionData=c.data;
+  if(c.error){const fallback=await supabase.from("competitions").select("id,canonical_name,country,competition_type,level_label,active").order("canonical_name");competitionData=(fallback.data||[]).map((row:any)=>({...row,logo_url:null}));}
+  setCompetitions((competitionData||[]) as Competition[]);
+  const rows:any[]=s.data||[];setSeasons(rows.map(r=>{const x=Array.isArray(r.season)?r.season[0]:r.season;const clubs=new Set((r.club_competitions||[]).map((x:any)=>x.club_id)).size;const players=new Set((r.player_competitions||[]).map((x:any)=>x.player_id)).size;return {competition_id:r.competition_id,competition_season_id:r.id,season_key:x?.season_key||"—",season_label:x?.label||x?.season_key||"—",active:r.active,clubs,players}}));setLoading(false)})()},[])
  const countries=useMemo(()=>[...new Set(competitions.map(c=>c.country).filter(Boolean) as string[])].sort(),[competitions])
  const current=useMemo(()=>{const map=new Map<string,SeasonRow[]>();for(const r of seasons){const a=map.get(r.competition_id)||[];a.push(r);map.set(r.competition_id,a)}return map},[seasons])
  const filtered=competitions.filter(c=>(!q.trim()||[c.canonical_name,c.country,c.competition_type,c.level_label].filter(Boolean).join(" ").toLowerCase().includes(q.toLowerCase()))&&(country==="all"||c.country===country))
