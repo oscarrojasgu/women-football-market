@@ -2,7 +2,7 @@
 
 This file is the working source of truth for the Women’s Football Market build.
 
-## Current execution status: M15 — Launch Operations & Data Growth — COMPLETE
+## Current execution status: M17 — Homepage Intelligence Layer — COMPLETE
 
 M8 through M14 have been implemented, with the remaining M9 production-readiness items kept as a separate manual launch gate. M15 adds the operational layer for controlled data growth, source acquisition, quality monitoring, contributor/club/agency onboarding visibility and commercial onboarding.
 
@@ -284,7 +284,7 @@ The homepage Match Center is factual infrastructure, not a prediction or editori
 - [x] Add cross-navigation from match → player → club → competition → scouting
 - [x] Add source-linked women's football news feed
 - [x] Add automated source ingestion and freshness controls
-- [ ] Add league/competition story modules after news-source validation
+- [x] Add league/competition story modules after news-source validation
 - [x] Add approved RSS source registry
 - [x] Add protected 30-minute Supabase Cron ingestion
 - [x] Add source freshness/error tracking
@@ -293,3 +293,17 @@ The homepage Match Center is factual infrastructure, not a prediction or editori
 ### M17 design rule
 
 Homepage intelligence must be sourced, timestamped and distinguish factual WFM data from external editorial/news content. No fabricated news, predictions or unsupported rankings.
+
+
+## M18 — Global Coverage & Data Expansion — IN PROGRESS
+
+- [ ] Audit current competition/player/stat coverage gaps
+- [ ] Prioritize additional women’s competitions using measurable coverage readiness
+- [ ] Expand sourced player/stat records without fabricating unavailable fields
+- [ ] Preserve canonical competition identity and provenance across new coverage
+- [ ] Surface coverage readiness for scouting and research workflows
+- [ ] Document each sourced expansion and validation result
+
+### M18 design rule
+
+Global expansion must be evidence-driven and provenance-first. Coverage gaps are measured explicitly; missing information remains unknown rather than being inferred. No unsupported player, salary, contract, transfer, statistic or competition record is created to fill a target.
