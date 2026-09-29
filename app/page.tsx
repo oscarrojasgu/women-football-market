@@ -49,8 +49,7 @@ type MatchTickerItem = {
 
 const matchTickerItems: MatchTickerItem[] = []
 
-function MatchTicker() {
-  const items = matchTickerItems
+function MatchTicker({ items }: { items: MatchTickerItem[] }) {
   return (
     <section className="wfm-match-ticker" aria-label="Women's football match center">
       <div className="wfm-match-ticker-label">
@@ -121,6 +120,7 @@ export default function Home() {
   const [q, setQ] = useState('')
   const [databasePlayers, setDatabasePlayers] = useState<Player[]>([])
   const [contracts, setContracts] = useState<ContractInfo[]>([])
+  const [matchTickerItems, setMatchTickerItems] = useState<MatchTickerItem[]>([])
   const [databaseStats, setDatabaseStats] = useState({
     players: 0,
     clubs: 0,
@@ -199,6 +199,48 @@ export default function Home() {
     }
 
     loadPlayers()
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadMatches = async () => {
+      const now = Date.now()
+      const start = new Date(now - 6 * 60 * 60 * 1000).toISOString()
+      const end = new Date(now + 48 * 60 * 60 * 1000).toISOString()
+
+      const { data, error } = await supabase
+        .from('wfm_match_fixtures')
+        .select('id,competition_name,home_team_name,away_team_name,home_score,away_score,status,kickoff_at')
+        .gte('kickoff_at', start)
+        .lte('kickoff_at', end)
+        .order('kickoff_at', { ascending: true })
+        .limit(30)
+
+      if (error) {
+        console.error('Error loading match center:', error)
+        return
+      }
+
+      if (!cancelled) {
+        setMatchTickerItems((data || []).map((match) => ({
+          id: match.id,
+          competition: match.competition_name,
+          home: match.home_team_name,
+          away: match.away_team_name,
+          homeScore: match.home_score,
+          awayScore: match.away_score,
+          status: match.status === 'live' ? 'LIVE' : match.status === 'halftime' ? 'HT' : match.status === 'finished' ? 'FT' : match.status === 'postponed' ? 'POSTPONED' : new Date(match.kickoff_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
+        })))
+      }
+    }
+
+    loadMatches()
+    const timer = window.setInterval(loadMatches, 60_000)
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
   }, [])
 
   const getContract = (playerId: string) => {
@@ -401,7 +443,7 @@ export default function Home() {
         </div>
       </section>
 
-      <MatchTicker />
+      <MatchTicker items={matchTickerItems} />
 
       {/* STATS */}
       <section
