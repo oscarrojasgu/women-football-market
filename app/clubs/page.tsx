@@ -70,6 +70,7 @@ export default function ClubsPage() {
   const [countryFilter, setCountryFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
   const [sortBy, setSortBy] = useState<SortKey>('name')
+  const [sortDir, setSortDir] = useState<'asc'|'desc'>('asc')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -254,6 +255,9 @@ export default function ClubsPage() {
     [clubs]
   )
 
+  const changeSort = (key: SortKey) => { if (sortBy === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc'); else { setSortBy(key); setSortDir(key === 'name' ? 'asc' : 'desc') } }
+  const sortIndicator = (key: SortKey) => sortBy === key ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''
+
   const filteredClubs = useMemo(() => {
     const search = normalize(q)
 
@@ -282,19 +286,13 @@ export default function ClubsPage() {
       const aStats = clubStats[a.id]
       const bStats = clubStats[b.id]
 
-      if (sortBy === 'players') {
-        return bStats.playerIds.size - aStats.playerIds.size || a.name.localeCompare(b.name)
-      }
-
-      if (sortBy === 'payroll') {
-        return bStats.payroll - aStats.payroll || a.name.localeCompare(b.name)
-      }
-
-      if (sortBy === 'value') {
-        return bStats.marketValue - aStats.marketValue || a.name.localeCompare(b.name)
-      }
-
-      return a.name.localeCompare(b.name)
+      let result = 0
+      if (sortBy === 'players') result = bStats.playerIds.size - aStats.playerIds.size
+      else if (sortBy === 'payroll') result = bStats.payroll - aStats.payroll
+      else if (sortBy === 'value') result = bStats.marketValue - aStats.marketValue
+      else result = a.name.localeCompare(b.name)
+      if (result === 0) result = a.name.localeCompare(b.name)
+      return sortDir === 'asc' ? result : -result
     })
   }, [clubs, clubStats, participationByClub, q, leagueFilter, seasonFilter, countryFilter, typeFilter, sortBy])
 
@@ -431,9 +429,13 @@ export default function ClubsPage() {
             <table style={{ width: '100%', minWidth: 900, borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#fafafa', borderBottom: '1px solid #e8e8e8' }}>
-                  {['Club', 'Competition', 'Season', 'Country', 'Active roster', 'Known payroll', 'Squad market value', 'Transfers'].map((heading, index) => (
+                  {[
+                    ['Club','name'],['Competition','name'],['Season','name'],['Country','name'],['Active roster','players'],['Known payroll','payroll'],['Squad market value','value'],['Transfers','players']
+                  ].map(([heading,key], index) => (
                     <th key={heading} style={{ textAlign: index === 0 ? 'left' : index >= 3 ? 'right' : 'left', padding: '13px 18px', fontSize: 10, color: '#888', letterSpacing: 0.9, textTransform: 'uppercase', fontWeight: 800 }}>
-                      {heading}
+                      <button type="button" onClick={() => changeSort(key as SortKey)} style={{border:0,background:'transparent',padding:0,font:'inherit',color:'inherit',fontWeight:800,cursor:'pointer',textTransform:'uppercase',letterSpacing:'inherit'}}>
+                        {heading}{key === 'name' ? sortIndicator('name') : sortIndicator(key as SortKey)}
+                      </button>
                     </th>
                   ))}
                 </tr>
