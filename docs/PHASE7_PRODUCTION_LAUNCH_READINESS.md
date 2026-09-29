@@ -1,6 +1,6 @@
 # Phase 7 — Production & Launch Readiness
 
-Status: In Progress — verification gate remains open
+Status: In Progress — final production gate remains open
 
 ## Completed in this launch-readiness pass
 
@@ -29,13 +29,14 @@ Status: In Progress — verification gate remains open
 - Added `app/sitemap.ts` with public player and club URLs.
 - Excluded admin, API, contributor, scouting, and comparison areas from search indexing.
 - Expanded global metadata, Open Graph metadata, Twitter metadata, canonical metadata base, and title templates.
+- M8 added structured data for public players, clubs, and competitions.
 
 ### Dependency stability
 - Replaced direct `latest` dependency tags with pinned versions.
 - Added a GitHub Actions production-build workflow.
 - Added route-level and global production error boundaries (`app/error.tsx` and `app/global-error.tsx`).
 - Added a custom root `app/not-found.tsx` page.
-- A committed lockfile is still recommended before final production launch because the repository currently has no npm lockfile.
+- A committed npm lockfile is still required before the final production launch gate is closed.
 
 ## Current Supabase findings
 
@@ -47,25 +48,38 @@ The remaining advisor findings are unused indexes. They are informational and ar
 
 ## Automated verification
 
-GitHub Actions now runs:
-- dependency installation
-- `npm run build`
+The production-build workflow runs dependency installation and `npm run build` on pushes and pull requests targeting `main`, plus manual workflow dispatch.
 
-on pushes and pull requests targeting `main`, plus manual workflow dispatch.
+### Latest verified build
+The latest M8 production-build workflow completed successfully for commit `a407c9717794def7c97b3f4ba0b90b5de57b55dd` on September 29, 2026.
 
-A successful workflow run is still required before treating the production build as verified.
+This verifies that the M8 code currently on `main` passes the repository's automated production build.
+
+## Deployment verification
+
+The latest M8 commit has a successful Vercel commit status.
+
+Live browser verification remains separate from the deployment status and still needs to be completed for:
+- public player pages
+- public club pages
+- public competition pages
+- `/robots.txt`
+- `/sitemap.xml`
+- authenticated scouting workflows
+- admin/contributor/verification boundaries
+- final mobile and desktop smoke tests
+
+The available verification environment could not directly fetch the Vercel production hostname, so those live-route checks are intentionally not marked complete.
 
 ## Production verification still required
 
-- Verify the new GitHub Actions production build succeeds; the workflow has been added but a verified successful run is not yet available through the current GitHub connector.
-- Confirm the Vercel deployment is healthy.
-- Test public player and club pages.
+- Add and commit the npm lockfile.
+- Complete live public-route/browser verification.
 - Test authenticated scouting workflows.
 - Test admin/contributor/verification boundaries with separate accounts.
-- Confirm sitemap and robots endpoints in the deployed environment.
 - Perform final mobile and desktop smoke tests.
-- Add/commit the npm lockfile before final production launch.
+- Re-run the complete production gate after the lockfile is committed.
 
 ## Launch gate
 
-WFM should not be treated as fully production-ready until automated build verification, deployment verification, authenticated boundary testing, and final browser smoke tests are complete.
+WFM should not be treated as fully production-ready until the remaining live-route, authenticated-boundary, browser smoke-test, and lockfile requirements are complete.
