@@ -152,7 +152,7 @@ export default function GlobalDiscoveryPage(){
                 <option value="competition">Competition{sortIndicator("competition")}</option>
               </select>
             </div>
-            <div className="scout-table-header">
+            <div className="scout-table-header wfm-sortable-header">
               <button type="button" onClick={()=>changeSort("player")}>PLAYER{sortIndicator("player")}</button>
               <button type="button" onClick={()=>changeSort("club")}>CLUB{sortIndicator("club")}</button>
               <button type="button" onClick={()=>changeSort("age")}>AGE{sortIndicator("age")}</button>
