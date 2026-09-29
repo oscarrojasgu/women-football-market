@@ -1344,3 +1344,14 @@
   .scout-sort-mobile label { font-size:10px; font-weight:800; letter-spacing:.06em; color:#777; white-space:nowrap; }
   .scout-sort-mobile select { flex:1; min-width:0; min-height:40px; padding:8px 10px; border:1px solid #d8d6cf; border-radius:7px; background:#fff; color:#111; font-size:13px; font-weight:700; }
 }
+
+/* Sortable public data tables */
+.contracts-table-header button,
+.salary-table-header button {
+  appearance:none;border:0;background:transparent;color:inherit;font:inherit;font-size:inherit;font-weight:800;text-align:left;padding:0;cursor:pointer;letter-spacing:inherit;text-transform:inherit;
+}
+.contracts-table-header button:hover,
+.salary-table-header button:hover { text-decoration:underline; }
+@media (max-width:800px) {
+  .contracts-table-header button,.salary-table-header button { white-space:nowrap; }
+}
