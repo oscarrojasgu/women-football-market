@@ -257,3 +257,22 @@ Do not randomly add isolated features. Work through the current phase systematic
 - [x] Preserve existing RLS, verification and commercial boundaries
 - [x] Avoid automatic publishing, prediction, recommendation and payment-provider coupling
 
+
+
+## M16 — Homepage Match Center & Football Hub — IMPLEMENTATION COMPLETE
+
+- [x] Add public match fixture storage with provider/source provenance
+- [x] Add admin-controlled women's competition allowlist
+- [x] Add Sportmonks fixture synchronization Edge Function
+- [x] Add homepage auto-refreshing horizontal Match Center ticker
+- [x] Add public match detail route
+- [x] Add admin Match Center configuration page
+- [x] Preserve public-read / admin-write RLS boundaries
+- [x] Add reduced-motion and mobile ticker behavior
+- [x] Document provider setup and operational workflow
+- [ ] Configure production women's competition IDs and run first provider sync
+- [ ] Add recurring automated sync after provider coverage is validated
+
+### M16 design rule
+
+The homepage Match Center is factual infrastructure, not a prediction or editorial ranking system. Provider data must pass through an explicit WFM competition allowlist before publication.
