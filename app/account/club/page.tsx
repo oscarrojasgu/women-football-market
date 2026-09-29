@@ -101,7 +101,7 @@ export default function ClubWorkspacePage() {
             <h1>{membership.club?.name ?? 'Club'}</h1>
             <p>Private recruitment workspace for {membership.club?.country ?? 'your club'}. Board data is visible only to active members of this club.</p>
           </div>
-          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}><Link href="/account/club/reports" className="outline">Saved reports</Link><Link href="/account/club/team" className="outline">Club team</Link><Link href="/account/settings" className="outline">Account settings</Link></div>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}><Link href="/account/club/reports" className="outline">Saved reports</Link><Link href="/account/club/team" className="outline">Club team</Link><Link href="/account/club/contacts" className="outline">Agency contacts</Link><Link href="/account/settings" className="outline">Account settings</Link></div>
         </div>
 
         {error && <div className="account-message account-error">{error}</div>}
