@@ -113,6 +113,10 @@ M16 intentionally does not:
 
 The homepage should display factual provider data only.
 
+## Current production configuration
+
+The WFM competition record for the English Women's Super League is configured using Sportmonks league ID `45`, which Sportmonks documents for the WSL. citeturn0search0turn0search2 Other competitions should be added through the Match Center discovery tool after confirming they are available under the project's Sportmonks plan.
+
 ## Operational setup remaining
 
 Before live scores appear:
