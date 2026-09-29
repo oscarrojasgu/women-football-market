@@ -777,44 +777,31 @@ export default function Home() {
       </section>
 
       {/* FOOTER */}
-      <footer
-        style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '28px 20px 45px',
-          borderTop: '1px solid #e5e5e5',
-        }}
-      >
-        <div
-          className="logo"
-          style={{
-            fontSize: '22px',
-            fontWeight: 800,
-          }}
-        >
-          WFM<span style={{ color: '#777' }}>•</span>
+      <footer style={{ borderTop: '1px solid #e5e5e5', background: '#fff' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 20px 42px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '30px', flexWrap: 'wrap' }}>
+            <div style={{ maxWidth: '360px' }}>
+              <div className="logo" style={{ fontSize: '22px', fontWeight: 800 }}>WFM<span style={{ color: '#777' }}>•</span></div>
+              <p style={{ color: '#777', fontSize: '13px', lineHeight: 1.5, margin: '10px 0 0' }}>Women’s football data for players, clubs, scouts, agents and researchers.</p>
+            </div>
+            <nav aria-label="WFM public navigation" style={{ display: 'flex', gap: '18px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+              {[
+                ['/players','Players'],
+                ['/clubs','Clubs'],
+                ['/competitions','Competitions'],
+                ['/contracts','Contracts'],
+                ['/salaries','Salaries'],
+                ['/transfers','Transfers'],
+                ['/scouting','Scouting'],
+              ].map(([href,label]) => <Link key={href} href={href} style={{ color: '#444', textDecoration: 'none', fontSize: '12px', fontWeight: 700 }}>{label}</Link>)}
+            </nav>
+          </div>
+          <div style={{ marginTop: '28px', paddingTop: '18px', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', gap: '15px', flexWrap: 'wrap' }}>
+            <small style={{ color: '#999', fontSize: '12px' }}>Data confidence is shown on every record. Estimates are never presented as confirmed facts.</small>
+            <small style={{ color: '#999', fontSize: '12px' }}>© Women’s Football Market</small>
+          </div>
         </div>
-
-        <p
-          style={{
-            color: '#777',
-            fontSize: '14px',
-            margin: '10px 0',
-          }}
-        >
-          Built for Women’s Football.
-        </p>
-
-        <small
-          style={{
-            color: '#999',
-            fontSize: '12px',
-          }}
-        >
-          Data confidence is shown on every record. Estimates are never
-          presented as confirmed facts.
-        </small>
       </footer>
-    </main>
+</main>
   )
 }
