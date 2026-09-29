@@ -11,7 +11,7 @@ function tag(xml:string, name:string) {
   return m ? textOf(m[1]) : "";
 }
 function attr(xml:string, name:string) {
-  const m=xml.match(new RegExp(name+"=["']([^"']+)["']","i"));
+  const m=xml.match(new RegExp(name+"=[\\\"]([^\\\"]+)[\\\"]","i"));
   return m?.[1] || "";
 }
 function items(xml:string) {
