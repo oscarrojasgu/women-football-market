@@ -114,7 +114,7 @@ export default function MatchCenterAdminPage() {
 
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:20}}>
           <button disabled={busy} onClick={discover} style={{padding:'10px 14px',border:'1px solid #ccc',borderRadius:7,background:'#fff',fontWeight:800}}>Discover women’s competitions</button>
-          <h2 style={{fontSize:20}}>Configured competitions</h2>
+          <div><h2 style={{fontSize:20,margin:'0 0 4px'}}>Configured competitions</h2><small style={{color:'#777'}}>Approved leagues only</small></div>
           <button disabled={busy || !sources.some(s=>s.active)} onClick={sync} style={{padding:'10px 14px',border:0,borderRadius:7,background:'#111',color:'#fff',fontWeight:800}}>Sync next 3 days</button>
         </div>
 
