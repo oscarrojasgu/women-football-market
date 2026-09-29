@@ -11,7 +11,7 @@ export async function generateMetadata({
   const player = await fetchPublicRecord(
     "players",
     id,
-    "id,full_name,nationality,position,league,photo_url",
+    "id,full_name,nationality,position,photo_url",
   );
   return buildEntityMetadata(player, "player");
 }
