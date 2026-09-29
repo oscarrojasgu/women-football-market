@@ -53,6 +53,64 @@ export async function fetchPublicRecord(
   }
 }
 
+export function buildEntityJsonLd(
+  entity: SeoRecord | null,
+  type: "player" | "club" | "competition",
+): Record<string, unknown> | null {
+  if (!entity) return null;
+
+  const name =
+    entity.full_name ||
+    entity.canonical_name ||
+    entity.name ||
+    (type === "player" ? "Player" : type === "club" ? "Club" : "Competition");
+
+  const url =
+    type === "player"
+      ? `${siteUrl}/players/${entity.id}`
+      : type === "club"
+        ? `${siteUrl}/clubs/${entity.id}`
+        : `${siteUrl}/competitions/${entity.id}`;
+
+  if (type === "player") {
+    return {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      name,
+      url,
+      ...(entity.photo_url ? { image: entity.photo_url } : {}),
+      ...(entity.nationality ? { nationality: entity.nationality } : {}),
+      ...(entity.position ? { jobTitle: entity.position } : {}),
+    };
+  }
+
+  if (type === "club") {
+    return {
+      "@context": "https://schema.org",
+      "@type": "SportsTeam",
+      name,
+      url,
+      sport: "Association football",
+      ...(entity.logo_url ? { logo: entity.logo_url } : {}),
+      ...(entity.country
+        ? { location: { "@type": "Country", name: entity.country } }
+        : {}),
+    };
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "SportsOrganization",
+    name,
+    url,
+    sport: "Association football",
+    ...(entity.logo_url ? { logo: entity.logo_url } : {}),
+    ...(entity.country
+      ? { location: { "@type": "Country", name: entity.country } }
+      : {}),
+  };
+}
+
 export function buildEntityMetadata(
   entity: SeoRecord | null,
   type: "player" | "club" | "competition",
