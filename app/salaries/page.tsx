@@ -182,8 +182,13 @@ export default function SalariesPage() {
     return [...filtered].sort((a, b) => {
       if (sort === 'salary-asc') return (a.annual_salary_usd || 0) - (b.annual_salary_usd || 0)
       if (sort === 'player-asc') return (a.player?.full_name || '').localeCompare(b.player?.full_name || '')
-      if (sort === 'club-asc') return (a.club?.name || '').localeCompare(b.club?.name || '')
-      return (b.annual_salary_usd || 0) - (a.annual_salary_usd || 0)
+      if (sort === 'club-asc' || sort === 'club-desc') { const v=(a.club?.name||'').localeCompare(b.club?.name||''); return sort === 'club-asc' ? v : -v }
+      if (sort === 'player-asc' || sort === 'player-desc') { const v=(a.player?.full_name||'').localeCompare(b.player?.full_name||''); return sort === 'player-asc' ? v : -v }
+      if (sort === 'position-asc' || sort === 'position-desc') { const v=(a.player?.position||'').localeCompare(b.player?.position||''); return sort === 'position-asc' ? v : -v }
+      if (sort === 'weekly-asc' || sort === 'weekly-desc') { const v=(a.weekly_salary_usd||0)-(b.weekly_salary_usd||0); return sort === 'weekly-asc' ? v : -v }
+      if (sort === 'original-asc' || sort === 'original-desc') { const v=(a.annual_salary||0)-(b.annual_salary||0); return sort === 'original-asc' ? v : -v }
+      if (sort === 'confidence-asc' || sort === 'confidence-desc') { const v=(a.confidence||'').localeCompare(b.confidence||''); return sort === 'confidence-asc' ? v : -v }
+      return (sort === 'salary-asc' ? 1 : -1) * ((a.annual_salary_usd||0)-(b.annual_salary_usd||0))
     })
   }, [records, search, leagueFilter, bandFilter, confidenceFilter, sort])
 
@@ -283,13 +288,13 @@ export default function SalariesPage() {
         ) : (
           <div className="salary-table-wrap">
             <div className="salary-table-header">
-              <span>PLAYER</span>
-              <span>CLUB</span>
-              <span>POSITION</span>
-              <span>ANNUAL USD</span>
-              <span>WEEKLY USD</span>
-              <span>ORIGINAL</span>
-              <span>CONFIDENCE</span>
+              <button type="button" onClick={() => setSort(sort === 'player-asc' ? 'player-desc' : 'player-asc')}>PLAYER {sort === 'player-asc' ? '↑' : sort === 'player-desc' ? '↓' : ''}</button>
+              <button type="button" onClick={() => setSort(sort === 'club-asc' ? 'club-desc' : 'club-asc')}>CLUB {sort === 'club-asc' ? '↑' : sort === 'club-desc' ? '↓' : ''}</button>
+              <button type="button" onClick={() => setSort(sort === 'position-asc' ? 'position-desc' : 'position-asc')}>POSITION {sort === 'position-asc' ? '↑' : sort === 'position-desc' ? '↓' : ''}</button>
+              <button type="button" onClick={() => setSort(sort === 'salary-asc' ? 'salary-desc' : 'salary-asc')}>ANNUAL USD {sort === 'salary-asc' ? '↑' : '↓'}</button>
+              <button type="button" onClick={() => setSort(sort === 'weekly-asc' ? 'weekly-desc' : 'weekly-asc')}>WEEKLY USD {sort === 'weekly-asc' ? '↑' : sort === 'weekly-desc' ? '↓' : ''}</button>
+              <button type="button" onClick={() => setSort(sort === 'original-asc' ? 'original-desc' : 'original-asc')}>ORIGINAL {sort === 'original-asc' ? '↑' : sort === 'original-desc' ? '↓' : ''}</button>
+              <button type="button" onClick={() => setSort(sort === 'confidence-asc' ? 'confidence-desc' : 'confidence-asc')}>CONFIDENCE {sort === 'confidence-asc' ? '↑' : sort === 'confidence-desc' ? '↓' : ''}</button>
             </div>
 
             {filteredRecords.map((record) => (
