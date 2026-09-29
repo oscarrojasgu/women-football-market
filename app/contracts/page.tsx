@@ -218,7 +218,7 @@ export default function ContractsPage() {
         </div>
 
         <section className="scout-table-wrap contracts-scout-table">
-          <div className="scout-table-header contracts-table-header">
+          <div className="scout-table-header contracts-table-header wfm-sortable-header">
             <button type="button" onClick={()=>changeSort("player")}>PLAYER{sortIndicator("player")}</button>
             <button type="button" onClick={()=>changeSort("club")}>CLUB{sortIndicator("club")}</button>
             <button type="button" onClick={()=>changeSort("status")}>STATUS{sortIndicator("status")}</button>
