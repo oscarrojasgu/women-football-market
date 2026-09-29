@@ -23,6 +23,7 @@ export default function MatchCenterAdminPage() {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [discovered, setDiscovered] = useState<CompetitionSource[]>([])
 
   const load = async () => {
     const { data: user } = await supabase.auth.getUser()
@@ -51,6 +52,25 @@ export default function MatchCenterAdminPage() {
     }, { onConflict:'provider,external_league_id' })
     if (insertError) setError(insertError.message)
     else { setMessage('Competition source saved.'); setLeagueId(''); setName(''); setCountry(''); await load() }
+    setBusy(false)
+  }
+
+  const discover = async () => {
+    setBusy(true); setError(''); setMessage('')
+    const { data, error: invokeError } = await supabase.functions.invoke('discover-sportmonks-womens-leagues', { body:{} })
+    if (invokeError) setError(invokeError.message)
+    else if (data?.error) setError(data.error)
+    else { setDiscovered((data?.competitions || []) as CompetitionSource[]); setMessage(`Found ${data?.competitions?.length || 0} women's competitions available from Sportmonks.`) }
+    setBusy(false)
+  }
+
+  const addDiscovered = async (source: CompetitionSource) => {
+    setBusy(true); setError('')
+    const { error: insertError } = await supabase.from('wfm_match_competitions').upsert({
+      provider:'sportmonks', external_league_id:source.id, competition_name:source.name, country:source.country || null, active:true, priority:50
+    }, { onConflict:'provider,external_league_id' })
+    if (insertError) setError(insertError.message)
+    else { setMessage(`${source.name} added to the Match Center.`); await load() }
     setBusy(false)
   }
 
@@ -93,12 +113,22 @@ export default function MatchCenterAdminPage() {
         </form>
 
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:20}}>
+          <button disabled={busy} onClick={discover} style={{padding:'10px 14px',border:'1px solid #ccc',borderRadius:7,background:'#fff',fontWeight:800}}>Discover women’s competitions</button>
           <h2 style={{fontSize:20}}>Configured competitions</h2>
           <button disabled={busy || !sources.some(s=>s.active)} onClick={sync} style={{padding:'10px 14px',border:0,borderRadius:7,background:'#111',color:'#fff',fontWeight:800}}>Sync next 3 days</button>
         </div>
 
         {message && <div style={{padding:12,background:'#eaf4e5',borderRadius:8,marginBottom:12}}>{message}</div>}
         {error && <div style={{padding:12,background:'#f8e7e7',borderRadius:8,marginBottom:12}}>{error}</div>}
+        {discovered.length > 0 && <div style={{background:'#fff',border:'1px solid #e3e3e3',borderRadius:14,padding:18,marginBottom:16}}>
+          <h3 style={{marginTop:0}}>Available women’s competitions</h3>
+          <div style={{display:'grid',gap:8}}>
+            {discovered.map(source => <div key={source.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,padding:'10px 0',borderBottom:'1px solid #eee'}}>
+              <span><strong>{source.name}</strong><small style={{display:'block',color:'#888'}}>Sportmonks ID {source.id}{source.country ? ' · '+source.country : ''}</small></span>
+              <button disabled={busy} onClick={()=>addDiscovered(source)} style={{padding:'7px 10px',border:0,borderRadius:6,background:'#111',color:'#fff',fontWeight:800}}>Add</button>
+            </div>)}
+          </div>
+        </div>
 
         <div style={{background:'#fff',border:'1px solid #e3e3e3',borderRadius:14,overflow:'hidden'}}>
           {sources.length === 0 ? <div style={{padding:30,color:'#777'}}>No competitions configured yet.</div> : sources.map(source => (
