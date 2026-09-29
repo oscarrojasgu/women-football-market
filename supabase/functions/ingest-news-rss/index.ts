@@ -26,12 +26,27 @@ function items(xml:string) {
   }).filter(x=>x.title && x.url);
 }
 
-export default withSupabase({auth:"user"}, async (req,ctx)=>{
+export default withSupabase({auth:["user","none"]}, async (req,ctx)=>{
+  const isInternalCron = ctx.authMode === "none";
+  if(isInternalCron){
+    const token = req.headers.get("x-wfm-internal-token") || "";
+    const {data:secret} = await ctx.supabaseAdmin
+      .schema("private")
+      .from("wfm_internal_cron_secrets")
+      .select("token")
+      .eq("name","news_ingestion")
+      .maybeSingle();
+    if(!secret?.token || token !== secret.token){
+      return Response.json({error:"Unauthorized"},{status:401});
+    }
+  }
   if(req.method!=="POST") return Response.json({error:"POST required"},{status:405});
-  const {data:userData}=await ctx.supabase.auth.getUser();
-  if(!userData.user) return Response.json({error:"Authentication required"},{status:401});
-  const {data:admin}=await ctx.supabase.from("wfm_admins").select("user_id").eq("user_id",userData.user.id).maybeSingle();
-  if(!admin) return Response.json({error:"Admin access required"},{status:403});
+  if(!isInternalCron){
+    const {data:userData}=await ctx.supabase.auth.getUser();
+    if(!userData.user) return Response.json({error:"Authentication required"},{status:401});
+    const {data:admin}=await ctx.supabase.from("wfm_admins").select("user_id").eq("user_id",userData.user.id).maybeSingle();
+    if(!admin) return Response.json({error:"Admin access required"},{status:403});
+  }
   const {data:sources,error:sourceError}=await ctx.supabaseAdmin.from("wfm_news_sources").select("id,publisher,feed_url").eq("active",true);
   if(sourceError) return Response.json({error:sourceError.message},{status:500});
   const results={sources:0,feeds_ok:0,items_seen:0,inserted:0,updated:0,errors:[] as string[]};
