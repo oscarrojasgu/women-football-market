@@ -16,7 +16,7 @@ export default function SourcePipelinePage(){
   const {data:u}=await supabase.auth.getUser();if(!u.user){setLoading(false);return}
   const {data:a}=await supabase.from("wfm_admins").select("user_id").eq("user_id",u.user.id).maybeSingle();
   setAuthorized(!!a);if(!a){setLoading(false);return}
-  const {data,e}=await supabase.from("wfm_source_pipeline").select("*").order("priority",{ascending:true}).order("updated_at",{ascending:false});
+  const {data,error:e}=await supabase.from("wfm_source_pipeline").select("*").order("priority",{ascending:true}).order("updated_at",{ascending:false});
   if(e)setError(e.message);setRows((data||[]) as Row[]);setLoading(false);
  };
  useEffect(()=>{void load()},[]);
