@@ -26,7 +26,7 @@ function items(xml:string) {
   }).filter(x=>x.title && x.url);
 }
 
-export default withSupabase({auth:"secret"}, async (req,ctx)=>{
+export default withSupabase({auth:"user"}, async (req,ctx)=>{
   if(req.method!=="POST") return Response.json({error:"POST required"},{status:405});
   const {data:sources,error:sourceError}=await ctx.supabaseAdmin.from("wfm_news_sources").select("id,publisher,feed_url").eq("active",true);
   if(sourceError) return Response.json({error:sourceError.message},{status:500});
