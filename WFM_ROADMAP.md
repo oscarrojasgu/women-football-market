@@ -2,7 +2,7 @@
 
 This file is the working source of truth for the Women’s Football Market build.
 
-## Current execution status: M17 — Homepage Intelligence Layer — COMPLETE
+## Current execution status: M18 — Global Coverage & Data Expansion — IN PROGRESS
 
 M8 through M14 have been implemented, with the remaining M9 production-readiness items kept as a separate manual launch gate. M15 adds the operational layer for controlled data growth, source acquisition, quality monitoring, contributor/club/agency onboarding visibility and commercial onboarding.
 
@@ -277,7 +277,7 @@ Do not randomly add isolated features. Work through the current phase systematic
 
 The homepage Match Center is factual infrastructure, not a prediction or editorial ranking system. Provider data must pass through an explicit WFM competition allowlist before publication.
 
-## M17 — Homepage Intelligence Layer — IN PROGRESS
+## M17 — Homepage Intelligence Layer — COMPLETE
 
 - [x] Add latest transfer activity to the homepage
 - [x] Add contract-watch panel using existing WFM contract records
@@ -297,7 +297,7 @@ Homepage intelligence must be sourced, timestamped and distinguish factual WFM d
 
 ## M18 — Global Coverage & Data Expansion — IN PROGRESS
 
-- [ ] Audit current competition/player/stat coverage gaps
+- [x] Audit current competition/player/stat coverage gaps
 - [ ] Prioritize additional women’s competitions using measurable coverage readiness
 - [ ] Expand sourced player/stat records without fabricating unavailable fields
 - [ ] Preserve canonical competition identity and provenance across new coverage
