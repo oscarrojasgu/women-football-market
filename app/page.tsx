@@ -798,7 +798,7 @@ export default function Home() {
             </div>
             <Link href="/competitions" style={{ color: '#111', textDecoration: 'none', fontSize: '13px', fontWeight: 800 }}>View all competitions →</Link>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
             {homeCompetitions.map(competition => (
               <Link key={competition.id} href={`/competitions/${competition.id}`} style={{ background: '#fff', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '20px', color: '#111', textDecoration: 'none', minHeight: '155px' }}>
                 <div style={{ fontSize: '10px', color: '#888', fontWeight: 800, letterSpacing: '1px' }}>COMPETITION</div>
