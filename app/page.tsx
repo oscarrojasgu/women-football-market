@@ -37,6 +37,17 @@ type ContractInfo = {
 
 
 
+type HomeTransfer = {
+  id: string
+  player_id: string
+  transfer_date: string | null
+  transfer_type: string | null
+  confidence: string | null
+  player: { full_name: string; photo_url: string | null } | null
+  from_club: { name: string } | null
+  to_club: { name: string } | null
+}
+
 type MatchTickerItem = {
   id: string
   competition: string
@@ -120,6 +131,7 @@ export default function Home() {
   const [databasePlayers, setDatabasePlayers] = useState<Player[]>([])
   const [contracts, setContracts] = useState<ContractInfo[]>([])
   const [matchTickerItems, setMatchTickerItems] = useState<MatchTickerItem[]>([])
+  const [homeTransfers, setHomeTransfers] = useState<HomeTransfer[]>([])
   const [databaseStats, setDatabaseStats] = useState({
     players: 0,
     clubs: 0,
@@ -198,6 +210,36 @@ export default function Home() {
     }
 
     loadPlayers()
+  }, [])
+
+  useEffect(() => {
+    async function loadHomeTransfers() {
+      const { data, error } = await supabase
+        .from('transfers')
+        .select('id,player_id,transfer_date,transfer_type,confidence')
+        .order('transfer_date', { ascending: false })
+        .limit(6)
+      if (error) {
+        console.error('Error loading homepage transfers:', error)
+        return
+      }
+      const rows = data || []
+      const playerIds = [...new Set(rows.map(row => row.player_id).filter(Boolean))]
+      const clubIds = [...new Set(rows.flatMap(row => [row.from_club_id, row.to_club_id].filter(Boolean)))]
+      const [{ data: players }, { data: clubs }] = await Promise.all([
+        playerIds.length ? supabase.from('players').select('id,full_name,photo_url').in('id', playerIds) : Promise.resolve({ data: [] }),
+        clubIds.length ? supabase.from('clubs').select('id,name').in('id', clubIds) : Promise.resolve({ data: [] }),
+      ])
+      const playerMap = new Map((players || []).map(player => [player.id, player]))
+      const clubMap = new Map((clubs || []).map(club => [club.id, club]))
+      setHomeTransfers(rows.map(row => ({
+        ...row,
+        player: playerMap.get(row.player_id) || null,
+        from_club: row.from_club_id ? clubMap.get(row.from_club_id) || null : null,
+        to_club: row.to_club_id ? clubMap.get(row.to_club_id) || null : null,
+      })) as HomeTransfer[])
+    }
+    loadHomeTransfers()
   }, [])
 
   useEffect(() => {
@@ -577,7 +619,61 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PLAYER DATABASE */}
+      {/* WFM INTELLIGENCE */}
+      <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px 55px' }}>
+        <div className="sectionhead" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '20px' }}>
+          <div>
+            <span className="eyebrow" style={{ fontSize: '13px', color: '#777', fontWeight: 700, letterSpacing: '1.2px' }}>WFM INTELLIGENCE</span>
+            <h2 style={{ margin: '8px 0 0', fontSize: '30px', lineHeight: 1.1, letterSpacing: '-.5px' }}>What’s moving in the women’s game.</h2>
+          </div>
+          <Link href="/transfers" style={{ color: '#111', textDecoration: 'none', fontSize: '13px', fontWeight: 800 }}>View market activity →</Link>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr 1fr', gap: '12px' }}>
+          <div style={{ background: '#111', color: '#fff', borderRadius: '14px', padding: '22px', minHeight: '245px' }}>
+            <div style={{ fontSize: '10px', color: '#aaa', fontWeight: 800, letterSpacing: '1px' }}>LATEST TRANSFERS</div>
+            <div style={{ marginTop: '16px', display: 'grid', gap: '13px' }}>
+              {homeTransfers.slice(0, 4).map(transfer => (
+                <Link key={transfer.id} href={transfer.player_id ? `/players/${transfer.player_id}` : '/transfers'} style={{ color: '#fff', textDecoration: 'none', display: 'grid', gridTemplateColumns: '36px 1fr', gap: '10px', alignItems: 'center' }}>
+                  <img src={transfer.player?.photo_url || '/wfm-player-placeholder.svg'} alt="" width={36} height={36} style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', background: '#222' }} />
+                  <span style={{ minWidth: 0 }}>
+                    <strong style={{ display: 'block', fontSize: '13px' }}>{transfer.player?.full_name || 'Unknown player'}</strong>
+                    <small style={{ display: 'block', marginTop: '3px', color: '#aaa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{transfer.from_club?.name || 'Free agent'} → {transfer.to_club?.name || 'Unknown club'}</small>
+                  </span>
+                </Link>
+              ))}
+              {!homeTransfers.length && <div style={{ color: '#aaa', fontSize: '13px', lineHeight: 1.5 }}>Transfer activity will appear here as verified WFM records are added.</div>}
+            </div>
+          </div>
+
+          <div style={{ background: '#fff', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', minHeight: '245px' }}>
+            <div style={{ fontSize: '10px', color: '#888', fontWeight: 800, letterSpacing: '1px' }}>CONTRACT WATCH</div>
+            <h3 style={{ margin: '13px 0 8px', fontSize: '20px' }}>Expiring soon</h3>
+            <div style={{ display: 'grid', gap: '10px' }}>
+              {contracts.filter(contract => contract.end_date).sort((a,b) => String(a.end_date).localeCompare(String(b.end_date))).slice(0, 4).map(contract => {
+                const player = databasePlayers.find(item => item.id === contract.player_id)
+                return <Link key={contract.player_id + '-' + contract.end_date} href={`/players/${contract.player_id}`} style={{ color: '#111', textDecoration: 'none', fontSize: '13px', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+                  <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{player?.full_name || 'Player'}</span>
+                  <strong style={{ whiteSpace: 'nowrap' }}>{contract.end_date}</strong>
+                </Link>
+              })}
+              {!contracts.some(contract => contract.end_date) && <div style={{ color: '#777', fontSize: '13px' }}>Contract dates will appear here as WFM coverage expands.</div>}
+            </div>
+            <Link href="/contracts" style={{ display: 'inline-block', marginTop: '18px', color: '#111', fontSize: '12px', fontWeight: 800, textDecoration: 'none' }}>Explore contracts →</Link>
+          </div>
+
+          <div style={{ background: '#fff', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', minHeight: '245px' }}>
+            <div style={{ fontSize: '10px', color: '#888', fontWeight: 800, letterSpacing: '1px' }}>DISCOVER</div>
+            <h3 style={{ margin: '13px 0 8px', fontSize: '20px' }}>Follow the data.</h3>
+            <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.55 }}>Move from matches to players, clubs, contracts and transfers without leaving the WFM ecosystem.</p>
+            <div style={{ display: 'grid', gap: '8px', marginTop: '18px' }}>
+              {[['/players','Players'],['/clubs','Clubs'],['/competitions','Competitions'],['/scouting','Scouting']].map(([href,label]) => <Link key={href} href={href} style={{ color: '#111', textDecoration: 'none', fontSize: '12px', fontWeight: 800 }}>{label} →</Link>)}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PLAYER DATABASE */
       <section
         className="content"
         style={{
