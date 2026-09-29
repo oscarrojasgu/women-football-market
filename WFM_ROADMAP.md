@@ -2,6 +2,12 @@
 
 This file is the working source of truth for the Women’s Football Market build.
 
+## Current execution status: M15 — Launch Operations & Data Growth — COMPLETE
+
+M8 through M14 have been implemented, with the remaining M9 production-readiness items kept as a separate manual launch gate. M15 adds the operational layer for controlled data growth, source acquisition, quality monitoring, contributor/club/agency onboarding visibility and commercial onboarding.
+
+See `docs/M15_LAUNCH_OPERATIONS_DATA_GROWTH.md` for the current execution record.
+
 ## Current phase: PHASE 4 — Verification
 
 Phase 1 data foundation is complete. The database is now structured, normalized, sourced where evidence exists, and explicit about information that cannot be verified from available sources.
@@ -237,3 +243,17 @@ Systematically expand beyond the initial NWSL coverage and build global league c
 ## Development rule
 
 Do not randomly add isolated features. Work through the current phase systematically, preserve completed work, and avoid duplicating existing systems or records.
+
+
+## M15 — Launch Operations & Data Growth — COMPLETE
+
+- [x] Add admin operations dashboard
+- [x] Add private source-acquisition pipeline
+- [x] Connect import/review queue metrics to operations monitoring
+- [x] Connect integrity audit and provenance/coverage monitoring
+- [x] Surface contributor, club and agency onboarding activity
+- [x] Surface controlled commercial licensing activity
+- [x] Document the operational acquire → import → match → validate → publish → audit → expand loop
+- [x] Preserve existing RLS, verification and commercial boundaries
+- [x] Avoid automatic publishing, prediction, recommendation and payment-provider coupling
+
