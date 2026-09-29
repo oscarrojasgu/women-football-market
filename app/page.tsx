@@ -732,117 +732,48 @@ export default function Home() {
           gap: '12px',
         }}
       >
-        <article
-          style={{
-            border: '1px solid #e3e3e3',
-            borderRadius: '14px',
-            padding: '22px',
-            background: '#fff',
-          }}
-        >
-          <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>
-            01
-          </span>
+        <Link href="/contracts" style={{ color: '#111', textDecoration: 'none', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', background: '#fff', transition: 'transform .15s ease' }}>
+          <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>01</span>
+          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>Contracts</h3>
+          <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>Expiration dates, options, extensions and free-agent status.</p>
+          <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>Explore contracts →</span>
+        </Link>
 
-          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>
-            Contracts
-          </h3>
+        <Link href="/transfers" style={{ color: '#111', textDecoration: 'none', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', background: '#fff' }}>
+          <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>02</span>
+          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>Transfers</h3>
+          <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>Permanent moves, loans, trades, releases and fees.</p>
+          <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>Explore transfers →</span>
+        </Link>
 
-          <p
-            style={{
-              margin: 0,
-              color: '#777',
-              fontSize: '13px',
-              lineHeight: 1.5,
-            }}
-          >
-            Expiration dates, options, extensions and free-agent status.
-          </p>
-        </article>
+        <Link href="/salaries" style={{ color: '#111', textDecoration: 'none', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', background: '#fff' }}>
+          <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>03</span>
+          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>Salaries</h3>
+          <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>Reported and estimated compensation with source confidence.</p>
+          <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>Explore salaries →</span>
+        </Link>
 
-        <article
-          style={{
-            border: '1px solid #e3e3e3',
-            borderRadius: '14px',
-            padding: '22px',
-            background: '#fff',
-          }}
-        >
-          <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>
-            02
-          </span>
+        <Link href="/scouting" style={{ color: '#111', textDecoration: 'none', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', background: '#fff' }}>
+          <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>04</span>
+          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>Scouting</h3>
+          <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>Find players by position, age, league and contract status.</p>
+          <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>Open scouting →</span>
+        </Link>
+      </section>
 
-          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>
-            Transfers
-          </h3>
-
-          <p
-            style={{
-              margin: 0,
-              color: '#777',
-              fontSize: '13px',
-              lineHeight: 1.5,
-            }}
-          >
-            Permanent moves, loans, trades, releases and fees.
-          </p>
-        </article>
-
-        <article
-          style={{
-            border: '1px solid #e3e3e3',
-            borderRadius: '14px',
-            padding: '22px',
-            background: '#fff',
-          }}
-        >
-          <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>
-            03
-          </span>
-
-          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>
-            Salaries
-          </h3>
-
-          <p
-            style={{
-              margin: 0,
-              color: '#777',
-              fontSize: '13px',
-              lineHeight: 1.5,
-            }}
-          >
-            Reported and estimated compensation with source confidence.
-          </p>
-        </article>
-
-        <article
-          style={{
-            border: '1px solid #e3e3e3',
-            borderRadius: '14px',
-            padding: '22px',
-            background: '#fff',
-          }}
-        >
-          <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>
-            04
-          </span>
-
-          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>
-            Scouting
-          </h3>
-
-          <p
-            style={{
-              margin: 0,
-              color: '#777',
-              fontSize: '13px',
-              lineHeight: 1.5,
-            }}
-          >
-            Find players by position, age, league and contract status.
-          </p>
-        </article>
+      {/* PUBLIC PRODUCT CTA */}
+      <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px 70px' }}>
+        <div style={{ background: '#111', color: '#fff', borderRadius: '16px', padding: '30px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
+          <div style={{ maxWidth: '700px' }}>
+            <div style={{ fontSize: '11px', color: '#aaa', fontWeight: 800, letterSpacing: '1.2px', marginBottom: '10px' }}>FOR CLUBS · AGENTS · SCOUTS</div>
+            <h2 style={{ margin: 0, fontSize: '28px', letterSpacing: '-.5px' }}>Go deeper with WFM.</h2>
+            <p style={{ margin: '9px 0 0', color: '#c7c7c7', fontSize: '14px', lineHeight: 1.5 }}>Create an account to use private scouting workflows, club and agency workspaces, and request commercial data access.</p>
+          </div>
+          <div style={{ display: 'flex', gap: '9px', flexWrap: 'wrap' }}>
+            <Link href="/login" style={{ display: 'inline-block', background: '#c9ff3d', color: '#111', textDecoration: 'none', fontWeight: 800, borderRadius: '8px', padding: '11px 16px', fontSize: '13px' }}>Sign in / create account</Link>
+            <Link href="/account/licensing" style={{ display: 'inline-block', border: '1px solid #555', color: '#fff', textDecoration: 'none', borderRadius: '8px', padding: '11px 16px', fontSize: '13px', fontWeight: 700 }}>Commercial access</Link>
+          </div>
+        </div>
       </section>
 
       {/* FOOTER */}
