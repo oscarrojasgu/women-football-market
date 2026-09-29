@@ -53,7 +53,7 @@ export default function AgencyWorkspacePage(){
  }
  const updateContact=async(id:string,status:string)=>{
   setBusy(true);setError('');setMessage('')
-  const {error:e1}=await supabase.from('agency_contact_requests').update({status,responded_by:userId,responded_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',id)
+  const {error:e1}=await supabase.rpc('respond_agency_contact_request',{p_request_id:id,p_action:status})
   if(e1)setError(e1.message);else{setMessage('Contact request updated.');await load()}
   setBusy(false)
  }
