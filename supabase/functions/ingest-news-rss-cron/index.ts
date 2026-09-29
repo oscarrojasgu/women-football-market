@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "npm:@supabase/server@^1";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-type Source = { id:string; publisher:string; feed_url:string };
+type Source = { id:string; publisher:string; feed_url:string; consecutive_failures:number };
 
 function textOf(value:string) {
   return value.replace(/<!\[CDATA\[/g,"").replace(/\]\]>/g,"").replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/\s+/g," ").trim();
@@ -50,7 +50,7 @@ export default {
 
     const {data:sources,error:sourceError}=await supabaseAdmin
       .from("wfm_news_sources")
-      .select("id,publisher,feed_url")
+      .select("id,publisher,feed_url,consecutive_failures")
       .eq("active",true);
 
     if(sourceError) return Response.json({error:sourceError.message},{status:500});
@@ -126,7 +126,7 @@ export default {
           .update({
             last_checked_at:new Date().toISOString(),
             last_error:message,
-            consecutive_failures: (await supabaseAdmin.from("wfm_news_sources").select("consecutive_failures").eq("id",source.id).maybeSingle()).data?.consecutive_failures ? ((await supabaseAdmin.from("wfm_news_sources").select("consecutive_failures").eq("id",source.id).maybeSingle()).data?.consecutive_failures || 0)+1 : 1,
+            consecutive_failures: source.consecutive_failures + 1,
             updated_at:new Date().toISOString()
           })
           .eq("id",source.id);
