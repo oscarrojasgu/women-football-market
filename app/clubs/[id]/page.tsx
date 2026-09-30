@@ -123,7 +123,7 @@ export default function ClubProfilePage() {
 
       const { data: participationData } = await supabase
         .from("club_competitions")
-        .select("club_id,competition_season:competition_seasons(competition:competitions(id,canonical_name),season:seasons(season_key,label))")
+        .select("id,club_id,competition_season:competition_seasons(competition:competitions(id,canonical_name),season:seasons(season_key,label))")
         .eq("club_id", id)
 
       const normalizedParticipations: ClubParticipation[] = (participationData || []).map((row: any) => {
@@ -615,6 +615,9 @@ export default function ClubProfilePage() {
           </div>
 
           <div className="club-player-table">
+            <div className="club-player-table-header">
+              <span>PLAYER</span><span>STATUS</span><span>EXPIRY</span><span>ANNUAL SALARY</span>
+            </div>
             {rosterPlayers.length ? rosterPlayers.map((player) => {
               const contract = currentContracts.find((item) => item.player_id === player.id)
               return (
@@ -630,43 +633,23 @@ export default function ClubProfilePage() {
                   <span className="club-player-cell" data-label="Annual Salary">{contract ? formatSalary(contract.annual_salary, contract.currency) : "Unknown"}</span>
                 </div>
               )
-            }) : null}
-            {!rosterPlayers.length && <div className="club-muted">No current roster relationships recorded.</div>}
-            {rosterPlayers.length === 0 && <div className="club-player-table-header">
-              <span>PLAYER</span><span>STATUS</span><span>EXPIRY</span><span>ANNUAL SALARY</span>
-            </div>
-
-            {sortedContracts.map((contract) => {
-              const player = contract.player;
+            }) : sortedContracts.map((contract) => {
+              const player = contract.player
               return (
                 <div className="club-player-row" key={contract.id}>
                   <span className="club-player-cell club-player">
                     <Link href={player ? `/players/${player.id}` : "#"} className="club-player-link">
-                      {player?.photo_url ? (
-                        <img src={player.photo_url} alt={player.full_name} onError={(event) => { event.currentTarget.src = "/wfm-player-placeholder.svg"; }} />
-                      ) : (
-                        <img src="/wfm-player-placeholder.svg" alt="" />
-                      )}
-                      <span>
-                        <strong>{player?.full_name || "Unknown Player"}</strong>
-                        <small>{[player?.position, player?.nationality].filter(Boolean).join(" · ") || "Player details unavailable"}</small>
-                      </span>
+                      {player?.photo_url ? <img src={player.photo_url} alt={player.full_name} onError={(event) => { event.currentTarget.src = "/wfm-player-placeholder.svg" }} /> : <img src="/wfm-player-placeholder.svg" alt="" />}
+                      <span><strong>{player?.full_name || "Unknown Player"}</strong><small>{[player?.position, player?.nationality].filter(Boolean).join(" · ") || "Player details unavailable"}</small></span>
                     </Link>
                   </span>
                   <span className="club-player-cell" data-label="Status">{contract.status || "Unknown"}</span>
-                  <span className="club-player-cell" data-label="Expiry">
-                    <strong>{formatDate(contract.end_date)}</strong>
-                    <small>{contract.end_date ? "Contract end date" : "End date unavailable"}</small>
-                  </span>
-                  <span className="club-player-cell club-salary-cell" data-label="Salary">
-                    <strong>{formatSalary(contract.annual_salary, contract.currency)}</strong>
-                    {contract.annual_salary !== null ? <small>Roster salary</small> : null}
-                  </span>
+                  <span className="club-player-cell" data-label="Expiry"><strong>{formatDate(contract.end_date)}</strong></span>
+                  <span className="club-player-cell club-salary-cell" data-label="Salary"><strong>{formatSalary(contract.annual_salary, contract.currency)}</strong></span>
                 </div>
-              );
+              )
             })}
-
-            {sortedContracts.length === 0 ? <div className="scout-empty">No active players found.</div> : null}
+            {!rosterPlayers.length && sortedContracts.length === 0 ? <div className="scout-empty">No current players found.</div> : null}
           </div>
         </section>
 
