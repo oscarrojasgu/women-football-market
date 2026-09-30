@@ -97,6 +97,7 @@ export default function ClubProfilePage() {
   const [sortBy, setSortBy] = useState("salary")
   const [officialVerification, setOfficialVerification] = useState<any>(null)
   const [clubParticipations, setClubParticipations] = useState<ClubParticipation[]>([])
+  const [rosterPlayers, setRosterPlayers] = useState<Player[]>([])
   const [selectedSeason, setSelectedSeason] = useState("all")
 
   useEffect(() => {
@@ -139,6 +140,26 @@ export default function ClubProfilePage() {
       })
 
       setClubParticipations(normalizedParticipations)
+
+      const currentSeasonParticipation = (participationData || []).find((row: any) => {
+        const cs = Array.isArray(row.competition_season) ? row.competition_season[0] : row.competition_season
+        const season = Array.isArray(cs?.season) ? cs.season[0] : cs?.season
+        return season?.season_key === "2026-2027"
+      })
+      const currentClubCompetition = (participationData || []).find((row: any) => {
+        const cs = Array.isArray(row.competition_season) ? row.competition_season[0] : row.competition_season
+        const season = Array.isArray(cs?.season) ? cs.season[0] : cs?.season
+        return season?.season_key === "2026-2027"
+      })
+      let rosterRows: any[] = []
+      if (currentClubCompetition?.id) {
+        const { data: rosterData } = await supabase
+          .from("player_competitions")
+          .select("player_id,player:players(id,full_name,nationality,position,photo_url)")
+          .eq("club_competition_id", currentClubCompetition.id)
+        rosterRows = rosterData || []
+      }
+      setRosterPlayers(rosterRows.map((row: any) => Array.isArray(row.player) ? row.player[0] : row.player).filter(Boolean))
 
       const { data: officialData } = await supabase
         .from("official_verification_public")
@@ -518,7 +539,7 @@ export default function ClubProfilePage() {
 
       <main className="players-page players-scout-page clubs-profile-page">
         <section className="scout-stat-grid">
-          <div className="scout-stat"><span>ACTIVE PLAYERS</span><strong>{currentContracts.length}</strong></div>
+          <div className="scout-stat"><span>ACTIVE PLAYERS</span><strong>{rosterPlayers.length || currentContracts.length}</strong></div>
           <div className="scout-stat"><span>CONTRACT RECORDS</span><strong>{contracts.length}</strong></div>
           <div className="scout-stat"><span>KNOWN PAYROLL</span><strong>{formatSalary(totalKnownPayroll, "USD")}</strong></div>
           <div className="scout-stat"><span>TRANSFER RECORDS</span><strong>{transfers.length}</strong></div>
@@ -594,7 +615,24 @@ export default function ClubProfilePage() {
           </div>
 
           <div className="club-player-table">
-            <div className="club-player-table-header">
+            {rosterPlayers.length ? rosterPlayers.map((player) => {
+              const contract = currentContracts.find((item) => item.player_id === player.id)
+              return (
+                <div className="club-player-row" key={player.id}>
+                  <span className="club-player-cell club-player">
+                    <Link href={`/players/${player.id}`} className="club-player-link">
+                      {player.photo_url ? <img src={player.photo_url} alt={player.full_name} onError={(event) => { event.currentTarget.src = "/wfm-player-placeholder.svg" }} /> : <img src="/wfm-player-placeholder.svg" alt="" />}
+                      <span><strong>{player.full_name}</strong><small>{[player.position, player.nationality].filter(Boolean).join(" · ") || "Player details unavailable"}</small></span>
+                    </Link>
+                  </span>
+                  <span className="club-player-cell" data-label="Status">{contract?.status || "Roster"}</span>
+                  <span className="club-player-cell" data-label="Expiry">{contract ? <strong>{formatDate(contract.end_date)}</strong> : "Not published"}</span>
+                  <span className="club-player-cell" data-label="Annual Salary">{contract ? formatSalary(contract.annual_salary, contract.currency) : "Unknown"}</span>
+                </div>
+              )
+            }) : null}
+            {!rosterPlayers.length && <div className="club-muted">No current roster relationships recorded.</div>}
+            {rosterPlayers.length === 0 && <div className="club-player-table-header">
               <span>PLAYER</span><span>STATUS</span><span>EXPIRY</span><span>ANNUAL SALARY</span>
             </div>
 
