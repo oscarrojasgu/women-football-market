@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { supabase } from "../../../../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 
 type Row={id:string;club_id:string;outreach_status:string;contact_name:string|null;contact_role:string|null;contact_email:string|null;contact_url:string|null;last_contacted_at:string|null;next_follow_up_at:string|null;permission_status:string;roster_allowed:boolean|null;stats_allowed:boolean|null;contracts_allowed:boolean|null;salaries_allowed:boolean|null;transfers_allowed:boolean|null;photos_allowed:boolean|null;logos_allowed:boolean|null;commercial_use_allowed:boolean|null;attribution_required:boolean|null;agreement_reference:string|null;agreement_document_url:string|null;starts_at:string|null;ends_at:string|null;notes:string|null;clubs:{name:string;country:string|null;league:string|null}|null};
 const OUT=["not_contacted","researching_contact","drafted","contacted","follow_up","in_discussion","permission_granted","licensed","restricted","declined","no_response"];
