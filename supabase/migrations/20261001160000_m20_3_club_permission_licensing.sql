@@ -25,3 +25,23 @@ insert into public.wfm_club_permission_tracker (club_id)
 select c.id from public.clubs c
 where not exists(select 1 from public.wfm_club_permission_tracker t where t.club_id=c.id)
 on conflict (club_id) do nothing;
+
+drop policy if exists "wfm_club_permission_tracker_admin_select" on public.wfm_club_permission_tracker;
+drop policy if exists "wfm_club_permission_tracker_admin_insert" on public.wfm_club_permission_tracker;
+drop policy if exists "wfm_club_permission_tracker_admin_update" on public.wfm_club_permission_tracker;
+drop policy if exists "wfm_club_permission_tracker_admin_delete" on public.wfm_club_permission_tracker;
+create policy "wfm_club_permission_tracker_admin_select" on public.wfm_club_permission_tracker for select to authenticated using (exists(select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+create policy "wfm_club_permission_tracker_admin_insert" on public.wfm_club_permission_tracker for insert to authenticated with check (exists(select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+create policy "wfm_club_permission_tracker_admin_update" on public.wfm_club_permission_tracker for update to authenticated using (exists(select 1 from public.wfm_admins a where a.user_id=(select auth.uid()))) with check (exists(select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+create policy "wfm_club_permission_tracker_admin_delete" on public.wfm_club_permission_tracker for delete to authenticated using (exists(select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+
+drop policy if exists "wfm_club_permission_events_admin_select" on public.wfm_club_permission_events;
+drop policy if exists "wfm_club_permission_events_admin_insert" on public.wfm_club_permission_events;
+drop policy if exists "wfm_club_permission_events_admin_update" on public.wfm_club_permission_events;
+drop policy if exists "wfm_club_permission_events_admin_delete" on public.wfm_club_permission_events;
+create policy "wfm_club_permission_events_admin_select" on public.wfm_club_permission_events for select to authenticated using (exists(select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+create policy "wfm_club_permission_events_admin_insert" on public.wfm_club_permission_events for insert to authenticated with check (exists(select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+create policy "wfm_club_permission_events_admin_update" on public.wfm_club_permission_events for update to authenticated using (exists(select 1 from public.wfm_admins a where a.user_id=(select auth.uid()))) with check (exists(select 1 from public.wfm_admins a where a.user_id=(select auth.uid())));
+
+grant select,insert,update,delete on public.wfm_club_permission_tracker to authenticated;
+grant select,insert,update,delete on public.wfm_club_permission_events to authenticated;
