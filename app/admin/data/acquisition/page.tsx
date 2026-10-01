@@ -15,7 +15,7 @@ export default function AcquisitionQueuePage(){
   const {data:u}=await supabase.auth.getUser();if(!u.user){setLoading(false);return}
   const {data:a}=await supabase.from("wfm_admins").select("user_id").eq("user_id",u.user.id).maybeSingle();setAuthorized(!!a);
   if(!a){setLoading(false);return}
-  const {data,e}=await supabase.from("wfm_acquisition_queue").select("*").order("priority",{ascending:true}).order("updated_at",{ascending:true}).limit(500);
+  const {data,error:e}=await supabase.from("wfm_acquisition_queue").select("*").order("priority",{ascending:true}).order("updated_at",{ascending:true}).limit(500);
   if(e)setError(e.message);else setRows((data??[]) as Row[]);setLoading(false);
  };
  useEffect(()=>{void load()},[]);
