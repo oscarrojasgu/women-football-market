@@ -124,6 +124,7 @@ const seasonStart = (season: string | null) => {
 };
 
 export default function PlayersPage() {
+ const t = useWfmT()
   const [players, setPlayers] = useState<Player[]>([]);
   const [contracts, setContracts] = useState<ContractInfo[]>([]);
   const [seasonIntel, setSeasonIntel] = useState<SeasonIntel[]>([]);
@@ -994,9 +995,7 @@ export default function PlayersPage() {
                 type="button"
                 onClick={clearFilters}
                 disabled={!filtersActive}
-              >
-                Clear filters
-              </button>
+              >{t("Clear filters")}</button>
             </div>
           </div>
         </section>
