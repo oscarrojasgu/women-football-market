@@ -83,9 +83,7 @@ function MatchTicker({ items }: { items: MatchTickerItem[] }) {
   return (
     <section className="wfm-match-ticker" aria-label="Women's football match center">
       <div className="wfm-match-ticker-label">
-        <span className="wfm-live-dot" />
-        MATCH CENTER
-      </div>
+        <span className="wfm-live-dot" />{t("MATCH CENTER")}</div>
       <div className="wfm-match-ticker-viewport">
         {items.length ? (
           <div className="wfm-match-ticker-track">
@@ -101,9 +99,7 @@ function MatchTicker({ items }: { items: MatchTickerItem[] }) {
             ))}
           </div>
         ) : (
-          <div className="wfm-match-ticker-empty">
-            Match center ready — live scores and fixtures will appear here.
-          </div>
+          <div className="wfm-match-ticker-empty">{t("Match center ready — live scores and fixtures will appear here.")}</div>
         )}
       </div>
     </section>
@@ -147,6 +143,7 @@ function formatConfidence(confidence: string | null) {
 }
 
 export default function Home() {
+ const t = useWfmT()
   const [q, setQ] = useState('')
   const [databasePlayers, setDatabasePlayers] = useState<Player[]>([])
   const [contracts, setContracts] = useState<ContractInfo[]>([])
@@ -507,9 +504,7 @@ export default function Home() {
               letterSpacing: '1.2px',
               marginBottom: '14px',
             }}
-          >
-            THE WOMEN’S FOOTBALL DATABASE
-          </div>
+          >{t("THE WOMEN’S FOOTBALL DATABASE")}</div>
 
           <h1
             style={{
@@ -527,9 +522,7 @@ export default function Home() {
                 fontStyle: 'normal',
                 color: '#c9ff3d',
               }}
-            >
-              Built differently.
-            </em>
+            >{t("Built differently.")}</em>
           </h1>
 
           <p
@@ -572,7 +565,7 @@ export default function Home() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search player, club or league…"
+              placeholder={t("Search player, club or league…")}
               style={{
                 width: '100%',
                 border: 'none',
@@ -616,9 +609,7 @@ export default function Home() {
               letterSpacing: '0.8px',
               marginBottom: '9px',
             }}
-          >
-            Players
-          </b>
+          >{t("Players")}</b>
 
           <strong
             style={{
@@ -646,9 +637,7 @@ export default function Home() {
               letterSpacing: '0.8px',
               marginBottom: '9px',
             }}
-          >
-            Clubs
-          </b>
+          >{t("Clubs")}</b>
 
           <strong
             style={{
@@ -676,9 +665,7 @@ export default function Home() {
               letterSpacing: '0.8px',
               marginBottom: '9px',
             }}
-          >
-            Contracts
-          </b>
+          >{t("Contracts")}</b>
 
           <strong
             style={{
@@ -706,9 +693,7 @@ export default function Home() {
               letterSpacing: '0.8px',
               marginBottom: '9px',
             }}
-          >
-            Transfers
-          </b>
+          >{t("Transfers")}</b>
 
           <strong
             style={{
@@ -990,11 +975,11 @@ export default function Home() {
                 </span>
 
                 <span className="home-player-cell home-player-cell--club">
-                  <small>Club</small>{contract?.club?.name || 'Unknown'}
+                  <small>{t("Club")}</small>{contract?.club?.name || 'Unknown'}
                 </span>
 
                 <span className="home-player-cell home-player-cell--league" style={{ color: '#666' }}>
-                  <small>League</small>{contract?.club?.league || 'Unknown'}
+                  <small>{t("League")}</small>{contract?.club?.league || 'Unknown'}
                 </span>
 
                 <span className="home-player-cell home-player-cell--contract">
@@ -1002,7 +987,7 @@ export default function Home() {
                 </span>
 
                 <span className="home-player-cell home-player-cell--salary">
-                  <small>Salary</small>{formatSalary(contract?.annual_salary ?? null)}
+                  <small>{t("Salary")}</small>{formatSalary(contract?.annual_salary ?? null)}
                 </span>
 
                 <span className="home-player-cell home-player-cell--confidence">
@@ -1094,28 +1079,28 @@ export default function Home() {
       >
         <Link href="/contracts" style={{ color: '#111', textDecoration: 'none', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', background: '#fff', transition: 'transform .15s ease' }}>
           <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>01</span>
-          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>Contracts</h3>
+          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>{t("Contracts")}</h3>
           <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>Expiration dates, options, extensions and free-agent status.</p>
           <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>Explore contracts →</span>
         </Link>
 
         <Link href="/transfers" style={{ color: '#111', textDecoration: 'none', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', background: '#fff' }}>
           <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>02</span>
-          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>Transfers</h3>
+          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>{t("Transfers")}</h3>
           <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>Permanent moves, loans, trades, releases and fees.</p>
           <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>Explore transfers →</span>
         </Link>
 
         <Link href="/salaries" style={{ color: '#111', textDecoration: 'none', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', background: '#fff' }}>
           <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>03</span>
-          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>Salaries</h3>
+          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>{t("Salaries")}</h3>
           <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>Reported and estimated compensation with source confidence.</p>
           <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>Explore salaries →</span>
         </Link>
 
         <Link href="/scouting" style={{ color: '#111', textDecoration: 'none', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', background: '#fff' }}>
           <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>04</span>
-          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>Scouting</h3>
+          <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>{t("Scouting")}</h3>
           <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>Find players by position, age, league and contract status.</p>
           <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>Open scouting →</span>
         </Link>
