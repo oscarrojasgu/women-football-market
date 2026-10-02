@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { useWfmT } from "../lib/use-wfm-t";
 
 type Player = {
   id: string;
@@ -132,6 +133,7 @@ function Asset({ src, alt, kind }: { src: string | null | undefined; alt: string
 }
 
 export default function TransfersPage() {
+  const t = useWfmT();
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -275,7 +277,7 @@ export default function TransfersPage() {
       <section style={{ background: "#111", color: "#fff", padding: "54px 24px 48px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ fontSize: 11, letterSpacing: 2.2, fontWeight: 800, color: "#aaa", marginBottom: 12 }}>
-            WOMEN&apos;S FOOTBALL MARKET · LIVE DATABASE
+            WOMEN&apos;S FOOTBALL MARKET · {t("LIVE DATABASE")}
           </div>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
             <div>
@@ -287,7 +289,7 @@ export default function TransfersPage() {
               </p>
             </div>
             <div style={{ padding: "10px 14px", border: "1px solid #3a3a3a", borderRadius: 999, color: "#ddd", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>
-              {transfers.length} recorded moves
+              {transfers.length} {t("recorded moves")}
             </div>
           </div>
         </div>
@@ -296,12 +298,12 @@ export default function TransfersPage() {
       <section style={{ maxWidth: 1200, margin: "0 auto", padding: "30px 24px 70px" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginBottom: 22 }}>
           {[
-            ["Recent · 30 days", metrics.recent.toString()],
-            ["Permanent", metrics.permanent.toString()],
-            ["Free", metrics.free.toString()],
-            ["Loans", metrics.loans.toString()],
-            ["Known fees", metrics.knownFees.toString()],
-            ["Verified", metrics.verified.toString()],
+            [t("Recent · 30 days"), metrics.recent.toString()],
+            [t("Permanent"), metrics.permanent.toString()],
+            [t("Free"), metrics.free.toString()],
+            [t("Loans"), metrics.loans.toString()],
+            [t("Known fees"), metrics.knownFees.toString()],
+            [t("Verified"), metrics.verified.toString()],
           ].map(([label, value]) => (
             <div key={label} style={{ background: "#fff", border: "1px solid #e2e1dc", borderRadius: 12, padding: "16px 17px" }}>
               <div style={{ fontSize: 11, color: "#777", fontWeight: 700, marginBottom: 6 }}>{label}</div>
@@ -312,36 +314,36 @@ export default function TransfersPage() {
 
         <div style={{ background: "#fff", border: "1px solid #e2e1dc", borderRadius: 14, padding: 18, marginBottom: 22 }}>
           <div style={{ display: "grid", gridTemplateColumns: "minmax(220px, 1fr) repeat(4, minmax(125px, 160px))", gap: 10 }}>
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search player, club, league, position..." style={{ ...inputStyle }} />
+            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t("Search player, club, league, position...")} style={{ ...inputStyle }} />
             <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} style={selectStyle}>
-              {transferTypes.map((type) => <option key={type} value={type}>{type === "All" ? "All types" : formatTransferType(type)}</option>)}
+              {transferTypes.map((type) => <option key={type} value={type}>{type === "All" ? t("All types") : formatTransferType(type)}</option>)}
             </select>
             <select value={leagueFilter} onChange={(event) => setLeagueFilter(event.target.value)} style={selectStyle}>
-              {leagueOptions.map((league) => <option key={league} value={league}>{league === "All" ? "All leagues" : league}</option>)}
+              {leagueOptions.map((league) => <option key={league} value={league}>{league === "All" ? t("All leagues") : league}</option>)}
             </select>
             <select value={yearFilter} onChange={(event) => setYearFilter(event.target.value)} style={selectStyle}>
-              {yearOptions.map((year) => <option key={year} value={year}>{year === "All" ? "All years" : year}</option>)}
+              {yearOptions.map((year) => <option key={year} value={year}>{year === "All" ? t("All years") : year}</option>)}
             </select>
             <select value={confidenceFilter} onChange={(event) => setConfidenceFilter(event.target.value)} style={selectStyle}>
-              {confidenceOptions.map((confidence) => <option key={confidence} value={confidence}>{confidence === "All" ? "All confidence" : formatConfidence(confidence)}</option>)}
+              {confidenceOptions.map((confidence) => <option key={confidence} value={confidence}>{confidence === "All" ? t("All confidence") : formatConfidence(confidence)}</option>)}
             </select>
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginTop: 13 }}>
             <div style={{ fontSize: 13, color: "#777" }}>
-              Showing <strong style={{ color: "#111" }}>{filteredTransfers.length}</strong> of {transfers.length} transfers
+              {t("Showing")} <strong style={{ color: "#111" }}>{filteredTransfers.length}</strong> {t("of")} {transfers.length} {t("transfers")}
             </div>
             {hasFilters && <button type="button" onClick={clearFilters} style={clearLinkStyle}>Clear filters</button>}
           </div>
         </div>
 
         {loading ? (
-          <div style={emptyStateStyle}>Loading the transfer market...</div>
+          <div style={emptyStateStyle}>{t("Loading the transfer market...")}</div>
         ) : error ? (
           <div style={emptyStateStyle}>{error}</div>
         ) : filteredTransfers.length === 0 ? (
           <div style={emptyStateStyle}>
-            <div style={{ fontWeight: 800, color: "#111", marginBottom: 6 }}>No transfers found</div>
-            <div>Try changing your filters or clearing the search.</div>
+            <div style={{ fontWeight: 800, color: "#111", marginBottom: 6 }}>{t("No transfers found")}</div>
+            <div>{t("Try changing your filters or clearing the search.")}</div>
             {hasFilters && <button type="button" onClick={clearFilters} style={clearButtonStyle}>Clear filters</button>}
           </div>
         ) : (
@@ -351,7 +353,7 @@ export default function TransfersPage() {
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
                   <h2 style={{ margin: 0, fontSize: 14, letterSpacing: 0.4, textTransform: "uppercase", fontWeight: 850 }}>{month}</h2>
                   <div style={{ height: 1, background: "#d9d8d2", flex: 1 }} />
-                  <span style={{ color: "#888", fontSize: 12, fontWeight: 700 }}>{monthTransfers.length} {monthTransfers.length === 1 ? "move" : "moves"}</span>
+                  <span style={{ color: "#888", fontSize: 12, fontWeight: 700 }}>{monthTransfers.length} {monthTransfers.length === 1 ? t("move") : t("moves")}</span>
                 </div>
 
                 <div style={{ display: "grid", gap: 9 }}>
@@ -362,28 +364,28 @@ export default function TransfersPage() {
                       <article key={transfer.id} style={{ background: "#fff", border: "1px solid #e2e1dc", borderRadius: 14, padding: "14px 16px", display: "grid", gridTemplateColumns: "90px minmax(190px, 1.1fr) minmax(230px, 1.3fr) 110px 130px 105px", alignItems: "center", gap: 14, boxShadow: "0 1px 0 rgba(0,0,0,0.02)" }}>
                         <div>
                           <div style={{ fontSize: 12, fontWeight: 800 }}>{formatDate(transfer.transfer_date)}</div>
-                          <div style={{ fontSize: 10, color: "#999", marginTop: 3, textTransform: "uppercase", letterSpacing: 0.7 }}>Move date</div>
+                          <div style={{ fontSize: 10, color: "#999", marginTop: 3, textTransform: "uppercase", letterSpacing: 0.7 }}>{t("Move date")}</div>
                         </div>
 
                         <Link href={transfer.player ? `/players/${transfer.player.id}` : "#"} style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, textDecoration: "none", color: "#111", pointerEvents: transfer.player ? "auto" : "none" }}>
                           <Asset src={transfer.player?.photo_url} alt={transfer.player?.full_name || "Player"} kind="player" />
                           <div style={{ minWidth: 0 }}>
-                            <div style={{ fontSize: 14, fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{transfer.player?.full_name || "Unknown player"}</div>
-                            <div style={{ fontSize: 11, color: "#777", marginTop: 3 }}>{transfer.player?.position || "Position unknown"}{transfer.player?.nationality ? ` · ${transfer.player.nationality}` : ""}</div>
+                            <div style={{ fontSize: 14, fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{transfer.player?.full_name || t("Unknown player")}</div>
+                            <div style={{ fontSize: 11, color: "#777", marginTop: 3 }}>{transfer.player?.position || t("Position unknown")}{transfer.player?.nationality ? ` · ${transfer.player.nationality}` : ""}</div>
                           </div>
                         </Link>
 
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 34px 1fr", alignItems: "center", gap: 8, minWidth: 0 }}>
-                          <ClubCell club={transfer.from_club} direction="From" />
+                          <ClubCell club={transfer.from_club} direction="From" t={t} />
                           <div style={{ textAlign: "center", color: "#999", fontSize: 18, fontWeight: 700 }}>→</div>
-                          <ClubCell club={transfer.to_club} direction="To" />
+                          <ClubCell club={transfer.to_club} direction="To" t={t} />
                         </div>
 
                         <div><span style={{ ...badgeBase, ...typeBadgeStyles[typeTone] }}>{formatTransferType(transfer.transfer_type)}</span></div>
 
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 800 }}>{formatFee(transfer.fee, transfer.currency, transfer.transfer_type)}</div>
-                          {transfer.fee !== null && transfer.transfer_type?.toLowerCase() !== "free" && <div style={{ fontSize: 10, color: "#999", marginTop: 3 }}>Reported fee</div>}
+                          {transfer.fee !== null && transfer.transfer_type?.toLowerCase() !== "free" && <div style={{ fontSize: 10, color: "#999", marginTop: 3 }}>{t("Reported fee")}</div>}
                         </div>
 
                         <div style={{ textAlign: "right" }}><span style={{ ...badgeBase, ...confidenceBadgeStyles[confidenceTone] }}>{formatConfidence(transfer.confidence)}</span></div>
@@ -400,7 +402,7 @@ export default function TransfersPage() {
   );
 }
 
-function ClubCell({ club, direction }: { club: Club | null; direction: "From" | "To" }) {
+function ClubCell({ club, direction, t }: { club: Club | null; direction: "From" | "To"; t: (key: string) => string }) {
   if (!club) {
     return <div style={{ minWidth: 0 }}><div style={clubLabelStyle}>{direction}</div><div style={{ fontSize: 12, color: "#777", marginTop: 4 }}>Unknown club</div></div>;
   }
@@ -411,7 +413,7 @@ function ClubCell({ club, direction }: { club: Club | null; direction: "From" | 
       <div style={{ minWidth: 0 }}>
         <div style={clubLabelStyle}>{direction}</div>
         <div style={{ fontSize: 12, fontWeight: 750, marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{club.name}</div>
-        <div style={{ fontSize: 10, color: "#888", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{club.league || club.country || "League unknown"}</div>
+        <div style={{ fontSize: 10, color: "#888", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{club.league || club.country || t("League unknown")}</div>
       </div>
     </Link>
   );
