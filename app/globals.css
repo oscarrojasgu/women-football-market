@@ -1635,3 +1635,7 @@ textarea {
     flex-basis: 46px !important;
   }
 }
+
+
+/* WFM LANGUAGE SELECTOR */
+.language-menu{position:relative;display:flex;align-items:center}.language-trigger{appearance:none;border:1px solid #dedede;background:#fff;color:#222;border-radius:7px;min-height:34px;padding:0 9px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;font-weight:800;letter-spacing:.4px}.language-trigger:hover{border-color:#bbb}.language-dropdown{position:absolute;z-index:1000;top:calc(100% + 7px);right:0;min-width:145px;padding:5px;border:1px solid #ddd;border-radius:9px;background:#fff;box-shadow:0 12px 30px rgba(0,0,0,.12)}.language-dropdown button{width:100%;display:block;border:0;border-radius:6px;background:transparent;color:#222;text-align:left;padding:8px 9px;cursor:pointer;font-size:12px}.language-dropdown button:hover,.language-dropdown button.active{background:#f2f2f2;font-weight:800}@media(max-width:900px){.language-menu{display:none}}
