@@ -44,6 +44,5 @@ function ScoutingPageContent(){
 }
 
 export default function ScoutingPage(){
- const t = useWfmT()
  return <Suspense fallback={<main className="scouting-workspace"><div className="scouting-empty">Loading scouting workspace…</div></main>}><ScoutingPageContent /></Suspense>;
 }
