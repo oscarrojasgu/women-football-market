@@ -5,6 +5,8 @@ import './mobile-scroll-fixes.css'
 import './phase2-mobile.css'
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
+import { headers } from 'next/headers'
+import { isWfmLocale, DEFAULT_LOCALE } from './lib/i18n'
 import Header from './components/Header'
 import MobileNav from './components/MobileNav'
 import PlayerActions from './components/PlayerActions'
@@ -35,9 +37,13 @@ export const metadata: Metadata = {
   }
 }
 
-export default function RootLayout({children}:{children:ReactNode}) {
+export default async function RootLayout({children}:{children:ReactNode}) {
+  const requestHeaders = await headers()
+  const requestLocale = requestHeaders.get('x-wfm-locale')
+  const locale = isWfmLocale(requestLocale) ? requestLocale : DEFAULT_LOCALE
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body>
         <Header />
         <MobileNav />
