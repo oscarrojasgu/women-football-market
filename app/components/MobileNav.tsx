@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import { getLocaleFromPathname, localizedPath, translate } from '../lib/i18n'
 
 const pages = [
   { href: '/', label: 'Home' },
@@ -17,6 +18,8 @@ const pages = [
 export default function MobileNav() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const locale = getLocaleFromPathname(pathname)
+  const routePath = pathname.replace(/^\/(?:en|es|pt|fr|de)(?=\/|$)/, '') || '/'
 
   const currentPageKey = pages.find((page) => {
     if (page.href === '/') return routePath === '/'
@@ -27,7 +30,7 @@ export default function MobileNav() {
   return (
     <>
       <div className="mobile-nav">
-        <Link href="/" className="mobile-nav-brand" onClick={() => setOpen(false)}>
+        <Link href={localizedPath(locale, '/')} className="mobile-nav-brand" onClick={() => setOpen(false)}>
           WFM<span>•</span>
         </Link>
 
@@ -37,7 +40,7 @@ export default function MobileNav() {
           type="button"
           className={`mobile-nav-menu ${open ? 'is-open' : ''}`}
           onClick={() => setOpen((value) => !value)}
-          aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-label={translate(locale, open ? 'Close navigation menu' : 'Open navigation menu')}
           aria-expanded={open}
         >
           <span />
@@ -50,10 +53,10 @@ export default function MobileNav() {
         {pages.map((page) => (
           <Link
             key={page.href}
-            href={page.href}
+            href={localizedPath(locale, page.href)}
             className={
-              pathname === page.href ||
-              (page.href !== '/' && pathname.startsWith(`${page.href}/`))
+              routePath === page.href ||
+              (page.href !== '/' && routePath.startsWith(`${page.href}/`))
                 ? 'active'
                 : ''
             }
