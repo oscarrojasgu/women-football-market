@@ -26,6 +26,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
   const locale = getLocaleFromPathname(pathname)
+  const routePath = pathname.replace(/^\/(?:en|es|pt|fr|de)(?=\/|$)/, '') || '/'
   const [languageOpen, setLanguageOpen] = useState(false)
 
   const loadAccount = async (userId: string, email: string | null, metadata: Record<string, unknown>) => {
@@ -76,7 +77,7 @@ export default function Header() {
     <nav className="site-header">
       <Link href="/" className="logo" aria-label="Women’s Football Market home">WFM<span>•</span></Link>
       <div className="navlinks">{pages.map(page => {
-        const active = pathname === page.href || pathname.startsWith(page.href + '/')
+        const active = routePath === page.href || routePath.startsWith(page.href + '/')
         return <Link key={page.href} href={localizedPath(locale, page.href)} className={active ? 'active' : ''} aria-current={active ? 'page' : undefined}>{translate(locale, page.label)}</Link>
       })}</div>
       <div className="header-meta">
