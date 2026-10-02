@@ -64,6 +64,7 @@ export default function Header() {
 
   const changeLanguage = (nextLocale: WfmLocale) => {
     setLanguageOpen(false)
+    document.cookie = `wfm-locale=${nextLocale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`
     router.push(localizedPath(nextLocale, pathname))
   }
 
