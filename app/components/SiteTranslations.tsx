@@ -268,7 +268,7 @@ export default function SiteTranslations() {
 
     apply()
     const observer = new MutationObserver(apply)
-    observer.observe(root, { childList: true, subtree: true, characterData: true })
+    observer.observe(root, { childList: true, subtree: true })
     return () => observer.disconnect()
   }, [locale])
 
