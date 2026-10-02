@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import { getWfmT } from "../../../lib/get-wfm-t"
 import { supabase } from "../../../lib/supabase";
 
 type PageProps = { params: Promise<{ id: string }>; searchParams: Promise<{ returnTo?: string }> };
@@ -27,7 +28,8 @@ const cardStyle = {
   padding: 20,
 };
 
-export default async function ScoutingReportPage({ params, searchParams }: PageProps) {
+export default async function ScoutingReportPage({
+  const t = await getWfmT() params, searchParams }: PageProps) {
   const { returnTo } = await searchParams;
   const workspaceHref = returnTo && returnTo.startsWith("/scouting/profiles/") ? returnTo : "/scouting";
   const profileId = workspaceHref.startsWith("/scouting/profiles/") ? workspaceHref.split("/")[3] || null : null;
@@ -187,9 +189,9 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
             <h2 style={{ margin: "5px 0 16px" }}>Availability context</h2>
             <div style={{ display: "grid", gap: 12 }}>
               <div><small>Status</small><strong style={{ display: "block" }}>{contract?.status || "—"}</strong></div>
-              <div><small>Annual salary</small><strong style={{ display: "block" }}>{money(contract?.annual_salary_usd ?? null)}</strong></div>
+              <div><small>{t("Annual salary")}</small><strong style={{ display: "block" }}>{money(contract?.annual_salary_usd ?? null)}</strong></div>
               <div><small>Contract end</small><strong style={{ display: "block" }}>{contract?.end_date || "—"}</strong></div>
-              <div><small>Market value</small><strong style={{ display: "block" }}>{money(value?.market_value_usd ?? null)}</strong></div>
+              <div><small>{t("Market value")}</small><strong style={{ display: "block" }}>{money(value?.market_value_usd ?? null)}</strong></div>
             </div>
           </section>
         </div>
@@ -370,7 +372,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginTop: 12 }}>
             <div><small>Preferred foot</small><strong style={{ display: "block" }}>{player.preferred_foot || "—"}</strong></div>
             <div><small>Agency</small><strong style={{ display: "block" }}>{player.agency || "—"}</strong></div>
-            <div><small>Age</small><strong style={{ display: "block" }}>{ageOf(player.date_of_birth) ?? "—"}</strong></div>
+            <div><small>{t("Age")}</small><strong style={{ display: "block" }}>{ageOf(player.date_of_birth) ?? "—"}</strong></div>
             <div><small>Photo credit</small><strong style={{ display: "block", fontSize: 11 }}>{player.photo_credit || player.photo_source || "—"}</strong></div>
           </div>
         </section>
