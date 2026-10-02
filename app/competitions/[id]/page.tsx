@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useWfmT } from "../../lib/use-wfm-t"
 import { useEffect,useMemo,useState } from "react"
 import { useParams } from "next/navigation"
 import { supabase } from "../../lib/supabase"
@@ -12,6 +13,7 @@ type News={id:string;title:string;url:string;publisher:string;published_at:strin
 type Match={id:string;home_team_name:string;away_team_name:string;home_score:number|null;away_score:number|null;status:string;kickoff_at:string}
 
 export default function CompetitionPage(){
+ const t = useWfmT()
  const {id}=useParams<{id:string}>();const [comp,setComp]=useState<Comp|null>(null),[seasons,setSeasons]=useState<Season[]>([]),[clubs,setClubs]=useState<Record<string,Club[]>>({}),[news,setNews]=useState<News[]>([]),[matches,setMatches]=useState<Match[]>([]),[loading,setLoading]=useState(true)
  useEffect(()=>{(async()=>{const {data:c}=await supabase.from("competitions").select("id,canonical_name,country,competition_type,level_label").eq("id",id).maybeSingle();if(!c){setLoading(false);return}
   const {data:cs}=await supabase.from("competition_seasons").select("id,season_id,active,season:seasons(season_key,label)").eq("competition_id",id).order("created_at",{ascending:false});
