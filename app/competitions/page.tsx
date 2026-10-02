@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useWfmT } from "../lib/use-wfm-t"
 import { useEffect, useMemo, useState } from "react"
 import { supabase } from "../lib/supabase"
 
