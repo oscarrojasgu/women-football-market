@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import { getWfmT } from "../../lib/get-wfm-t"
 import { supabase } from "../../lib/supabase";
 import PositionMap from "../../components/PositionMap";
 import PlayerStatistics from "./PlayerStatistics";
@@ -172,12 +173,13 @@ const ageOf = (dob: string | null) => {
 const card = { background: "#fff", border: "1px solid #ddd", borderRadius: 12, padding: 22 };
 const label = { fontSize: 10, color: "#888", textTransform: "uppercase" as const, letterSpacing: "0.06em" };
 
-export default async function PlayerPage({ params }: PlayerPageProps) {
+export default async function PlayerPage({
+  const t = await getWfmT() params }: PlayerPageProps) {
   const { id } = await params;
   const { data: player, error } = await supabase.from("players").select("*").eq("id", id).single();
 
   if (error || !player) {
-    return <main className="player-page" style={{ minHeight: "100vh", background: "#f5f4ef", padding: "80px 20px" }}><div style={{ maxWidth: 1200, margin: "0 auto" }}><h1>Player not found</h1><Link href="/players">Back to players</Link></div></main>;
+    return <main className="player-page" style={{ minHeight: "100vh", background: "#f5f4ef", padding: "80px 20px" }}><div style={{ maxWidth: 1200, margin: "0 auto" }}><h1>Player not found</h1><Link href="/players">{t("Back to players")}</Link></div></main>;
   }
 
   const [{ data: contractData }, { data: statsData }, { data: transferData }, { data: valueData }, { data: seasonIntelligenceData }, { data: peerBenchmarkData }] = await Promise.all([
@@ -315,8 +317,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           </div>
           <div className="player-personal-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 12, marginTop: 18 }}>
             <div style={card}><div style={label}>Date of Birth</div><div style={{ marginTop: 7, fontWeight: 750 }}>{dateText(player.date_of_birth)}</div></div>
-            <div style={card}><div style={label}>Age</div><div style={{ marginTop: 7, fontWeight: 750 }}>{age !== null ? age : "—"}</div></div>
-            <div style={card}><div style={label}>Nationality</div><div style={{ marginTop: 7, fontWeight: 750, display: "flex", alignItems: "center", gap: 8 }}>{code && <img src={`https://flagcdn.com/w40/${code}.png`} alt="" width={24} height={16} style={{ objectFit: "cover", borderRadius: 2 }} />}{player.nationality || "—"}</div></div>
+            <div style={card}><div style={label}>{t("Age")}</div><div style={{ marginTop: 7, fontWeight: 750 }}>{age !== null ? age : "—"}</div></div>
+            <div style={card}><div style={label}>{t("Nationality")}</div><div style={{ marginTop: 7, fontWeight: 750, display: "flex", alignItems: "center", gap: 8 }}>{code && <img src={`https://flagcdn.com/w40/${code}.png`} alt="" width={24} height={16} style={{ objectFit: "cover", borderRadius: 2 }} />}{player.nationality || "—"}</div></div>
             <div style={card}><div style={label}>Birthplace</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.birthplace || "—"}</div></div>
             <div style={card}><div style={label}>Height</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.height_cm ? `${player.height_cm} cm` : "—"}</div></div>
             <div style={card}><div style={label}>Primary Position</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.position || "—"}</div></div>
@@ -338,7 +340,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             <div className="player-links-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 10, marginTop: 20 }}>
               <a href="#contract" style={{ textDecoration: "none", color: "#111", border: "1px solid #ddd", borderRadius: 9, padding: 13, background: "#fafafa" }}><div style={label}>Contracts</div><strong>{contracts.length}</strong> record{contracts.length === 1 ? "" : "s"}</a>
               <a href="#market-value" style={{ textDecoration: "none", color: "#111", border: "1px solid #ddd", borderRadius: 9, padding: 13, background: "#fafafa" }}><div style={label}>Market Value</div><strong>{marketValues.length}</strong> valuation{marketValues.length === 1 ? "" : "s"}</a>
-              <a href="#transfers" style={{ textDecoration: "none", color: "#111", border: "1px solid #ddd", borderRadius: 9, padding: 13, background: "#fafafa" }}><div style={label}>Transfers</div><strong>{transfers.length}</strong> movement{transfers.length === 1 ? "" : "s"}</a>
+              <a href="#transfers" style={{ textDecoration: "none", color: "#111", border: "1px solid #ddd", borderRadius: 9, padding: 13, background: "#fafafa" }}><div style={label}>{t("Transfers")}</div><strong>{transfers.length}</strong> movement{transfers.length === 1 ? "" : "s"}</a>
             </div>
           </section>
 
