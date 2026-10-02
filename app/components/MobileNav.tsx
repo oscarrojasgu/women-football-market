@@ -18,11 +18,11 @@ export default function MobileNav() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
 
-  const currentPage =
-    pages.find((page) => {
-      if (page.href === '/') return pathname === '/'
-      return pathname === page.href || pathname.startsWith(`${page.href}/`)
-    })?.label || 'Women’s Football Market'
+  const currentPageKey = pages.find((page) => {
+    if (page.href === '/') return routePath === '/'
+    return routePath === page.href || routePath.startsWith(`${page.href}/`)
+  })?.label || 'Women’s Football Market'
+  const currentPage = translate(locale, currentPageKey)
 
   return (
     <>
