@@ -49,6 +49,7 @@ export default async function RootLayout({children}:{children:ReactNode}) {
         <Header />
         <MobileNav />
         <AdSlot placement="top" />
+        <SiteTranslations />
         {children}
         <PlayerActions />
       </body>
