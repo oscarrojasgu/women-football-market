@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import { getWfmT } from "../../lib/get-wfm-t"
 import type { ReactNode } from "react";
 import { supabase } from "../../lib/supabase";
 import ShortlistCompareActions from "./ShortlistCompareActions";
@@ -12,7 +13,8 @@ const money=(v:number|null)=>v==null?"—":new Intl.NumberFormat("en-US",{style:
 const pct=(v:number|null)=>v==null?"—":Math.round(v*100)+"%";
 const age=(dob:string|null)=>{if(!dob)return null;const d=new Date(dob+"T00:00:00"),t=new Date();let a=t.getFullYear()-d.getFullYear();if(t.getMonth()<d.getMonth()||(t.getMonth()===d.getMonth()&&t.getDate()<d.getDate()))a--;return a};
 
-export default async function ScoutingComparePage({searchParams}:Props){
+export default async function ScoutingComparePage({
+  const t = await getWfmT()searchParams}:Props){
   const q=await searchParams;
   const ids=Array.from(new Set((q.players||"").split(",").map(v=>v.trim()).filter(Boolean))).slice(0,6);
   const returnTo=q.returnTo&&q.returnTo.startsWith("/scouting/")?q.returnTo:"/scouting";
