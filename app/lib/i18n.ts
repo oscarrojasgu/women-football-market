@@ -11,5 +11,5 @@ export const TRANSLATIONS: Record<WfmLocale, Record<string, string>> = {
 }
 export function isWfmLocale(value: string | null | undefined): value is WfmLocale { return !!value && (WFM_LOCALES as readonly string[]).includes(value) }
 export function getLocaleFromPathname(pathname: string): WfmLocale { const segment = pathname.split('/')[1]; return isWfmLocale(segment) ? segment : DEFAULT_LOCALE }
-export function localizedPath(locale: WfmLocale, pathname: string) { const cleanPath = pathname === '/' ? '' : pathname.replace(/^\/+/, ''); return locale === DEFAULT_LOCALE ? `/${cleanPath}` : `/${locale}${cleanPath ? `/${cleanPath}` : ''}` }
+export function localizedPath(locale: WfmLocale, pathname: string) { const withoutLocale = pathname.replace(/^\/(?:en|es|pt|fr|de)(?=\/|$)/, '') || '/'; const cleanPath = withoutLocale === '/' ? '' : withoutLocale.replace(/^\/+/, ''); return locale === DEFAULT_LOCALE ? `/${cleanPath}` : `/${locale}${cleanPath ? `/${cleanPath}` : ''}` }
 export function translate(locale: WfmLocale, key: string) { return TRANSLATIONS[locale][key] ?? TRANSLATIONS[DEFAULT_LOCALE][key] ?? key }
