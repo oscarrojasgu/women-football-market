@@ -11,6 +11,8 @@ import Header from './components/Header'
 import MobileNav from './components/MobileNav'
 import PlayerActions from './components/PlayerActions'
 import AdSlot from './components/AdSlot'
+import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://women-football-market.vercel.app'),
