@@ -68,6 +68,7 @@ function expiryLabel(contract: Contract) {
 }
 
 export default function ContractsPage() {
+ const t = useWfmT()
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -197,7 +198,7 @@ export default function ContractsPage() {
               <option value="365">6–12 Months</option>
               <option value="long">12+ Months</option>
               <option value="expired">Expired</option>
-              <option value="unknown">Unknown</option>
+              <option value="unknown">{t("Unknown")}</option>
             </select>
             <select value={status} onChange={e => setStatus(e.target.value)}>
               {statuses.map(v => <option key={v} value={v}>{v === "All" ? "All Statuses" : statusLabel(v)}</option>)}
@@ -209,7 +210,7 @@ export default function ContractsPage() {
 
           <div className="scout-control-footer">
             <span>{loading ? "Loading contract database..." : `${filteredContracts.length} contract${filteredContracts.length === 1 ? "" : "s"} match your criteria`}</span>
-            <button type="button" onClick={clearFilters} disabled={!hasFilters}>Clear filters</button>
+            <button type="button" onClick={clearFilters} disabled={!hasFilters}>{t("Clear filters")}</button>
           </div>
         </section>
 
