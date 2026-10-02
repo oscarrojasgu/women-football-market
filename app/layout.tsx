@@ -11,7 +11,6 @@ import Header from './components/Header'
 import MobileNav from './components/MobileNav'
 import PlayerActions from './components/PlayerActions'
 import AdSlot from './components/AdSlot'
-import SiteTranslations from './components/SiteTranslations'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://women-football-market.vercel.app'),
@@ -49,7 +48,6 @@ export default async function RootLayout({children}:{children:ReactNode}) {
         <Header />
         <MobileNav />
         <AdSlot placement="top" />
-        <SiteTranslations />
         {children}
         <PlayerActions />
       </body>
