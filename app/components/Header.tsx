@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { getLocaleFromPathname, LANGUAGE_LABELS, localizedPath, WFM_LOCALES, translate, type WfmLocale } from '../lib/i18n'
 
 const pages = [
   { href: '/players', label: 'Players' },
@@ -24,6 +25,8 @@ export default function Header() {
   const [isClubAccount, setIsClubAccount] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
+  const locale = getLocaleFromPathname(pathname)
+  const [languageOpen, setLanguageOpen] = useState(false)
 
   const loadAccount = async (userId: string, email: string | null, metadata: Record<string, unknown>) => {
     setUserEmail(email)
@@ -57,6 +60,11 @@ export default function Header() {
 
   const displayName = userDisplayName?.trim() || (userEmail ? userEmail.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : null)
 
+  const changeLanguage = (nextLocale: WfmLocale) => {
+    setLanguageOpen(false)
+    router.push(localizedPath(nextLocale, pathname))
+  }
+
   const signOut = async () => {
     setSigningOut(true)
     const { error } = await supabase.auth.signOut({ scope: 'local' })
@@ -69,10 +77,18 @@ export default function Header() {
       <Link href="/" className="logo" aria-label="Women’s Football Market home">WFM<span>•</span></Link>
       <div className="navlinks">{pages.map(page => {
         const active = pathname === page.href || pathname.startsWith(page.href + '/')
-        return <Link key={page.href} href={page.href} className={active ? 'active' : ''} aria-current={active ? 'page' : undefined}>{page.label}</Link>
+        return <Link key={page.href} href={localizedPath(locale, page.href)} className={active ? 'active' : ''} aria-current={active ? 'page' : undefined}>{translate(locale, page.label)}</Link>
       })}</div>
       <div className="header-meta">
-        <span className="header-status">LIVE DATABASE</span>
+        <div className="language-menu">
+          <button type="button" className="language-trigger" onClick={() => setLanguageOpen(v => !v)} aria-expanded={languageOpen} aria-haspopup="menu">
+            <span>{locale.toUpperCase()}</span><span className="account-chevron" aria-hidden="true">⌄</span>
+          </button>
+          {languageOpen && <div className="language-dropdown" role="menu" aria-label={translate(locale, 'Language')}>
+            {WFM_LOCALES.map(code => <button key={code} type="button" role="menuitem" className={code === locale ? 'active' : ''} onClick={() => changeLanguage(code)}>{LANGUAGE_LABELS[code]}</button>)}
+          </div>}
+        </div>
+        <span className="header-status">{translate(locale, 'LIVE DATABASE')}</span>
         {userEmail ? (
           <div className="account-menu" ref={menuRef}>
             <button type="button" className="account-trigger" onClick={() => setMenuOpen(v => !v)} aria-expanded={menuOpen} aria-haspopup="menu">
@@ -81,13 +97,13 @@ export default function Header() {
             {menuOpen && <div className="account-dropdown" role="menu">
               <div className="account-dropdown-header"><strong>{displayName}</strong><span>{isClubAccount ? 'Club account' : 'Scout account'}</span><small>{userEmail}</small></div>
               <div className="account-dropdown-links">
-                <Link href="/account/settings" role="menuitem" onClick={() => setMenuOpen(false)}>Edit profile & settings</Link>
-                <Link href={isClubAccount ? '/account/club' : '/scouting'} role="menuitem" onClick={() => setMenuOpen(false)}>{isClubAccount ? 'Club workspace' : 'Scouting workspace'}</Link>{isClubAccount && <Link href="/account/club/reports" role="menuitem" onClick={() => setMenuOpen(false)}>Saved reports</Link>}
+                <Link href={localizedPath(locale, '/account/settings')} role="menuitem" onClick={() => setMenuOpen(false)}>Edit profile & settings</Link>
+                <Link href={localizedPath(locale, isClubAccount ? '/account/club' : '/scouting')} role="menuitem" onClick={() => setMenuOpen(false)}>{isClubAccount ? 'Club workspace' : 'Scouting workspace'}</Link>{isClubAccount && <Link href={localizedPath(locale, '/account/club/reports')} role="menuitem" onClick={() => setMenuOpen(false)}>Saved reports</Link>}
               </div>
               <button type="button" className="account-signout" role="menuitem" onClick={signOut} disabled={signingOut}>{signingOut ? 'Signing out…' : 'Sign out'}</button>
             </div>}
           </div>
-        ) : <Link href="/login" className="login" aria-label="Sign in to Women’s Football Market">Sign in</Link>}
+        ) : <Link href={localizedPath(locale, '/login')} className="login" aria-label="Sign in to Women’s Football Market">{translate(locale, 'Sign in')}</Link>}
       </div>
     </nav>
   )
