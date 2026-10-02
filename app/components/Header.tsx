@@ -27,7 +27,7 @@ export default function Header() {
   const [signingOut, setSigningOut] = useState(false)
   const locale = getLocaleFromPathname(pathname)
   const routePath = pathname.replace(/^\/(?:en|es|pt|fr|de)(?=\/|$)/, '') || '/'
-  const routePath = pathname.replace(/^\/(?:en|es|pt|fr|de)(?=\/|$)/, '') || '/'
+  
   const [languageOpen, setLanguageOpen] = useState(false)
 
   const loadAccount = async (userId: string, email: string | null, metadata: Record<string, unknown>) => {
