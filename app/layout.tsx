@@ -52,6 +52,8 @@ export default async function RootLayout({children}:{children:ReactNode}) {
         <AdSlot placement="top" />
         {children}
         <PlayerActions />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
