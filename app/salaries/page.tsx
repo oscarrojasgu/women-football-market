@@ -84,6 +84,7 @@ function median(values: number[]) {
 }
 
 export default function SalariesPage() {
+ const t = useWfmT()
   const [records, setRecords] = useState<SalaryRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -224,7 +225,7 @@ export default function SalariesPage() {
       <section className="salary-hero">
         <div className="salary-shell">
           <div className="salary-eyebrow">WOMEN’S FOOTBALL MARKET · LIVE DATABASE</div>
-          <h1>Salaries</h1>
+          <h1>{t("Salaries")}</h1>
           <p>
             Comparable player compensation with normalized USD values, original currency context, and confidence attached to every record.
           </p>
@@ -267,7 +268,7 @@ export default function SalariesPage() {
           </div>
           <div className="salary-control-footer">
             <span>Showing <strong>{filteredRecords.length}</strong> of {records.length} salary records</span>
-            {hasFilters && <button type="button" onClick={clearFilters}>Clear filters</button>}
+            {hasFilters && <button type="button" onClick={clearFilters}>{t("Clear filters")}</button>}
           </div>
         </div>
 
@@ -283,7 +284,7 @@ export default function SalariesPage() {
           <div className="salary-empty">
             <strong>No salary records found</strong>
             <span>Try another search or clear the filters.</span>
-            {hasFilters && <button type="button" onClick={clearFilters}>Clear filters</button>}
+            {hasFilters && <button type="button" onClick={clearFilters}>{t("Clear filters")}</button>}
           </div>
         ) : (
           <div className="salary-table-wrap">
