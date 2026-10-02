@@ -59,6 +59,7 @@ function normalize(value: string | null | undefined) {
 }
 
 export default function ClubsPage() {
+ const t = useWfmT()
   const [clubs, setClubs] = useState<Club[]>([])
   const [contracts, setContracts] = useState<ContractRecord[]>([])
   const [marketValues, setMarketValues] = useState<MarketValueRecord[]>([])
@@ -335,9 +336,7 @@ export default function ClubsPage() {
           <div style={{ fontSize: 12, color: '#aaa', fontWeight: 800, letterSpacing: 1.6, marginBottom: 14 }}>
             WOMEN’S FOOTBALL MARKET
           </div>
-          <h1 style={{ margin: 0, fontSize: 'clamp(42px, 6vw, 68px)', lineHeight: 0.98, letterSpacing: '-2.5px', fontWeight: 800 }}>
-            Clubs
-          </h1>
+          <h1 style={{ margin: 0, fontSize: 'clamp(42px, 6vw, 68px)', lineHeight: 0.98, letterSpacing: '-2.5px', fontWeight: 800 }}>{t("Clubs")}</h1>
           <p style={{ margin: '18px 0 0', maxWidth: 720, fontSize: 17, lineHeight: 1.55, color: '#c7c7c7' }}>
             A connected view of clubs, leagues, rosters, compensation, market values, and transfer activity.
           </p>
@@ -381,19 +380,19 @@ export default function ClubsPage() {
                   style={{ flex: '1 1 230px', minWidth: 200, border: '1px solid #d8d8d8', borderRadius: 9, padding: '11px 13px', fontSize: 14, outline: 'none' }}
                 />
                 <select value={leagueFilter} onChange={(event) => { setLeagueFilter(event.target.value); setSeasonFilter('all') }} style={{ flex: '0 1 180px', border: '1px solid #d8d8d8', borderRadius: 9, padding: '11px 30px 11px 11px', background: '#fff', fontSize: 13 }}>
-                  <option value="all">All competitions</option>
+                  <option value="all">{t("All competitions")}</option>
                   {leagues.map((league) => <option key={league} value={league}>{league}</option>)}
                 </select>
                 <select value={seasonFilter} onChange={(event) => setSeasonFilter(event.target.value)} style={{ flex: '0 1 150px', border: '1px solid #d8d8d8', borderRadius: 9, padding: '11px 30px 11px 11px', background: '#fff', fontSize: 13 }}>
-                  <option value="all">All seasons</option>
+                  <option value="all">{t("All seasons")}</option>
                   {seasons.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
                 </select>
                 <select value={countryFilter} onChange={(event) => setCountryFilter(event.target.value)} style={{ flex: '0 1 150px', border: '1px solid #d8d8d8', borderRadius: 9, padding: '11px 30px 11px 11px', background: '#fff', fontSize: 13 }}>
-                  <option value="all">All countries</option>
+                  <option value="all">{t("All countries")}</option>
                   {countries.map((country) => <option key={country} value={country}>{country}</option>)}
                 </select>
                 <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} style={{ flex: '0 1 150px', border: '1px solid #d8d8d8', borderRadius: 9, padding: '11px 30px 11px 11px', background: '#fff', fontSize: 13 }}>
-                  <option value="all">All types</option>
+                  <option value="all">{t("All types")}</option>
                   {organizationTypes.map((type) => <option key={type} value={type}>{type}</option>)}
                 </select>
               </div>
@@ -420,9 +419,7 @@ export default function ClubsPage() {
               </div>
 
               {hasFilters && (
-                <button type="button" onClick={clearFilters} style={{ border: 0, background: 'transparent', color: '#555', textDecoration: 'underline', fontSize: 12, cursor: 'pointer' }}>
-                  Clear filters
-                </button>
+                <button type="button" onClick={clearFilters} style={{ border: 0, background: 'transparent', color: '#555', textDecoration: 'underline', fontSize: 12, cursor: 'pointer' }}>{t("Clear filters")}</button>
               )}
             </div>
           </div>
