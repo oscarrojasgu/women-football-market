@@ -12,7 +12,9 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "@supabase/supabase-js": "2.117.2",
-    "@supabase/ssr": "0.12.7"
+    "@supabase/ssr": "0.12.7",
+    "@vercel/analytics": "2.0.1",
+    "@vercel/speed-insights": "2.0.0"
   },
   "devDependencies": {
     "typescript": "7.0.2",
