@@ -79,7 +79,7 @@ type MatchTickerItem = {
 }
 
 
-function MatchTicker({ items }: { items: MatchTickerItem[] }) {
+function MatchTicker({ items, t }: { items: MatchTickerItem[]; t: (key: string) => string }) {
   return (
     <section className="wfm-match-ticker" aria-label="Women's football match center">
       <div className="wfm-match-ticker-label">
@@ -579,7 +579,7 @@ export default function Home() {
         </div>
       </section>
 
-      <MatchTicker items={matchTickerItems} />
+      <MatchTicker items={matchTickerItems} t={t} />
 
       {/* STATS */}
       <section
