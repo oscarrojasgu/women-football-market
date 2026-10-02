@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useWfmT } from "../../lib/use-wfm-t"
 import { useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import { supabase } from "../../lib/supabase"
@@ -554,7 +555,7 @@ export default function ClubProfilePage() {
             </div>
             <div className="club-context-controls">
               <label>
-                <span>Season</span>
+                <span>{t("Season")}</span>
                 <select value={selectedSeason} onChange={(event) => setSelectedSeason(event.target.value)}>
                   <option value="all">All seasons</option>
                   {seasons.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
