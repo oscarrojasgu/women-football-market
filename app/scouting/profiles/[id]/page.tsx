@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useWfmT } from "../../../lib/use-wfm-t"
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
@@ -26,6 +27,7 @@ const money=(v:number|null)=>v==null?"—":new Intl.NumberFormat("en-US",{style:
 function positionMatch(p:Player, wanted:string[]){if(!wanted.length)return true;const values=[p.position,p.secondary_position].filter(Boolean).map(v=>String(v).trim().toLowerCase());const aliases:Record<string,string[]>={GK:["gk","goalkeeper"],CB:["cb","center back","central defender","left center back","right center back"],FB:["fb","lb","rb","left back","right back","lwb","rwb","left wing back","right wing back"],WB:["wb","lwb","rwb","left wing back","right wing back"],DM:["dm","cdm","defensive midfielder","center defensive midfield","left defensive midfield","right defensive midfield"],CM:["cm","mc","midfielder","central midfielder","left center midfield","right center midfield"],AM:["am","cam","attacking midfielder","center attacking midfield"],WM:["wm","lm","rm","left midfield","right midfield"],W:["w","lw","rw","lm","rm","left wing","right wing"],ST:["st","striker","center forward","left center forward","right center forward","cf"],CF:["cf","center forward","left center forward","right center forward"]};return wanted.some(w=>{const key=w.trim().toUpperCase();const allowed=aliases[key]||[key.toLowerCase()];return values.some(v=>allowed.includes(v))})}
 
 export default function GlobalDiscoveryPage(){
+ const t = useWfmT()
  const params=useParams<{id:string}>();const id=Array.isArray(params?.id)?params.id[0]:params?.id;
  const [profile,setProfile]=useState<Profile|null>(null);const [players,setPlayers]=useState<Player[]>([]);const [intel,setIntel]=useState<Intel[]>([]);const [contracts,setContracts]=useState<Contract[]>([]);const [values,setValues]=useState<Value[]>([]);const [participations,setParticipations]=useState<Participation[]>([]);const [loading,setLoading]=useState(true);const [message,setMessage]=useState("");
  const [userId,setUserId]=useState<string|null>(null);
