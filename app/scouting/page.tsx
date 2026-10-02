@@ -12,6 +12,7 @@ type SavedSearch={id:string;name:string;description:string|null;filters:Record<s
 type ClubContext={id:string;name:string;country:string|null;league:string|null;logo_url:string|null;activePlayers:number;expiringContracts:number;unknownSalary:number;positionMix:[string,number][];incomingTransfers:number;outgoingTransfers:number}; type ScoutingNote={id:string;user_id:string;player_id:string|null;list_id:string|null;note_type:string;content:string;created_at:string;updated_at:string}; type Pipeline={id:string;list_player_id:string;stage:string;priority:string;fit_status:string;next_action:string|null;target_date:string|null;evaluation:string|null;};
 
 function ScoutingPageContent(){
+ const t = useWfmT()
  const searchParams=useSearchParams();
  const clubId=searchParams.get("club");
  const [clubContext,setClubContext]=useState<ClubContext|null>(null);
