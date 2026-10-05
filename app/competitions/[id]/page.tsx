@@ -26,7 +26,7 @@ export default function CompetitionPage(){
  })()},[id])
  const totalClubs=useMemo(()=>new Set(Object.values(clubs).flat().map(c=>c.id)).size,[clubs])
  if(loading)return <main style={{minHeight:"100vh",background:"#f5f4ef",padding:60}}>Loading competition…</main>
- if(!comp)return <main style={{minHeight:"100vh",background:"#f5f4ef",padding:60}}>Competition not found.</main>
+ if(!comp)return <main style={{minHeight:"100vh",background:"#f5f4ef",padding:60}}>{t("Competition not found.")}</main>
  return <main style={{minHeight:"100vh",background:"#f5f4ef",color:"#111"}}>
   <section style={{background:"#111",color:"#fff",padding:"52px 6vw 46px"}}><div style={{maxWidth:1200,margin:"0 auto"}}><div style={{fontSize:12,color:"#aaa",fontWeight:800,letterSpacing:1.6}}>COMPETITION PROFILE</div><h1 style={{margin:"14px 0 0",fontSize:"clamp(38px,5vw,62px)",lineHeight:1}}>{comp.canonical_name}</h1><p style={{color:"#bbb",fontSize:16,margin:"16px 0 0"}}>{[comp.country,comp.level_label,comp.competition_type].filter(Boolean).join(" · ")}</p></div></section>
   <section style={{maxWidth:1200,margin:"0 auto",padding:"28px 24px 60px"}}>
