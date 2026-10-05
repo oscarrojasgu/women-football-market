@@ -195,17 +195,17 @@ export default function ContractsPage() {
             <select value={expiry} onChange={e => setExpiry(e.target.value)}>
               <option value="All">{t("All Expiry Windows")}</option>
               <option value="90">{t("Next 90 Days")}</option>
-              <option value="180">3–6 Months</option>
-              <option value="365">6–12 Months</option>
-              <option value="long">12+ Months</option>
+              <option value="180">{t("3–6 Months")}</option>
+              <option value="365">{t("6–12 Months")}</option>
+              <option value="long">{t("12+ Months")}</option>
               <option value="expired">{t("Expired")}</option>
               <option value="unknown">{t("Unknown")}</option>
             </select>
             <select value={status} onChange={e => setStatus(e.target.value)}>
-              {statuses.map(v => <option key={v} value={v}>{v === "All" ? "All Statuses" : statusLabel(v)}</option>)}
+              {statuses.map(v => <option key={v} value={v}>{v === "All" ? t("All Statuses") : statusLabel(v)}</option>)}
             </select>
             <select value={league} onChange={e => setLeague(e.target.value)}>
-              {leagues.map(v => <option key={v} value={v}>{v === "All" ? "All Leagues" : v}</option>)}
+              {leagues.map(v => <option key={v} value={v}>{v === "All" ? t("All Leagues") : v}</option>)}
             </select>
           </div>
 
@@ -221,16 +221,16 @@ export default function ContractsPage() {
 
         <section className="scout-table-wrap contracts-scout-table">
           <div className="scout-table-header contracts-table-header wfm-sortable-header">
-            <button type="button" onClick={()=>changeSort("player")}">{t("PLAYER")}{sortIndicator("player")}</button>
-            <button type="button" onClick={()=>changeSort("club")}">{t("CLUB")}{sortIndicator("club")}</button>
-            <button type="button" onClick={()=>changeSort("status")}>STATUS{sortIndicator("status")}</button>
-            <button type="button" onClick={()=>changeSort("expiry")}>EXPIRY{sortIndicator("expiry")}</button>
-            <button type="button" onClick={()=>changeSort("salary")}>SALARY{sortIndicator("salary")}</button>
-            <button type="button" onClick={()=>changeSort("confidence")}>CONFIDENCE{sortIndicator("confidence")}</button>
+            <button type="button" onClick={()=>changeSort("player")}>{t("PLAYER")}{sortIndicator("player")}</button>
+            <button type="button" onClick={()=>changeSort("club")}>{t("CLUB")}{sortIndicator("club")}</button>
+            <button type="button" onClick={()=>changeSort("status")} >{t("STATUS")}{sortIndicator("status")}</button>
+            <button type="button" onClick={()=>changeSort("expiry")} >{t("EXPIRY")}{sortIndicator("expiry")}</button>
+            <button type="button" onClick={()=>changeSort("salary")} >{t("SALARY")}{sortIndicator("salary")}</button>
+            <button type="button" onClick={()=>changeSort("confidence")} >{t("CONFIDENCE")}{sortIndicator("confidence")}</button>
           </div>
 
           {loading ? (
-            <div className="scout-empty">Loading...</div>
+            <div className="scout-empty">{t("Loading...")}</div>
           ) : filteredContracts.length === 0 ? (
             <div className="scout-empty">
               <strong>{t("No contracts match the current filters")}</strong>
