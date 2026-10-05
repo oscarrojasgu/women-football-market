@@ -248,10 +248,10 @@ export default function SalariesPage() {
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search player, club, league, position..."
-              aria-label="Search salary records"
+              placeholder={t("Search player, club, league, position...")}
+              aria-label={t("Search salary records")}
             />
-            <select value={leagueFilter} onChange={(event) => setLeagueFilter(event.target.value)} aria-label="Filter by league">
+            <select value={leagueFilter} onChange={(event) => setLeagueFilter(event.target.value)} aria-label={t("Filter by league")}>
               {leagueOptions.map((league) => <option key={league} value={league}>{league === 'All' ? 'All leagues' : league}</option>)}
             </select>
             <select value={bandFilter} onChange={(event) => setBandFilter(event.target.value)} aria-label="Filter by salary band">
@@ -268,7 +268,7 @@ export default function SalariesPage() {
             </select>
           </div>
           <div className="salary-control-footer">
-            <span>Showing <strong>{filteredRecords.length}</strong> of {records.length} salary records</span>
+            <span>{t("Showing")} <strong>{filteredRecords.length}</strong> of {records.length} salary records</span>
             {hasFilters && <button type="button" onClick={clearFilters}>{t("Clear filters")}</button>}
           </div>
         </div>
