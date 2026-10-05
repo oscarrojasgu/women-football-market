@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { FormEvent, useEffect, useState } from 'react'
+import { useWfmT } from '../../lib/use-wfm-t'
 import { supabase } from '../../lib/supabase'
 
 type Club = { id: string; name: string; country: string | null }
@@ -9,6 +10,7 @@ type Membership = { club_id: string; role: string; status: string; club: Club | 
 type Board = { id: string; club_id: string; name: string; description: string | null; status: string; updated_at: string; player_count: number }
 
 export default function ClubWorkspacePage() {
+  const t = useWfmT()
   const [loading, setLoading] = useState(true)
   const [membership, setMembership] = useState<Membership | null>(null)
   const [boards, setBoards] = useState<Board[]>([])
@@ -21,7 +23,7 @@ export default function ClubWorkspacePage() {
   const load = async () => {
     setLoading(true)
     const { data: user } = await supabase.auth.getUser()
-    if (!user.user) { setError('Please sign in to use the club workspace.'); setLoading(false); return }
+    if (!user.user) { setError(t('Please sign in to use the club workspace.')); setLoading(false); return }
 
     const { data: membershipRows } = await supabase
       .from('club_account_members')
@@ -62,10 +64,10 @@ export default function ClubWorkspacePage() {
     event.preventDefault()
     if (!membership) return
     const boardName = name.trim()
-    if (!boardName) { setError('Board name is required.'); return }
+    if (!boardName) { setError(t('Board name is required.')); return }
     setCreating(true); setError(''); setMessage('')
     const { data: user } = await supabase.auth.getUser()
-    if (!user.user) { setError('Your session has expired.'); setCreating(false); return }
+    if (!user.user) { setError(t('Your session has expired.')); setCreating(false); return }
     const { error: createError } = await supabase.from('club_recruitment_boards').insert({
       club_id: membership.club_id,
       created_by: user.user.id,
@@ -73,20 +75,20 @@ export default function ClubWorkspacePage() {
       description: description.trim() || null,
     })
     if (createError) setError(createError.message)
-    else { setName(''); setDescription(''); setMessage('Recruitment board created.'); await load() }
+    else { setName(''); setDescription(''); setMessage(t('Recruitment board created.')); await load() }
     setCreating(false)
   }
 
-  if (loading) return <main className="account-page"><div className="account-card">Loading club workspace…</div></main>
+  if (loading) return <main className="account-page"><div className="account-card">{t('Loading club workspace…')}</div></main>
 
   if (!membership) {
     return (
       <main className="account-page">
         <section className="account-card">
-          <div className="eyebrow">CLUB WORKSPACE</div>
-          <h1>No club access yet</h1>
-          <p className="account-muted">Your WFM account is ready, but it is not connected to a club workspace.</p>
-          <Link href="/account/settings" className="settings-primary inline-button">Request club access →</Link>
+          <div className="eyebrow">{t('CLUB WORKSPACE')}</div>
+          <h1>{t('No club access yet')}</h1>
+          <p className="account-muted">{t('Your WFM account is ready, but it is not connected to a club workspace.')}</p>
+          <Link href="/account/settings" className="settings-primary inline-button">{t('Request club access →')}</Link>
         </section>
       </main>
     )
@@ -97,11 +99,11 @@ export default function ClubWorkspacePage() {
       <section className="account-card club-workspace-card">
         <div className="account-card-top">
           <div>
-            <div className="eyebrow">CLUB WORKSPACE · {membership.role.toUpperCase()}</div>
-            <h1>{membership.club?.name ?? 'Club'}</h1>
-            <p>Private recruitment workspace for {membership.club?.country ?? 'your club'}. Board data is visible only to active members of this club.</p>
+            <div className="eyebrow">{t('CLUB WORKSPACE')} · {membership.role.toUpperCase()}</div>
+            <h1>{membership.club?.name ?? t('Club')}</h1>
+            <p>{t('Private recruitment workspace for')} {membership.club?.country ?? t('Club')}. {t('Board data is visible only to active members of this club.')}</p>
           </div>
-          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}><Link href="/account/club/reports" className="outline">Saved reports</Link><Link href="/account/club/team" className="outline">Club team</Link><Link href="/account/club/contacts" className="outline">Agency contacts</Link><Link href="/account/settings" className="outline">Account settings</Link></div>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}><Link href="/account/club/reports" className="outline">{t('Saved reports')}</Link><Link href="/account/club/team" className="outline">{t('Club team')}</Link><Link href="/account/club/contacts" className="outline">{t('Agency contacts')}</Link><Link href="/account/settings" className="outline">{t('Account settings')}</Link></div>
         </div>
 
         {error && <div className="account-message account-error">{error}</div>}
@@ -109,29 +111,29 @@ export default function ClubWorkspacePage() {
 
         <div className="club-workspace-grid">
           <section className="settings-section">
-            <div className="settings-section-heading"><span>RECRUITMENT</span><h2>New board</h2></div>
+            <div className="settings-section-heading"><span>{t('RECRUITMENT')}</span><h2>{t('New board')}</h2></div>
             <form onSubmit={createBoard}>
-              <label>Board name<input value={name} onChange={e => setName(e.target.value)} placeholder="Summer 2027 recruitment" maxLength={100} /></label>
-              <label>Description<textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Purpose, position group or recruitment window." rows={5} maxLength={500} /></label>
-              <button type="submit" className="settings-primary" disabled={creating}>{creating ? 'Creating…' : 'Create recruitment board'}</button>
+              <label>{t('Board name')}<input value={name} onChange={e => setName(e.target.value)} placeholder={t('Summer 2027 recruitment')} maxLength={100} /></label>
+              <label>{t('Description')}<textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={t('Purpose, position group or recruitment window.')} rows={5} maxLength={500} /></label>
+              <button type="submit" className="settings-primary" disabled={creating}>{creating ? t('Creating…') : t('Create recruitment board')}</button>
             </form>
           </section>
 
           <section className="settings-section">
-            <div className="settings-section-heading"><span>WORKSPACE</span><h2>Boards</h2></div>
+            <div className="settings-section-heading"><span>{t('WORKSPACE')}</span><h2>{t('Boards')}</h2></div>
             {boards.length ? <div className="club-board-list">{boards.map(board => (
               <Link key={board.id} href={'/account/club/boards/' + board.id} className="club-board-card">
-                <div><strong>{board.name}</strong><small>{board.description || 'No description'}</small></div>
-                <span>{board.player_count} players →</span>
+                <div><strong>{board.name}</strong><small>{board.description || t('No description')}</small></div>
+                <span>{board.player_count} {t('players →')}</span>
               </Link>
-            ))}</div> : <p className="account-muted">No recruitment boards yet. Create the first one.</p>}
+            ))}</div> : <p className="account-muted">{t('No recruitment boards yet. Create the first one.')}</p>}
           </section>
         </div>
 
         <div className="club-workspace-note">
-          <strong>Connected WFM data</strong>
-          <span>Use the public player profiles, scouting discovery and comparison tools to research candidates, then place players into a private club recruitment board.</span>
-          <Link href="/scouting">Open global scouting →</Link>
+          <strong>{t('Connected WFM data')}</strong>
+          <span>{t('Use the public player profiles, scouting discovery and comparison tools to research candidates, then place players into a private club recruitment board.')}</span>
+          <Link href="/scouting">{t('Open global scouting →')}</Link>
         </div>
       </section>
     </main>
