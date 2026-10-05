@@ -43,13 +43,13 @@ export default function SourcePipelinePage(){
   <div className="club-workspace-grid" style={{marginTop:24}}>
    <section className="settings-section"><div className="settings-section-heading"><span>{t('ADD CANDIDATE')}</span><h2>{t('Research a new source')}</h2></div>
     <form onSubmit={add}>
-     <label>{t('Name')}<input value={name} onChange={e=>setName(e.target.value)} placeholder="League official site"/></label>
+     <label>{t('Name')}<input value={name} onChange={e=>setName(e.target.value)} placeholder={t("League official site")}/></label>
      <label>{t('URL')}<input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://…"/></label>
-     <label>{t('Publisher')}<input value={publisher} onChange={e=>setPublisher(e.target.value)} placeholder="Organization"/></label>
+     <label>{t('Publisher')}<input value={publisher} onChange={e=>setPublisher(e.target.value)} placeholder={t("Organization")}/></label>
      <label>{t('Source')} kind<select value={kind} onChange={e=>setKind(e.target.value)}>{kinds.map(k=><option key={k} value={k}>{k.replaceAll("_"," ")}</option>)}</select></label>
-     <label>{t('Geography')}<input value={geography} onChange={e=>setGeography(e.target.value)} placeholder="Country / region / global"/></label>
+     <label>{t('Geography')}<input value={geography} onChange={e=>setGeography(e.target.value)} placeholder={t("Country / region / global")}/></label>
      <label>{t('Priority')} (1–100)<input type="number" min="1" max="100" value={priority} onChange={e=>setPriority(e.target.value)}/></label>
-     <label>{t('Access method')}<input value={accessMethod} onChange={e=>setAccessMethod(e.target.value)} placeholder="Public web / subscription / direct contact"/></label>
+     <label>{t('Access method')}<input value={accessMethod} onChange={e=>setAccessMethod(e.target.value)} placeholder={t("Public web / subscription / direct contact")}/></label>
      <label>{t('Notes')}<textarea value={notes} onChange={e=>setNotes(e.target.value)} rows={4}/></label>
      <button className="settings-primary" disabled={busy} type="submit">{busy?"Saving…":"Add source candidate"}</button>
     </form>
