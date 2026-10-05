@@ -190,7 +190,7 @@ export default function ContractsPage() {
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search player, club, league or position..."
+              placeholder={t("Search player, club, league or position...")}
             />
             <select value={expiry} onChange={e => setExpiry(e.target.value)}>
               <option value="All">{t("All Expiry Windows")}</option>
@@ -210,7 +210,7 @@ export default function ContractsPage() {
           </div>
 
           <div className="scout-control-footer">
-            <span>{loading ? "Loading contract database..." : `${filteredContracts.length} contract${filteredContracts.length === 1 ? "" : "s"} match your criteria`}</span>
+            <span>{loading ? t("Loading contract database...") : `${filteredContracts.length} contract${filteredContracts.length === 1 ? "" : "s"} match your criteria`}</span>
             <button type="button" onClick={clearFilters} disabled={!hasFilters}>{t("Clear filters")}</button>
           </div>
         </section>
@@ -221,8 +221,8 @@ export default function ContractsPage() {
 
         <section className="scout-table-wrap contracts-scout-table">
           <div className="scout-table-header contracts-table-header wfm-sortable-header">
-            <button type="button" onClick={()=>changeSort("player")}>PLAYER{sortIndicator("player")}</button>
-            <button type="button" onClick={()=>changeSort("club")}>CLUB{sortIndicator("club")}</button>
+            <button type="button" onClick={()=>changeSort("player")}">{t("PLAYER")}{sortIndicator("player")}</button>
+            <button type="button" onClick={()=>changeSort("club")}">{t("CLUB")}{sortIndicator("club")}</button>
             <button type="button" onClick={()=>changeSort("status")}>STATUS{sortIndicator("status")}</button>
             <button type="button" onClick={()=>changeSort("expiry")}>EXPIRY{sortIndicator("expiry")}</button>
             <button type="button" onClick={()=>changeSort("salary")}>SALARY{sortIndicator("salary")}</button>
