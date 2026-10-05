@@ -88,6 +88,7 @@ function formatDate(date: string | null) {
 }
 
 export default function ClubProfilePage() {
+  const t = useWfmT()
   const params = useParams()
   const id = params.id as string
 
