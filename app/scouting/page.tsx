@@ -44,5 +44,5 @@ function ScoutingPageContent(){
 }
 
 export default function ScoutingPage(){
- return <Suspense fallback={<main className="scouting-workspace"><div className="scouting-empty">{t("Loading scouting workspace…")}</div></main>}><ScoutingPageContent /></Suspense>;
+ return <Suspense fallback={<main className="scouting-workspace"><div className="scouting-empty">Loading scouting workspace…</div></main>}><ScoutingPageContent /></Suspense>;
 }
