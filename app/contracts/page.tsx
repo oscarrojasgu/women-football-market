@@ -170,7 +170,7 @@ export default function ContractsPage() {
       <section className="players-scout-hero">
         <div className="players-scout-shell">
           <div className="players-scout-eyebrow">WOMEN&apos;S FOOTBALL MARKET</div>
-          <h1>Contract Intelligence</h1>
+          <h1>{t("Contract Intelligence")}</h1>
           <p>
             Track active deals, contract expiry windows, salary information and confidence across the database.
           </p>
@@ -179,10 +179,10 @@ export default function ContractsPage() {
 
       <main className="players-page players-scout-page contracts-scout-page">
         <section className="scout-stat-grid">
-          <div className="scout-stat"><span>ACTIVE CONTRACTS</span><strong>{loading ? "—" : activeContracts.length}</strong></div>
-          <div className="scout-stat"><span>EXPIRING ≤90 DAYS</span><strong>{loading ? "—" : expiring90.length}</strong></div>
-          <div className="scout-stat"><span>EXPIRING ≤6 MONTHS</span><strong>{loading ? "—" : expiring90.length + expiring180.length}</strong></div>
-          <div className="scout-stat"><span>KNOWN PAYROLL</span><strong>{loading ? "—" : formatSalary(knownPayroll)}</strong></div>
+          <div className="scout-stat"><span>{t("ACTIVE CONTRACTS")}</span><strong>{loading ? "—" : activeContracts.length}</strong></div>
+          <div className="scout-stat"><span>{t("EXPIRING ≤90 DAYS")}</span><strong>{loading ? "—" : expiring90.length}</strong></div>
+          <div className="scout-stat"><span>{t("EXPIRING ≤6 MONTHS")}</span><strong>{loading ? "—" : expiring90.length + expiring180.length}</strong></div>
+          <div className="scout-stat"><span>{t("KNOWN PAYROLL")}</span><strong>{loading ? "—" : formatSalary(knownPayroll)}</strong></div>
         </section>
 
         <section className="scout-controls">
@@ -193,12 +193,12 @@ export default function ContractsPage() {
               placeholder="Search player, club, league or position..."
             />
             <select value={expiry} onChange={e => setExpiry(e.target.value)}>
-              <option value="All">All Expiry Windows</option>
-              <option value="90">Next 90 Days</option>
+              <option value="All">{t("All Expiry Windows")}</option>
+              <option value="90">{t("Next 90 Days")}</option>
               <option value="180">3–6 Months</option>
               <option value="365">6–12 Months</option>
               <option value="long">12+ Months</option>
-              <option value="expired">Expired</option>
+              <option value="expired">{t("Expired")}</option>
               <option value="unknown">{t("Unknown")}</option>
             </select>
             <select value={status} onChange={e => setStatus(e.target.value)}>
@@ -216,7 +216,7 @@ export default function ContractsPage() {
         </section>
 
         <div className="scout-note">
-          <strong>Contract context:</strong> expiry, salary and confidence reflect the recorded WFM contract data. Expired and historical records remain available through the expiry filter.
+          <strong>{t("Contract context:")}</strong> expiry, salary and confidence reflect the recorded WFM contract data. Expired and historical records remain available through the expiry filter.
         </div>
 
         <section className="scout-table-wrap contracts-scout-table">
@@ -233,9 +233,9 @@ export default function ContractsPage() {
             <div className="scout-empty">Loading...</div>
           ) : filteredContracts.length === 0 ? (
             <div className="scout-empty">
-              <strong>No contracts match the current filters</strong>
-              <span>Broaden the status, league or expiry criteria.</span>
-              <button type="button" onClick={clearFilters}>Reset contract filters</button>
+              <strong>{t("No contracts match the current filters")}</strong>
+              <span>{t("Broaden the status, league or expiry criteria.")}</span>
+              <button type="button" onClick={clearFilters}>{t("Reset contract filters")}</button>
             </div>
           ) : (
             sortedContracts.map(c => {
