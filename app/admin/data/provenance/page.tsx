@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../../../lib/supabase";
+import { useWfmT } from "../../lib/use-wfm-t"
 
-type Source = {
+type {t('Source')} = {
   id: string;
   publisher: string | null;
   url: string | null;
@@ -13,9 +14,10 @@ type Source = {
   accessed_at: string | null;
 };
 
-type SourceRow = Source & { usage: number };
+type SourceRow = {t('Source')} & { usage: number };
 
 export default function ProvenancePage() {
+ const t=useWfmT()
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -56,7 +58,7 @@ export default function ProvenancePage() {
       return;
     }
 
-    const sourceRows = (data || []) as Source[];
+    const sourceRows = (data || []) as {t('Source')}[];
     const { data: coverage } = await supabase.rpc("wfm_provenance_coverage");
     const audit = coverage?.[0] || coverage || {};
     const sourceIds = sourceRows.map((s) => s.id);
@@ -121,14 +123,14 @@ export default function ProvenancePage() {
   if (loading)
     return (
       <main className="players-scout-page">
-        <div className="panel"><p>Loading provenance inventory…</p></div>
+        <div className="panel"><p>{t('Loading provenance inventory…')}</p></div>
       </main>
     );
 
   if (!authorized)
     return (
       <main className="players-scout-page">
-        <div className="panel"><p>Admin access required.</p></div>
+        <div className="panel"><p>{t('Admin access required.')}</p></div>
       </main>
     );
 
@@ -137,13 +139,13 @@ export default function ProvenancePage() {
       <div className="panel">
         <div className="panel-header">
           <div>
-            <div className="eyebrow">PHASE 9 · M7 DATA PROVENANCE</div>
-            <h1>Provenance & Trust</h1>
+            <div className="eyebrow">{t('PHASE 9 · M7 DATA PROVENANCE')}</div>
+            <h1>{t('Provenance')} & Trust</h1>
             <p>Monitor source coverage, source quality metadata, and how published intelligence records trace back to evidence.</p>
           </div>
           <div className="actions">
-            <Link href="/admin/data" className="outline">Data administration</Link>
-            <Link href="/admin/data/players" className="outline">Player coverage</Link><Link href="/admin/data/history" className="outline">Historical data</Link>
+            <Link href="/admin/data" className="outline">{t('Data administration')}</Link>
+            <Link href="/admin/data/players" className="outline">{t('Player coverage')}</Link><Link href="/admin/data/history" className="outline">{t('Historical data')}</Link>
             <button type="button" className="outline" disabled={refreshing} onClick={() => void refresh()}>
               {refreshing ? "Refreshing…" : "Refresh inventory"}
             </button>
@@ -154,24 +156,24 @@ export default function ProvenancePage() {
         {message && <div className="alert success">{message}</div>}
 
         <div className="coverage-summary">
-          <div><strong>{counts.sources}</strong><span>Sources</span></div>
-          <div><strong>{counts.linkedRecords}</strong><span>Linked records</span></div>
-          <div><strong>{counts.missingPublished}</strong><span>Missing publication date</span></div>
-          <div><strong>{counts.missingAccess}</strong><span>Missing access date</span></div>
-          <div><strong>{counts.missingRecordSources}</strong><span>Records missing source</span></div>
-          <div><strong>{counts.coveragePercent}%</strong><span>Traceable records</span></div>
+          <div><strong>{counts.sources}</strong><span>{t('Sources')}</span></div>
+          <div><strong>{counts.linkedRecords}</strong><span>{t('Linked records')}</span></div>
+          <div><strong>{counts.missingPublished}</strong><span>{t('Missing publication date')}</span></div>
+          <div><strong>{counts.missingAccess}</strong><span>{t('Missing access date')}</span></div>
+          <div><strong>{counts.missingRecordSources}</strong><span>{t('Records missing source')}</span></div>
+          <div><strong>{counts.coveragePercent}%</strong><span>{t('Traceable records')}</span></div>
         </div>
 
         <div className="filter-row">
-          <label>Publisher
+          <label>{t('Publisher')}
             <select value={publisher} onChange={(e) => setPublisher(e.target.value)}>
-              <option value="all">All publishers</option>
+              <option value="all">{t('All publishers')}</option>
               {publishers.map((value) => <option key={value} value={value}>{value}</option>)}
             </select>
           </label>
-          <label>Reliability
+          <label>{t('Reliability')}
             <select value={reliability} onChange={(e) => setReliability(e.target.value)}>
-              <option value="all">All levels</option>
+              <option value="all">{t('All levels')}</option>
               {reliabilities.map((value) => <option key={value} value={value}>{value}</option>)}
             </select>
           </label>
@@ -179,7 +181,7 @@ export default function ProvenancePage() {
 
         <div className="table">
           <div className="thead">
-            <span>Publisher</span><span>Reliability</span><span>Published</span><span>Accessed</span><span>Usage</span><span>Source</span>
+            <span>{t('Publisher')}</span><span>{t('Reliability')}</span><span>{t('Published')}</span><span>{t('Accessed')}</span><span>{t('Usage')}</span><span>{t('Source')}</span>
           </div>
           {filtered.map((source) => (
             <div className="row" key={source.id}>
@@ -189,16 +191,16 @@ export default function ProvenancePage() {
               <span>{source.accessed_at ? new Date(source.accessed_at).toLocaleDateString() : "—"}</span>
               <span>{source.usage}</span>
               <span>
-                {source.url ? <a href={source.url} target="_blank" rel="noreferrer">Open source</a> : "No URL"}
+                {source.url ? <a href={source.url} target="_blank" rel="noreferrer">{t('Open source')}</a> : "No URL"}
               </span>
             </div>
           ))}
-          {!filtered.length && <div className="row"><span>No sources match the selected filters.</span></div>}
+          {!filtered.length && <div className="row"><span>{t('No sources match the selected filters.')}</span></div>}
         </div>
 
         <div style={{ marginTop: 18 }}>
           <p className="account-muted">
-            Provenance is evidence metadata, not a guarantee that a source is correct. Public player and club profiles show linked source details when available, while unknown values remain unknown rather than being filled with assumptions.
+            {t('Provenance')} is evidence metadata, not a guarantee that a source is correct. Public player and club profiles show linked source details when available, while unknown values remain unknown rather than being filled with assumptions.
           </p>
         </div>
       </div>
