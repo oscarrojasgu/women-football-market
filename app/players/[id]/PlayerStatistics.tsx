@@ -427,8 +427,8 @@ export default function PlayerStatistics({
           }}
         >
           {loadingAdvanced
-            ? "Loading statistics..."
-            : "No statistics available."}
+            ? t("Loading statistics...")
+            : t("No statistics available.")}
         </div>
       </div>
     );
@@ -1178,8 +1178,8 @@ export default function PlayerStatistics({
             }}
           >
             {loadingAdvanced
-              ? "Loading national team history..."
-              : "No national team statistics available."}
+              ? t("Loading national team history...")
+              : t("No national team statistics available.")}
           </div>
         ) : (
           <div style={{ marginTop: 18 }}>
