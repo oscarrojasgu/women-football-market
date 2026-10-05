@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../../../lib/supabase";
-import { useWfmT } from "../../lib/use-wfm-t"
+import { useWfmT } from "../../../lib/use-wfm-t"
 
 type Row={id:string;name:string;url:string|null;publisher:string|null;source_kind:string;geography:string|null;priority:number;status:string;access_method:string|null;notes:string|null;last_checked_at:string|null;created_at:string;updated_at:string};
 const statuses=["candidate","researching","approved","active","paused","retired"];
