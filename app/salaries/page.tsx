@@ -268,7 +268,7 @@ export default function SalariesPage() {
             </select>
           </div>
           <div className="salary-control-footer">
-            <span>{t("Showing")} <strong>{filteredRecords.length}</strong> of {records.length} salary records</span>
+            <span>{t("Showing")} <strong>{filteredRecords.length}</strong> {t("of")} {records.length} {t("salary records")}</span>
             {hasFilters && <button type="button" onClick={clearFilters}>{t("Clear filters")}</button>}
           </div>
         </div>
