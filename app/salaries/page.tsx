@@ -235,12 +235,12 @@ export default function SalariesPage() {
 
       <section className="salary-shell salary-content">
         <div className="salary-stat-grid">
-          <div className="salary-stat"><span>Salary records</span><strong>{stats.count}</strong></div>
-          <div className="salary-stat"><span>Median annual</span><strong>{formatUSD(stats.median)}</strong></div>
-          <div className="salary-stat"><span>Average annual</span><strong>{formatUSD(stats.average)}</strong></div>
-          <div className="salary-stat"><span>Highest annual</span><strong>{formatUSD(stats.highest)}</strong></div>
-          <div className="salary-stat"><span>Leagues covered</span><strong>{stats.leagues}</strong></div>
-          <div className="salary-stat"><span>Verified records</span><strong>{stats.verified}</strong></div>
+          <div className="salary-stat"><span>{t("Salary records")}</span><strong>{stats.count}</strong></div>
+          <div className="salary-stat"><span>{t("Median annual")}</span><strong>{formatUSD(stats.median)}</strong></div>
+          <div className="salary-stat"><span>{t("Average annual")}</span><strong>{formatUSD(stats.average)}</strong></div>
+          <div className="salary-stat"><span>{t("Highest annual")}</span><strong>{formatUSD(stats.highest)}</strong></div>
+          <div className="salary-stat"><span>{t("Leagues covered")}</span><strong>{stats.leagues}</strong></div>
+          <div className="salary-stat"><span>{t("Verified records")}</span><strong>{stats.verified}</strong></div>
         </div>
 
         <div className="salary-controls">
@@ -261,10 +261,10 @@ export default function SalariesPage() {
               {confidenceOptions.map((confidence) => <option key={confidence} value={confidence}>{confidence === 'All' ? 'All confidence' : label(confidence)}</option>)}
             </select>
             <select value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort salary records">
-              <option value="salary-desc">Highest salary</option>
-              <option value="salary-asc">Lowest salary</option>
-              <option value="player-asc">Player A–Z</option>
-              <option value="club-asc">Club A–Z</option>
+              <option value="salary-desc">{t("Highest salary")}</option>
+              <option value="salary-asc">{t("Lowest salary")}</option>
+              <option value="player-asc">{t("Player A–Z")}</option>
+              <option value="club-asc">{t("Club A–Z")}</option>
             </select>
           </div>
           <div className="salary-control-footer">
@@ -274,17 +274,17 @@ export default function SalariesPage() {
         </div>
 
         <div className="salary-note">
-          <strong>How to read the numbers:</strong> Annual and weekly figures use the database’s normalized USD fields. Original salary and currency are retained for source context. A confidence label indicates how firmly the underlying figure is supported.
+          <strong>{t("How to read the numbers:")}</strong> Annual and weekly figures use the database’s normalized USD fields. Original salary and currency are retained for source context. A confidence label indicates how firmly the underlying figure is supported.
         </div>
 
         {loading ? (
-          <div className="salary-empty">Loading salary data...</div>
+          <div className="salary-empty">{t("Loading salary data...")}</div>
         ) : error ? (
           <div className="salary-empty">{error}</div>
         ) : filteredRecords.length === 0 ? (
           <div className="salary-empty">
-            <strong>No salary records found</strong>
-            <span>Try another search or clear the filters.</span>
+            <strong>{t("No salary records found")}</strong>
+            <span>{t("Try another search or clear the filters.")}</span>
             {hasFilters && <button type="button" onClick={clearFilters}>{t("Clear filters")}</button>}
           </div>
         ) : (
