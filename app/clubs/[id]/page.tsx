@@ -482,12 +482,12 @@ export default function ClubProfilePage() {
         <section className="players-scout-hero">
           <div className="players-scout-shell">
             <div className="players-scout-eyebrow">WOMEN&apos;S FOOTBALL MARKET</div>
-            <h1>Club Profile</h1>
-            <p>Loading club information, squad records, contract context and transfer activity.</p>
+            <h1>{t("Club Profile")}</h1>
+            <p>{t("Loading club information, squad records, contract context and transfer activity.")}</p>
           </div>
         </section>
         <main className="players-page players-scout-page clubs-profile-page">
-          <div className="scout-empty">Loading club...</div>
+          <div className="scout-empty">{t("Loading club...")}</div>
         </main>
       </>
     );
@@ -499,12 +499,12 @@ export default function ClubProfilePage() {
         <section className="players-scout-hero">
           <div className="players-scout-shell">
             <div className="players-scout-eyebrow">WOMEN&apos;S FOOTBALL MARKET</div>
-            <h1>Club Profile</h1>
-            <p>The requested club could not be found.</p>
+            <h1>{t("Club Profile")}</h1>
+            <p>{t("The requested club could not be found.")}</p>
           </div>
         </section>
         <main className="players-page players-scout-page clubs-profile-page">
-          <div className="scout-empty">Club not found.</div>
+          <div className="scout-empty">{t("Club not found.")}</div>
         </main>
       </>
     );
@@ -558,11 +558,11 @@ export default function ClubProfilePage() {
               <label>
                 <span>{t("Season")}</span>
                 <select value={selectedSeason} onChange={(event) => setSelectedSeason(event.target.value)}>
-                  <option value="all">All seasons</option>
+                  <option value="all">{t("All seasons")}</option>
                   {seasons.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
                 </select>
               </label>
-              <Link href={`/scouting?club=${id}`} className="club-dark-button">Scout this club →</Link>
+              <Link href={`/scouting?club=${id}`} className="club-dark-button">{t("Scout this club")} →</Link>
             </div>
           </div>
         </section>
@@ -606,13 +606,13 @@ export default function ClubProfilePage() {
           <div className="club-profile-section-heading">
             <div>
               <span className="club-section-eyebrow">SQUAD</span>
-              <h2>Current Players</h2>
+              <h2>{t("Current Players")}</h2>
               <p>Active roster and known contract information for the club profile.</p>
             </div>
             <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="club-sort-select">
-              <option value="salary">Sort by Salary</option>
-              <option value="name">Sort by Name</option>
-              <option value="position">Sort by Position</option>
+              <option value="salary">{t("Sort by Salary")}</option>
+              <option value="name">{t("Sort by Name")}</option>
+              <option value="position">{t("Sort by Position")}</option>
             </select>
           </div>
 
@@ -651,7 +651,7 @@ export default function ClubProfilePage() {
                 </div>
               )
             })}
-            {!rosterPlayers.length && sortedContracts.length === 0 ? <div className="scout-empty">No current players found.</div> : null}
+            {!rosterPlayers.length && sortedContracts.length === 0 ? <div className="scout-empty">{t("No current players found.")}</div> : null}
           </div>
         </section>
 
@@ -659,7 +659,7 @@ export default function ClubProfilePage() {
           <div className="club-profile-section-heading">
             <div>
               <span className="club-section-eyebrow">MARKET ACTIVITY</span>
-              <h2>Transfer Activity</h2>
+              <h2>{t("Transfer Activity")}</h2>
               <p>Recorded incoming and outgoing transfer activity connected to this club.</p>
             </div>
           </div>
@@ -678,7 +678,7 @@ export default function ClubProfilePage() {
                 <span><strong>{transfer.fee !== null ? formatSalary(transfer.fee, transfer.currency) : transfer.transfer_type || "Unknown"}</strong></span>
               </div>
             ))}
-            {transfers.length === 0 ? <div className="scout-empty">No transfer activity found.</div> : null}
+            {transfers.length === 0 ? <div className="scout-empty">{t("No transfer activity found.")}</div> : null}
           </div>
         </section>
 
@@ -686,7 +686,7 @@ export default function ClubProfilePage() {
           <div className="club-section-heading">
             <div>
               <span className="club-section-eyebrow">DATA PROVENANCE</span>
-              <h2>Source Context</h2>
+              <h2>{t("Source Context")}</h2>
               <p>WFM keeps uncertainty visible rather than presenting unsupported assumptions as facts.</p>
             </div>
             <span className="club-source-count">{linkedSources.length} linked source{linkedSources.length === 1 ? "" : "s"}</span>
