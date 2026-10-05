@@ -374,8 +374,8 @@ export default function ClubsPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', width: 'min(100%, 720px)', justifyContent: 'flex-end' }}>
                 <input
                   type="search"
-                  aria-label="Search clubs"
-                  placeholder="Search club, league, country…"
+                  aria-label={t("Search clubs")}
+                  placeholder={t("Search club, league, country…")}
                   value={q}
                   onChange={(event) => setQ(event.target.value)}
                   style={{ flex: '1 1 230px', minWidth: 200, border: '1px solid #d8d8d8', borderRadius: 9, padding: '11px 13px', fontSize: 14, outline: 'none' }}
