@@ -15,7 +15,7 @@ type Value={player_id:string;market_value_usd:number|null;valuation_date:string}
 type Participation={player_id:string;competition_id:string|null;competition_name:string|null};
 type ScoutingList={id:string;name:string;status:string};
 type GlobalPeer={player_id:string;season:string;goals_per90_global_percentile:number|null;assists_per90_global_percentile:number|null;xg_per90_global_percentile:number|null;xa_per90_global_percentile:number|null;chances_created_per90_global_percentile:number|null;key_passes_per90_global_percentile:number|null;tackles_per90_global_percentile:number|null;interceptions_per90_global_percentile:number|null;progressive_carries_per90_global_percentile:number|null};
-type ClubContext={id:string;name:string;country:string|null;league:string|null;activePlayers:number;expiringContracts:number;unknownSalary:number;positionMix:[string,number][];expiringPositionMix:[string,number][];incomingTransfers:number;outgoingTransfers:number};
+type ClubContext={id:string;name:string;country:string|null;league:string|null;activePlayers:number;expiringContracts:number;unknownSalary:number;positionMix:[string,number][];expiringPositionMix:[string,number][];incoming{t("Transfers:")}number;outgoing{t("Transfers:")}number};
 
 const emptyCriteria:Criteria={positions:[],roles:"",age_min:null,age_max:null,nationalities:"",competitions:[],contract_status:"any",salary_min_usd:null,salary_max_usd:null,market_value_min_usd:null,market_value_max_usd:null,min_minutes:null,goals_per90_min:null,assists_per90_min:null,xg_per90_min:null,xa_per90_min:null,chances_created_per90_min:null,key_passes_per90_min:null,tackles_per90_min:null,interceptions_per90_min:null,progressive_carries_per90_min:null,global_percentile_min:null,priorities:""};
 
@@ -44,7 +44,7 @@ export default function GlobalDiscoveryPage(){
   supabase.from("player_competitions").select("player_id,club_competition:club_competitions(competition_season:competition_seasons(competition:competitions(id,canonical_name)))"),
   uid?supabase.from("scouting_lists").select("id,name,status").eq("status","active").order("updated_at",{ascending:false}):Promise.resolve({data:[],error:null} as any)
  ]);if(!mounted)return;if(pr.error){setMessage(pr.error.message);setLoading(false);return}
-  setProfile({...pr.data,criteria:normalize(pr.data.criteria)} as Profile);const linkedClubId=(pr.data as any)?.club_id||null;if(linkedClubId){const [{data:club},{data:cc},{data:transfers}]=await Promise.all([supabase.from("clubs").select("id,name,country,league").eq("id",linkedClubId).maybeSingle(),supabase.from("contracts").select("player_id,end_date,annual_salary_usd,status").eq("club_id",linkedClubId).eq("status","active"),supabase.from("transfers").select("id,from_club_id,to_club_id").or(`from_club_id.eq.${linkedClubId},to_club_id.eq.${linkedClubId}`)]);if(club){const ids=[...new Set((cc||[]).map((x:any)=>x.player_id))];let mix:[string,number][]=[];if(ids.length){const {data:ps}=await supabase.from("players").select("id,position").in("id",ids);const counts=new Map<string,number>();(ps||[]).forEach((p:any)=>{const k=p.position||"Unknown";counts.set(k,(counts.get(k)||0)+1)});mix=Array.from(counts.entries()).sort((a,b)=>b[1]-a[1])}const now=new Date(),cutoff=new Date(now);cutoff.setDate(cutoff.getDate()+180);const expiringIds=(cc||[]).filter((x:any)=>x.end_date&&new Date(x.end_date+"T23:59:59")>=now&&new Date(x.end_date+"T23:59:59")<=cutoff).map((x:any)=>x.player_id);let expMix:[string,number][]=[];if(expiringIds.length){const {data:eps}=await supabase.from("players").select("id,position").in("id",expiringIds);const ec=new Map<string,number>();(eps||[]).forEach((p:any)=>{const k=p.position||"Unknown";ec.set(k,(ec.get(k)||0)+1)});expMix=Array.from(ec.entries()).sort((a,b)=>b[1]-a[1])}setClubContext({id:club.id,name:club.name,country:club.country,league:club.league,activePlayers:(cc||[]).length,expiringContracts:(cc||[]).filter((x:any)=>x.end_date&&new Date(x.end_date+"T23:59:59")>=now&&new Date(x.end_date+"T23:59:59")<=cutoff).length,unknownSalary:(cc||[]).filter((x:any)=>x.annual_salary_usd==null).length,positionMix:mix,expiringPositionMix:expMix,incomingTransfers:(transfers||[]).filter((x:any)=>x.to_club_id===linkedClubId).length,outgoingTransfers:(transfers||[]).filter((x:any)=>x.from_club_id===linkedClubId).length})}}setLists((listResult.data||[]) as {id:string;name:string;status:string}[]);if(listResult.data?.length)setSelectedListId(listResult.data[0].id);setPlayers((pl.data||[]) as Player[]);const peerMap=new Map<string,GlobalPeer>();for(const row of (pg.data||[]) as GlobalPeer[])peerMap.set(`${row.player_id}|${row.season}`,row);setGlobalPeers(peerMap);setIntel((si.data||[]) as Intel[]);setContracts((co.data||[]) as Contract[]);setValues((mv.data||[]) as Value[]);
+  setProfile({...pr.data,criteria:normalize(pr.data.criteria)} as Profile);const linkedClubId=(pr.data as any)?.club_id||null;if(linkedClubId){const [{data:club},{data:cc},{data:transfers}]=await Promise.all([supabase.from("clubs").select("id,name,country,league").eq("id",linkedClubId).maybeSingle(),supabase.from("contracts").select("player_id,end_date,annual_salary_usd,status").eq("club_id",linkedClubId).eq("status","active"),supabase.from("transfers").select("id,from_club_id,to_club_id").or(`from_club_id.eq.${linkedClubId},to_club_id.eq.${linkedClubId}`)]);if(club){const ids=[...new Set((cc||[]).map((x:any)=>x.player_id))];let mix:[string,number][]=[];if(ids.length){const {data:ps}=await supabase.from("players").select("id,position").in("id",ids);const counts=new Map<string,number>();(ps||[]).forEach((p:any)=>{const k=p.position||"Unknown";counts.set(k,(counts.get(k)||0)+1)});mix=Array.from(counts.entries()).sort((a,b)=>b[1]-a[1])}const now=new Date(),cutoff=new Date(now);cutoff.setDate(cutoff.getDate()+180);const expiringIds=(cc||[]).filter((x:any)=>x.end_date&&new Date(x.end_date+"T23:59:59")>=now&&new Date(x.end_date+"T23:59:59")<=cutoff).map((x:any)=>x.player_id);let expMix:[string,number][]=[];if(expiringIds.length){const {data:eps}=await supabase.from("players").select("id,position").in("id",expiringIds);const ec=new Map<string,number>();(eps||[]).forEach((p:any)=>{const k=p.position||"Unknown";ec.set(k,(ec.get(k)||0)+1)});expMix=Array.from(ec.entries()).sort((a,b)=>b[1]-a[1])}setClubContext({id:club.id,name:club.name,country:club.country,league:club.league,activePlayers:(cc||[]).length,expiringContracts:(cc||[]).filter((x:any)=>x.end_date&&new Date(x.end_date+"T23:59:59")>=now&&new Date(x.end_date+"T23:59:59")<=cutoff).length,unknownSalary:(cc||[]).filter((x:any)=>x.annual_salary_usd==null).length,positionMix:mix,expiringPositionMix:expMix,incoming{t("Transfers:")}(transfers||[]).filter((x:any)=>x.to_club_id===linkedClubId).length,outgoing{t("Transfers:")}(transfers||[]).filter((x:any)=>x.from_club_id===linkedClubId).length})}}setLists((listResult.data||[]) as {id:string;name:string;status:string}[]);if(listResult.data?.length)setSelectedListId(listResult.data[0].id);setPlayers((pl.data||[]) as Player[]);const peerMap=new Map<string,GlobalPeer>();for(const row of (pg.data||[]) as GlobalPeer[])peerMap.set(`${row.player_id}|${row.season}`,row);setGlobalPeers(peerMap);setIntel((si.data||[]) as Intel[]);setContracts((co.data||[]) as Contract[]);setValues((mv.data||[]) as Value[]);
   const normalized=(pa.data||[]).map((r:any)=>{const cc=Array.isArray(r.club_competition)?r.club_competition[0]:r.club_competition;const cs=Array.isArray(cc?.competition_season)?cc.competition_season[0]:cc?.competition_season;const comp=Array.isArray(cs?.competition)?cs.competition[0]:cs?.competition;return {player_id:r.player_id,competition_id:comp?.id||null,competition_name:comp?.canonical_name||null}});setParticipations(normalized);setLoading(false);
  })();return()=>{mounted=false}},[id]);
 
@@ -56,8 +56,8 @@ export default function GlobalDiscoveryPage(){
  const toggleCandidate=(playerId:string)=>setSelected(current=>current.includes(playerId)?current.filter(x=>x!==playerId):[...current,playerId]);
  const loadExisting=async(listId:string)=>{if(!listId){setExisting(new Set());return}const {data,error}=await supabase.from("scouting_list_players").select("player_id").eq("list_id",listId);if(error){setMessage(error.message);return}setExisting(new Set((data||[]).map((x:any)=>x.player_id)))};
  useEffect(()=>{if(selectedListId)loadExisting(selectedListId)},[selectedListId]);
- const createList=async()=>{if(!userId)return;const name=window.prompt("Name this scouting list")?.trim();if(!name)return;setListBusy(true);const {data,error}=await supabase.from("scouting_lists").insert({user_id:userId,name}).select("id,name,status").single();setListBusy(false);if(error){setMessage(error.message);return}setLists(current=>[data,...current]);setSelectedListId(data.id);setMessage("Scouting list created.");};
- const addSelected=async()=>{if(!userId){setMessage("Sign in to save players.");return}if(!selectedListId){setMessage("Create or select a scouting list first.");return}const ids=selected.filter(x=>!existing.has(x));if(!ids.length){setMessage("All selected players are already on this list.");return}setListBusy(true);const {error}=await supabase.from("scouting_list_players").insert(ids.map((player_id:string)=>({list_id:selectedListId,player_id,added_by:userId})));setListBusy(false);if(error){setMessage(error.message);return}setExisting(current=>new Set([...current,...ids]));setSelected([]);setMessage(ids.length+" player"+(ids.length===1?"":"s")+" added to the scouting list.");};
+ const createList=async()=>{if(!userId)return;const name=window.prompt(t("Name this scouting list"))?.trim();if(!name)return;setListBusy(true);const {data,error}=await supabase.from("scouting_lists").insert({user_id:userId,name}).select("id,name,status").single();setListBusy(false);if(error){setMessage(error.message);return}setLists(current=>[data,...current]);setSelectedListId(data.id);setMessage(t("Scouting list created."));};
+ const addSelected=async()=>{if(!userId){setMessage(t("Sign in to save players."));return}if(!selectedListId){setMessage(t("Create or select a scouting list first."));return}const ids=selected.filter(x=>!existing.has(x));if(!ids.length){setMessage(t("All selected players are already on this list."));return}setListBusy(true);const {error}=await supabase.from("scouting_list_players").insert(ids.map((player_id:string)=>({list_id:selectedListId,player_id,added_by:userId})));setListBusy(false);if(error){setMessage(error.message);return}setExisting(current=>new Set([...current,...ids]));setSelected([]);setMessage(ids.length+" "+t(ids.length===1?"player":"players")+" "+t("added to the scouting list."));};
  const candidates=useMemo(()=>{if(!profile)return[];const c=profile.criteria;const now=new Date();const cutoff=new Date(now);cutoff.setDate(cutoff.getDate()+180);
   return players.filter(p=>{const a=age(p.date_of_birth);if(a!==null&&c.age_min!==null&&a<c.age_min)return false;if(a!==null&&c.age_max!==null&&a>c.age_max)return false;if(!positionMatch(p,c.positions))return false;
    if(c.nationalities.trim()){const wanted=c.nationalities.split(",").map(x=>x.trim().toLowerCase()).filter(Boolean);if(!wanted.some(x=>(p.nationality||"").toLowerCase().includes(x)))return false}
@@ -104,65 +104,65 @@ export default function GlobalDiscoveryPage(){
  return <>
   <section className="players-scout-hero">
     <div className="players-scout-shell">
-      <div className="players-scout-eyebrow">WOMEN&apos;S FOOTBALL MARKET</div>
-      <h1>Global Player Discovery</h1>
-      <p>{profile?.name ? profile.name+" · " : ""}Candidates matching the saved recruitment criteria.</p>
+      <div className="players-scout-eyebrow">{t("WOMEN’S FOOTBALL MARKET")}</div>
+      <h1>{t("Global Player Discovery")}</h1>
+      <p>{profile?.name ? profile.name+" · " : ""}{t("Candidates matching the saved recruitment criteria.")}</p>
     </div>
   </section>
 
   <main className="players-page players-scout-page">
     {loading ? (
-      <div className="scout-empty">Loading global player discovery…</div>
+      <div className="scout-empty">{t("Loading global player discovery…")}</div>
     ) : message && !profile ? (
-      <div className="scout-empty"><strong>{message}</strong><Link href="/scouting/profiles">← Scouting Profiles</Link></div>
+      <div className="scout-empty"><strong>{message}</strong><Link href="/scouting/profiles">{t("← Scouting Profiles")}</Link></div>
     ) : profile ? (
       <>
         <div className="scout-control-footer" style={{marginBottom:14}}>
-          <Link href={clubContext?`/scouting/profiles?club=${clubContext.id}`:"/scouting/profiles"} style={{color:"#111",fontWeight:700,textDecoration:"none"}}>← Scouting Profiles</Link>
-          <span>{candidates.length} candidate{candidates.length===1?"":"s"} matching saved criteria</span>
+          <Link href={clubContext?`/scouting/profiles?club=${clubContext.id}`:"/scouting/profiles"} style={{color:"#111",fontWeight:700,textDecoration:"none"}}>{t("← Scouting Profiles")}</Link>
+          <span>{candidates.length} {t(candidates.length===1?"candidate":"candidates")} {t("matching saved criteria")}</span>
         </div>
 
-        {clubContext&&<section className="scout-note" style={{marginBottom:14}}><strong>CLUB RECRUITMENT CONTEXT · {clubContext.name}</strong><div style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:10,marginTop:10}}><span>Active players: <strong>{clubContext.activePlayers}</strong></span><span>Expiring ≤180d: <strong>{clubContext.expiringContracts}</strong></span><span>Unknown salaries: <strong>{clubContext.unknownSalary}</strong></span><span>Positions: <strong>{clubContext.positionMix.length}</strong></span><span>Transfers: <strong>{clubContext.incomingTransfers+clubContext.outgoingTransfers}</strong></span></div><div style={{display:"grid",gridTemplateColumns:"repeat(2,minmax(0,1fr))",gap:16,marginTop:12}}><div><strong>Squad position mix</strong>{clubContext.positionMix.length?clubContext.positionMix.map(([k,v])=><div key={k}>{k}: {v}</div>):<div>—</div>}</div><div><strong>Positions among contracts expiring ≤180 days</strong>{clubContext.expiringPositionMix.length?clubContext.expiringPositionMix.map(([k,v])=><div key={k}>{k}: {v}</div>):<div>None recorded</div>}</div></div><small style={{display:"block",marginTop:8}}>Transfers: {clubContext.incomingTransfers} incoming · {clubContext.outgoingTransfers} outgoing. This is source-derived club context; it does not rank candidates or determine recruitment need.</small></section>}<section className="scout-shortlist-bar">
-          <div><strong>{selected.length}</strong> selected</div>
+        {clubContext&&<section className="scout-note" style={{marginBottom:14}}><strong>{t("CLUB RECRUITMENT CONTEXT")} · {clubContext.name}</strong><div style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:10,marginTop:10}}><span>{t("Active players:")} <strong>{clubContext.activePlayers}</strong></span><span>{t("Expiring ≤180d:")} <strong>{clubContext.expiringContracts}</strong></span><span>{t("Unknown salaries:")} <strong>{clubContext.unknownSalary}</strong></span><span>{t("Positions:")} <strong>{clubContext.positionMix.length}</strong></span><span>{t("Transfers:")} <strong>{clubContext.incomingTransfers+clubContext.outgoingTransfers}</strong></span></div><div style={{display:"grid",gridTemplateColumns:"repeat(2,minmax(0,1fr))",gap:16,marginTop:12}}><div><strong>{t("Squad position mix")}</strong>{clubContext.positionMix.length?clubContext.positionMix.map(([k,v])=><div key={k}>{k}: {v}</div>):<div>—</div>}</div><div><strong>{t("Positions among contracts expiring ≤180 days")}</strong>{clubContext.expiringPositionMix.length?clubContext.expiringPositionMix.map(([k,v])=><div key={k}>{k}: {v}</div>):<div>{t("None recorded")}</div>}</div></div><small style={{display:"block",marginTop:8}}>{t("Transfers:")} {clubContext.incomingTransfers} {t("incoming")} · {clubContext.outgoingTransfers} {t("outgoing")}. {t("This is source-derived club context; it does not rank candidates or determine recruitment need.")}</small></section>}<section className="scout-shortlist-bar">
+          <div><strong>{selected.length}</strong> {t("selected")}</div>
           <div className="scout-shortlist-actions">
             <select value={selectedListId} onChange={e=>setSelectedListId(e.target.value)}>
-              <option value="">Select scouting list</option>
+              <option value="">{t("Select scouting list")}</option>
               {lists.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}
             </select>
-            <button type="button" onClick={createList} disabled={listBusy}>New List</button>
-            <button type="button" onClick={addSelected} disabled={listBusy||!selected.length||!selectedListId}>Add Selected</button>
-            <Link href={selected.length >= 2 ? "/scouting/compare?players="+selected.join(",")+"&returnTo=/scouting/profiles/"+id : "#"} onClick={e=>{if(selected.length<2)e.preventDefault()}} style={{display:"inline-flex",alignItems:"center",justifyContent:"center",padding:"7px 11px",border:"1px solid #ccc",borderRadius:5,textDecoration:"none",color:selected.length>=2?"#111":"#999",fontWeight:700,fontSize:12,pointerEvents:selected.length>=2?"auto":"none"}}>Compare Selected</Link>
+            <button type="button" onClick={createList} disabled={listBusy}>{t("New List")}</button>
+            <button type="button" onClick={addSelected} disabled={listBusy||!selected.length||!selectedListId}>{t("Add Selected")}</button>
+            <Link href={selected.length >= 2 ? "/scouting/compare?players="+selected.join(",")+"&returnTo=/scouting/profiles/"+id : "#"} onClick={e=>{if(selected.length<2)e.preventDefault()}} style={{display:"inline-flex",alignItems:"center",justifyContent:"center",padding:"7px 11px",border:"1px solid #ccc",borderRadius:5,textDecoration:"none",color:selected.length>=2?"#111":"#999",fontWeight:700,fontSize:12,pointerEvents:selected.length>=2?"auto":"none"}}>{t("Compare Selected")}</Link>
           </div>
         </section>
 
-        {message && <div className="scout-note"><strong>Scouting:</strong> {message}</div>}
+        {message && <div className="scout-note"><strong>{t("Scouting")}:</strong> {message}</div>}
 
         {!candidates.length ? (
-          <div className="scout-empty"><strong>No players currently match this profile</strong><span>Try widening the recruitment criteria.</span></div>
+          <div className="scout-empty"><strong>{t("No players currently match this profile")}</strong><span>{t("Try widening the recruitment criteria.")}</span></div>
         ) : (
           <section className="scout-table-wrap global-discovery-table">
             <div className="scout-sort-mobile">
-              <label htmlFor="global-discovery-sort">SORT BY</label>
+              <label htmlFor="global-discovery-sort">{t("SORT BY")}</label>
               <select id="global-discovery-sort" value={sortKey} onChange={e=>changeSort(e.target.value as typeof sortKey)}>
-                <option value="player">Player{sortIndicator("player")}</option>
-                <option value="club">Club{sortIndicator("club")}</option>
-                <option value="age">Age{sortIndicator("age")}</option>
-                <option value="minutes">Minutes{sortIndicator("minutes")}</option>
+                <option value="player">{t("Player")}{sortIndicator("player")}</option>
+                <option value="club">{t("Club")}{sortIndicator("club")}</option>
+                <option value="age">{t("Age")}{sortIndicator("age")}</option>
+                <option value="minutes">{t("Minutes")}{sortIndicator("minutes")}</option>
                 <option value="goals">G/90{sortIndicator("goals")}</option>
                 <option value="assists">A/90{sortIndicator("assists")}</option>
                 <option value="xg">xG/90{sortIndicator("xg")}</option>
-                <option value="competition">Competition{sortIndicator("competition")}</option>
+                <option value="competition">{t("Competition")}{sortIndicator("competition")}</option>
               </select>
             </div>
             <div className="scout-table-header wfm-sortable-header">
-              <button type="button" onClick={()=>changeSort("player")}>PLAYER{sortIndicator("player")}</button>
-              <button type="button" onClick={()=>changeSort("club")}>CLUB{sortIndicator("club")}</button>
-              <button type="button" onClick={()=>changeSort("age")}>AGE{sortIndicator("age")}</button>
-              <button type="button" onClick={()=>changeSort("minutes")}>MINUTES{sortIndicator("minutes")}</button>
+              <button type="button" onClick={()=>changeSort("player")}>{t("PLAYER")}{sortIndicator("player")}</button>
+              <button type="button" onClick={()=>changeSort("club")}>{t("CLUB")}{sortIndicator("club")}</button>
+              <button type="button" onClick={()=>changeSort("age")}>{t("AGE")}{sortIndicator("age")}</button>
+              <button type="button" onClick={()=>changeSort("minutes")}>{t("MINUTES")}{sortIndicator("minutes")}</button>
               <button type="button" onClick={()=>changeSort("goals")}>G/90{sortIndicator("goals")}</button>
               <button type="button" onClick={()=>changeSort("assists")}>A/90{sortIndicator("assists")}</button>
               <button type="button" onClick={()=>changeSort("xg")}>xG/90{sortIndicator("xg")}</button>
-              <button type="button" onClick={()=>changeSort("competition")}>COMPETITION{sortIndicator("competition")}</button>
+              <button type="button" onClick={()=>changeSort("competition")}>{t("COMPETITION")}{sortIndicator("competition")}</button>
             </div>
 
             {sortedCandidates.map(({p,i,c,v,parts})=>(
@@ -172,7 +172,7 @@ export default function GlobalDiscoveryPage(){
                     type="checkbox"
                     checked={selected.includes(p.id)}
                     onChange={()=>toggleCandidate(p.id)}
-                    aria-label={`Select ${p.full_name}`}
+                    aria-label={`${t("Select")} ${p.full_name}`}
                   />
                   <Link href={{ pathname: "/scouting/player/"+p.id, query: { returnTo: `/scouting/profiles/${id}${clubContext?`?club=${clubContext.id}`:""}` } }} style={{display:"flex",alignItems:"center",gap:10,minWidth:0,textDecoration:"none",color:"inherit"}}>
                     {p.photo_url ? (
@@ -182,15 +182,15 @@ export default function GlobalDiscoveryPage(){
                     )}
                     <span style={{minWidth:0}}>
                       <strong>{p.full_name}</strong>
-                      <small>{p.position||"Position unavailable"}{p.secondary_position?" / "+p.secondary_position:""} · {p.nationality||"Nationality unavailable"}</small>
+                      <small>{p.position||t("Position unavailable")}{p.secondary_position?" / "+p.secondary_position:""} · {p.nationality||t("Nationality unavailable")}</small>
                     </span>
                   </Link>
                 </span>
                 <span>
-                  <strong>{c?.club?.name||"No current club"}</strong>
-                  <small>{c?.annual_salary_usd!=null?money(c.annual_salary_usd)+" salary":"Salary —"} · {v?.market_value_usd!=null?money(v.market_value_usd)+" value":"Value —"}</small>
+                  <strong>{c?.club?.name||t("No current club")}</strong>
+                  <small>{c?.annual_salary_usd!=null?money(c.annual_salary_usd)+" "+t("salary"):t("Salary —")} · {v?.market_value_usd!=null?money(v.market_value_usd)+" "+t("value"):t("Value —")}</small>
                 </span>
-                <span className="scout-age">{age(p.date_of_birth)??"—"} yrs</span>
+                <span className="scout-age">{age(p.date_of_birth)??"—"} {t("yrs")}</span>
                 <span>{i?.minutes??"—"}</span>
                 <span>{i?.goals_per90?.toFixed(2)??"—"}</span>
                 <span>{i?.assists_per90?.toFixed(2)??"—"}</span>
