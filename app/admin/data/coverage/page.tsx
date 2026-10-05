@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../../../lib/supabase";
-import { useWfmT } from '../../lib/use-wfm-t'
+import { useWfmT } from '../../../lib/use-wfm-t'
 
 type Coverage={
  id:string; competition_id:string|null; competition_name:string; country:string|null; tier_label:string|null;
