@@ -364,7 +364,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
         <section style={{ ...cardStyle, marginTop: 14 }}>
           <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>{t("SCOUTING NOTES")}</div>
           <h2 style={{ margin: "5px 0 12px" }}>{t("Recent private notes")}</h2>
-          {userId && latestNotes.length ? <div style={{ display: "grid", gap: 8 }}>{latestNotes.map((note: any) => <div key={note.id} style={{ borderTop: "1px solid #eee", paddingTop: 9 }}><small style={{ color: "#888", textTransform: "capitalize" }}>{String(note.note_type).replace(/_/g, " ")}</small><p style={{ margin: "4px 0 0", fontSize: 12, whiteSpace: "pre-wrap" }}>{note.content}</p></div>)}</div> : <p style={{ color: "#777", fontSize: 12 }}>{userId ? "{t("No private scouting notes have been added yet.")}" : "{t("Sign in to view private scouting notes.")}"}</p>}
+          {userId && latestNotes.length ? <div style={{ display: "grid", gap: 8 }}>{latestNotes.map((note: any) => <div key={note.id} style={{ borderTop: "1px solid #eee", paddingTop: 9 }}><small style={{ color: "#888", textTransform: "capitalize" }}>{String(note.note_type).replace(/_/g, " ")}</small><p style={{ margin: "4px 0 0", fontSize: 12, whiteSpace: "pre-wrap" }}>{note.content}</p></div>)}</div> : <p style={{ color: "#777", fontSize: 12 }}>{userId ? t("No private scouting notes have been added yet.") : t("Sign in to view private scouting notes.")}</p>}
         </section>
 
         <section style={{ ...cardStyle, marginTop: 14 }}>
