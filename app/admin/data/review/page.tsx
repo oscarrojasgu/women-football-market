@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../../../lib/supabase";
-import { useWfmT } from '../../lib/use-wfm-t'
+import { useWfmT } from '../../../lib/use-wfm-t'
 
 type QueueRow={id:string;entity_type:string;external_id:string;external_name:string|null;country:string|null;status:string;matched_player_id:string|null;matched_club_id:string|null;payload:Record<string,string>|null;error_message:string|null;created_at:string};
 type Candidate={id:string;full_name?:string;name?:string;nationality?:string|null;position?:string|null;country?:string|null;league?:string|null};
