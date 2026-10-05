@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
+import { useWfmT } from '../../lib/use-wfm-t'
 
 type Request={id:string;agency_id:string;player_id:string;relationship_type:string;status:string;evidence_url:string|null;notes:string|null;created_at:string;agency:{id:string;name:string}|null;player:{id:string;full_name:string;position:string|null}|null}
 
 export default function AgencyReviewPage(){
+ const t=useWfmT()
  const [loading,setLoading]=useState(true),[allowed,setAllowed]=useState(false),[requests,setRequests]=useState<Request[]>([]),[error,setError]=useState(''),[notice,setNotice]=useState(''),[busy,setBusy]=useState<string|null>(null)
  const load=async()=>{
   setLoading(true);setError('')
@@ -21,10 +23,10 @@ export default function AgencyReviewPage(){
  const review=async(id:string,action:'approved'|'rejected'|'revoked')=>{
   setBusy(id);setError('');setNotice('')
   const {error:e}=await supabase.rpc('review_agency_player_request',{p_request_id:id,p_action:action,p_notes:null})
-  if(e)setError(e.message);else{setNotice('Request '+action+'.');await load()}
+  if(e)setError(e.message);else{setNotice(t('Request '+action+'.'));await load()}
   setBusy(null)
  }
- if(loading)return <main className="account-page"><div className="account-card">Loading agency review…</div></main>
- if(!allowed)return <main className="account-page"><section className="account-card"><div className="eyebrow">ADMIN</div><h1>Agency review</h1><p className="account-muted">{error||'Admin access required.'}</p></section></main>
- return <main className="account-page"><section className="account-card"><div className="account-card-top"><div><div className="eyebrow">ADMIN · AGENT WORKFLOWS</div><h1>Agency relationship review</h1><p>Review representation and management requests before they become approved WFM relationships.</p></div><a href="/admin/verification" className="outline">Verification queue</a></div>{error&&<div className="account-message account-error">{error}</div>}{notice&&<div className="account-message account-success">{notice}</div>}{requests.length?<div className="club-board-list">{requests.map(r=><div key={r.id} className="club-board-card"><div><strong>{r.player?.full_name||'Player'} · {r.agency?.name||'Agency'}</strong><small>{r.relationship_type} · submitted {new Date(r.created_at).toLocaleDateString()}</small>{r.evidence_url&&<a href={r.evidence_url} target="_blank" rel="noreferrer"><small>Evidence →</small></a>}{r.notes&&<small>{r.notes}</small>}</div><div style={{display:'flex',gap:6}}><button className="outline" disabled={busy===r.id} onClick={()=>void review(r.id,'approved')}>Approve</button><button className="outline" disabled={busy===r.id} onClick={()=>void review(r.id,'rejected')}>Reject</button></div></div>)}</div>:<p className="account-muted">No pending agency relationship requests.</p>}</section></main>
+ if(loading)return <main className="account-page"><div className="account-card">{t("Loading agency review…")}</div></main>
+ if(!allowed)return <main className="account-page"><section className="account-card"><div className="eyebrow">ADMIN</div><h1>{t("Agency review")}</h1><p className="account-muted">{error||'Admin access required.'}</p></section></main>
+ return <main className="account-page"><section className="account-card"><div className="account-card-top"><div><div className="eyebrow">{t("ADMIN · AGENT WORKFLOWS")}</div><h1>{t("Agency relationship review")}</h1><p>{t("Review representation and management requests before they become approved WFM relationships.")}</p></div><a href="/admin/verification" className="outline">{t("Verification queue")}</a></div>{error&&<div className="account-message account-error">{error}</div>}{notice&&<div className="account-message account-success">{notice}</div>}{requests.length?<div className="club-board-list">{requests.map(r=><div key={r.id} className="club-board-card"><div><strong>{r.player?.full_name||'Player'} · {r.agency?.name||'Agency'}</strong><small>{r.relationship_type} · submitted {new Date(r.created_at).toLocaleDateString()}</small>{r.evidence_url&&<a href={r.evidence_url} target="_blank" rel="noreferrer"><small>{t("Evidence →")}</small></a>}{r.notes&&<small>{r.notes}</small>}</div><div style={{display:'flex',gap:6}}><button className="outline" disabled={busy===r.id} onClick={()=>void review(r.id,'approved')}>{t("Approve")}</button><button className="outline" disabled={busy===r.id} onClick={()=>void review(r.id,'rejected')}>{t("Reject")}</button></div></div>)}</div>:<p className="account-muted">{t("No pending agency relationship requests.")}</p>}</section></main>
 }
