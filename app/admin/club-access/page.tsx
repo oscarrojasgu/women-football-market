@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
-import { useWfmT } from "../../lib/use-wfm-t"
 
 type Request = {
   id: string
@@ -17,7 +16,6 @@ type Request = {
 }
 
 export default function ClubAccessAdminPage() {
- const t=useWfmT()
   const [authorized, setAuthorized] = useState(false)
   const [loading, setLoading] = useState(true)
   const [requests, setRequests] = useState<Request[]>([])
@@ -70,15 +68,15 @@ export default function ClubAccessAdminPage() {
     await load()
   }
 
-  if (loading) return <main className="account-page"><div className="account-card">{t('Loading admin workspace…')}</div></main>
-  if (!authorized) return <main className="account-page"><div className="account-card"><div className="eyebrow">ADMIN</div><h1>{t('Access restricted')}</h1><p className="account-muted">{t('This workspace is limited to WFM administrators.')}</p></div></main>
+  if (loading) return <main className="account-page"><div className="account-card">Loading admin workspace…</div></main>
+  if (!authorized) return <main className="account-page"><div className="account-card"><div className="eyebrow">ADMIN</div><h1>Access restricted</h1><p className="account-muted">This workspace is limited to WFM administrators.</p></div></main>
 
   return (
     <main className="account-page">
       <section className="account-card">
         <div className="account-card-top">
-          <div><div className="eyebrow">{t('WFM ADMIN · CLUB ACCESS')}</div><h1>{t('Club access requests')}</h1><p>{t('Review requests before users receive private club workspace access.')}</p></div>
-          <Link href="/admin/verification" className="outline">{t('Verification queue')}</Link>
+          <div><div className="eyebrow">WFM ADMIN · CLUB ACCESS</div><h1>Club access requests</h1><p>Review requests before users receive private club workspace access.</p></div>
+          <Link href="/admin/verification" className="outline">Verification queue</Link>
         </div>
         {message && <div className="account-message account-success">{message}</div>}
         <div className="admin-request-list">
@@ -86,16 +84,16 @@ export default function ClubAccessAdminPage() {
             <article className="admin-request-card" key={request.id}>
               <div>
                 <strong>{request.club?.name ?? 'Club'}</strong>
-                <span>{request.club?.country ?? 'Country unavailable'} · {t('requested role')}: {request.requested_role}</span>
-                <small>{t('User ID')}: {request.user_id}</small>
+                <span>{request.club?.country ?? 'Country unavailable'} · requested role: {request.requested_role}</span>
+                <small>User ID: {request.user_id}</small>
                 {request.message && <p>{request.message}</p>}
               </div>
               <div className="admin-request-actions">
                 <button type="button" className="settings-primary" disabled={busy === request.id} onClick={() => void review(request, 'approved')}>{busy === request.id ? 'Working…' : 'Approve'}</button>
-                <button type="button" className="admin-reject-button" disabled={busy === request.id} onClick={() => void review(request, 'rejected')}>{t('Reject')}</button>
+                <button type="button" className="admin-reject-button" disabled={busy === request.id} onClick={() => void review(request, 'rejected')}>Reject</button>
               </div>
             </article>
-          )) : <div className="club-board-empty">{t('No pending club access requests.')}</div>}
+          )) : <div className="club-board-empty">No pending club access requests.</div>}
         </div>
       </section>
     </main>
