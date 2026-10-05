@@ -365,7 +365,7 @@ export default function ClubsPage() {
           <div style={{ padding: '20px 22px', borderBottom: '1px solid #e8e8e8' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 18, flexWrap: 'wrap' }}>
               <div>
-                <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>Club intelligence</h2>
+                <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>{t("Club intelligence")}</h2>
                 <p style={{ margin: '6px 0 0', color: '#777', fontSize: 13 }}>
                   {loading ? 'Loading clubs…' : `${filteredClubs.length} of ${clubs.length} clubs shown`}
                 </p>
@@ -401,7 +401,7 @@ export default function ClubsPage() {
 
             <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 12, color: '#777', fontWeight: 700 }}>SORT</span>
+                <span style={{ fontSize: 12, color: '#777', fontWeight: 700 }}>{t("SORT")}</span>
                 {[
                   ['name', 'Name'],
                   ['players', 'Roster'],
@@ -442,9 +442,9 @@ export default function ClubsPage() {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={8} style={{ padding: 50, textAlign: 'center', color: '#777' }}>Loading club database…</td></tr>
+                  <tr><td colSpan={8} style={{ padding: 50, textAlign: 'center', color: '#777' }}>{t("Loading club database…")}</td></tr>
                 ) : filteredClubs.length === 0 ? (
-                  <tr><td colSpan={7} style={{ padding: 50, textAlign: 'center', color: '#777' }}>No clubs match these filters.</td></tr>
+                  <tr><td colSpan={7} style={{ padding: 50, textAlign: 'center', color: '#777' }}>{t("No clubs match these filters.")}</td></tr>
                 ) : (
                   filteredClubs.map((club) => {
                     const stats = clubStats[club.id]
