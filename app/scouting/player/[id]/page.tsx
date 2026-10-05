@@ -131,7 +131,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
             )}
           </div>
           <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <span style={{ fontSize: 10, letterSpacing: "0.08em", color: "#888", fontWeight: 800 }}>{t(t("WOMEN’S FOOTBALL MARKET · SCOUTING REPORT"))}</span>
+            <span style={{ fontSize: 10, letterSpacing: "0.08em", color: "#888", fontWeight: 800 }}>{t("WOMEN’S FOOTBALL MARKET · SCOUTING REPORT")}</span>
             <h1 style={{ margin: "7px 0 5px", fontSize: "clamp(28px,4vw,44px)", lineHeight: 1 }}>{player.full_name}</h1>
             <p style={{ margin: 0, color: "#555", fontSize: 14 }}>
               {[player.position, player.secondary_position].filter(Boolean).join(" / ") || t("Position unavailable")}
@@ -210,7 +210,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
         <section style={{ ...cardStyle, marginTop: 14 }}>
           <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>{t("DATA EVIDENCE")}</div>
           <h2 style={{ margin: "5px 0 4px" }}>{t("Evidence & data quality")}</h2>
-          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>A transparent view of the WFM records supporting this report. Presence of data does not by itself establish that every underlying source is current or independently verified.</p>
+          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>{t("A transparent view of the WFM records supporting this report. Presence of data does not by itself establish that every underlying source is current or independently verified.")}</p>
           <div style={{ display: "grid", gridTemplateColumns: "180px 1fr", gap: 14, alignItems: "start", marginTop: 12 }}>
             <div style={{ border: "1px solid #eee", borderRadius: 8, padding: 14 }}>
               <small style={{ color: "#888", letterSpacing: "0.06em" }}>EVIDENCE COVERAGE</small>
@@ -229,7 +229,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
         <section style={{ ...cardStyle, marginTop: 14 }}>
           <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>{t("SOURCE TRACEABILITY")}</div>
           <h2 style={{ margin: "5px 0 4px" }}>{t("Underlying sources")}</h2>
-          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>Where WFM has a linked source record, the report exposes the publisher and reliability metadata used to support the underlying data.</p>
+          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>{t("Where WFM has a linked source record, the report exposes the publisher and reliability metadata used to support the underlying data.")}</p>
           <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
             {[
               ["Performance", statSources[0] || null],
@@ -242,7 +242,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
                   <div style={{ fontSize: 11 }}>
                     <strong>{source.publisher || t("Publisher unavailable")}</strong>
                     <span style={{ color: "#777", marginLeft: 8 }}>{source.reliability ? t("Reliability") + ": " + source.reliability : t("Reliability not recorded")}</span>
-                    {source.published_at ? <span style={{ color: "#777", marginLeft: 8 }}>Published: {source.published_at}</span> : null}
+                    {source.published_at ? <span style={{ color: "#777", marginLeft: 8 }}>{t("Published")}: {source.published_at}</span> : null}
                     {source.url ? <a href={source.url} target="_blank" rel="noreferrer" style={{ marginLeft: 8 }}>{t("View source")}</a> : null}
                   </div>
                 ) : <span style={{ color: "#888", fontSize: 11 }}>No linked source record</span>}
@@ -254,7 +254,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
         <section style={{ ...cardStyle, marginTop: 14 }}>
           <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>{t("RECRUITMENT INTELLIGENCE")}</div>
           <h2 style={{ margin: "5px 0 4px" }}>{t("Decision context")}</h2>
-          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>A factual summary of the available WFM data to support recruitment review. It does not assign an overall player rating.</p>
+          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>{t("A factual summary of the available WFM data to support recruitment review. It does not assign an overall player rating.")}</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginTop: 12 }}>
             <div style={{ border: "1px solid #eee", borderRadius: 6, padding: 11 }}>
               <small style={{ color: "#888" }}>AVAILABILITY</small>
@@ -280,7 +280,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
         <section style={{ ...cardStyle, marginTop: 14 }}>
           <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>{t("PERFORMANCE HISTORY")}</div>
           <h2 style={{ margin: "5px 0 4px" }}>{t("Season trajectory")}</h2>
-          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>Historical league and club performance from WFM season intelligence. Blank metrics indicate unavailable source data rather than zero production.</p>
+          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>{t("Historical league and club performance from WFM season intelligence. Blank metrics indicate unavailable source data rather than zero production.")}</p>
           {intelligence?.length ? (
             <div style={{ overflowX: "auto", marginTop: 10 }}>
               <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 720, fontSize: 12 }}>
@@ -296,7 +296,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
                     <tr key={`${season.season}-${season.club_name || ""}-${season.league || ""}`} style={{ borderBottom: "1px solid #eee" }}>
                       <td style={{ padding: "10px 8px", fontWeight: 800, whiteSpace: "nowrap" }}>{season.season || "—"}</td>
                       <td style={{ padding: "10px 8px", minWidth: 190 }}>
-                        <strong style={{ display: "block" }}>{season.club_name || "Club unavailable"}</strong>
+                        <strong style={{ display: "block" }}>{season.club_name || t("Club unavailable")}</strong>
                         <small style={{ color: "#777" }}>{season.league || t("Competition unavailable")}</small>
                       </td>
                       <td style={{ padding: "10px 8px" }}>{season.minutes ?? "—"}</td>
@@ -316,9 +316,9 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
         <section style={{ ...cardStyle, marginTop: 14 }}>
           <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>{t("SCOUTING WORKFLOW")}</div>
           <h2 style={{ margin: "5px 0 4px" }}>{t("Recruitment context")}</h2>
-          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>Persistent list membership, pipeline status and private scouting context for your WFM account.</p>
+          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>{t("Persistent list membership, pipeline status and private scouting context for your WFM account.")}</p>
           {!userId ? (
-            <p style={{ color: "#777", fontSize: 12 }}>Sign in to view private scouting workflow information for this player.</p>
+            <p style={{ color: "#777", fontSize: 12 }}>{t("Sign in to view private scouting workflow information for this player.")}</p>
           ) : listRows.length ? (
             <div style={{ display: "grid", gap: 10 }}>
               <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
@@ -328,17 +328,17 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
                   {[["Stage", primaryPipeline.stage],["Priority", primaryPipeline.priority],["Fit", primaryPipeline.fit_status],["Target", primaryPipeline.target_date || "—"]].map(([label, value]) => <div key={label as string} style={{ border: "1px solid #eee", borderRadius: 6, padding: 10 }}><small style={{ color: "#888" }}>{label}</small><strong style={{ display: "block", marginTop: 4, textTransform: "capitalize" }}>{String(value).replace(/_/g, " ")}</strong></div>)}
                 </div>
-              ) : <p style={{ color: "#777", fontSize: 12 }}>This player is on a scouting list but has no pipeline assessment yet.</p>}
-              {primaryPipeline?.next_action && <div style={{ borderTop: "1px solid #eee", paddingTop: 10 }}><small style={{ color: "#888" }}>Next recruitment action</small><strong style={{ display: "block", marginTop: 4 }}>{primaryPipeline.next_action}</strong></div>}
-              {primaryPipeline?.evaluation && <div><small style={{ color: "#888" }}>Recruitment evaluation</small><p style={{ margin: "4px 0 0", whiteSpace: "pre-wrap", fontSize: 12 }}>{primaryPipeline.evaluation}</p></div>}
+              ) : <p style={{ color: "#777", fontSize: 12 }}>{t("This player is on a scouting list but has no pipeline assessment yet.")}</p>}
+              {primaryPipeline?.next_action && <div style={{ borderTop: "1px solid #eee", paddingTop: 10 }}><small style={{ color: "#888" }}>{t("Next recruitment action")}</small><strong style={{ display: "block", marginTop: 4 }}>{primaryPipeline.next_action}</strong></div>}
+              {primaryPipeline?.evaluation && <div><small style={{ color: "#888" }}>{t("Recruitment evaluation")}</small><p style={{ margin: "4px 0 0", whiteSpace: "pre-wrap", fontSize: 12 }}>{primaryPipeline.evaluation}</p></div>}
             </div>
-          ) : <p style={{ color: "#777", fontSize: 12 }}>This player is not currently on one of your scouting lists.</p>}
+          ) : <p style={{ color: "#777", fontSize: 12 }}>{t("This player is not currently on one of your scouting lists.")}</p>}
         </section>
 
         <section style={{ ...cardStyle, marginTop: 14 }}>
           <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>{t("GLOBAL PEER CONTEXT")}</div>
           <h2 style={{ margin: "5px 0 4px" }}>{t("Performance context")}</h2>
-          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>Descriptive peer context for the same season and position. These percentiles are research context, not a WFM player rating.</p>
+          <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>{t("Descriptive peer context for the same season and position. These percentiles are research context, not a WFM player rating.")}</p>
           {peer ? (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 8 }}>
               {[
@@ -358,13 +358,13 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
                 </div>
               ))}
             </div>
-          ) : <p style={{ color: "#777" }}>Global peer context is not currently available for this player&apos;s latest season.</p>}
+          ) : <p style={{ color: "#777" }}>{t("Global peer context is not currently available for this player’s latest season.")}</p>}
         </section>
 
         <section style={{ ...cardStyle, marginTop: 14 }}>
           <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>{t("SCOUTING NOTES")}</div>
           <h2 style={{ margin: "5px 0 12px" }}>{t("Recent private notes")}</h2>
-          {userId && latestNotes.length ? <div style={{ display: "grid", gap: 8 }}>{latestNotes.map((note: any) => <div key={note.id} style={{ borderTop: "1px solid #eee", paddingTop: 9 }}><small style={{ color: "#888", textTransform: "capitalize" }}>{String(note.note_type).replace(/_/g, " ")}</small><p style={{ margin: "4px 0 0", fontSize: 12, whiteSpace: "pre-wrap" }}>{note.content}</p></div>)}</div> : <p style={{ color: "#777", fontSize: 12 }}>{userId ? "No private scouting notes have been added yet." : "Sign in to view private scouting notes."}</p>}
+          {userId && latestNotes.length ? <div style={{ display: "grid", gap: 8 }}>{latestNotes.map((note: any) => <div key={note.id} style={{ borderTop: "1px solid #eee", paddingTop: 9 }}><small style={{ color: "#888", textTransform: "capitalize" }}>{String(note.note_type).replace(/_/g, " ")}</small><p style={{ margin: "4px 0 0", fontSize: 12, whiteSpace: "pre-wrap" }}>{note.content}</p></div>)}</div> : <p style={{ color: "#777", fontSize: 12 }}>{userId ? "{t("No private scouting notes have been added yet.")}" : "{t("Sign in to view private scouting notes.")}"}</p>}
         </section>
 
         <section style={{ ...cardStyle, marginTop: 14 }}>
