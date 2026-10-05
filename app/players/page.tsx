@@ -858,19 +858,19 @@ export default function PlayersPage() {
       <main className="players-page players-scout-page">
         <section className="scout-stat-grid">
           <div className="scout-stat">
-            <span>PLAYER POOL</span>
+            <span>{t("PLAYER POOL")}</span>
             <strong>{players.length}</strong>
           </div>
           <div className="scout-stat">
-            <span>WITH RECORDED STATS</span>
+            <span>{t("WITH RECORDED STATS")}</span>
             <strong>{playersWithStats}</strong>
           </div>
           <div className="scout-stat">
-            <span>ACTIVE CONTRACTS</span>
+            <span>{t("ACTIVE CONTRACTS")}</span>
             <strong>{activeContracts}</strong>
           </div>
           <div className="scout-stat">
-            <span>COMPETITIONS</span>
+            <span>{t("COMPETITIONS")}</span>
             <strong>{leagueCount}</strong>
           </div>
         </section>
@@ -879,7 +879,7 @@ export default function PlayersPage() {
           <div className="scout-control-grid">
             <input
               type="text"
-              placeholder="Search player, club, league, nationality or agency..."
+              placeholder={t("Search player, club, league, nationality or agency...")}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -890,7 +890,7 @@ export default function PlayersPage() {
                 setRole(event.target.value as PlayerRoleGroup | "All")
               }
             >
-              <option value="All">All Roles</option>
+              <option value="All">{t("All Roles")}</option>
               {roles.map((item) => (
                 <option key={item} value={item}>
                   {roleLabels[item]}
@@ -902,7 +902,7 @@ export default function PlayersPage() {
               value={nationality}
               onChange={(event) => setNationality(event.target.value)}
             >
-              <option value="All">All Nationalities</option>
+              <option value="All">{t("All Nationalities")}</option>
               {nationalities.map((item) => (
                 <option key={item} value={item}>
                   {item}
@@ -918,7 +918,7 @@ export default function PlayersPage() {
                 setClub("All");
               }}
             >
-              <option value="All">All Competitions</option>
+              <option value="All">{t("All Competitions")}</option>
               {leagues.map((item) => (
                 <option key={item} value={item}>
                   {item}
@@ -933,7 +933,7 @@ export default function PlayersPage() {
                 setClub("All");
               }}
             >
-              <option value="All">All Seasons</option>
+              <option value="All">{t("All Seasons")}</option>
               {seasons.map(([key, label]) => (
                 <option key={key} value={key}>{label}</option>
               ))}
@@ -943,7 +943,7 @@ export default function PlayersPage() {
               value={club}
               onChange={(event) => setClub(event.target.value)}
             >
-              <option value="All">All Clubs</option>
+              <option value="All">{t("All Clubs")}</option>
               {clubs.map((item) => (
                 <option key={item} value={item}>
                   {item}
@@ -952,35 +952,35 @@ export default function PlayersPage() {
             </select>
 
             <select value={scoutingFocus} onChange={(event) => setScoutingFocus(event.target.value)}>
-              <option value="All">All Scouting Focus</option>
-              <option value="attack">Goal Threat</option>
-              <option value="creation">Chance Creation</option>
-              <option value="defending">Defensive Work</option>
-              <option value="progression">Ball Progression</option>
+              <option value="All">{t("All Scouting Focus")}</option>
+              <option value="attack">{t("Goal Threat")}</option>
+              <option value="creation">{t("Chance Creation")}</option>
+              <option value="defending">{t("Defensive Work")}</option>
+              <option value="progression">{t("Ball Progression")}</option>
             </select>
 
             <select value={benchmarkScope} onChange={(event) => setBenchmarkScope(event.target.value as "competition" | "global")} disabled={scoutingFocus === "All"}>
-              <option value="competition">Competition Peer Benchmark</option>
-              <option value="global">Global Peer Benchmark</option>
+              <option value="competition">{t("Competition Peer Benchmark")}</option>
+              <option value="global">{t("Global Peer Benchmark")}</option>
             </select>
 
             <select value={minimumPercentile} onChange={(event) => setMinimumPercentile(event.target.value)} disabled={scoutingFocus === "All"}>
-              <option value="0">Any Peer Percentile</option>
-              <option value="50">50th+ Percentile</option>
-              <option value="60">60th+ Percentile</option>
-              <option value="75">75th+ Percentile</option>
-              <option value="90">90th+ Percentile</option>
+              <option value="0">{t("Any Peer Percentile")}</option>
+              <option value="50">{t("50th+ Percentile")}</option>
+              <option value="60">{t("60th+ Percentile")}</option>
+              <option value="75">{t("75th+ Percentile")}</option>
+              <option value="90">{t("90th+ Percentile")}</option>
             </select>
 
             <select
               value={minimumMinutes}
               onChange={(event) => setMinimumMinutes(event.target.value)}
             >
-              <option value="0">Any Minutes</option>
-              <option value="450">450+ Minutes</option>
-              <option value="900">900+ Minutes</option>
-              <option value="1350">1,350+ Minutes</option>
-              <option value="1800">1,800+ Minutes</option>
+              <option value="0">{t("Any Minutes")}</option>
+              <option value="450">{t("450+ Minutes")}</option>
+              <option value="900">{t("900+ Minutes")}</option>
+              <option value="1350">{t("1,350+ Minutes")}</option>
+              <option value="1800">{t("1,800+ Minutes")}</option>
             </select>
           </div>
 
@@ -1017,8 +1017,8 @@ export default function PlayersPage() {
                 <option key={list.id} value={list.id}>{list.name}</option>
               ))}
             </select>
-            <button type="button" onClick={createScoutingList}>New list</button>
-            <button type="button" onClick={compareShortlist} disabled={shortlist.length < 2}>Compare first 2</button>
+            <button type="button" onClick={createScoutingList}>{t("New list")}</button>
+            <button type="button" onClick={compareShortlist} disabled={shortlist.length < 2}>{t("Compare first 2")}</button>
             <button
               type="button"
               onClick={async () => {
@@ -1064,12 +1064,12 @@ export default function PlayersPage() {
             >
               Save workflow
             </button>
-            <button type="button" onClick={() => setShortlist([])} disabled={!shortlist.length}>Clear shortlist</button>
+            <button type="button" onClick={() => setShortlist([])} disabled={!shortlist.length}>{t("Clear shortlist")}</button>
           </div>
         </div>
         {savedWorkflows.length > 0 && (
           <div className="scout-note">
-            <strong>Saved scouting workflows:</strong>{" "}
+            <strong>{t("Saved scouting workflows:")}</strong>{" "}
             {savedWorkflows.map((workflow) => (
               <span key={workflow.id} style={{display:"inline-flex",gap:5,alignItems:"center",marginLeft:8,marginBottom:4}}>
                 <button
@@ -1108,12 +1108,12 @@ export default function PlayersPage() {
           </div>
         )}
         <div className="scout-note">
-          <strong>Persistent scouting:</strong>{" "}
+          <strong>{t("Persistent scouting:")}</strong>{" "}
           {userId ? "Signed in. Use the list selector below to save players to your WFM scouting workspace." : "Sign in to save players and workflows to your private WFM scouting workspace."}
           {scoutingMessage && <span style={{marginLeft:8}}>{scoutingMessage}</span>}
         </div>
         <div className="scout-note">
-          <strong>Scouting context:</strong> performance figures use the latest
+          <strong>{t("Scouting context:")}</strong> performance figures use the latest
           recorded season available for each player. Peer-percentile filters use
           the latest eligible league/position benchmark. They are descriptive
           research context, not WFM ratings or predictions.
@@ -1217,17 +1217,17 @@ export default function PlayersPage() {
             <div className="scout-pagination">
               <span>Showing {pageStart}–{pageEnd} of {filteredPlayers.length}</span>
               <div>
-                <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>Previous</button>
+                <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>{t("Previous")}</button>
                 <strong>Page {page} of {totalPages}</strong>
-                <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>Next</button>
+                <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>{t("Next")}</button>
               </div>
             </div>
           )}
 
           {!loading && filteredPlayers.length === 0 && (
             <div className="scout-empty">
-              <strong>No players match the current filters</strong>
-              <span>Broaden the role, league, club or minutes criteria.</span>
+              <strong>{t("No players match the current filters")}</strong>
+              <span>{t("Broaden the role, league, club or minutes criteria.")}</span>
               <button type="button" onClick={clearFilters}>
                 Reset scouting filters
               </button>
