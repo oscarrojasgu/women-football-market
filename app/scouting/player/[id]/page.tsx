@@ -131,17 +131,17 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
             )}
           </div>
           <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <span style={{ fontSize: 10, letterSpacing: "0.08em", color: "#888", fontWeight: 800 }}>{t("WOMEN’S FOOTBALL MARKET · SCOUTING REPORT")}</span>
+            <span style={{ fontSize: 10, letterSpacing: "0.08em", color: "#888", fontWeight: 800 }}>{t(t("WOMEN’S FOOTBALL MARKET · SCOUTING REPORT"))}</span>
             <h1 style={{ margin: "7px 0 5px", fontSize: "clamp(28px,4vw,44px)", lineHeight: 1 }}>{player.full_name}</h1>
             <p style={{ margin: 0, color: "#555", fontSize: 14 }}>
-              {[player.position, player.secondary_position].filter(Boolean).join(" / ") || "Position unavailable"}
-              {" · "}{player.nationality || "Nationality unavailable"}
-              {ageOf(player.date_of_birth) != null ? ` · ${ageOf(player.date_of_birth)} years` : ""}
+              {[player.position, player.secondary_position].filter(Boolean).join(" / ") || t("Position unavailable")}
+              {" · "}{player.nationality || t("Nationality unavailable")}
+              {ageOf(player.date_of_birth) != null ? ` · ${ageOf(player.date_of_birth)} ${t("years")}` : ""}
             </p>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 18 }}>
-              <span style={{ border: "1px solid #ddd", padding: "6px 9px", borderRadius: 5, fontSize: 11 }}>{club?.name || latest?.club_name || "No current club"}</span>
-              <span style={{ border: "1px solid #ddd", padding: "6px 9px", borderRadius: 5, fontSize: 11 }}>{latest?.league || "Competition unavailable"}</span>
-              <span style={{ border: "1px solid #ddd", padding: "6px 9px", borderRadius: 5, fontSize: 11 }}>Market value {money(value?.market_value_usd ?? null)}</span>
+              <span style={{ border: "1px solid #ddd", padding: "6px 9px", borderRadius: 5, fontSize: 11 }}>{club?.name || latest?.club_name || t("No current club")}</span>
+              <span style={{ border: "1px solid #ddd", padding: "6px 9px", borderRadius: 5, fontSize: 11 }}>{latest?.league || t("Competition unavailable")}</span>
+              <span style={{ border: "1px solid #ddd", padding: "6px 9px", borderRadius: 5, fontSize: 11 }}>{t("Market value")} {money(value?.market_value_usd ?? null)}</span>
             </div>
           </div>
         </section>
@@ -166,15 +166,15 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
             <h2 style={{ margin: "5px 0 16px" }}>{latest?.season || "Latest season"} profile</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
               {[
-                ["Goals", latest?.goals],
-                ["Assists", latest?.assists],
+                [t("Goals"), latest?.goals],
+                [t("Assists"), latest?.assists],
                 ["xG/90", latest?.xg_per90?.toFixed(2)],
                 ["xA/90", latest?.xa_per90?.toFixed(2)],
-                ["Chances/90", latest?.chances_created_per90?.toFixed(2)],
-                ["Key passes/90", latest?.key_passes_per90?.toFixed(2)],
-                ["Tackles/90", latest?.tackles_per90?.toFixed(2)],
-                ["Interceptions/90", latest?.interceptions_per90?.toFixed(2)],
-                ["Progressive carries/90", latest?.progressive_carries_per90?.toFixed(2)],
+                [t("Chances/90"), latest?.chances_created_per90?.toFixed(2)],
+                [t("Key passes/90"), latest?.key_passes_per90?.toFixed(2)],
+                [t("Tackles/90"), latest?.tackles_per90?.toFixed(2)],
+                [t("Interceptions/90"), latest?.interceptions_per90?.toFixed(2)],
+                [t("Progressive carries/90"), latest?.progressive_carries_per90?.toFixed(2)],
               ].map(([label, value]) => (
                 <div key={label as string} style={{ borderTop: "1px solid #eee", paddingTop: 9 }}>
                   <div style={{ fontSize: 10, color: "#888" }}>{label}</div>
@@ -240,10 +240,10 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
                 <strong style={{ fontSize: 11 }}>{label}</strong>
                 {source ? (
                   <div style={{ fontSize: 11 }}>
-                    <strong>{source.publisher || "Publisher unavailable"}</strong>
-                    <span style={{ color: "#777", marginLeft: 8 }}>{source.reliability ? "Reliability: " + source.reliability : "Reliability not recorded"}</span>
+                    <strong>{source.publisher || t("Publisher unavailable")}</strong>
+                    <span style={{ color: "#777", marginLeft: 8 }}>{source.reliability ? t("Reliability") + ": " + source.reliability : t("Reliability not recorded")}</span>
                     {source.published_at ? <span style={{ color: "#777", marginLeft: 8 }}>Published: {source.published_at}</span> : null}
-                    {source.url ? <a href={source.url} target="_blank" rel="noreferrer" style={{ marginLeft: 8 }}>View source</a> : null}
+                    {source.url ? <a href={source.url} target="_blank" rel="noreferrer" style={{ marginLeft: 8 }}>{t("View source")}</a> : null}
                   </div>
                 ) : <span style={{ color: "#888", fontSize: 11 }}>No linked source record</span>}
               </div>
@@ -297,7 +297,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
                       <td style={{ padding: "10px 8px", fontWeight: 800, whiteSpace: "nowrap" }}>{season.season || "—"}</td>
                       <td style={{ padding: "10px 8px", minWidth: 190 }}>
                         <strong style={{ display: "block" }}>{season.club_name || "Club unavailable"}</strong>
-                        <small style={{ color: "#777" }}>{season.league || "Competition unavailable"}</small>
+                        <small style={{ color: "#777" }}>{season.league || t("Competition unavailable")}</small>
                       </td>
                       <td style={{ padding: "10px 8px" }}>{season.minutes ?? "—"}</td>
                       <td style={{ padding: "10px 8px" }}>{season.goals_per90 == null ? "—" : season.goals_per90.toFixed(2)}</td>
