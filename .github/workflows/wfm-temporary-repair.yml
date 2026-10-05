@@ -1,0 +1,29 @@
+name: WFM temporary build repair
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Restore affected pages to last valid versions
+        run: |
+          git checkout 2ac340a99ab059ae9342a78706055b4e8c7a4a43 -- 'app/players/[id]/page.tsx' 'app/scouting/player/[id]/page.tsx'
+          git checkout 4131d1a03dc933fa7e1e80b1ec1daaa811addc08 -- 'app/scouting/compare/page.tsx'
+          git rm .github/workflows/wfm-temporary-repair.yml
+      - name: Commit repair
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add 'app/players/[id]/page.tsx' 'app/scouting/player/[id]/page.tsx' 'app/scouting/compare/page.tsx'
+          git commit -m 'Fix malformed scouting page syntax'
+          git push
