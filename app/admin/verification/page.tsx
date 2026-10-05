@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import { useWfmT } from "../../lib/use-wfm-t"
 
 type Submission = {
   id: string;
@@ -47,7 +46,6 @@ type OfficialVerification = {
 };
 
 export default function VerificationDashboard() {
- const t=useWfmT()
   const [user, setUser] = useState<any>(null);
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -319,21 +317,21 @@ export default function VerificationDashboard() {
   }
 
   if (loading && !user) {
-    return <main style={styles.page}><p>{t('Loading WFM owner access...')}</p></main>;
+    return <main style={styles.page}><p>Loading WFM owner access...</p></main>;
   }
 
   if (!user) {
     return (
       <main style={styles.page}>
         <div style={styles.authCard}>
-          <div style={styles.eyebrow}>{t('WOMEN’S FOOTBALL MARKET')}</div>
-          <h1 style={styles.title}>{t('Owner verification')}</h1>
+          <div style={styles.eyebrow}>WOMEN’S FOOTBALL MARKET</div>
+          <h1 style={styles.title}>Owner verification</h1>
           <p style={styles.muted}>
             Sign in with the owner email. This area is separate from the public
             player verification flow.
           </p>
 
-          <label style={styles.label}>{t('Owner email')}</label>
+          <label style={styles.label}>Owner email</label>
           <input
             type="email"
             value={email}
@@ -342,7 +340,7 @@ export default function VerificationDashboard() {
             style={styles.input}
           />
 
-          <label style={styles.label}>{t('Password')}</label>
+          <label style={styles.label}>Password</label>
           <input
             type="password"
             value={password}
@@ -377,8 +375,8 @@ export default function VerificationDashboard() {
     return (
       <main style={styles.page}>
         <div style={styles.authCard}>
-          <div style={styles.eyebrow}>{t('ACCESS DENIED')}</div>
-          <h1 style={styles.title}>{t('This account is not an owner.')}</h1>
+          <div style={styles.eyebrow}>ACCESS DENIED</div>
+          <h1 style={styles.title}>This account is not an owner.</h1>
           <p style={styles.muted}>
             Signed in as <strong>{user.email || "this account"}</strong>.
             The account must be added to the WFM owner list before it can
@@ -396,10 +394,10 @@ export default function VerificationDashboard() {
     <main style={styles.page}>
       <div style={styles.header}>
         <div>
-          <div style={styles.eyebrow}>{t('WOMEN’S FOOTBALL MARKET')}</div>
-          <h1 style={styles.title}>{t('Verification dashboard')}</h1>
+          <div style={styles.eyebrow}>WOMEN’S FOOTBALL MARKET</div>
+          <h1 style={styles.title}>Verification dashboard</h1>
           <p style={styles.muted}>
-            {t('Review')} player claims and submitted corrections before they become
+            Review player claims and submitted corrections before they become
             part of the public database.
           </p>
         </div>
@@ -414,25 +412,25 @@ export default function VerificationDashboard() {
       <section style={styles.statsRow}>
         <div style={styles.statCard}>
           <div style={styles.statNumber}>{submissions.length}</div>
-          <div style={styles.statLabel}>{t('Pending updates')}</div>
+          <div style={styles.statLabel}>Pending updates</div>
         </div>
         <div style={styles.statCard}>
           <div style={styles.statNumber}>{claims.length}</div>
-          <div style={styles.statLabel}>{t('Pending claims')}</div>
+          <div style={styles.statLabel}>Pending claims</div>
         </div>
         <div style={styles.statCard}>
           <div style={styles.statNumber}>{officialVerifications.length}</div>
-          <div style={styles.statLabel}>{t('Pending official verification')}</div>
+          <div style={styles.statLabel}>Pending official verification</div>
         </div>
       </section>
 
       <section style={styles.section}>
         <div style={styles.sectionHeader}>
-          <h2 style={styles.sectionTitle}>{t('Official verification')}</h2>
-          <button onClick={loadQueue} style={styles.refreshButton}>{t('Refresh')}</button>
+          <h2 style={styles.sectionTitle}>Official verification</h2>
+          <button onClick={loadQueue} style={styles.refreshButton}>Refresh</button>
         </div>
         {officialVerifications.length === 0 ? (
-          <div style={styles.empty}>{t('No pending official verification requests.')}</div>
+          <div style={styles.empty}>No pending official verification requests.</div>
         ) : (
           <div style={styles.list}>
             {officialVerifications.map((item) => (
@@ -442,17 +440,17 @@ export default function VerificationDashboard() {
                     <div style={styles.playerName}>
                       {item.player_id ? players[item.player_id]?.full_name || "Unknown player" : item.club_id ? clubs[item.club_id]?.name || "Unknown club" : item.agency_name || "Agency"}
                     </div>
-                    <div style={styles.field}>{item.verification_type.toUpperCase()} · {t('User ID')}: {item.user_id}</div>
+                    <div style={styles.field}>{item.verification_type.toUpperCase()} · User ID: {item.user_id}</div>
                   </div>
-                  <div style={styles.pending}>{t('PENDING')}</div>
+                  <div style={styles.pending}>PENDING</div>
                 </div>
                 <div style={styles.notes}>Verification method: {item.verification_method || "Not specified"}</div>
-                {item.evidence_url && <a href={item.evidence_url} target="_blank" rel="noreferrer" style={styles.evidence}>{t('Open evidence ↗')}</a>}
-                {item.notes && <div style={styles.notes}><strong>{t('Notes')}:</strong> {item.notes}</div>}
+                {item.evidence_url && <a href={item.evidence_url} target="_blank" rel="noreferrer" style={styles.evidence}>Open evidence ↗</a>}
+                {item.notes && <div style={styles.notes}><strong>Notes:</strong> {item.notes}</div>}
                 <div style={styles.actions}>
-                  <button onClick={() => reviewOfficial(item.id, "approved")} disabled={busy} style={styles.approveButton}>{t('Approve')} official</button>
-                  <button onClick={() => reviewOfficial(item.id, "needs_evidence")} disabled={busy} style={styles.rejectButton}>{t('Needs evidence')}</button>
-                  <button onClick={() => reviewOfficial(item.id, "rejected")} disabled={busy} style={styles.rejectButton}>{t('Reject')}</button>
+                  <button onClick={() => reviewOfficial(item.id, "approved")} disabled={busy} style={styles.approveButton}>Approve official</button>
+                  <button onClick={() => reviewOfficial(item.id, "needs_evidence")} disabled={busy} style={styles.rejectButton}>Needs evidence</button>
+                  <button onClick={() => reviewOfficial(item.id, "rejected")} disabled={busy} style={styles.rejectButton}>Reject</button>
                 </div>
               </article>
             ))}
@@ -462,14 +460,14 @@ export default function VerificationDashboard() {
 
       <section style={styles.section}>
         <div style={styles.sectionHeader}>
-          <h2 style={styles.sectionTitle}>{t('Profile updates')}</h2>
+          <h2 style={styles.sectionTitle}>Profile updates</h2>
           <button onClick={loadQueue} style={styles.refreshButton}>
-            {t('Refresh')}
+            Refresh
           </button>
         </div>
 
         {submissions.length === 0 ? (
-          <div style={styles.empty}>{t('No pending profile updates.')}</div>
+          <div style={styles.empty}>No pending profile updates.</div>
         ) : (
           <div style={styles.list}>
             {submissions.map((item) => (
@@ -483,17 +481,17 @@ export default function VerificationDashboard() {
                       {item.field_name || item.submission_type}
                     </div>
                   </div>
-                  <div style={styles.pending}>{t('PENDING')}</div>
+                  <div style={styles.pending}>PENDING</div>
                 </div>
 
                 <div style={styles.compare}>
                   <div>
-                    <div style={styles.smallLabel}>{t('CURRENT')}</div>
+                    <div style={styles.smallLabel}>CURRENT</div>
                     <div style={styles.value}>{item.old_value || "—"}</div>
                   </div>
                   <div style={styles.arrow}>→</div>
                   <div>
-                    <div style={styles.smallLabel}>{t('SUBMITTED')}</div>
+                    <div style={styles.smallLabel}>SUBMITTED</div>
                     <div style={styles.value}>{item.new_value || "—"}</div>
                   </div>
                 </div>
@@ -505,13 +503,13 @@ export default function VerificationDashboard() {
                     rel="noreferrer"
                     style={styles.evidence}
                   >
-                    {t('Open evidence ↗')}
+                    Open evidence ↗
                   </a>
                 )}
 
                 {item.notes && (
                   <div style={styles.notes}>
-                    <strong>{t('Notes')}:</strong> {item.notes}
+                    <strong>Notes:</strong> {item.notes}
                   </div>
                 )}
 
@@ -521,14 +519,14 @@ export default function VerificationDashboard() {
                     disabled={busy}
                     style={styles.approveButton}
                   >
-                    {t('Approve')} & apply
+                    Approve & apply
                   </button>
                   <button
                     onClick={() => reviewSubmission(item.id, "rejected")}
                     disabled={busy}
                     style={styles.rejectButton}
                   >
-                    {t('Reject')}
+                    Reject
                   </button>
                 </div>
               </article>
@@ -539,11 +537,11 @@ export default function VerificationDashboard() {
 
       <section style={styles.section}>
         <div style={styles.sectionHeader}>
-          <h2 style={styles.sectionTitle}>{t('Profile claims')}</h2>
+          <h2 style={styles.sectionTitle}>Profile claims</h2>
         </div>
 
         {claims.length === 0 ? (
-          <div style={styles.empty}>{t('No pending profile claims.')}</div>
+          <div style={styles.empty}>No pending profile claims.</div>
         ) : (
           <div style={styles.list}>
             {claims.map((claim) => (
@@ -554,10 +552,10 @@ export default function VerificationDashboard() {
                       {players[claim.player_id]?.full_name || "Unknown player"}
                     </div>
                     <div style={styles.field}>
-                      {t('User ID')}: {claim.user_id}
+                      User ID: {claim.user_id}
                     </div>
                   </div>
-                  <div style={styles.pending}>{t('PENDING')}</div>
+                  <div style={styles.pending}>PENDING</div>
                 </div>
 
                 <div style={styles.notes}>
@@ -577,7 +575,7 @@ export default function VerificationDashboard() {
                     disabled={busy}
                     style={styles.rejectButton}
                   >
-                    {t('Reject')}
+                    Reject
                   </button>
                 </div>
               </article>
