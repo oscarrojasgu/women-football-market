@@ -1,10 +1,11 @@
 'use client'
 
 import Script from 'next/script'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+const CONSENT_KEY = 'wfm-analytics-consent'
 
 declare global {
   interface Window {
@@ -14,27 +15,32 @@ declare global {
 }
 
 export default function GoogleAnalytics() {
+  const [consent, setConsent] = useState<'accepted' | 'declined' | null>(null)
+
   useEffect(() => {
-    if (!measurementId || typeof window === 'undefined') return
+    const readConsent = () => {
+      const value = window.localStorage.getItem(CONSENT_KEY)
+      setConsent(value === 'accepted' || value === 'declined' ? value : null)
+    }
+
+    readConsent()
+    window.addEventListener('wfm-consent-change', readConsent)
+    return () => window.removeEventListener('wfm-consent-change', readConsent)
+  }, [])
+
+  useEffect(() => {
+    if (consent !== 'accepted' || !measurementId) return
 
     const syncUserId = async () => {
       const { data } = await supabase.auth.getUser()
-      const userId = data.user?.id
+      const userId = data.user?.id ?? null
 
       if (typeof window.gtag !== 'function') return
 
-      if (userId) {
-        window.gtag('set', 'user_id', userId)
-        window.gtag('config', measurementId, {
-          user_id: userId,
-          user_properties: {
-            account_status: 'signed_in'
-          },
-          send_page_view: false
-        })
-      } else {
-        window.gtag('set', 'user_id', null)
-      }
+      window.gtag('set', 'user_id', userId)
+      window.gtag('set', 'user_properties', {
+        account_status: userId ? 'signed_in' : 'anonymous'
+      })
     }
 
     void syncUserId()
@@ -44,15 +50,28 @@ export default function GoogleAnalytics() {
     })
 
     return () => listener.subscription.unsubscribe()
-  }, [])
+  }, [consent])
 
-  if (!measurementId) return null
+  if (!measurementId || consent !== 'accepted') return null
+
+  const syncAfterLoad = () => {
+    void (async () => {
+      const { data } = await supabase.auth.getUser()
+      const userId = data.user?.id ?? null
+      if (typeof window.gtag !== 'function') return
+      window.gtag('set', 'user_id', userId)
+      window.gtag('set', 'user_properties', {
+        account_status: userId ? 'signed_in' : 'anonymous'
+      })
+    })()
+  }
 
   return (
     <>
       <Script
         src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
         strategy="afterInteractive"
+        onLoad={syncAfterLoad}
       />
       <Script id="google-analytics" strategy="afterInteractive">
         {`
