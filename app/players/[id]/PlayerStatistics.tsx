@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { supabase } from "../../lib/supabase";
+import { useWfmT } from "../../lib/use-wfm-t";
 
 type PlayerStat = {
   id: string;
@@ -138,6 +139,7 @@ export default function PlayerStatistics({
   stats,
   clubs,
 }: PlayerStatisticsProps) {
+  const t = useWfmT();
   const pathname = usePathname();
   const playerId = pathname.split("/").filter(Boolean).pop() || "";
 
