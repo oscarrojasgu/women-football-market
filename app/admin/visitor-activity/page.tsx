@@ -414,6 +414,85 @@ export default function VisitorActivityAdminPage() {
           </section>
         </div>
 
+        <div className="club-workspace-grid" style={{ marginTop: 24 }}>
+          <section className="settings-section">
+            <div className="settings-section-heading">
+              <span>{t('FUNNEL')}</span>
+              <h2>{t('Visitor to scouting funnel')}</h2>
+            </div>
+            <div style={{ display: 'grid', gap: 10 }}>
+              {businessIntelligence.funnel.map((step, index) => {
+                const previous = index === 0 ? step.value : businessIntelligence.funnel[index - 1].value
+                const rate = index === 0 || previous === 0 ? 100 : Math.round((step.value / previous) * 100)
+                return (
+                  <div key={step.key}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 5 }}>
+                      <span>{step.label}</span>
+                      <strong>{step.value} <small>({rate}%)</small></strong>
+                    </div>
+                    <div style={{ height: 8, borderRadius: 999, background: '#eee', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${Math.max(rate, step.value ? 4 : 0)}%`, background: 'currentColor', opacity: 0.75 }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+
+          <section className="settings-section">
+            <div className="settings-section-heading">
+              <span>{t('ENGAGEMENT')}</span>
+              <h2>{t('Returning and active users')}</h2>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 10 }}>
+              <div style={{ border: '1px solid #e3e3e3', borderRadius: 12, padding: 12 }}>
+                <strong style={{ display: 'block', fontSize: 22 }}>{businessIntelligence.returningSignedInUsers}</strong>
+                <small>{t('Returning signed-in users')}</small>
+              </div>
+              <div style={{ border: '1px solid #e3e3e3', borderRadius: 12, padding: 12 }}>
+                <strong style={{ display: 'block', fontSize: 22 }}>{businessIntelligence.averageEventsPerSession.toFixed(1)}</strong>
+                <small>{t('Avg events / session')}</small>
+              </div>
+              <div style={{ border: '1px solid #e3e3e3', borderRadius: 12, padding: 12 }}>
+                <strong style={{ display: 'block', fontSize: 22 }}>{businessIntelligence.locales.length}</strong>
+                <small>{t('Active locales')}</small>
+              </div>
+            </div>
+            <div style={{ marginTop: 16, display: 'grid', gap: 7 }}>
+              {businessIntelligence.locales.map(([locale, count]) => (
+                <div key={locale} style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                  <span>{locale.toUpperCase()}</span><strong>{count}</strong>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <section className="settings-section" style={{ marginTop: 24 }}>
+          <div className="settings-section-heading">
+            <span>{t('TRENDS')}</span>
+            <h2>{t('Activity over time')}</h2>
+          </div>
+          {businessIntelligence.trend.length === 0 ? (
+            <p className="account-muted">{t('No activity trend data in this period.')}</p>
+          ) : (
+            <div style={{ display: 'grid', gap: 9 }}>
+              {businessIntelligence.trend.map(([date, bucket]) => {
+                const maxEvents = Math.max(...businessIntelligence.trend.map(([, item]) => item.events), 1)
+                return (
+                  <div key={date} style={{ display: 'grid', gridTemplateColumns: '95px 1fr 90px', gap: 10, alignItems: 'center' }}>
+                    <small>{date}</small>
+                    <div style={{ height: 10, borderRadius: 999, background: '#eee', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${Math.max(3, Math.round((bucket.events / maxEvents) * 100))}%`, background: 'currentColor', opacity: 0.75 }} />
+                    </div>
+                    <small style={{ textAlign: 'right' }}>{bucket.events} {t('events')} · {bucket.sessions.size} {t('sessions')}</small>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </section>
+
         <section className="settings-section" style={{ marginTop: 24 }}>
           <div className="settings-section-heading">
             <span>{t('VISITORS')}</span>
