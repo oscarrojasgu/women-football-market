@@ -64,5 +64,5 @@ as $$
   limit greatest(1, least(coalesce(p_limit, 250), 1000));
 $$;
 
-revoke all on function public.get_wfm_admin_visitor_activity(integer, timestamptz) from public;
+revoke all on function public.get_wfm_admin_visitor_activity(integer, timestamptz) from public, anon, authenticated;
 grant execute on function public.get_wfm_admin_visitor_activity(integer, timestamptz) to authenticated;
