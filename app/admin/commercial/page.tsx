@@ -9,6 +9,8 @@ type Plan={id:string;code:string;name:string;description:string|null;monthly_pri
 type Entitlement={id:string;user_id:string|null;club_id:string|null;plan_code:string;status:string;starts_at:string;ends_at:string|null;source:string;external_reference:string|null};
 type Activity={user_id:string|null;display_name:string|null;email:string|null;account_type:string|null;organization_name:string|null;job_title:string|null;club_id:string|null;club_name:string|null;agency_id:string|null;agency_name:string|null;agency_verification_status:string|null;plan_code:string|null;entitlement_status:string|null;event_type:string;path:string;metadata:Record<string,unknown>;occurred_at:string};
 type OpportunityTier="Free"|"Prospect"|"Warm"|"High-value";
+type PipelineStatus="new"|"contacted"|"qualified"|"proposal"|"customer"|"closed";
+type SalesOpportunity={user_id:string;pipeline_status:PipelineStatus;notes:string;next_follow_up_at:string|null;updated_at:string;updated_by:string|null};
 type AccountUsage={activity:Activity;events:number;pages:Set<string>;features:Map<string,number>;scouting:number;score:number;lastActive:string;tier:OpportunityTier};
 
 function getOpportunityTier(row:Activity,score:number):OpportunityTier{
@@ -30,9 +32,9 @@ function getRecommendedAction(row:Activity,tier:OpportunityTier,scouting:number)
 export default function CommercialAdminPage(){
  const t=useWfmT()
  const [authorized,setAuthorized]=useState(false);const [loading,setLoading]=useState(true);const [plans,setPlans]=useState<Plan[]>([]);const [entitlements,setEntitlements]=useState<Entitlement[]>([]);
- const [email,setEmail]=useState("");const [plan,setPlan]=useState("club");const [selectedUserId,setSelectedUserId]=useState<string|null>(null);const [clubId,setClubId]=useState("");const [userId,setUserId]=useState("");const [busy,setBusy]=useState(false);const [message,setMessage]=useState("");const [error,setError]=useState("");const [activity,setActivity]=useState<Activity[]>([]);
+ const [email,setEmail]=useState("");const [plan,setPlan]=useState("club");const [selectedUserId,setSelectedUserId]=useState<string|null>(null);const [opportunities,setOpportunities]=useState<SalesOpportunity[]>([]);const [pipelineStatus,setPipelineStatus]=useState<PipelineStatus>("new");const [notes,setNotes]=useState("");const [followUp,setFollowUp]=useState("");const [savingOpportunity,setSavingOpportunity]=useState(false);const [clubId,setClubId]=useState("");const [userId,setUserId]=useState("");const [busy,setBusy]=useState(false);const [message,setMessage]=useState("");const [error,setError]=useState("");const [activity,setActivity]=useState<Activity[]>([]);
  const load=async()=>{const {data:u}=await supabase.auth.getUser();if(!u.user){setLoading(false);return}const {data:a}=await supabase.from("wfm_admins").select("user_id").eq("user_id",u.user.id).maybeSingle();setAuthorized(!!a);if(!a){setLoading(false);return}
- const [{data:p},{data:e},{data:activityRows}]=await Promise.all([supabase.from("wfm_access_plans").select("*").order("created_at"),supabase.from("wfm_account_entitlements").select("*").order("created_at",{ascending:false}),supabase.rpc("get_wfm_admin_visitor_activity",{p_limit:1000,p_since:new Date(Date.now()-7*24*60*60*1000).toISOString()})]);setPlans((p??[]) as Plan[]);setEntitlements((e??[]) as Entitlement[]);setActivity((activityRows??[]) as Activity[]);setLoading(false)};
+ const [{data:p},{data:e},{data:activityRows}]=await Promise.all([supabase.from("wfm_access_plans").select("*").order("created_at"),supabase.from("wfm_account_entitlements").select("*").order("created_at",{ascending:false}),supabase.rpc("get_wfm_admin_visitor_activity",{p_limit:1000,p_since:new Date(Date.now()-7*24*60*60*1000).toISOString()}),supabase.from("wfm_sales_opportunities").select("*")]);setPlans((p??[]) as Plan[]);setEntitlements((e??[]) as Entitlement[]);setActivity((activityRows??[]) as Activity[]);setOpportunities((o??[]) as SalesOpportunity[]);setLoading(false)};
  useEffect(()=>{void load()},[]);
  const grant=async(ev:FormEvent)=>{ev.preventDefault();setBusy(true);setError("");setMessage("");if(!userId&&!clubId){setError("Enter a user ID or club ID.");setBusy(false);return}
  const {error:e}=await supabase.from("wfm_account_entitlements").insert({user_id:userId||null,club_id:clubId||null,plan_code:plan,source:"admin"});if(e)setError(e.message);else{setUserId("");setClubId("");setMessage("Entitlement assigned.");await load()}setBusy(false)};
@@ -43,6 +45,9 @@ export default function CommercialAdminPage(){
  },[activity])
  const opportunitySummary=useMemo(()=>{const counts:Record<OpportunityTier,number>={Free:0,Prospect:0,Warm:0,"High-value":0};for(const item of accountUsage)counts[item.tier]+=1;return counts},[accountUsage])
  const selectedOpportunity=useMemo(()=>accountUsage.find(item=>item.activity.user_id===selectedUserId)??null,[accountUsage,selectedUserId])
+ const selectedPipeline=useMemo(()=>opportunities.find(item=>item.user_id===selectedUserId)??null,[opportunities,selectedUserId])
+ useEffect(()=>{if(selectedPipeline){setPipelineStatus(selectedPipeline.pipeline_status);setNotes(selectedPipeline.notes);setFollowUp(selectedPipeline.next_follow_up_at?selectedPipeline.next_follow_up_at.slice(0,16):"")}else{setPipelineStatus("new");setNotes("");setFollowUp("")}},[selectedPipeline])
+ const saveOpportunity=async()=>{if(!selectedUserId)return;setSavingOpportunity(true);setError("");const {data:u}=await supabase.auth.getUser();if(!u.user){setError(t("You must be signed in as a WFM administrator."));setSavingOpportunity(false);return}const {error:e}=await supabase.from("wfm_sales_opportunities").upsert({user_id:selectedUserId,pipeline_status:pipelineStatus,notes:notes.trim(),next_follow_up_at:followUp?new Date(followUp).toISOString():null,updated_at:new Date().toISOString(),updated_by:u.user.id},{onConflict:"user_id"});if(e)setError(e.message);else{setMessage(t("Sales opportunity saved."));await load()}setSavingOpportunity(false)}
  const selectedActivity=useMemo(()=>selectedUserId?activity.filter(row=>row.user_id===selectedUserId).sort((a,b)=>new Date(b.occurred_at).getTime()-new Date(a.occurred_at).getTime()).slice(0,20):[],[activity,selectedUserId])
  const accountTypes=useMemo(()=>{const counts=new Map<string,number>();for(const row of activity)if(row.user_id){const type=row.account_type||"unclassified";counts.set(type,(counts.get(type)??0)+1)}return [...counts.entries()].sort((a,b)=>b[1]-a[1])},[activity])
  const toggle=async(p:Plan)=>{const {error:e}=await supabase.from("wfm_access_plans").update({active:!p.active,updated_at:new Date().toISOString()}).eq("id",p.id);if(e)setError(e.message);else await load()};
@@ -65,7 +70,12 @@ export default function CommercialAdminPage(){
    <div className="account-membership-row"><small>{t("Events")}</small><strong>{selectedOpportunity.events}</strong></div>
    <div className="account-membership-row"><small>{t("Unique pages")}</small><strong>{selectedOpportunity.pages.size}</strong></div>
   </div>
-  <div style={{display:"grid",gap:6,marginTop:14}}>
+  <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:8,marginTop:14}}>
+<label><small>{t("Pipeline status")}</small><select value={pipelineStatus} onChange={e=>setPipelineStatus(e.target.value as PipelineStatus)}><option value="new">{t("New")}</option><option value="contacted">{t("Contacted")}</option><option value="qualified">{t("Qualified")}</option><option value="proposal">{t("Proposal")}</option><option value="customer">{t("Customer")}</option><option value="closed">{t("Closed")}</option></select></label>
+<label><small>{t("Next follow-up")}</small><input type="datetime-local" value={followUp} onChange={e=>setFollowUp(e.target.value)} /></label>
+<div style={{display:"flex",alignItems:"end"}}><button type="button" className="settings-primary" disabled={savingOpportunity} onClick={()=>void saveOpportunity()}>{savingOpportunity?t("Saving…"):t("Save pipeline")}</button></div>
+</div>
+<label style={{display:"block",marginTop:12}}><small>{t("Admin notes")}</small><textarea value={notes} onChange={e=>setNotes(e.target.value)} rows={4} placeholder={t("Add internal sales notes")} /></label><div style={{display:"grid",gap:6,marginTop:14}}>
    <small>{selectedOpportunity.activity.account_type||t("Unclassified account")}</small>
    <small>{selectedOpportunity.activity.club_name?t("Club profile")+": "+selectedOpportunity.activity.club_name:t("No linked club profile")}</small>
    <small>{selectedOpportunity.activity.agency_name?t("Agency profile")+": "+selectedOpportunity.activity.agency_name+" · "+(selectedOpportunity.activity.agency_verification_status||t("Verification status unavailable")):t("No linked agency profile")}</small>
