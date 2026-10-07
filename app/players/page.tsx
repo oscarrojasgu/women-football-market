@@ -614,7 +614,7 @@ export default function PlayersPage() {
       return;
     }
 
-    const name = window.prompt("Name this scouting list")?.trim();
+    const name = window.prompt(t("Name this scouting list"))?.trim();
     if (!name) return;
 
     const { data, error } = await supabase
@@ -1109,7 +1109,7 @@ export default function PlayersPage() {
         )}
         <div className="scout-note">
           <strong>{t("Persistent scouting:")}</strong>{" "}
-          {userId ? "Signed in. Use the list selector below to save players to your WFM scouting workspace." : "Sign in to save players and workflows to your private WFM scouting workspace."}
+          {userId ? t("Signed in. Use the list selector below to save players to your WFM scouting workspace.") : t("Sign in to save players and workflows to your private WFM scouting workspace.")}
           {scoutingMessage && <span style={{marginLeft:8}}>{scoutingMessage}</span>}
         </div>
         <div className="scout-note">
