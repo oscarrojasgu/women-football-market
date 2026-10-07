@@ -35,6 +35,7 @@ export default function ShortlistCompareActions({playerIds,returnTo}:{playerIds:
     if(error){setMessage(error.message);return}
     setLists(current=>[data as List,...current]);
     setListId(data.id);
+    window.wfmTrackInteraction?.({action:'scouting_list_created',entity_type:'scouting_list',entity_id:data.id});
     setMessage(t("Scouting list created. Select Add Selected to save these players."));
   };
 
@@ -50,6 +51,8 @@ export default function ShortlistCompareActions({playerIds,returnTo}:{playerIds:
     const {error}=await supabase.from("scouting_list_players").insert(ids.map(player_id=>({list_id:listId,player_id,added_by:userId})));
     setBusy(false);
     if(error){setMessage(error.message);return}
+    ids.forEach((playerId) => window.wfmTrackInteraction?.({action:'player_added_to_scouting',entity_type:'player',entity_id:playerId,metadata:{scouting_list_id:listId}}));
+    window.wfmTrackInteraction?.({action:'scouting_players_added',entity_type:'scouting_list',entity_id:listId,metadata:{player_count:ids.length}});
     setMessage(ids.length+" "+t(ids.length===1?"player":"players")+" "+t("added to the scouting list."));
   };
 
