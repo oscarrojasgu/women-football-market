@@ -23,6 +23,7 @@ export default function Header() {
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [userDisplayName, setUserDisplayName] = useState<string | null>(null)
   const [isClubAccount, setIsClubAccount] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
   const locale = getLocaleFromPathname(pathname)
@@ -35,6 +36,8 @@ export default function Header() {
     setUserDisplayName(typeof metadata.display_name === 'string' ? metadata.display_name : null)
     const { data } = await supabase.from('club_account_members').select('club_id').eq('user_id', userId).eq('status', 'active').limit(1)
     setIsClubAccount((data?.length ?? 0) > 0 || ['club','club_admin','club_staff'].includes(String(metadata.role ?? '')))
+    const { data: admin } = await supabase.from('wfm_admins').select('user_id').eq('user_id', userId).maybeSingle()
+    setIsAdmin(!!admin)
   }
 
   useEffect(() => {
@@ -47,7 +50,7 @@ export default function Header() {
     loadUser()
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return
-      if (!session?.user) { setUserEmail(null); setIsClubAccount(false); setMenuOpen(false); return }
+      if (!session?.user) { setUserEmail(null); setIsClubAccount(false); setIsAdmin(false); setMenuOpen(false); return }
       void loadAccount(session.user.id, session.user.email ?? null, session.user.user_metadata ?? {})
     })
     return () => { mounted = false; listener.subscription.unsubscribe() }
@@ -98,10 +101,10 @@ export default function Header() {
               <span>Welcome {displayName}</span><span className="account-chevron" aria-hidden="true">⌄</span>
             </button>
             {menuOpen && <div className="account-dropdown" role="menu">
-              <div className="account-dropdown-header"><strong>{displayName}</strong><span>{isClubAccount ? 'Club account' : 'Scout account'}</span><small>{userEmail}</small></div>
+              <div className="account-dropdown-header"><strong>{displayName}</strong><span>{isAdmin ? translate(locale, 'WFM administrator') : isClubAccount ? 'Club account' : 'Scout account'}</span><small>{userEmail}</small></div>
               <div className="account-dropdown-links">
                 <Link href={localizedPath(locale, '/account/settings')} role="menuitem" onClick={() => setMenuOpen(false)}>Edit profile & settings</Link>
-                <Link href={localizedPath(locale, isClubAccount ? '/account/club' : '/scouting')} role="menuitem" onClick={() => setMenuOpen(false)}>{isClubAccount ? 'Club workspace' : 'Scouting workspace'}</Link>{isClubAccount && <Link href={localizedPath(locale, '/account/club/reports')} role="menuitem" onClick={() => setMenuOpen(false)}>Saved reports</Link>}
+                <Link href={localizedPath(locale, isClubAccount ? '/account/club' : '/scouting')} role="menuitem" onClick={() => setMenuOpen(false)}>{isClubAccount ? 'Club workspace' : 'Scouting workspace'}</Link>{isClubAccount && <Link href={localizedPath(locale, '/account/club/reports')} role="menuitem" onClick={() => setMenuOpen(false)}>Saved reports</Link>}{isAdmin && <Link href="/admin/visitor-activity" role="menuitem" onClick={() => setMenuOpen(false)}>{translate(locale, 'Analytics command center')}</Link>}
               </div>
               <button type="button" className="account-signout" role="menuitem" onClick={signOut} disabled={signingOut}>{signingOut ? 'Signing out…' : 'Sign out'}</button>
             </div>}
