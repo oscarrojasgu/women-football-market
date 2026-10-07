@@ -33,7 +33,7 @@ export default function SaveComparisonReport({ playerIds }: { playerIds: string[
       report_type: 'scouting_comparison',
     }).select('id').single()
     if (saveError) setError(saveError.message)
-    else { setMessage(t('Report saved to the club library.')); setName(''); setDescription(''); setOpen(false); if (data?.id) router.push('/account/club/reports/' + data.id) }
+    else { window.wfmTrackInteraction?.({action:'report_created',entity_type:'scouting_report',entity_id:data?.id,metadata:{player_count:playerIds.length}}); setMessage(t('Report saved to the club library.')); setName(''); setDescription(''); setOpen(false); if (data?.id) router.push('/account/club/reports/' + data.id) }
     setSaving(false)
   }
 
