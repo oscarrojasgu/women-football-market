@@ -22,6 +22,18 @@ const DE: Record<string,string> = {
 }
 
 Object.assign(EN, {
+  "PRODUCT ACTIVITY":"PRODUCT ACTIVITY",
+  "WFM feature usage":"WFM feature usage",
+  "Player views":"Player views",
+  "Club views":"Club views",
+  "Searches":"Searches",
+  "Contract views":"Contract views",
+  "Transfer views":"Transfer views",
+  "Salary views":"Salary views",
+  "Scouting views":"Scouting views",
+  "MOST VIEWED":"MOST VIEWED",
+  "Players and clubs":"Players and clubs",
+  "No semantic product activity yet.":"No semantic product activity yet.",
   "ago":"ago",
   "WFM ADMIN · ANALYTICS COMMAND CENTER":"WFM ADMIN · ANALYTICS COMMAND CENTER",
   "Refresh":"Refresh",
@@ -48,6 +60,18 @@ Object.assign(EN, {
   "Close":"Close"
 })
 Object.assign(ES, {
+  "PRODUCT ACTIVITY":"ACTIVIDAD DEL PRODUCTO",
+  "WFM feature usage":"Uso de funciones de WFM",
+  "Player views":"Vistas de jugadoras",
+  "Club views":"Vistas de clubes",
+  "Searches":"Búsquedas",
+  "Contract views":"Vistas de contratos",
+  "Transfer views":"Vistas de transferencias",
+  "Salary views":"Vistas de salarios",
+  "Scouting views":"Vistas de scouting",
+  "MOST VIEWED":"MÁS VISTOS",
+  "Players and clubs":"Jugadoras y clubes",
+  "No semantic product activity yet.":"Aún no hay actividad semántica del producto.",
   "ago":"hace",
   "WFM ADMIN · ANALYTICS COMMAND CENTER":"ADMIN WFM · CENTRO DE ANALÍTICA",
   "Refresh":"Actualizar",
@@ -74,6 +98,18 @@ Object.assign(ES, {
   "Close":"Cerrar"
 })
 Object.assign(PT, {
+  "PRODUCT ACTIVITY":"ATIVIDADE DO PRODUTO",
+  "WFM feature usage":"Uso de recursos do WFM",
+  "Player views":"Visualizações de jogadoras",
+  "Club views":"Visualizações de clubes",
+  "Searches":"Pesquisas",
+  "Contract views":"Visualizações de contratos",
+  "Transfer views":"Visualizações de transferências",
+  "Salary views":"Visualizações de salários",
+  "Scouting views":"Visualizações de scouting",
+  "MOST VIEWED":"MAIS VISTOS",
+  "Players and clubs":"Jogadoras e clubes",
+  "No semantic product activity yet.":"Ainda não há atividade semântica do produto.",
   "ago":"atrás",
   "WFM ADMIN · ANALYTICS COMMAND CENTER":"ADMIN WFM · CENTRAL DE ANÁLISES",
   "Refresh":"Atualizar",
@@ -100,6 +136,18 @@ Object.assign(PT, {
   "Close":"Fechar"
 })
 Object.assign(FR, {
+  "PRODUCT ACTIVITY":"ACTIVITÉ PRODUIT",
+  "WFM feature usage":"Utilisation des fonctionnalités WFM",
+  "Player views":"Vues des joueuses",
+  "Club views":"Vues des clubs",
+  "Searches":"Recherches",
+  "Contract views":"Vues des contrats",
+  "Transfer views":"Vues des transferts",
+  "Salary views":"Vues des salaires",
+  "Scouting views":"Vues du scouting",
+  "MOST VIEWED":"LES PLUS CONSULTÉS",
+  "Players and clubs":"Joueuses et clubs",
+  "No semantic product activity yet.":"Aucune activité produit sémantique pour le moment.",
   "ago":"il y a",
   "WFM ADMIN · ANALYTICS COMMAND CENTER":"ADMIN WFM · CENTRE D’ANALYSE",
   "Refresh":"Actualiser",
@@ -126,6 +174,18 @@ Object.assign(FR, {
   "Close":"Fermer"
 })
 Object.assign(DE, {
+  "PRODUCT ACTIVITY":"PRODUKTAKTIVITÄT",
+  "WFM feature usage":"Nutzung der WFM-Funktionen",
+  "Player views":"Spielerinnen-Aufrufe",
+  "Club views":"Vereinsaufrufe",
+  "Searches":"Suchen",
+  "Contract views":"Vertragsaufrufe",
+  "Transfer views":"Transferaufrufe",
+  "Salary views":"Gehaltsaufrufe",
+  "Scouting views":"Scouting-Aufrufe",
+  "MOST VIEWED":"AM MEISTEN ANGESEHEN",
+  "Players and clubs":"Spielerinnen und Vereine",
+  "No semantic product activity yet.":"Noch keine semantischen Produktaktivitäten.",
   "ago":"her",
   "WFM ADMIN · ANALYTICS COMMAND CENTER":"WFM ADMIN · ANALYTICS-CENTER",
   "Refresh":"Aktualisieren",
