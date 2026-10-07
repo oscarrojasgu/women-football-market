@@ -44,7 +44,7 @@ export default function SaveComparisonReport({ playerIds }: { playerIds: string[
     <p style={{fontSize:12,color:'#666'}}>{t('This report is private to active members of your club.')}</p>
     <form onSubmit={save}>
       <label>{t('Report name')}<input value={name} onChange={e=>setName(e.target.value)} placeholder={t('2027 CM shortlist comparison')} maxLength={120}/></label>
-      <label>Description<textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder={t('Recruitment context or internal purpose.')} rows={3} maxLength={600}/></label>
+      <label>{t('Description')}<textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder={t('Recruitment context or internal purpose.')} rows={3} maxLength={600}/></label>
       {error && <div className="account-message account-error">{error}</div>}
       <div style={{display:'flex',gap:8,marginTop:8}}><button type="submit" className="settings-primary" disabled={saving}>{saving?t('Saving…'):t('Save report')}</button><button type="button" className="outline" onClick={()=>{setOpen(false);setError('')}}>{t('Cancel')}</button></div>
     </form>
