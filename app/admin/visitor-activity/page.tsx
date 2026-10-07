@@ -195,6 +195,55 @@ export default function VisitorActivityAdminPage() {
     return [...map.values()].sort((a, b) => new Date(b.activity.occurred_at).getTime() - new Date(a.activity.occurred_at).getTime())
   }, [activities])
 
+  const businessIntelligence = useMemo(() => {
+    const sessions = new Map<string, Activity[]>()
+    for (const activity of activities) {
+      const rows = sessions.get(activity.session_id) ?? []
+      rows.push(activity)
+      sessions.set(activity.session_id, rows)
+    }
+
+    const sessionHas = (rows: Activity[], predicate: (activity: Activity) => boolean) => rows.some(predicate)
+    const totalSessions = sessions.size
+    const funnel = [
+      { key: 'sessions', label: t('Visitors'), value: totalSessions },
+      { key: 'search', label: t('Player searches'), value: [...sessions.values()].filter((rows) => sessionHas(rows, (a) => a.event_type === 'interaction' && a.metadata?.action === 'search')).length },
+      { key: 'player', label: t('Player views'), value: [...sessions.values()].filter((rows) => sessionHas(rows, (a) => a.event_type === 'interaction' && a.metadata?.action === 'player_view')).length },
+      { key: 'auth', label: t('Signed up or logged in'), value: [...sessions.values()].filter((rows) => sessionHas(rows, (a) => a.event_type === 'interaction' && ['signup', 'login'].includes(String(a.metadata?.action)))).length },
+      { key: 'scouting', label: t('Scouting activity'), value: [...sessions.values()].filter((rows) => sessionHas(rows, (a) => a.event_type === 'interaction' && String(a.metadata?.action).startsWith('scouting_'))).length }
+    ]
+
+    const dailyMap = new Map<string, { events: number; sessions: Set<string> }>()
+    for (const activity of activities) {
+      const key = new Date(activity.occurred_at).toLocaleDateString('en-CA')
+      const bucket = dailyMap.get(key) ?? { events: 0, sessions: new Set<string>() }
+      bucket.events += 1
+      bucket.sessions.add(activity.session_id)
+      dailyMap.set(key, bucket)
+    }
+    const trend = [...dailyMap.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-8)
+
+    const localeMap = new Map<string, number>()
+    for (const activity of activities) {
+      const locale = activity.locale || 'unknown'
+      localeMap.set(locale, (localeMap.get(locale) ?? 0) + 1)
+    }
+    const locales = [...localeMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6)
+
+    const signedInSessionCounts = new Map<string, Set<string>>()
+    for (const [sessionId, rows] of sessions) {
+      const userId = rows.find((a) => a.user_id)?.user_id
+      if (!userId) continue
+      const set = signedInSessionCounts.get(userId) ?? new Set<string>()
+      set.add(sessionId)
+      signedInSessionCounts.set(userId, set)
+    }
+    const returningSignedInUsers = [...signedInSessionCounts.values()].filter((set) => set.size > 1).length
+    const averageEventsPerSession = totalSessions ? activities.length / totalSessions : 0
+
+    return { funnel, trend, locales, returningSignedInUsers, averageEventsPerSession }
+  }, [activities, t])
+
   const selected = selectedSession ? sessionRows.find((row) => row.sessionId === selectedSession) : null
 
   if (loading) {
