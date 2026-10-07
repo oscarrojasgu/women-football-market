@@ -247,4 +247,10 @@ Object.assign(PT, {"Lead score":"Pontuação do lead","High priority":"Alta prio
 Object.assign(FR, {"Lead score":"Score du prospect","High priority":"Priorité élevée","Warm lead":"Prospect qualifié","Early lead":"Prospect initial"})
 Object.assign(DE, {"Lead score":"Lead-Score","High priority":"Hohe Priorität","Warm lead":"Warmer Lead","Early lead":"Früher Lead"})
 
+Object.assign(EN, {"Last active":"Last active"})
+Object.assign(ES, {"Last active":"Última actividad"})
+Object.assign(PT, {"Last active":"Última atividade"})
+Object.assign(FR, {"Last active":"Dernière activité"})
+Object.assign(DE, {"Last active":"Letzte Aktivität"})
+
 export const WFM_UI_TRANSLATIONS: Record<WfmLocale, Record<string,string>> = { en: EN, es: ES, pt: PT, fr: FR, de: DE }
