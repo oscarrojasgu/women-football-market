@@ -168,6 +168,8 @@ export default function VisitorActivityAdminPage() {
       transfers: count('transfers_view'),
       salaries: count('salaries_view'),
       scouting: count('scouting_view'),
+      auth: activities.filter((a) => a.event_type === 'interaction' && ['login','signup'].includes(String(a.metadata?.action))).length,
+      scoutingActions: activities.filter((a) => a.event_type === 'interaction' && String(a.metadata?.action).startsWith('scouting_')).length,
       topPlayers: topEntities('player_view'),
       topClubs: topEntities('club_view'),
       recentSearches: searches
@@ -282,7 +284,9 @@ export default function VisitorActivityAdminPage() {
                 [t('Contract views'), productActivity.contracts],
                 [t('Transfer views'), productActivity.transfers],
                 [t('Salary views'), productActivity.salaries],
-                [t('Scouting views'), productActivity.scouting]
+                [t('Scouting views'), productActivity.scouting],
+                [t('Auth events'), productActivity.auth],
+                [t('Scouting actions'), productActivity.scoutingActions]
               ].map(([label, value]) => (
                 <div key={String(label)} style={{ border: '1px solid #e3e3e3', borderRadius: 12, padding: 12 }}>
                   <strong style={{ display: 'block', fontSize: 20 }}>{value}</strong>
