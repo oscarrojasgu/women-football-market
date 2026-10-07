@@ -42,6 +42,8 @@ export default function VisitorActivityAdminPage() {
   const [selectedSession, setSelectedSession] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [now, setNow] = useState(Date.now())
+  const [playerNames, setPlayerNames] = useState<Record<string, string>>({})
+  const [clubNames, setClubNames] = useState<Record<string, string>>({})
 
   const load = useCallback(async () => {
     setError('')
@@ -89,6 +91,22 @@ export default function VisitorActivityAdminPage() {
     }
   }, [load])
 
+  useEffect(() => {
+    const playerIds = [...new Set(activities.filter((a) => a.event_type === 'interaction' && a.metadata?.action === 'player_view' && typeof a.metadata?.entity_id === 'string').map((a) => String(a.metadata.entity_id)))]
+    const clubIds = [...new Set(activities.filter((a) => a.event_type === 'interaction' && a.metadata?.action === 'club_view' && typeof a.metadata?.entity_id === 'string').map((a) => String(a.metadata.entity_id)))]
+
+    const loadNames = async () => {
+      const [playersResult, clubsResult] = await Promise.all([
+        playerIds.length ? supabase.from('players').select('id,full_name').in('id', playerIds) : Promise.resolve({ data: [], error: null }),
+        clubIds.length ? supabase.from('clubs').select('id,name').in('id', clubIds) : Promise.resolve({ data: [], error: null })
+      ])
+      setPlayerNames(Object.fromEntries((playersResult.data ?? []).map((row: { id: string; full_name: string }) => [row.id, row.full_name])))
+      setClubNames(Object.fromEntries((clubsResult.data ?? []).map((row: { id: string; name: string }) => [row.id, row.name])))
+    }
+
+    void loadNames()
+  }, [activities])
+
   const summary = useMemo(() => {
     const sessions = new Set(activities.map((a) => a.session_id))
     const users = new Set(activities.filter((a) => a.user_id).map((a) => a.user_id))
@@ -123,6 +141,37 @@ export default function VisitorActivityAdminPage() {
     const counts = new Map<string, number>()
     activities.filter((a) => a.event_type === 'page_view').forEach((a) => counts.set(a.path, (counts.get(a.path) ?? 0) + 1))
     return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8)
+  }, [activities])
+
+  const productActivity = useMemo(() => {
+    const count = (action: string) => activities.filter((a) => a.event_type === 'interaction' && a.metadata?.action === action).length
+    const topEntities = (action: string) => {
+      const map = new Map<string, number>()
+      for (const activity of activities) {
+        if (activity.event_type !== 'interaction' || activity.metadata?.action !== action) continue
+        const id = typeof activity.metadata?.entity_id === 'string' ? activity.metadata.entity_id : ''
+        if (id) map.set(id, (map.get(id) ?? 0) + 1)
+      }
+      return [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6)
+    }
+    const searches = activities
+      .filter((a) => a.event_type === 'interaction' && a.metadata?.action === 'search')
+      .map((a) => typeof a.metadata?.query === 'string' ? a.metadata.query : '')
+      .filter(Boolean)
+      .slice(0, 8)
+
+    return {
+      playerViews: count('player_view'),
+      clubViews: count('club_view'),
+      searches: count('search'),
+      contracts: count('contracts_view'),
+      transfers: count('transfers_view'),
+      salaries: count('salaries_view'),
+      scouting: count('scouting_view'),
+      topPlayers: topEntities('player_view'),
+      topClubs: topEntities('club_view'),
+      recentSearches: searches
+    }
   }, [activities])
 
   const signedInUsers = useMemo(() => {
@@ -216,6 +265,53 @@ export default function VisitorActivityAdminPage() {
                 <option value={168}>{t('Last 7 days')}</option>
               </select>
             </label>
+          </section>
+        </div>
+
+        <div className="club-workspace-grid" style={{ marginTop: 24 }}>
+          <section className="settings-section">
+            <div className="settings-section-heading">
+              <span>{t('PRODUCT ACTIVITY')}</span>
+              <h2>{t('WFM feature usage')}</h2>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(120px,1fr))', gap: 10 }}>
+              {[
+                [t('Player views'), productActivity.playerViews],
+                [t('Club views'), productActivity.clubViews],
+                [t('Searches'), productActivity.searches],
+                [t('Contract views'), productActivity.contracts],
+                [t('Transfer views'), productActivity.transfers],
+                [t('Salary views'), productActivity.salaries],
+                [t('Scouting views'), productActivity.scouting]
+              ].map(([label, value]) => (
+                <div key={String(label)} style={{ border: '1px solid #e3e3e3', borderRadius: 12, padding: 12 }}>
+                  <strong style={{ display: 'block', fontSize: 20 }}>{value}</strong>
+                  <small>{label}</small>
+                </div>
+              ))}
+            </div>
+          </section>
+          <section className="settings-section">
+            <div className="settings-section-heading">
+              <span>{t('MOST VIEWED')}</span>
+              <h2>{t('Players and clubs')}</h2>
+            </div>
+            {productActivity.topPlayers.length === 0 && productActivity.topClubs.length === 0 ? (
+              <p className="account-muted">{t('No semantic product activity yet.')}</p>
+            ) : (
+              <div style={{ display: 'grid', gap: 8 }}>
+                {productActivity.topPlayers.map(([id, count]) => (
+                  <div key={id} style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                    <span>{playerNames[id] || id.slice(0, 8)}</span><strong>{count}</strong>
+                  </div>
+                ))}
+                {productActivity.topClubs.map(([id, count]) => (
+                  <div key={id} style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                    <span>{clubNames[id] || id.slice(0, 8)}</span><strong>{count}</strong>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         </div>
 
