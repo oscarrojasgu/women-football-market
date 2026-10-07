@@ -13,6 +13,7 @@ import PlayerActions from './components/PlayerActions'
 import AdSlot from './components/AdSlot'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import GoogleAnalytics from './components/GoogleAnalytics'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://women-football-market.vercel.app'),
@@ -54,6 +55,7 @@ export default async function RootLayout({children}:{children:ReactNode}) {
         <PlayerActions />
         <Analytics />
         <SpeedInsights />
+        <GoogleAnalytics />
       </body>
     </html>
   )
