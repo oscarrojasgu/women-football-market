@@ -44,13 +44,17 @@ export default function VisitorActivityAdminPage() {
   const [now, setNow] = useState(Date.now())
   const [playerNames, setPlayerNames] = useState<Record<string, string>>({})
   const [clubNames, setClubNames] = useState<Record<string, string>>({})
+  const [refreshing, setRefreshing] = useState(false)
+  const [lastRefreshed, setLastRefreshed] = useState<string | null>(null)
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (showLoading = false) => {
+    if (showLoading) setRefreshing(true)
     setError('')
     const { data: user } = await supabase.auth.getUser()
     if (!user.user) {
       setAuthorized(false)
       setLoading(false)
+      setRefreshing(false)
       return
     }
 
@@ -63,6 +67,7 @@ export default function VisitorActivityAdminPage() {
     setAuthorized(!!admin)
     if (!admin) {
       setLoading(false)
+      setRefreshing(false)
       return
     }
 
@@ -77,8 +82,10 @@ export default function VisitorActivityAdminPage() {
       setActivities([])
     } else {
       setActivities((data ?? []) as Activity[])
+      setLastRefreshed(new Date().toISOString())
     }
     setLoading(false)
+    setRefreshing(false)
   }, [hours])
 
   useEffect(() => {
@@ -272,7 +279,8 @@ export default function VisitorActivityAdminPage() {
             <p>{t('First-party activity from visitors who accepted analytics tracking. Signed-in WFM accounts are linked to their internal account profile; anonymous visitors remain anonymous.')}</p>
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button type="button" className="outline" onClick={() => void load()}>{t('Refresh')}</button>
+            <button type="button" className="outline" disabled={refreshing} onClick={() => void load(true)}>{refreshing ? t('Refreshing…') : t('Refresh')}</button>
+            {lastRefreshed && <small style={{ alignSelf: 'center' }}>{t('Updated')} {new Date(lastRefreshed).toLocaleTimeString()}</small>}
             <Link href="/admin/commercial" className="outline">{t('Commercial dashboard')}</Link>
             <Link href="/" className="outline">{t('Homepage')}</Link>
           </div>
