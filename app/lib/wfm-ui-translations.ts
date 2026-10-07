@@ -22,6 +22,7 @@ const DE: Record<string,string> = {
 }
 
 Object.assign(EN, {
+  "ago":"ago",
   "WFM ADMIN · ANALYTICS COMMAND CENTER":"WFM ADMIN · ANALYTICS COMMAND CENTER",
   "Refresh":"Refresh",
   "LIVE NOW":"LIVE NOW",
@@ -47,6 +48,7 @@ Object.assign(EN, {
   "Close":"Close"
 })
 Object.assign(ES, {
+  "ago":"hace",
   "WFM ADMIN · ANALYTICS COMMAND CENTER":"ADMIN WFM · CENTRO DE ANALÍTICA",
   "Refresh":"Actualizar",
   "LIVE NOW":"EN VIVO AHORA",
@@ -72,6 +74,7 @@ Object.assign(ES, {
   "Close":"Cerrar"
 })
 Object.assign(PT, {
+  "ago":"atrás",
   "WFM ADMIN · ANALYTICS COMMAND CENTER":"ADMIN WFM · CENTRAL DE ANÁLISES",
   "Refresh":"Atualizar",
   "LIVE NOW":"AO VIVO AGORA",
@@ -97,6 +100,7 @@ Object.assign(PT, {
   "Close":"Fechar"
 })
 Object.assign(FR, {
+  "ago":"il y a",
   "WFM ADMIN · ANALYTICS COMMAND CENTER":"ADMIN WFM · CENTRE D’ANALYSE",
   "Refresh":"Actualiser",
   "LIVE NOW":"EN DIRECT",
@@ -122,6 +126,7 @@ Object.assign(FR, {
   "Close":"Fermer"
 })
 Object.assign(DE, {
+  "ago":"her",
   "WFM ADMIN · ANALYTICS COMMAND CENTER":"WFM ADMIN · ANALYTICS-CENTER",
   "Refresh":"Aktualisieren",
   "LIVE NOW":"JETZT LIVE",
