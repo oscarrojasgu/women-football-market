@@ -23,7 +23,7 @@ type Activity = {
   occurred_at: string
 }
 
-function formatAge(value: string) {
+function formatAge(value: string, ago: string) {
   const seconds = Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 1000))
   if (seconds < 60) return `${seconds}s ${'ago'}`
   const minutes = Math.floor(seconds / 60)
@@ -285,7 +285,7 @@ export default function VisitorActivityAdminPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sessionRows.map((session, index) => {
+                  {sessionRows.map((session) => {
                     const activity = session.latest
                     const visitor = activity.user_id
                       ? activity.display_name || activity.email || activity.user_id.slice(0, 8)
@@ -299,7 +299,7 @@ export default function VisitorActivityAdminPage() {
                         <td>{session.online ? t('Online') : activity.user_id ? t('Signed in') : t('Anonymous')}</td>
                         <td>{session.pages.length}</td>
                         <td>{activity.path}</td>
-                        <td>{formatAge(activity.occurred_at)}</td>
+                        <td>{formatAge(activity.occurred_at, t('ago'))}</td>
                       </tr>
                     )
                   })}
