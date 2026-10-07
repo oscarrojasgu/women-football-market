@@ -32,11 +32,12 @@ function LoginForm(){
   if(mode==="signup"){
    const {data,error}=await supabase.auth.signUp({email,password})
    if(error){setError(error.message);setBusy(false);return}
-   if(data.session){router.replace(returnTo);return}
+   if(data.session){window.wfmTrackInteraction?.({action:'signup'});router.replace(returnTo);return}
    setMessage(text.created);setMode("signin");setBusy(false);return
   }
   const {error}=await supabase.auth.signInWithPassword({email,password})
   if(error){setError(error.message);setBusy(false);return}
+  window.wfmTrackInteraction?.({action:'login'});
   router.replace(returnTo)
  }
  return <main style={{minHeight:"calc(100vh - 76px)",display:"grid",placeItems:"center",padding:"40px 20px",background:"#f5f4ef"}}>
