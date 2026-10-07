@@ -212,4 +212,20 @@ Object.assign(DE, {
   "Close":"Schließen"
 })
 
+Object.assign(EN, {
+  "FUNNEL":"FUNNEL","Visitor to scouting funnel":"Visitor to scouting funnel","Visitors":"Visitors","Player searches":"Player searches","Signed up or logged in":"Signed up or logged in","Scouting activity":"Scouting activity","ENGAGEMENT":"ENGAGEMENT","Returning and active users":"Returning and active users","Returning signed-in users":"Returning signed-in users","Avg events / session":"Avg events / session","Active locales":"Active locales","TRENDS":"TRENDS","Activity over time":"Activity over time","No activity trend data in this period.":"No activity trend data in this period."
+})
+Object.assign(ES, {
+  "FUNNEL":"EMBUDO","Visitor to scouting funnel":"Embudo de visitante a scouting","Visitors":"Visitantes","Player searches":"Búsquedas de jugadoras","Signed up or logged in":"Registro o inicio de sesión","Scouting activity":"Actividad de scouting","ENGAGEMENT":"PARTICIPACIÓN","Returning and active users":"Usuarios recurrentes y activos","Returning signed-in users":"Usuarios recurrentes con sesión","Avg events / session":"Prom. eventos / sesión","Active locales":"Idiomas activos","TRENDS":"TENDENCIAS","Activity over time":"Actividad a lo largo del tiempo","No activity trend data in this period.":"No hay datos de tendencias de actividad en este período."
+})
+Object.assign(PT, {
+  "FUNNEL":"FUNIL","Visitor to scouting funnel":"Funil de visitante até scouting","Visitors":"Visitantes","Player searches":"Pesquisas de jogadoras","Signed up or logged in":"Cadastro ou login","Scouting activity":"Atividade de scouting","ENGAGEMENT":"ENGAJAMENTO","Returning and active users":"Usuários recorrentes e ativos","Returning signed-in users":"Usuários autenticados recorrentes","Avg events / session":"Média de eventos / sessão","Active locales":"Idiomas ativos","TRENDS":"TENDÊNCIAS","Activity over time":"Atividade ao longo do tempo","No activity trend data in this period.":"Não há dados de tendência de atividade neste período."
+})
+Object.assign(FR, {
+  "FUNNEL":"ENTONNOIR","Visitor to scouting funnel":"Entonnoir visiteur vers scouting","Visitors":"Visiteurs","Player searches":"Recherches de joueuses","Signed up or logged in":"Inscription ou connexion","Scouting activity":"Activité de scouting","ENGAGEMENT":"ENGAGEMENT","Returning and active users":"Utilisateurs actifs et récurrents","Returning signed-in users":"Utilisateurs connectés récurrents","Avg events / session":"Moy. événements / session","Active locales":"Langues actives","TRENDS":"TENDANCES","Activity over time":"Activité dans le temps","No activity trend data in this period.":"Aucune donnée de tendance d’activité pour cette période."
+})
+Object.assign(DE, {
+  "FUNNEL":"TRICHTER","Visitor to scouting funnel":"Trichter von Besuchern zu Scouting","Visitors":"Besucher","Player searches":"Spielerinnen-Suchen","Signed up or logged in":"Registrierung oder Anmeldung","Scouting activity":"Scouting-Aktivität","ENGAGEMENT":"ENGAGEMENT","Returning and active users":"Wiederkehrende und aktive Benutzer","Returning signed-in users":"Wiederkehrende angemeldete Benutzer","Avg events / session":"Ø Ereignisse / Sitzung","Active locales":"Aktive Sprachen","TRENDS":"TRENDS","Activity over time":"Aktivität im Zeitverlauf","No activity trend data in this period.":"Keine Trenddaten zur Aktivität in diesem Zeitraum."
+})
+
 export const WFM_UI_TRANSLATIONS: Record<WfmLocale, Record<string,string>> = { en: EN, es: ES, pt: PT, fr: FR, de: DE }
