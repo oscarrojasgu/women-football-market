@@ -228,4 +228,10 @@ Object.assign(DE, {
   "FUNNEL":"TRICHTER","Visitor to scouting funnel":"Trichter von Besuchern zu Scouting","Visitors":"Besucher","Player searches":"Spielerinnen-Suchen","Signed up or logged in":"Registrierung oder Anmeldung","Scouting activity":"Scouting-Aktivität","ENGAGEMENT":"ENGAGEMENT","Returning and active users":"Wiederkehrende und aktive Benutzer","Returning signed-in users":"Wiederkehrende angemeldete Benutzer","Avg events / session":"Ø Ereignisse / Sitzung","Active locales":"Aktive Sprachen","TRENDS":"TRENDS","Activity over time":"Aktivität im Zeitverlauf","No activity trend data in this period.":"Keine Trenddaten zur Aktivität in diesem Zeitraum."
 })
 
+Object.assign(EN, {"Analytics command center":"Analytics command center","WFM administrator":"WFM administrator","Refreshing…":"Refreshing…","Updated":"Updated"})
+Object.assign(ES, {"Analytics command center":"Centro de analítica","WFM administrator":"Administrador WFM","Refreshing…":"Actualizando…","Updated":"Actualizado"})
+Object.assign(PT, {"Analytics command center":"Central de análises","WFM administrator":"Administrador WFM","Refreshing…":"Atualizando…","Updated":"Atualizado"})
+Object.assign(FR, {"Analytics command center":"Centre d’analyse","WFM administrator":"Administrateur WFM","Refreshing…":"Actualisation…","Updated":"Mis à jour"})
+Object.assign(DE, {"Analytics command center":"Analytics-Center","WFM administrator":"WFM-Administrator","Refreshing…":"Wird aktualisiert…","Updated":"Aktualisiert"})
+
 export const WFM_UI_TRANSLATIONS: Record<WfmLocale, Record<string,string>> = { en: EN, es: ES, pt: PT, fr: FR, de: DE }
