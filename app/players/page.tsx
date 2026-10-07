@@ -1173,7 +1173,7 @@ export default function PlayersPage() {
                     onClick={() => addPlayerToScoutingList(player.id)}
                     disabled={!userId || !selectedScoutingListId}
                     aria-label={`Add ${player.full_name} to selected scouting list`}
-                  >Add</button>
+                  >{t("Add")}</button>
                 </div>
                 <Link href={`/players/${player.id}`} className="scout-player">
                   <img
@@ -1191,7 +1191,7 @@ export default function PlayersPage() {
                   />
                   <span>
                     <strong>{player.full_name}</strong>
-                    <small>{roleLabels[playerRole]} · {player.nationality || "Nationality unavailable"}</small>
+                    <small>{roleLabels[playerRole]} · {player.nationality || t("Nationality unavailable")}</small>
                     <small>{playerClub} · {playerLeague}</small>
                     {(benchmarkScope === "global" ? latestGlobalPeerByPlayer.get(player.id) : latestPeerByPlayer.get(player.id)) && (() => { const globalPeer = latestGlobalPeerByPlayer.get(player.id); const peer = latestPeerByPlayer.get(player.id); const archetype = benchmarkScope === "global" && globalPeer ? getScoutingArchetype(playerRole,{goals:globalPeer.goals_per90_global_percentile,assists:globalPeer.assists_per90_global_percentile,xg:globalPeer.xg_per90_global_percentile,xa:globalPeer.xa_per90_global_percentile,chancesCreated:globalPeer.chances_created_per90_global_percentile,keyPasses:globalPeer.key_passes_per90_global_percentile,tackles:globalPeer.tackles_per90_global_percentile,interceptions:globalPeer.interceptions_per90_global_percentile,progressiveCarries:globalPeer.progressive_carries_per90_global_percentile}) : peer ? getScoutingArchetype(playerRole,{goals:peer.goals_per90_percentile,assists:peer.assists_per90_percentile,xg:peer.xg_per90_percentile,xa:peer.xa_per90_percentile,chancesCreated:peer.chances_created_per90_percentile,keyPasses:peer.key_passes_per90_percentile,tackles:peer.tackles_per90_percentile,interceptions:peer.interceptions_per90_percentile,progressiveCarries:peer.progressive_carries_per90_percentile}) : null; return archetype ? <small>{archetype.label}</small> : null; })()}
                   </span>
@@ -1203,11 +1203,11 @@ export default function PlayersPage() {
                 <span>{formatNumber(intel?.xg_per90 ?? null)}</span>
                 <span>
                   {value?.market_value_usd != null ? formatMoney(value.market_value_usd) : "—"}
-                  {value?.valuation_date && <small>as of {formatDate(value.valuation_date)}</small>}
+                  {value?.valuation_date && <small>{t("as of")} {formatDate(value.valuation_date)}</small>}
                 </span>
                 <span>
                   {contract?.annual_salary_usd != null ? formatMoney(contract.annual_salary_usd) : "—"}
-                  {contract?.end_date && <small>ends {formatDate(contract.end_date)}</small>}
+                  {contract?.end_date && <small>{t("ends")} {formatDate(contract.end_date)}</small>}
                 </span>
               </div>
             );
@@ -1215,10 +1215,10 @@ export default function PlayersPage() {
 
           {!loading && filteredPlayers.length > 0 && (
             <div className="scout-pagination">
-              <span>Showing {pageStart}–{pageEnd} of {filteredPlayers.length}</span>
+              <span>{t("Showing")} {pageStart}–{pageEnd} {t("of")} {filteredPlayers.length}</span>
               <div>
                 <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>{t("Previous")}</button>
-                <strong>Page {page} of {totalPages}</strong>
+                <strong>{t("Page")} {page} {t("of")} {totalPages}</strong>
                 <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>{t("Next")}</button>
               </div>
             </div>
