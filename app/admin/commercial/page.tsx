@@ -49,7 +49,7 @@ export default function CommercialAdminPage(){
   const pipelineByUser=new Map(opportunities.map(item=>[item.user_id,item]));
   const rows=accountUsage.map(item=>{const pipeline=pipelineByUser.get(item.activity.user_id);const followUpMs=pipeline?.next_follow_up_at?new Date(pipeline.next_follow_up_at).getTime():null;const ageDays=(now-new Date(item.lastActive).getTime())/(1000*60*60*24);const activePipeline=Boolean(pipeline&&pipeline.pipeline_status!=="closed");const overdue=Boolean(activePipeline&&followUpMs!==null&&followUpMs<now);const dueToday=Boolean(activePipeline&&followUpMs!==null&&followUpMs>=now&&followUpMs<=new Date(new Date().setHours(23,59,59,999)).getTime());const upcoming=Boolean(activePipeline&&followUpMs!==null&&followUpMs>new Date(new Date().setHours(23,59,59,999)).getTime()&&followUpMs<=now+7*24*60*60*1000);const stalled=Boolean(activePipeline&&["contacted","qualified","proposal"].includes(pipeline!.pipeline_status)&&ageDays>=7&&!overdue&&!dueToday&&!upcoming);return {...item,pipeline,overdue,dueToday,upcoming,stalled,followUpMs,priority:(overdue?100:dueToday?85:stalled?70:upcoming?50:0)+item.score};}).filter(item=>item.overdue||item.dueToday||item.upcoming||item.stalled).sort((a,b)=>b.priority-a.priority||b.score-a.score).slice(0,12);
   const counts={overdue:0,dueToday:0,upcoming:0,stalled:0};
-  for(const item of salesActions){if(item.overdue)counts.overdue+=1;if(item.dueToday)counts.dueToday+=1;if(item.upcoming)counts.upcoming+=1;if(item.stalled)counts.stalled+=1}
+  for(const item of rows){if(item.overdue)counts.overdue+=1;if(item.dueToday)counts.dueToday+=1;if(item.upcoming)counts.upcoming+=1;if(item.stalled)counts.stalled+=1}
   return {rows,counts};
  },[accountUsage,opportunities])
 
