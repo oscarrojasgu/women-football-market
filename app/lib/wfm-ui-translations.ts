@@ -253,4 +253,20 @@ Object.assign(PT, {"Last active":"Última atividade"})
 Object.assign(FR, {"Last active":"Dernière activité"})
 Object.assign(DE, {"Last active":"Letzte Aktivität"})
 
+Object.assign(EN, {
+  "SALES PIPELINE":"SALES PIPELINE","Opportunity tiers":"Opportunity tiers","Accounts are ranked using WFM engagement, active commercial access, and linked club or agency profile data.":"Accounts are ranked using WFM engagement, active commercial access, and linked club or agency profile data.","High-value":"High-value","Warm":"Warm","Prospect":"Prospect","Free":"Free","Club profile":"Club profile","Agency profile":"Agency profile","Access plan":"Access plan","No active commercial plan":"No active commercial plan"
+})
+Object.assign(ES, {
+  "SALES PIPELINE":"EMBUDO COMERCIAL","Opportunity tiers":"Niveles de oportunidad","Accounts are ranked using WFM engagement, active commercial access, and linked club or agency profile data.":"Las cuentas se clasifican según su actividad en WFM, acceso comercial activo y perfiles vinculados de clubes o agencias.","High-value":"Alto valor","Warm":"Cálido","Prospect":"Prospecto","Free":"Gratis","Club profile":"Perfil del club","Agency profile":"Perfil de la agencia","Access plan":"Plan de acceso","No active commercial plan":"Sin plan comercial activo"
+})
+Object.assign(PT, {
+  "SALES PIPELINE":"PIPELINE COMERCIAL","Opportunity tiers":"Níveis de oportunidade","Accounts are ranked using WFM engagement, active commercial access, and linked club or agency profile data.":"As contas são classificadas pelo engajamento no WFM, acesso comercial ativo e perfis vinculados de clubes ou agências.","High-value":"Alto valor","Warm":"Aquecido","Prospect":"Prospecto","Free":"Grátis","Club profile":"Perfil do clube","Agency profile":"Perfil da agência","Access plan":"Plano de acesso","No active commercial plan":"Sem plano comercial ativo"
+})
+Object.assign(FR, {
+  "SALES PIPELINE":"PIPELINE COMMERCIAL","Opportunity tiers":"Niveaux d’opportunité","Accounts are ranked using WFM engagement, active commercial access, and linked club or agency profile data.":"Les comptes sont classés selon leur engagement WFM, leur accès commercial actif et les profils de clubs ou d’agences associés.","High-value":"Forte valeur","Warm":"Prospect chaud","Prospect":"Prospect","Free":"Gratuit","Club profile":"Profil du club","Agency profile":"Profil de l’agence","Access plan":"Plan d’accès","No active commercial plan":"Aucun plan commercial actif"
+})
+Object.assign(DE, {
+  "SALES PIPELINE":"VERTRIEBSPROZESS","Opportunity tiers":"Chancenstufen","Accounts are ranked using WFM engagement, active commercial access, and linked club or agency profile data.":"Konten werden anhand der WFM-Nutzung, des aktiven kommerziellen Zugangs und verknüpfter Vereins- oder Agenturprofile bewertet.","High-value":"Hoher Wert","Warm":"Warm","Prospect":"Interessent","Free":"Kostenlos","Club profile":"Vereinsprofil","Agency profile":"Agenturprofil","Access plan":"Zugangsplan","No active commercial plan":"Kein aktiver kommerzieller Plan"
+})
+
 export const WFM_UI_TRANSLATIONS: Record<WfmLocale, Record<string,string>> = { en: EN, es: ES, pt: PT, fr: FR, de: DE }
