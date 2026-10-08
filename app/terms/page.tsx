@@ -49,7 +49,7 @@ export default function TermsPage() {
         <p>To the maximum extent permitted by applicable law, WFM is provided on an “as available” basis and WFM does not guarantee uninterrupted availability or error-free information. Nothing in these Terms excludes rights that cannot lawfully be excluded.</p>
 
         <h2>12. Contact</h2>
-        <p>For questions about these Terms, licensing, corrections or account matters, use the contact information provided by WFM.</p>
+        <p>For questions about these Terms, licensing, corrections or account matters, use the dedicated WFM contact pathway at /contact.</p>
 
         <p style={{ marginTop: 28 }}><Link href="/privacy" className="outline">Privacy Policy</Link></p>
       </section>
