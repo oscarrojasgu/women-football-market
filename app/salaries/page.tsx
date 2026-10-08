@@ -31,7 +31,7 @@ type SalaryRecord = {
 }
 
 function formatUSD(amount: number | null) {
-  if (amount === null || amount === undefined) return 'Unknown'
+  if (amount === null || amount === undefined) return t("Unknown")
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -40,7 +40,7 @@ function formatUSD(amount: number | null) {
 }
 
 function formatOriginal(amount: number | null, currency: string | null) {
-  if (amount === null || amount === undefined) return 'Unknown'
+  if (amount === null || amount === undefined) return t("Unknown")
   try {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -53,7 +53,7 @@ function formatOriginal(amount: number | null, currency: string | null) {
 }
 
 function label(value: string | null) {
-  if (!value) return 'Unknown'
+  if (!value) return t("Unknown")
   return value.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
@@ -67,7 +67,7 @@ function confidenceTone(value: string | null) {
 }
 
 function salaryBand(value: number | null) {
-  if (value === null || value === undefined) return 'Unknown'
+  if (value === null || value === undefined) return t("Unknown")
   if (value < 50000) return 'Under $50K'
   if (value < 100000) return '$50K–$99K'
   if (value < 200000) return '$100K–$199K'
@@ -131,7 +131,7 @@ export default function SalariesPage() {
 
       if (salaryError) {
         console.error('Error loading salaries:', salaryError)
-        setError("We couldn't load salary data right now.")
+        setError(t("We couldn't load salary data right now."))
         setRecords([])
       } else {
         setRecords((data || []) as unknown as SalaryRecord[])
@@ -225,10 +225,10 @@ export default function SalariesPage() {
     <main className="salary-page">
       <section className="salary-hero">
         <div className="salary-shell">
-          <div className="salary-eyebrow">WOMEN’S FOOTBALL MARKET · LIVE DATABASE</div>
+          <div className="salary-eyebrow">{t("WOMEN’S FOOTBALL MARKET")} · {t("LIVE DATABASE")}</div>
           <h1>{t("Salaries")}</h1>
           <p>
-            Comparable player compensation with normalized USD values, original currency context, and confidence attached to every record.
+            {t("Comparable player compensation with normalized USD values, original currency context, and confidence attached to every record.")}
           </p>
         </div>
       </section>
@@ -252,15 +252,15 @@ export default function SalariesPage() {
               aria-label={t("Search salary records")}
             />
             <select value={leagueFilter} onChange={(event) => setLeagueFilter(event.target.value)} aria-label={t("Filter by league")}>
-              {leagueOptions.map((league) => <option key={league} value={league}>{league === 'All' ? 'All leagues' : league}</option>)}
+              {leagueOptions.map((league) => <option key={league} value={league}>{league === 'All' ? t("All leagues") : league}</option>)}
             </select>
-            <select value={bandFilter} onChange={(event) => setBandFilter(event.target.value)} aria-label="Filter by salary band">
-              {['All', 'Under $50K', '$50K–$99K', '$100K–$199K', '$200K–$299K', '$300K+'].map((band) => <option key={band} value={band}>{band === 'All' ? 'All salary bands' : band}</option>)}
+            <select value={bandFilter} onChange={(event) => setBandFilter(event.target.value)} aria-label={t("Filter by salary band")}>
+              {['All', 'Under $50K', '$50K–$99K', '$100K–$199K', '$200K–$299K', '$300K+'].map((band) => <option key={band} value={band}>{band === 'All' ? t("All salary bands") : band}</option>)}
             </select>
-            <select value={confidenceFilter} onChange={(event) => setConfidenceFilter(event.target.value)} aria-label="Filter by confidence">
-              {confidenceOptions.map((confidence) => <option key={confidence} value={confidence}>{confidence === 'All' ? 'All confidence' : label(confidence)}</option>)}
+            <select value={confidenceFilter} onChange={(event) => setConfidenceFilter(event.target.value)} aria-label={t("All confidence")}>
+              {confidenceOptions.map((confidence) => <option key={confidence} value={confidence}>{confidence === 'All' ? t("All confidence") : label(confidence)}</option>)}
             </select>
-            <select value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort salary records">
+            <select value={sort} onChange={(event) => setSort(event.target.value)} aria-label={t("Sort salary records")}>
               <option value="salary-desc">{t("Highest salary")}</option>
               <option value="salary-asc">{t("Lowest salary")}</option>
               <option value="player-asc">{t("Player A–Z")}</option>
@@ -290,13 +290,13 @@ export default function SalariesPage() {
         ) : (
           <div className="salary-table-wrap">
             <div className="salary-table-header wfm-sortable-header">
-              <button type="button" onClick={() => setSort(sort === 'player-asc' ? 'player-desc' : 'player-asc')}>PLAYER {sort === 'player-asc' ? '↑' : sort === 'player-desc' ? '↓' : ''}</button>
-              <button type="button" onClick={() => setSort(sort === 'club-asc' ? 'club-desc' : 'club-asc')}>CLUB {sort === 'club-asc' ? '↑' : sort === 'club-desc' ? '↓' : ''}</button>
-              <button type="button" onClick={() => setSort(sort === 'position-asc' ? 'position-desc' : 'position-asc')}>POSITION {sort === 'position-asc' ? '↑' : sort === 'position-desc' ? '↓' : ''}</button>
-              <button type="button" onClick={() => setSort(sort === 'salary-asc' ? 'salary-desc' : 'salary-asc')}>ANNUAL USD {sort === 'salary-asc' ? '↑' : '↓'}</button>
-              <button type="button" onClick={() => setSort(sort === 'weekly-asc' ? 'weekly-desc' : 'weekly-asc')}>WEEKLY USD {sort === 'weekly-asc' ? '↑' : sort === 'weekly-desc' ? '↓' : ''}</button>
-              <button type="button" onClick={() => setSort(sort === 'original-asc' ? 'original-desc' : 'original-asc')}>ORIGINAL {sort === 'original-asc' ? '↑' : sort === 'original-desc' ? '↓' : ''}</button>
-              <button type="button" onClick={() => setSort(sort === 'confidence-asc' ? 'confidence-desc' : 'confidence-asc')}>CONFIDENCE {sort === 'confidence-asc' ? '↑' : sort === 'confidence-desc' ? '↓' : ''}</button>
+              <button type="button" onClick={() => setSort(sort === 'player-asc' ? 'player-desc' : 'player-asc')}>{t("PLAYER")} {sort === 'player-asc' ? '↑' : sort === 'player-desc' ? '↓' : ''}</button>
+              <button type="button" onClick={() => setSort(sort === 'club-asc' ? 'club-desc' : 'club-asc')}>{t("Club")} {sort === 'club-asc' ? '↑' : sort === 'club-desc' ? '↓' : ''}</button>
+              <button type="button" onClick={() => setSort(sort === 'position-asc' ? 'position-desc' : 'position-asc')}>{t("POSITION")} {sort === 'position-asc' ? '↑' : sort === 'position-desc' ? '↓' : ''}</button>
+              <button type="button" onClick={() => setSort(sort === 'salary-asc' ? 'salary-desc' : 'salary-asc')}>{t("ANNUAL USD")} {sort === 'salary-asc' ? '↑' : '↓'}</button>
+              <button type="button" onClick={() => setSort(sort === 'weekly-asc' ? 'weekly-desc' : 'weekly-asc')}>{t("WEEKLY USD")} {sort === 'weekly-asc' ? '↑' : sort === 'weekly-desc' ? '↓' : ''}</button>
+              <button type="button" onClick={() => setSort(sort === 'original-asc' ? 'original-desc' : 'original-asc')}>{t("ORIGINAL")} {sort === 'original-asc' ? '↑' : sort === 'original-desc' ? '↓' : ''}</button>
+              <button type="button" onClick={() => setSort(sort === 'confidence-asc' ? 'confidence-desc' : 'confidence-asc')}>{t("CONFIDENCE")} {sort === 'confidence-asc' ? '↑' : sort === 'confidence-desc' ? '↓' : ''}</button>
             </div>
 
             {filteredRecords.map((record) => (
@@ -304,7 +304,7 @@ export default function SalariesPage() {
                 <span className="salary-player">
                   <img
                     src={record.player?.photo_url || '/wfm-player-placeholder.svg'}
-                    alt={record.player?.full_name || 'Player'}
+                    alt={record.player?.full_name || t("Player")}
                     onError={(event) => {
                       event.currentTarget.onerror = null
                       event.currentTarget.src = '/wfm-player-placeholder.svg'
@@ -326,15 +326,15 @@ export default function SalariesPage() {
                     }}
                   />
                   <span>
-                    <strong>{record.player?.full_name || 'Unknown player'}</strong>
-                    <small>{record.player?.nationality || 'Nationality unknown'}</small>
+                    <strong>{record.player?.full_name || t("Unknown player")}</strong>
+                    <small>{record.player?.nationality || t("Nationality unknown")}</small>
                   </span>
                 </span>
                 <span className="salary-club">
-                  <strong>{record.club?.name || 'Unknown club'}</strong>
-                  <small>{record.club?.league || record.club?.country || 'League unknown'}</small>
+                  <strong>{record.club?.name || t("Unknown club")}</strong>
+                  <small>{record.club?.league || record.club?.country || t("League unknown")}</small>
                 </span>
-                <span>{record.player?.position || 'Unknown'}</span>
+                <span>{record.player?.position || t("Unknown")}</span>
                 <span className="salary-primary">{formatUSD(record.annual_salary_usd)}</span>
                 <span>{formatUSD(record.weekly_salary_usd)}</span>
                 <span className="salary-original">
