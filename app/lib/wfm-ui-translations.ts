@@ -307,7 +307,7 @@ Object.assign(EN, {
   "PLAYER":"PLAYER","POSITION":"POSITION","ANNUAL USD":"ANNUAL USD","WEEKLY USD":"WEEKLY USD","ORIGINAL":"ORIGINAL","CONFIDENCE":"CONFIDENCE",
   "Player":"Player","Unknown player":"Unknown player","Nationality unknown":"Nationality unknown","Unknown club":"Unknown club","League unknown":"League unknown",
   "Explore women’s football competitions, seasons, clubs and player coverage across the WFM database.":"Explore women’s football competitions, seasons, clubs and player coverage across the WFM database.",
-  "Loading competitions…":"Loading competitions…","Competition":"Competition","Type":"Type","Level":"Level","Seasons":"Seasons","Clubs":"Clubs","Players":"Players","All countries":"All countries","Search competitions":"Search competitions","No competitions found.":"No competitions found."
+  "Loading competitions…":"Loading competitions…","Type":"Type","Level":"Level","Seasons":"Seasons","Clubs":"Clubs","Players":"Players","Search competitions":"Search competitions","No competitions found.":"No competitions found."
 });
 Object.assign(ES, {
   "WOMEN’S FOOTBALL MARKET":"MERCADO DEL FÚTBOL FEMENINO","A connected view of clubs, leagues, rosters, compensation, market values, and transfer activity.":"Una vista conectada de clubes, ligas, plantillas, salarios, valores de mercado y actividad de transferencias.",
