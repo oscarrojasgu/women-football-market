@@ -63,7 +63,7 @@ export default function MobileNav() {
             }
             onClick={() => setOpen(false)}
           >
-            {page.label}
+            {translate(locale, page.label)}
           </Link>
         ))}
       </div>
@@ -76,7 +76,7 @@ export default function MobileNav() {
 
         @media (max-width: 650px) {
           body {
-            padding-top: 64px;
+            padding-top: calc(64px + env(safe-area-inset-top));
           }
 
           body > nav,
