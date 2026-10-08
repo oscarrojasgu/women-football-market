@@ -190,6 +190,7 @@ export default function Home() {
             start_date,
             end_date,
             confidence,
+            created_at,
             club:clubs (
               name,
               league,
