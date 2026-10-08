@@ -41,6 +41,16 @@ export const metadata: Metadata = {
     description: 'Women’s football player, club, contract, salary, transfer and market-value data with scouting intelligence.',
     url: 'https://www.womenfootballmarket.com'
   },
+  alternates: {
+    canonical: 'https://www.womenfootballmarket.com',
+    languages: {
+      en: 'https://www.womenfootballmarket.com',
+      es: 'https://www.womenfootballmarket.com/es',
+      pt: 'https://www.womenfootballmarket.com/pt',
+      fr: 'https://www.womenfootballmarket.com/fr',
+      de: 'https://www.womenfootballmarket.com/de'
+    }
+  },
   twitter: {
     card: 'summary',
     title: 'Women’s Football Market',
