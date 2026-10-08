@@ -20,7 +20,7 @@ function LoginForm(){
  const pathname=usePathname()
  const locale=getLocaleFromPathname(pathname)
  const text=LOGIN_TRANSLATIONS[locale]
- const [mode,setMode]=useState<"signin"|"signup">("signin")
+ const [mode,setMode]=useState<"signin"|"signup">(searchParams.get("mode")==="signup"?"signup":"signin")
  const [email,setEmail]=useState("")
  const [password,setPassword]=useState("")
  const [busy,setBusy]=useState(false)
