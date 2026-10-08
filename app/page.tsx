@@ -70,6 +70,13 @@ type HomeCompetition = {
   nextMatch: string | null
 }
 
+type MarketValueInfo = {
+  player_id: string;
+  market_value_usd: number | null;
+  valuation_date: string | null;
+  confidence: string | null;
+}
+
 type CurrentClubInfo = {
   player_id: string
   current_club_id: string | null
@@ -161,6 +168,7 @@ export default function Home() {
   const [databasePlayers, setDatabasePlayers] = useState<Player[]>([])
   const [contracts, setContracts] = useState<ContractInfo[]>([])
   const [currentClubs, setCurrentClubs] = useState<CurrentClubInfo[]>([])
+  const [marketValues, setMarketValues] = useState<MarketValueInfo[]>([])
   const [matchTickerItems, setMatchTickerItems] = useState<MatchTickerItem[]>([])
   const [homeTransfers, setHomeTransfers] = useState<HomeTransfer[]>([])
   const [homeNews, setHomeNews] = useState<HomeNewsItem[]>([])
@@ -181,6 +189,7 @@ export default function Home() {
         { data: playerData, error: playerError, count: playerCount },
         { data: contractData, error: contractError, count: contractCount },
         { data: currentClubData, error: currentClubError },
+        { data: marketValueData, error: marketValueError },
         { count: clubCount, error: clubError },
         { count: transferCount, error: transferError },
       ] = await Promise.all([
@@ -232,6 +241,10 @@ export default function Home() {
         console.error('Error loading current player clubs:', currentClubError)
       }
 
+      if (marketValueError) {
+        console.error('Error loading market values:', marketValueError)
+      }
+
       if (clubError) {
         console.error('Error loading clubs:', clubError)
       }
@@ -250,6 +263,11 @@ export default function Home() {
       setDatabasePlayers(playerData || [])
       setContracts((contractData || []) as unknown as ContractInfo[])
       setCurrentClubs((currentClubData || []) as CurrentClubInfo[])
+      const latestMarketValues = new Map<string, MarketValueInfo>()
+      ;(marketValueData || []).forEach((row) => {
+        if (!latestMarketValues.has(row.player_id)) latestMarketValues.set(row.player_id, row as MarketValueInfo)
+      })
+      setMarketValues(Array.from(latestMarketValues.values()))
       setLoading(false)
     }
 
@@ -496,41 +514,46 @@ export default function Home() {
   };
   const homeSortIndicator = (key: typeof homeSort) => homeSort === key ? (homeSortDir === 'asc' ? '↑' : '↓') : '';
 
-  const featuredPlayerIds = useMemo(() => {
-    const ids: string[] = []
-    const add = (id: string | null | undefined) => {
-      if (id && !ids.includes(id)) ids.push(id)
+  const featuredDatabasePlayers = useMemo(() => {
+    const marketValueByPlayer = new Map(marketValues.map((value) => [value.player_id, value]))
+    const transferIds = new Set(homeTransfers.map((transfer) => transfer.player_id))
+    const recentContractIds = new Set(
+      contracts
+        .filter((contract) => contract.player_id && contract.created_at)
+        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+        .slice(0, 12)
+        .map((contract) => contract.player_id)
+    )
+    const salaryRank = new Map(
+      contracts
+        .filter((contract) => contract.player_id && contract.annual_salary_usd != null)
+        .sort((a, b) => (b.annual_salary_usd || 0) - (a.annual_salary_usd || 0))
+        .map((contract, index) => [contract.player_id, index])
+    )
+    const marketValueRank = new Map(
+      [...marketValues]
+        .filter((value) => value.market_value_usd != null)
+        .sort((a, b) => (b.market_value_usd || 0) - (a.market_value_usd || 0))
+        .map((value, index) => [value.player_id, index])
+    )
+
+    const score = (player: Player) => {
+      let total = 0
+      if (transferIds.has(player.id)) total += 1000
+      if (recentContractIds.has(player.id)) total += 700
+      const salaryRankValue = salaryRank.get(player.id)
+      if (salaryRankValue != null) total += Math.max(0, 500 - salaryRankValue)
+      const marketValueRankValue = marketValueRank.get(player.id)
+      if (marketValueRankValue != null) total += Math.max(0, 400 - marketValueRankValue)
+      return total
     }
 
-    // Put the newest market activity first: recent transfers, then newly reported contracts.
-    homeTransfers.forEach((transfer) => add(transfer.player_id))
-
-    contracts
-      .filter((contract) => contract.player_id && contract.created_at)
-      .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
-      .slice(0, 12)
-      .forEach((contract) => add(contract.player_id))
-
-    // Fill the remaining slots with the highest known salary records as a practical featured-player fallback.
-    contracts
-      .filter((contract) => contract.player_id && contract.annual_salary_usd != null)
-      .sort((a, b) => (b.annual_salary_usd || 0) - (a.annual_salary_usd || 0))
-      .forEach((contract) => add(contract.player_id))
-
-    return ids
-  }, [homeTransfers, contracts])
-
-  const featuredDatabasePlayers = useMemo(() => {
-    const rank = new Map(featuredPlayerIds.map((id, index) => [id, index]))
     return [...filteredDatabasePlayers].sort((a, b) => {
-      const ar = rank.get(a.id)
-      const br = rank.get(b.id)
-      if (ar != null && br != null) return ar - br
-      if (ar != null) return -1
-      if (br != null) return 1
+      const scoreDifference = score(b) - score(a)
+      if (scoreDifference !== 0) return scoreDifference
       return a.full_name.localeCompare(b.full_name)
     })
-  }, [filteredDatabasePlayers, featuredPlayerIds])
+  }, [filteredDatabasePlayers, homeTransfers, contracts, marketValues])
 
   const visibleDatabasePlayers = useMemo(
     () => (q.trim() ? sortedDatabasePlayers : featuredDatabasePlayers).slice(0, 25),
