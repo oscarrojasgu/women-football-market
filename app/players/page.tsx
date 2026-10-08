@@ -1017,7 +1017,7 @@ export default function PlayersPage() {
           <div className="scout-control-footer">
             <span>
               {loading
-                ? "Loading scouting database..."
+                ? t("Loading scouting database...")
                 : `${filteredPlayers.length} player${filteredPlayers.length === 1 ? "" : "s"} match your criteria`}
             </span>
 
