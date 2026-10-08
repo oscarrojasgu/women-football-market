@@ -190,7 +190,7 @@ export default function ContractsPage() {
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder={t(t("Search player, club, league or position..."))}
+              placeholder={t("Search player, club, league or position...")}
             />
             <select value={expiry} onChange={e => setExpiry(e.target.value)}>
               <option value="All">{t("All Expiry Windows")}</option>
