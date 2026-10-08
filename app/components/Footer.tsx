@@ -13,6 +13,7 @@ export default function Footer() {
           <Link href="/privacy" style={{ color: '#111', fontSize: 12 }}>{t('Privacy Policy')}</Link>
           <Link href="/terms" style={{ color: '#111', fontSize: 12 }}>{t('Terms of Use')}</Link>
           <Link href="/data-corrections" style={{ color: '#111', fontSize: 12 }}>{t('Data Corrections')}</Link>
+          <Link href="/contact" style={{ color: '#111', fontSize: 12 }}>{t('Contact')}</Link>
         </nav>
       </div>
     </footer>
