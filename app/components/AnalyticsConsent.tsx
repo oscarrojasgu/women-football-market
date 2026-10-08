@@ -29,7 +29,7 @@ export default function AnalyticsConsent() {
         position: 'fixed',
         left: 16,
         right: 16,
-        bottom: 16,
+        bottom: 'max(16px, env(safe-area-inset-bottom))',
         zIndex: 1000,
         maxWidth: 720,
         margin: '0 auto',
