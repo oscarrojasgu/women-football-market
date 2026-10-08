@@ -35,6 +35,17 @@ type ContractInfo = {
   } | null;
 };
 
+type CurrentClubInfo = {
+  player_id: string;
+  current_club_id: string | null;
+  current_club_name: string | null;
+  current_club_league: string | null;
+  current_club_country: string | null;
+  current_club_logo_url: string | null;
+  current_club_since: string | null;
+  resolution_source: string | null;
+};
+
 type SeasonIntel = {
   player_id: string;
   season: string;
@@ -128,6 +139,7 @@ export default function PlayersPage() {
  const t = useWfmT()
   const [players, setPlayers] = useState<Player[]>([]);
   const [contracts, setContracts] = useState<ContractInfo[]>([]);
+  const [currentClubs, setCurrentClubs] = useState<CurrentClubInfo[]>([]);
   const [seasonIntel, setSeasonIntel] = useState<SeasonIntel[]>([]);
   const [marketValues, setMarketValues] = useState<MarketValue[]>([]);
   const [peerBenchmarks, setPeerBenchmarks] = useState<PeerBenchmark[]>([]);
@@ -225,7 +237,7 @@ export default function PlayersPage() {
     async function loadPlayers() {
       setLoading(true);
 
-      const [playerResult, contractResult, intelResult, valueResult, peerResult, globalPeerResult, participationResult] =
+      const [playerResult, contractResult, currentClubResult, intelResult, valueResult, peerResult, globalPeerResult, participationResult] =
         await Promise.all([
           supabase
             .from("players")
@@ -258,6 +270,10 @@ export default function PlayersPage() {
                 logo_url
               )
             `),
+
+          supabase
+            .from("player_current_clubs")
+            .select("player_id,current_club_id,current_club_name,current_club_league,current_club_country,current_club_logo_url,current_club_since,resolution_source"),
 
           supabase
             .from("player_season_intelligence")
@@ -327,6 +343,12 @@ export default function PlayersPage() {
         );
       }
 
+      if (currentClubResult.error) {
+        console.error("Error loading current player clubs:", currentClubResult.error);
+      } else {
+        setCurrentClubs((currentClubResult.data || []) as CurrentClubInfo[]);
+      }
+
       if (intelResult.error) {
         console.error("Error loading player intelligence:", intelResult.error);
       } else {
@@ -380,6 +402,11 @@ export default function PlayersPage() {
 
     loadPlayers();
   }, []);
+
+  const currentClubByPlayer = useMemo(
+    () => new Map(currentClubs.map((club) => [club.player_id, club])),
+    [currentClubs]
+  );
 
   const contractByPlayer = useMemo(() => {
     const map = new Map<string, ContractInfo>();
@@ -729,6 +756,8 @@ export default function PlayersPage() {
         player.secondary_position,
         player.preferred_foot,
         player.agency,
+        currentClubByPlayer.get(player.id)?.current_club_name,
+        currentClubByPlayer.get(player.id)?.current_club_league,
         contract?.club?.name,
         contract?.club?.league,
         intel?.club_name,
@@ -821,6 +850,7 @@ export default function PlayersPage() {
     latestValueByPlayer,
     latestPeerByPlayer,
     latestGlobalPeerByPlayer,
+    currentClubByPlayer,
   ]);
 
   const totalPages = Math.max(1, Math.ceil(filteredPlayers.length / pageSize));
@@ -1155,8 +1185,9 @@ export default function PlayersPage() {
             const value = latestValueByPlayer.get(player.id);
             const playerRole = getPlayerRoleGroup(player.position, player.secondary_position);
             const age = calculateAge(player.date_of_birth);
-            const playerClub = contract?.club?.name || intel?.club_name || "Club unavailable";
-            const playerLeague = participationByPlayer.get(player.id)?.find((row) => row.season_key === intel?.season)?.competition_name || contract?.club?.league || intel?.league || "Competition unavailable";
+            const currentClub = currentClubByPlayer.get(player.id);
+            const playerClub = currentClub?.current_club_name || contract?.club?.name || intel?.club_name || "Club unavailable";
+            const playerLeague = currentClub?.current_club_league || participationByPlayer.get(player.id)?.find((row) => row.season_key === intel?.season)?.competition_name || contract?.club?.league || intel?.league || "Competition unavailable";
 
             return (
               <div className={`scout-row ${shortlist.includes(player.id) ? "is-shortlisted" : ""}`} key={player.id}>
