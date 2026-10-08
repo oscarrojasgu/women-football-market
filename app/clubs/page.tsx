@@ -378,7 +378,7 @@ export default function ClubsPage() {
                   placeholder={t("Search club, league, country…")}
                   value={q}
                   onChange={(event) => setQ(event.target.value)}
-                  style={{ flex: '1 1 230px', minWidth: 200, border: '1px solid #d8d8d8', borderRadius: 9, padding: '11px 13px', fontSize: 14, outline: 'none' }}
+                  style={{ flex: '1 1 230px', minWidth: 0, border: '1px solid #d8d8d8', borderRadius: 9, padding: '11px 13px', fontSize: 14, outline: 'none' }}
                 />
                 <select value={leagueFilter} onChange={(event) => { setLeagueFilter(event.target.value); setSeasonFilter('all') }} style={{ flex: '0 1 180px', border: '1px solid #d8d8d8', borderRadius: 9, padding: '11px 30px 11px 11px', background: '#fff', fontSize: 13 }}>
                   <option value="all">{t("All competitions")}</option>
