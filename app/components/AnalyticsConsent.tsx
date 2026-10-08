@@ -41,8 +41,11 @@ export default function AnalyticsConsent() {
       }}
     >
       <strong style={{ display: 'block', marginBottom: 8 }}>{t('Analytics preferences')}</strong>
-      <p style={{ margin: '0 0 14px', lineHeight: 1.5 }}>
+      <p style={{ margin: '0 0 10px', lineHeight: 1.5 }}>
         {t('WFM uses analytics to understand website traffic and improve the site. You can accept or decline analytics tracking.')}
+      </p>
+      <p style={{ margin: '0 0 14px', lineHeight: 1.5, fontSize: 12 }}>
+        <a href="/privacy" style={{ color: '#111', fontWeight: 700 }}>{t('Privacy Policy')}</a>
       </p>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <button className="settings-primary" type="button" onClick={() => choose('accepted')}>
