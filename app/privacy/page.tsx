@@ -19,6 +19,7 @@ export default function PrivacyPage() {
         <p><strong>Google Analytics.</strong> Google Analytics is loaded only after analytics consent. WFM may associate a signed-in account with a pseudonymous internal user identifier. WFM does not send your name or email address to Google Analytics.</p>
         <p><strong>Commercial account information.</strong> For club, agency and other professional accounts, WFM may process organization information, access-plan status, licensing information, sales notes and account activity needed to administer commercial relationships.</p>
         <p><strong>Public football data.</strong> WFM publishes football information such as player identities, clubs, contracts, salaries, transfers, statistics and market values where the information is available to WFM. Published records may include source, confidence, verification and last-accessed information. WFM does not intentionally publish private account credentials.</p>
+        <p><strong>Contact requests.</strong> If you use the WFM contact pathway, we collect the information you submit, such as your name, email address, organization, subject, message and an optional WFM record or page reference. We use it to respond to the request, investigate the issue and maintain an appropriate request history.</p>
 
         <h2>3. Why we use information</h2>
         <ul>
