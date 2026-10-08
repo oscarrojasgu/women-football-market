@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Transfers",
   description:
     "Explore women’s football transfers, player movement, clubs, dates, fees and transfer intelligence.",
-  alternates: { canonical: "https://women-football-market.vercel.app/transfers" },
+  alternates: { canonical: "https://www.womenfootballmarket.com/transfers" },
 };
 
 export default function TransfersLayout({ children }: { children: ReactNode }) {
