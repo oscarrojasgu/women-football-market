@@ -335,11 +335,11 @@ export default function ClubsPage() {
       <section style={{ background: '#111', color: '#fff', padding: '52px 6vw 46px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ fontSize: 12, color: '#aaa', fontWeight: 800, letterSpacing: 1.6, marginBottom: 14 }}>
-            WOMEN’S FOOTBALL MARKET
+            {t("WOMEN’S FOOTBALL MARKET")}
           </div>
           <h1 style={{ margin: 0, fontSize: 'clamp(42px, 6vw, 68px)', lineHeight: 0.98, letterSpacing: '-2.5px', fontWeight: 800 }}>{t("Clubs")}</h1>
           <p style={{ margin: '18px 0 0', maxWidth: 720, fontSize: 17, lineHeight: 1.55, color: '#c7c7c7' }}>
-            A connected view of clubs, leagues, rosters, compensation, market values, and transfer activity.
+            {t("A connected view of clubs, leagues, rosters, compensation, market values, and transfer activity.")}
           </p>
         </div>
       </section>
@@ -348,9 +348,9 @@ export default function ClubsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 12 }}>
           {[
             ['CLUBS', loading ? '—' : clubs.length.toString()],
-            ['ACTIVE PLAYERS', loading ? '—' : totalPlayers.toString()],
-            ['WITH SALARY DATA', loading ? '—' : clubsWithSalary.toString()],
-            ['WITH MARKET VALUES', loading ? '—' : clubsWithValues.toString()],
+            [t("ACTIVE PLAYERS"), loading ? '—' : totalPlayers.toString()],
+            [t("WITH SALARY DATA"), loading ? '—' : clubsWithSalary.toString()],
+            [t("WITH MARKET VALUES"), loading ? '—' : clubsWithValues.toString()],
           ].map(([label, value]) => (
             <div key={label} style={{ background: '#fff', border: '1px solid #e2e2e2', borderRadius: 12, padding: '17px 18px' }}>
               <div style={{ fontSize: 11, color: '#777', fontWeight: 800, letterSpacing: 1, marginBottom: 7 }}>{label}</div>
@@ -367,7 +367,7 @@ export default function ClubsPage() {
               <div>
                 <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>{t("Club intelligence")}</h2>
                 <p style={{ margin: '6px 0 0', color: '#777', fontSize: 13 }}>
-                  {loading ? 'Loading clubs…' : `${filteredClubs.length} of ${clubs.length} clubs shown`}
+                  {loading ? t("Loading clubs…") : `${filteredClubs.length} of ${clubs.length} clubs shown`}
                 </p>
               </div>
 
@@ -403,10 +403,10 @@ export default function ClubsPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <span style={{ fontSize: 12, color: '#777', fontWeight: 700 }}>{t("SORT")}</span>
                 {[
-                  ['name', 'Name'],
-                  ['players', 'Roster'],
-                  ['payroll', 'Payroll'],
-                  ['value', 'Market value'],
+                  ['name', t("Name")],
+                  ['players', t("Roster")],
+                  ['payroll', t("Payroll")],
+                  ['value', t("Market value")],
                 ].map(([value, label]) => (
                   <button
                     key={value}
@@ -430,7 +430,7 @@ export default function ClubsPage() {
               <thead>
                 <tr className="wfm-club-sortable-header" style={{ background: '#fafafa', borderBottom: '1px solid #e8e8e8' }}>
                   {[
-                    ['Club','name'],['Competition','competition'],['Season','season'],['Country','country'],['Active roster','players'],['Known payroll','payroll'],['Squad market value','value'],['Transfers','transfers']
+                    [t("Club"),'name'],[t("Competition"),'competition'],[t("Season"),'season'],[t("Country"),'country'],[t("Active roster"),'players'],[t("Known payroll"),'payroll'],[t("Squad market value"),'value'],[t("Transfers"),'transfers']
                   ].map(([heading,key], index) => (
                     <th key={heading} style={{ textAlign: index === 0 ? 'left' : index >= 3 ? 'right' : 'left', padding: '13px 18px', fontSize: 10, color: '#888', letterSpacing: 0.9, textTransform: 'uppercase', fontWeight: 800 }}>
                       <button type="button" onClick={() => changeSort(key as SortKey)} style={{border:0,background:'transparent',padding:0,font:'inherit',color:'inherit',fontWeight:800,cursor:'pointer',textTransform:'uppercase',letterSpacing:'inherit'}}>
