@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { getLocaleFromPathname, localizedPath, translate } from '../lib/i18n'
+import { getLocaleFromPathname, LANGUAGE_LABELS, localizedPath, translate, WFM_LOCALES, type WfmLocale } from '../lib/i18n'
 
 const pages = [
   { href: '/', label: 'Home' },
@@ -27,6 +27,12 @@ export default function MobileNav() {
     return routePath === page.href || routePath.startsWith(`${page.href}/`)
   })?.label || 'Women’s Football Market'
   const currentPage = translate(locale, currentPageKey)
+
+  const changeLanguage = (nextLocale: WfmLocale) => {
+    document.cookie = `wfm-locale=${nextLocale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`
+    setOpen(false)
+    window.location.assign(localizedPath(nextLocale, pathname))
+  }
 
   return (
     <>
@@ -66,6 +72,20 @@ export default function MobileNav() {
             {translate(locale, page.label)}
           </Link>
         ))}
+
+        <div className="mobile-nav-language">
+          <label htmlFor="mobile-language">{translate(locale, 'Language')}</label>
+          <select
+            id="mobile-language"
+            value={locale}
+            onChange={(event) => changeLanguage(event.target.value as WfmLocale)}
+            aria-label={translate(locale, 'Language')}
+          >
+            {WFM_LOCALES.map((code) => (
+              <option key={code} value={code}>{LANGUAGE_LABELS[code]}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <style jsx global>{`
@@ -208,6 +228,39 @@ export default function MobileNav() {
             text-decoration: none;
             font-size: 16px;
             font-weight: 600;
+          }
+
+          .mobile-nav-language {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            min-height: 56px;
+            padding: 10px 20px;
+            border-top: 1px solid #d9d7d0;
+          }
+
+          .mobile-nav-language label {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111;
+          }
+
+          .mobile-nav-language select {
+            min-width: 132px;
+            min-height: 42px;
+            padding: 8px 34px 8px 12px;
+            border: 1px solid #aaa;
+            border-radius: 8px;
+            background: #fff;
+            color: #111;
+            font-size: 15px;
+            font-weight: 600;
+          }
+
+          .mobile-nav-language select:focus-visible {
+            outline: 3px solid #111;
+            outline-offset: 2px;
           }
 
           .mobile-nav-drawer a:last-child {
