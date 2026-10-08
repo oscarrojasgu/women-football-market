@@ -367,14 +367,14 @@ export default function ClubsPage() {
               <div>
                 <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>{t("Club intelligence")}</h2>
                 <p style={{ margin: '6px 0 0', color: '#777', fontSize: 13 }}>
-                  {loading ? t(t("Loading clubs…")) : `${filteredClubs.length} of ${clubs.length} clubs shown`}
+                  {loading ? t("Loading clubs…") : `${filteredClubs.length} of ${clubs.length} clubs shown`}
                 </p>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', width: 'min(100%, 720px)', justifyContent: 'flex-end' }}>
                 <input
                   type="search"
-                  aria-label={t(t("Search clubs"))}
+                  aria-label={t("Search clubs")}
                   placeholder={t("Search club, league, country…")}
                   value={q}
                   onChange={(event) => setQ(event.target.value)}
