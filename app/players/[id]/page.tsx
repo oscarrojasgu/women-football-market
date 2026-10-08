@@ -9,6 +9,17 @@ import PlayerIntelligence from "./PlayerIntelligence";
 
 type PlayerPageProps = { params: Promise<{ id: string }> };
 
+type CurrentClubInfo = {
+  player_id: string;
+  current_club_id: string | null;
+  current_club_name: string | null;
+  current_club_league: string | null;
+  current_club_country: string | null;
+  current_club_logo_url: string | null;
+  current_club_since: string | null;
+  resolution_source: string | null;
+};
+
 type Club = {
   id: string;
   name: string;
@@ -182,13 +193,14 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     return <main className="player-page" style={{ minHeight: "100vh", background: "#f5f4ef", padding: "80px 20px" }}><div style={{ maxWidth: 1200, margin: "0 auto" }}><h1>{t("Player not found")}</h1><Link href="/players">{t("Back to players")}</Link></div></main>;
   }
 
-  const [{ data: contractData }, { data: statsData }, { data: transferData }, { data: valueData }, { data: seasonIntelligenceData }, { data: peerBenchmarkData }] = await Promise.all([
+  const [{ data: contractData }, { data: statsData }, { data: transferData }, { data: valueData }, { data: seasonIntelligenceData }, { data: peerBenchmarkData }, { data: currentClubData }] = await Promise.all([
     supabase.from("contracts").select("id,status,confidence,start_date,end_date,annual_salary,weekly_salary,annual_salary_usd,weekly_salary_usd,currency,notes,club_id,source:sources(id,publisher,url,published_at,reliability,accessed_at)").eq("player_id", id).order("start_date", { ascending: false }),
     supabase.from("player_stats").select("id,club_id,season,competition,appearances,starts,minutes,goals,assists,yellow_cards,red_cards,shots,shots_on_target,key_passes,chances_created,crosses,tackles,tackles_won,interceptions,clearances,blocks,recoveries,dispossessions,dribbles_attempted,dribbles_completed,fouls_committed,fouls_drawn,offsides,passes_attempted,passes_completed,progressive_passes,progressive_carries,duels_won,duels_lost,aerials_won,aerials_lost,xg,xa,sca,gca,saves,shots_on_target_faced,goals_against,clean_sheets,penalty_kicks_saved,penalty_kicks_faced,own_goals,confidence,notes,source:sources(id,publisher,url,published_at,reliability,accessed_at),competition_season:competition_seasons(id,competition:competitions(canonical_name),season:seasons(season_key,label))").eq("player_id", id).order("season", { ascending: false }).order("competition", { ascending: true }),
     supabase.from("transfers").select("id,transfer_date,transfer_type,fee,currency,confidence,source:sources(id,publisher,url,published_at,reliability,accessed_at),from_club:clubs!transfers_from_club_id_fkey(id,name,league,country,logo_url),to_club:clubs!transfers_to_club_id_fkey(id,name,league,country,logo_url),transfer_competitions:transfer_competitions(club_role,competition_season:competition_seasons(competition:competitions(canonical_name),season:seasons(season_key,label)))").eq("player_id", id).order("transfer_date", { ascending: false }),
     supabase.from("market_values").select("id,valuation_date,market_value,currency,market_value_usd,confidence,notes,source:sources(id,publisher,url,published_at,reliability,accessed_at),competition_season:competition_seasons(competition:competitions(canonical_name),season:seasons(season_key,label))").eq("player_id", id).order("valuation_date", { ascending: false }),
     supabase.from("player_season_intelligence").select("season,club_name,league,position,minutes,goals,assists,goals_per90,assists_per90,xg_per90,xa_per90,chances_created_per90,key_passes_per90,tackles_per90,interceptions_per90,progressive_carries_per90,duels_won_per90").eq("player_id", id).order("season", { ascending: false }),
     supabase.from("player_peer_benchmarks").select("season,league,position,peer_count,goals_per90_percentile,assists_per90_percentile,xg_per90_percentile,xa_per90_percentile,chances_created_per90_percentile,key_passes_per90_percentile,tackles_per90_percentile,interceptions_per90_percentile,progressive_carries_per90_percentile").eq("player_id", id).order("season", { ascending: false }),
+    supabase.from("player_current_clubs").select("player_id,current_club_id,current_club_name,current_club_league,current_club_country,current_club_logo_url,current_club_since,resolution_source").eq("player_id", id).maybeSingle(),
   ]);
 
   const contracts: Contract[] = (contractData || []).map((item: any): Contract => ({ ...item, source: normalizeSource(item.source) }));
@@ -244,15 +256,16 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   const currentContract = activeContract || datedCurrentContract;
   const latestStatWithClub = stats.find(s => s.club_id) || null;
   const latestTransferWithClub = transfers.find(t => t.to_club?.id) || null;
-  const currentClub = currentContract?.club_id
-    ? clubMap.get(currentContract.club_id) || null
-    : latestTransferWithClub?.to_club?.id
-      ? clubMap.get(latestTransferWithClub.to_club.id) || latestTransferWithClub.to_club
-      : latestStatWithClub?.club_id
-        ? clubMap.get(latestStatWithClub.club_id) || null
-        : contracts[0]?.club_id
-          ? clubMap.get(contracts[0].club_id) || null
-          : null;
+  const canonicalCurrentClub = (currentClubData || null) as CurrentClubInfo | null;
+  const currentClub: Club | null = canonicalCurrentClub?.current_club_id
+    ? {
+        id: canonicalCurrentClub.current_club_id,
+        name: canonicalCurrentClub.current_club_name || "Unknown",
+        league: canonicalCurrentClub.current_club_league,
+        country: canonicalCurrentClub.current_club_country,
+        logo_url: canonicalCurrentClub.current_club_logo_url,
+      }
+    : null;
   const currentValue = marketValues[0] || null;
   const sourceRecords = [
     ...contracts.map((item) => item.source),
@@ -271,13 +284,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   const age = ageOf(player.date_of_birth);
   const code = flagCode(player.nationality);
   const contractHistory = contracts.filter(c => c.id !== currentContract?.id);
-  const currentClubSource = currentContract?.club_id && clubMap.get(currentContract.club_id)
-    ? "contract"
-    : latestTransferWithClub?.to_club?.id
-      ? "latest transfer"
-      : latestStatWithClub?.club_id && clubMap.get(latestStatWithClub.club_id)
-        ? "latest club statistics"
-        : "latest contract record";
+  const currentClubSource = canonicalCurrentClub?.resolution_source || "unresolved";
   const latestTransfer = transfers[0] || null;
   const { data: officialVerification } = await supabase
     .from("official_verification_public")
