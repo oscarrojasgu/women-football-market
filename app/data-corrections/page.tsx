@@ -31,7 +31,9 @@ export default function DataCorrectionsPage() {
         <h2>Salary and contract information</h2>
         <p>Salary and contract information can be particularly difficult to verify. WFM will distinguish verified records from other confidence levels and will not represent an unavailable figure as a confirmed fact.</p>
 
-        <p style={{ marginTop: 28 }}><Link href="/privacy" className="outline">Privacy Policy</Link></p>
+        <p>Use the WFM contact pathway to submit a correction or verification request, including the affected record and supporting evidence.</p>
+
+        <p style={{ marginTop: 28 }}><Link href="/privacy" className="outline">Privacy Policy</Link> <Link href="/contact" className="outline">Contact WFM</Link></p>
       </section>
     </main>
   );
