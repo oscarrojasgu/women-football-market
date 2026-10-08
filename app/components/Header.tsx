@@ -98,7 +98,7 @@ export default function Header() {
         {userEmail ? (
           <div className="account-menu" ref={menuRef}>
             <button type="button" className="account-trigger" onClick={() => setMenuOpen(v => !v)} aria-expanded={menuOpen} aria-haspopup="menu">
-              <span>Welcome {displayName}</span><span className="account-chevron" aria-hidden="true">⌄</span>
+              <span>{translate(locale, 'Welcome')} {displayName}</span><span className="account-chevron" aria-hidden="true">⌄</span>
             </button>
             {menuOpen && <div className="account-dropdown" role="menu">
               <div className="account-dropdown-header"><strong>{displayName}</strong><span>{isAdmin ? translate(locale, 'WFM administrator') : isClubAccount ? translate(locale, 'Club account') : translate(locale, 'Scout account')}</span><small>{userEmail}</small></div>
