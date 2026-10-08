@@ -22,7 +22,7 @@ export default function PricingPage() {
         <div><div className="eyebrow">{t(plan.code==='data_license'?'Commercial data licensing':plan.code==='club'?'Private club workspace':plan.code==='professional'?'Professional scouting workspace':'Public research access')}</div><h2>{t(plan.name)}</h2><p className="account-muted">{t(bestFor[plan.code])}</p></div>
         <div><strong style={{fontSize:30}}>{plan.monthly_price_usd==null?'Custom':plan.monthly_price_usd===0?'$0':'$'+plan.monthly_price_usd.toLocaleString()}</strong>{plan.monthly_price_usd!=null&&<span className="account-muted"> {t('per month')}</span>}{plan.annual_price_usd!=null&&plan.annual_price_usd>0&&<small style={{display:'block'}}>{'$'+plan.annual_price_usd.toLocaleString()} {t('per year')}</small>}</div>
         <div>{Object.entries(plan.features).filter(([,v])=>v).map(([key])=><div key={key} style={{padding:'5px 0'}}>✓ {t(featureLabels[key]||key)}</div>)}</div>
-        <div style={{marginTop:'auto'}}><Link href={plan.code==='free'?'/signup':plan.code==='data_license'?'/contact':'/account/licensing'} className="settings-primary" style={{display:'inline-block',textDecoration:'none'}}>{t(plan.code==='data_license'?'Contact WFM':'Get started')}</Link></div>
+        <div style={{marginTop:'auto'}}><Link href={plan.code==='free'?'/login?mode=signup':plan.code==='data_license'?'/contact':'/account/licensing'} className="settings-primary" style={{display:'inline-block',textDecoration:'none'}}>{t(plan.code==='data_license'?'Contact WFM':'Get started')}</Link></div>
       </article>)}
     </div>
     <p className="account-muted" style={{marginTop:18}}>{t('Annual billing saves two months.')}</p>
