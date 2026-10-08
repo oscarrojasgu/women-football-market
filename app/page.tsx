@@ -936,7 +936,7 @@ export default function Home() {
                 letterSpacing: '-0.5px',
               }}
             >
-              {q.trim() ? 'Search results' : 'Market movers'}
+              {q.trim() ? t("Search results") : t("Market movers")}
             </h2>
           </div>
 
@@ -966,7 +966,7 @@ export default function Home() {
             }}
           >
             {loading
-              ? 'Searching database…'
+              ? t("Searching database…")
               : `${filteredDatabasePlayers.length} result${
                   filteredDatabasePlayers.length !== 1
                     ? 's'
