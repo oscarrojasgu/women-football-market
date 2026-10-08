@@ -483,7 +483,7 @@ export default function Home() {
       .forEach((contract) => add(contract.player_id))
 
     // Fill the remaining slots with the highest known salary records as a practical featured-player fallback.
-    [...contracts]
+    contracts
       .filter((contract) => contract.player_id && contract.annual_salary_usd != null)
       .sort((a, b) => (b.annual_salary_usd || 0) - (a.annual_salary_usd || 0))
       .forEach((contract) => add(contract.player_id))
