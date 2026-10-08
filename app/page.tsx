@@ -70,6 +70,17 @@ type HomeCompetition = {
   nextMatch: string | null
 }
 
+type CurrentClubInfo = {
+  player_id: string
+  current_club_id: string | null
+  current_club_name: string | null
+  current_club_league: string | null
+  current_club_country: string | null
+  current_club_logo_url: string | null
+  current_club_since: string | null
+  resolution_source: string | null
+}
+
 type MatchTickerItem = {
   id: string
   competition: string
@@ -149,6 +160,7 @@ export default function Home() {
   const [q, setQ] = useState('')
   const [databasePlayers, setDatabasePlayers] = useState<Player[]>([])
   const [contracts, setContracts] = useState<ContractInfo[]>([])
+  const [currentClubs, setCurrentClubs] = useState<CurrentClubInfo[]>([])
   const [matchTickerItems, setMatchTickerItems] = useState<MatchTickerItem[]>([])
   const [homeTransfers, setHomeTransfers] = useState<HomeTransfer[]>([])
   const [homeNews, setHomeNews] = useState<HomeNewsItem[]>([])
@@ -168,6 +180,7 @@ export default function Home() {
       const [
         { data: playerData, error: playerError, count: playerCount },
         { data: contractData, error: contractError, count: contractCount },
+        { data: currentClubData, error: currentClubError },
         { count: clubCount, error: clubError },
         { count: transferCount, error: transferError },
       ] = await Promise.all([
@@ -198,6 +211,10 @@ export default function Home() {
             )
           `, { count: 'exact' }),
 
+        supabase
+          .from('player_current_clubs')
+          .select('player_id,current_club_id,current_club_name,current_club_league,current_club_country,current_club_logo_url,current_club_since,resolution_source'),
+
         supabase.from('clubs').select('id', { count: 'exact', head: true }),
 
         supabase.from('transfers').select('id', { count: 'exact', head: true }),
@@ -209,6 +226,10 @@ export default function Home() {
 
       if (contractError) {
         console.error('Error loading contracts:', contractError)
+      }
+
+      if (currentClubError) {
+        console.error('Error loading current player clubs:', currentClubError)
       }
 
       if (clubError) {
@@ -228,6 +249,7 @@ export default function Home() {
 
       setDatabasePlayers(playerData || [])
       setContracts((contractData || []) as unknown as ContractInfo[])
+      setCurrentClubs((currentClubData || []) as CurrentClubInfo[])
       setLoading(false)
     }
 
@@ -411,6 +433,11 @@ export default function Home() {
     return activeContract || playerContracts[0]
   }
 
+  const currentClubByPlayer = useMemo(
+    () => new Map(currentClubs.map((club) => [club.player_id, club])),
+    [currentClubs]
+  )
+
   const filteredDatabasePlayers = useMemo(() => {
     if (!q.trim()) return databasePlayers
 
@@ -420,9 +447,10 @@ export default function Home() {
       const contract = contracts.find(
         (item) => item.player_id === player.id
       )
+      const currentClub = currentClubByPlayer.get(player.id)
 
-      const clubName = contract?.club?.name || ''
-      const league = contract?.club?.league || ''
+      const clubName = currentClub?.current_club_name || contract?.club?.name || ''
+      const league = currentClub?.current_club_league || contract?.club?.league || ''
 
       return [
         player.full_name,
@@ -437,15 +465,16 @@ export default function Home() {
         .toLowerCase()
         .includes(search)
     })
-  }, [q, databasePlayers, contracts])
+  }, [q, databasePlayers, contracts, currentClubByPlayer])
 
   const sortedDatabasePlayers = useMemo(() => {
     const rows = [...filteredDatabasePlayers];
     const value = (player: Player) => {
       const contract = contracts.find(item => item.player_id === player.id);
+      const currentClub = currentClubByPlayer.get(player.id);
       if (homeSort === 'player') return player.full_name || '';
-      if (homeSort === 'club') return contract?.club?.name || '';
-      if (homeSort === 'league') return contract?.club?.league || '';
+      if (homeSort === 'club') return currentClub?.current_club_name || contract?.club?.name || '';
+      if (homeSort === 'league') return currentClub?.current_club_league || contract?.club?.league || '';
       if (homeSort === 'contract') return contract?.end_date || '';
       if (homeSort === 'salary') return contract?.annual_salary_usd ?? null;
       return contract?.confidence || '';
@@ -459,7 +488,7 @@ export default function Home() {
       return homeSortDir === 'asc' ? cmp : -cmp;
     });
     return rows;
-  }, [filteredDatabasePlayers, contracts, homeSort, homeSortDir]);
+  }, [filteredDatabasePlayers, contracts, currentClubByPlayer, homeSort, homeSortDir]);
 
   const changeHomeSort = (key: typeof homeSort) => {
     if (homeSort === key) setHomeSortDir(dir => dir === 'asc' ? 'desc' : 'asc');
@@ -958,6 +987,7 @@ export default function Home() {
           {visibleDatabasePlayers.map((player) => {
             const age = calculateAge(player.date_of_birth)
             const contract = getContract(player.id)
+            const currentClub = currentClubByPlayer.get(player.id)
 
             return (
               <Link
@@ -1018,11 +1048,11 @@ export default function Home() {
                 </span>
 
                 <span className="home-player-cell home-player-cell--club">
-                  <small>{t("Club")}</small>{contract?.club?.name || 'Unknown'}
+                  <small>{t("Club")}</small>{currentClub?.current_club_name || contract?.club?.name || 'Unknown'}
                 </span>
 
                 <span className="home-player-cell home-player-cell--league" style={{ color: '#666' }}>
-                  <small>{t("League")}</small>{contract?.club?.league || 'Unknown'}
+                  <small>{t("League")}</small>{currentClub?.current_club_league || contract?.club?.league || 'Unknown'}
                 </span>
 
                 <span className="home-player-cell home-player-cell--contract">
