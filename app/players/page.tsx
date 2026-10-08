@@ -641,7 +641,7 @@ export default function PlayersPage() {
       return;
     }
 
-    const name = window.prompt(t("Name this scouting list"))?.trim();
+    const name = window.prompt("Name this scouting list")?.trim();
     if (!name) return;
 
     const { data, error } = await supabase
