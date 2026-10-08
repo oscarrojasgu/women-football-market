@@ -13,6 +13,7 @@ const pages = [
   { href: '/transfers', label: 'Transfers' },
   { href: '/salaries', label: 'Salaries' },
   { href: '/clubs', label: 'Clubs' },
+  { href: '/competitions', label: 'Competitions' },
 ]
 
 export default function MobileNav() {
@@ -94,7 +95,7 @@ export default function MobileNav() {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 0 max(16px, env(safe-area-inset-left)) 0 max(16px, env(safe-area-inset-right));
+            padding: 0 max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
             padding-top: env(safe-area-inset-top);
             height: calc(64px + env(safe-area-inset-top));
             box-sizing: border-box;
@@ -144,6 +145,14 @@ export default function MobileNav() {
             align-items: center;
             gap: 4px;
             cursor: pointer;
+            touch-action: manipulation;
+          }
+
+          .mobile-nav-menu:focus-visible,
+          .mobile-nav-drawer a:focus-visible,
+          .mobile-nav-brand:focus-visible {
+            outline: 3px solid #111;
+            outline-offset: 2px;
           }
 
           .mobile-nav-menu span {
@@ -190,7 +199,10 @@ export default function MobileNav() {
           }
 
           .mobile-nav-drawer a {
-            padding: 17px 20px;
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
             border-bottom: 1px solid #e3e1da;
             color: #111;
             text-decoration: none;
