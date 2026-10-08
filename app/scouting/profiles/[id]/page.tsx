@@ -72,7 +72,7 @@ export default function GlobalDiscoveryPage(){
    if(checks.some(([v,min])=>min!==null&&(v===null||v<min)))return false;
    if(c.global_percentile_min!==null){const i=latestIntel.get(p.id);const peer=i?globalPeers.get(`${p.id}|${i.season}`):undefined;if(!peer)return false;const percentiles=[peer.goals_per90_global_percentile,peer.assists_per90_global_percentile,peer.xg_per90_global_percentile,peer.xa_per90_global_percentile,peer.chances_created_per90_global_percentile,peer.key_passes_per90_global_percentile,peer.tackles_per90_global_percentile,peer.interceptions_per90_global_percentile,peer.progressive_carries_per90_global_percentile].filter((v):v is number=>v!==null);const minimumPercentile=c.global_percentile_min/100;if(!percentiles.length||Math.max(...percentiles)<minimumPercentile)return false;}
    return true;
-  }).map(p=>({p,i:latestIntel.get(p.id)||null,c:contractMap.get(p.id)||null,v:latestValue.get(p.id)||null,parts:participationMap.get(p.id)||[]}))},[profile,players,contractMap,latestValue,participationMap,latestIntel,globalPeers]);
+  }).map(p=>({p,i:latestIntel.get(p.id)||null,c:contractMap.get(p.id)||null,v:latestValue.get(p.id)||null,parts:participationMap.get(p.id)||[],currentClub:currentClubs.get(p.id)||null}))},[profile,players,contractMap,latestValue,participationMap,latestIntel,globalPeers,currentClubs]);
 
  const sortedCandidates=useMemo(()=>{
    const rows=[...candidates];
