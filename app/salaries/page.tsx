@@ -30,7 +30,7 @@ type SalaryRecord = {
   } | null
 }
 
-function formatUSD(amount: number | null) {
+function formatUSD(amount: number | null, t: (key: string) => string) {
   if (amount === null || amount === undefined) return t("Unknown")
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -39,7 +39,7 @@ function formatUSD(amount: number | null) {
   }).format(amount)
 }
 
-function formatOriginal(amount: number | null, currency: string | null) {
+function formatOriginal(amount: number | null, currency: string | null, t: (key: string) => string) {
   if (amount === null || amount === undefined) return t("Unknown")
   try {
     return new Intl.NumberFormat('en-US', {
@@ -52,7 +52,7 @@ function formatOriginal(amount: number | null, currency: string | null) {
   }
 }
 
-function label(value: string | null) {
+function label(value: string | null, t: (key: string) => string) {
   if (!value) return t("Unknown")
   return value.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
@@ -66,7 +66,7 @@ function confidenceTone(value: string | null) {
   return 'unknown'
 }
 
-function salaryBand(value: number | null) {
+function salaryBand(value: number | null, t: (key: string) => string) {
   if (value === null || value === undefined) return t("Unknown")
   if (value < 50000) return 'Under $50K'
   if (value < 100000) return '$50K–$99K'
@@ -175,7 +175,7 @@ export default function SalariesPage() {
 
       const matchesSearch = !query || haystack.includes(query)
       const matchesLeague = leagueFilter === 'All' || record.club?.league === leagueFilter
-      const matchesBand = bandFilter === 'All' || salaryBand(record.annual_salary_usd) === bandFilter
+      const matchesBand = bandFilter === 'All' || salaryBand(record.annual_salary_usd, t) === bandFilter
       const matchesConfidence = confidenceFilter === 'All' || record.confidence === confidenceFilter
 
       return matchesSearch && matchesLeague && matchesBand && matchesConfidence
@@ -236,9 +236,9 @@ export default function SalariesPage() {
       <section className="salary-shell salary-content">
         <div className="salary-stat-grid">
           <div className="salary-stat"><span>{t("Salary records")}</span><strong>{stats.count}</strong></div>
-          <div className="salary-stat"><span>{t("Median annual")}</span><strong>{formatUSD(stats.median)}</strong></div>
-          <div className="salary-stat"><span>{t("Average annual")}</span><strong>{formatUSD(stats.average)}</strong></div>
-          <div className="salary-stat"><span>{t("Highest annual")}</span><strong>{formatUSD(stats.highest)}</strong></div>
+          <div className="salary-stat"><span>{t("Median annual")}</span><strong>{formatUSD(stats.median, t)}</strong></div>
+          <div className="salary-stat"><span>{t("Average annual")}</span><strong>{formatUSD(stats.average, t)}</strong></div>
+          <div className="salary-stat"><span>{t("Highest annual")}</span><strong>{formatUSD(stats.highest, t)}</strong></div>
           <div className="salary-stat"><span>{t("Leagues covered")}</span><strong>{stats.leagues}</strong></div>
           <div className="salary-stat"><span>{t("Verified records")}</span><strong>{stats.verified}</strong></div>
         </div>
@@ -258,7 +258,7 @@ export default function SalariesPage() {
               {['All', 'Under $50K', '$50K–$99K', '$100K–$199K', '$200K–$299K', '$300K+'].map((band) => <option key={band} value={band}>{band === 'All' ? t("All salary bands") : band}</option>)}
             </select>
             <select value={confidenceFilter} onChange={(event) => setConfidenceFilter(event.target.value)} aria-label={t("All confidence")}>
-              {confidenceOptions.map((confidence) => <option key={confidence} value={confidence}>{confidence === 'All' ? t("All confidence") : label(confidence)}</option>)}
+              {confidenceOptions.map((confidence) => <option key={confidence} value={confidence}>{confidence === 'All' ? t("All confidence") : label(confidence, t)}</option>)}
             </select>
             <select value={sort} onChange={(event) => setSort(event.target.value)} aria-label={t("Sort salary records")}>
               <option value="salary-desc">{t("Highest salary")}</option>
@@ -335,13 +335,13 @@ export default function SalariesPage() {
                   <small>{record.club?.league || record.club?.country || t("League unknown")}</small>
                 </span>
                 <span>{record.player?.position || t("Unknown")}</span>
-                <span className="salary-primary">{formatUSD(record.annual_salary_usd)}</span>
-                <span>{formatUSD(record.weekly_salary_usd)}</span>
+                <span className="salary-primary">{formatUSD(record.annual_salary_usd, t)}</span>
+                <span>{formatUSD(record.weekly_salary_usd, t)}</span>
                 <span className="salary-original">
-                  {formatOriginal(record.annual_salary, record.currency)}
+                  {formatOriginal(record.annual_salary, record.currency, t)}
                   <small>{record.currency || 'USD'}</small>
                 </span>
-                <span><i className={`salary-confidence ${confidenceTone(record.confidence)}`}>{label(record.confidence)}</i></span>
+                <span><i className={`salary-confidence ${confidenceTone(record.confidence)}`}>{label(record.confidence, t)}</i></span>
               </Link>
             ))}
           </div>
