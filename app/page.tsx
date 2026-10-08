@@ -465,6 +465,7 @@ export default function Home() {
   };
   const homeSortIndicator = (key: typeof homeSort) => homeSort === key ? (homeSortDir === 'asc' ? '↑' : '↓') : '';
 
+  const visibleDatabasePlayers = useMemo(() => sortedDatabasePlayers.slice(0, 25), [sortedDatabasePlayers])
   const hasDatabaseResults = filteredDatabasePlayers.length > 0
 
   return (
@@ -913,7 +914,7 @@ export default function Home() {
             ))}
           </div>
 
-          {sortedDatabasePlayers.map((player) => {
+          {visibleDatabasePlayers.map((player) => {
             const age = calculateAge(player.date_of_birth)
             const contract = getContract(player.id)
 
