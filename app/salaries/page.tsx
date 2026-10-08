@@ -249,7 +249,7 @@ export default function SalariesPage() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder={t("Search player, club, league, position...")}
-              aria-label={t("Search salary records")}
+              aria-label={t(t("Search salary records"))}
             />
             <select value={leagueFilter} onChange={(event) => setLeagueFilter(event.target.value)} aria-label={t("Filter by league")}>
               {leagueOptions.map((league) => <option key={league} value={league}>{league === 'All' ? t("All leagues") : league}</option>)}
