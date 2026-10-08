@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 
 const siteUrl = "https://www.womenfootballmarket.com";
 const siteName = "Women’s Football Market";
+const locales = ["en", "es", "pt", "fr", "de"] as const;
+
+function buildLanguageAlternates(path: string) {
+  return Object.fromEntries(
+    locales.map((locale) => [locale, locale === "en" ? `${siteUrl}${path}` : `${siteUrl}/${locale}${path}`]),
+  );
+}
 
 type SeoRecord = {
   id: string;
@@ -154,7 +161,16 @@ export function buildEntityMetadata(
   return {
     title: name,
     description: descriptor ? `${description} ${descriptor}.` : description,
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      languages: buildLanguageAlternates(
+        type === "player"
+          ? `/players/${entity.id}`
+          : type === "club"
+            ? `/clubs/${entity.id}`
+            : `/competitions/${entity.id}`,
+      ),
+    },
     openGraph: {
       type: "website",
       siteName,
