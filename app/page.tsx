@@ -224,6 +224,8 @@ export default function Home() {
           .from('player_current_clubs')
           .select('player_id,current_club_id,current_club_name,current_club_league,current_club_country,current_club_logo_url,current_club_since,resolution_source'),
 
+        supabase.from('market_values').select('player_id,market_value_usd,valuation_date,confidence').order('valuation_date', { ascending: false }),
+
         supabase.from('clubs').select('id', { count: 'exact', head: true }),
 
         supabase.from('transfers').select('id', { count: 'exact', head: true }),
