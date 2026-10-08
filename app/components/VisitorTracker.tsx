@@ -12,7 +12,6 @@ type InteractionDetail = {
   action: string
   entity_type?: string
   entity_id?: string
-  query?: string
   label?: string
   metadata?: Record<string, unknown>
 }
@@ -100,7 +99,6 @@ export default function VisitorTracker() {
         action: detail.action,
         entity_type: detail.entity_type ?? null,
         entity_id: detail.entity_id ?? null,
-        query: detail.query?.trim().slice(0, 100) || null,
         label: detail.label?.slice(0, 120) || null,
         ...(detail.metadata ?? {})
       })
@@ -134,7 +132,7 @@ export default function VisitorTracker() {
       if (!target || (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA')) return
       const query = target.value.trim()
       if (!query) return
-      window.wfmTrackInteraction?.({ action: 'search', query, label: 'Player search' })
+      window.wfmTrackInteraction?.({ action: 'search', label: 'Player search' })
     }
 
     window.addEventListener('wfm-consent-change', handleConsent)
