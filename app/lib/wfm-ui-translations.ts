@@ -31,6 +31,7 @@ const DE: Record<string,string> = {
 }
 
 Object.assign(EN, {
+  "Data verification audit":"Data verification audit",
   "PRODUCT ACTIVITY":"PRODUCT ACTIVITY",
   "WFM feature usage":"WFM feature usage",
   "Player views":"Player views",
@@ -69,6 +70,7 @@ Object.assign(EN, {
   "Close":"Close"
 })
 Object.assign(ES, {
+  "Data verification audit":"Auditoría de verificación de datos",
   "PRODUCT ACTIVITY":"ACTIVIDAD DEL PRODUCTO",
   "WFM feature usage":"Uso de funciones de WFM",
   "Player views":"Vistas de jugadoras",
@@ -107,6 +109,7 @@ Object.assign(ES, {
   "Close":"Cerrar"
 })
 Object.assign(PT, {
+  "Data verification audit":"Auditoria de verificação de dados",
   "PRODUCT ACTIVITY":"ATIVIDADE DO PRODUTO",
   "WFM feature usage":"Uso de recursos do WFM",
   "Player views":"Visualizações de jogadoras",
@@ -145,6 +148,7 @@ Object.assign(PT, {
   "Close":"Fechar"
 })
 Object.assign(FR, {
+  "Data verification audit":"Audit de vérification des données",
   "PRODUCT ACTIVITY":"ACTIVITÉ PRODUIT",
   "WFM feature usage":"Utilisation des fonctionnalités WFM",
   "Player views":"Vues des joueuses",
@@ -183,6 +187,7 @@ Object.assign(FR, {
   "Close":"Fermer"
 })
 Object.assign(DE, {
+  "Data verification audit":"Datenverifizierungsprüfung",
   "PRODUCT ACTIVITY":"PRODUKTAKTIVITÄT",
   "WFM feature usage":"Nutzung der WFM-Funktionen",
   "Player views":"Spielerinnen-Aufrufe",
