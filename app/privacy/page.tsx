@@ -52,7 +52,7 @@ export default function PrivacyPage() {
         <p>We may update this policy as WFM evolves. Material changes will be reflected by updating the date shown at the top of this page.</p>
 
         <h2>11. Contact</h2>
-        <p>For privacy, account or data-correction requests, contact WFM through the contact information provided on the website.</p>
+        <p>For privacy, account or data-correction requests, use the dedicated WFM contact pathway. You can submit a request at /contact, including access, correction or deletion requests where applicable.</p>
 
         <p style={{ marginTop: 28 }}><Link href="/terms" className="outline">Terms of Use</Link></p>
       </section>
