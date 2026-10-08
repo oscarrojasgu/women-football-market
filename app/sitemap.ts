@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const baseUrl = "https://women-football-market.vercel.app";
+const baseUrl = "https://www.womenfootballmarket.com";
 
 type SitemapRow = { id: string; updated_at?: string | null };
 
@@ -79,6 +79,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.8,
     },
+    { url: `${baseUrl}/privacy`, lastModified: now, changeFrequency: "monthly", priority: 0.3 },
+    { url: `${baseUrl}/terms`, lastModified: now, changeFrequency: "monthly", priority: 0.3 },
+    { url: `${baseUrl}/data-corrections`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
     ...players.map((player) => ({
       url: `${baseUrl}/players/${player.id}`,
       lastModified: player.updated_at ? new Date(player.updated_at) : now,
