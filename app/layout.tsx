@@ -19,7 +19,7 @@ import VisitorTracker from './components/VisitorTracker'
 import Footer from './components/Footer'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://women-football-market.vercel.app'),
+  metadataBase: new URL('https://www.womenfootballmarket.com'),
   title: {
     default: 'Women’s Football Market',
     template: '%s | Women’s Football Market'
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     siteName: 'Women’s Football Market',
     title: 'Women’s Football Market',
     description: 'Women’s football player, club, contract, salary, transfer and market-value data with scouting intelligence.',
-    url: 'https://women-football-market.vercel.app'
+    url: 'https://www.womenfootballmarket.com'
   },
   twitter: {
     card: 'summary',
