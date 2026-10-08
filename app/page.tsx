@@ -27,6 +27,7 @@ type ContractInfo = {
   start_date: string | null
   end_date: string | null
   confidence: string | null
+  created_at: string | null
   club:
     | {
         name: string
@@ -465,7 +466,46 @@ export default function Home() {
   };
   const homeSortIndicator = (key: typeof homeSort) => homeSort === key ? (homeSortDir === 'asc' ? '↑' : '↓') : '';
 
-  const visibleDatabasePlayers = useMemo(() => sortedDatabasePlayers.slice(0, 25), [sortedDatabasePlayers])
+  const featuredPlayerIds = useMemo(() => {
+    const ids: string[] = []
+    const add = (id: string | null | undefined) => {
+      if (id && !ids.includes(id)) ids.push(id)
+    }
+
+    // Put the newest market activity first: recent transfers, then newly reported contracts.
+    homeTransfers.forEach((transfer) => add(transfer.player_id))
+
+    contracts
+      .filter((contract) => contract.player_id && contract.created_at)
+      .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+      .slice(0, 12)
+      .forEach((contract) => add(contract.player_id))
+
+    // Fill the remaining slots with the highest known salary records as a practical featured-player fallback.
+    [...contracts]
+      .filter((contract) => contract.player_id && contract.annual_salary_usd != null)
+      .sort((a, b) => (b.annual_salary_usd || 0) - (a.annual_salary_usd || 0))
+      .forEach((contract) => add(contract.player_id))
+
+    return ids
+  }, [homeTransfers, contracts])
+
+  const featuredDatabasePlayers = useMemo(() => {
+    const rank = new Map(featuredPlayerIds.map((id, index) => [id, index]))
+    return [...filteredDatabasePlayers].sort((a, b) => {
+      const ar = rank.get(a.id)
+      const br = rank.get(b.id)
+      if (ar != null && br != null) return ar - br
+      if (ar != null) return -1
+      if (br != null) return 1
+      return a.full_name.localeCompare(b.full_name)
+    })
+  }, [filteredDatabasePlayers, featuredPlayerIds])
+
+  const visibleDatabasePlayers = useMemo(
+    () => (q.trim() ? sortedDatabasePlayers : featuredDatabasePlayers).slice(0, 25),
+    [q, sortedDatabasePlayers, featuredDatabasePlayers]
+  )
   const hasDatabaseResults = filteredDatabasePlayers.length > 0
 
   return (
@@ -841,7 +881,7 @@ export default function Home() {
                 letterSpacing: '-0.5px',
               }}
             >
-              {q.trim() ? 'Search results' : 'Players in the database'}
+              {q.trim() ? 'Search results' : 'Market movers'}
             </h2>
           </div>
 
