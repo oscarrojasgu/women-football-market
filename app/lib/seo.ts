@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-const siteUrl = "https://women-football-market.vercel.app";
+const siteUrl = "https://www.womenfootballmarket.com";
 const siteName = "Women’s Football Market";
 
 type SeoRecord = {
