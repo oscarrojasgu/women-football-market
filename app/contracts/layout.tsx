@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Contracts",
   description:
     "Explore women’s football contract records, contract status, dates, clubs and salary intelligence.",
-  alternates: { canonical: "https://women-football-market.vercel.app/contracts" },
+  alternates: { canonical: "https://www.womenfootballmarket.com/contracts" },
 };
 
 export default function ContractsLayout({ children }: { children: ReactNode }) {
