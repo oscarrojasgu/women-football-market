@@ -18,6 +18,15 @@ import AnalyticsConsent from './components/AnalyticsConsent'
 import VisitorTracker from './components/VisitorTracker'
 import Footer from './components/Footer'
 
+const wfmStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Women’s Football Market",
+  url: "https://www.womenfootballmarket.com",
+  description: "Women’s football player, club, contract, salary, transfer and market-value data with scouting intelligence.",
+  sameAs: [],
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.womenfootballmarket.com'),
   title: {
@@ -51,6 +60,12 @@ export default async function RootLayout({children}:{children:ReactNode}) {
   return (
     <html lang={locale}>
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(wfmStructuredData).replace(/</g, "\\u003c"),
+          }}
+        />
         <Header />
         <MobileNav />
         <AdSlot placement="top" />
