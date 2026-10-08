@@ -333,4 +333,40 @@ Object.assign(DE, {
   "Explore women’s football competitions, seasons, clubs and player coverage across the WFM database.":"Entdecke Wettbewerbe, Saisons, Vereine und Spielerinnen im Frauenfußball in der WFM-Datenbank.","Loading competitions…":"Wettbewerbe werden geladen…","Type":"Typ","Level":"Stufe","Seasons":"Saisons","Clubs":"Vereine","Players":"Spielerinnen","Search competitions":"Wettbewerbe suchen","No competitions found.":"Keine Wettbewerbe gefunden."
 });
 
+Object.assign(EN, {
+  "Current club confirmed by contract":"Current club confirmed by contract",
+  "Current club based on latest transfer":"Current club based on latest transfer",
+  "Current club based on latest club statistics":"Current club based on latest club statistics",
+  "Current club based on latest contract record":"Current club based on latest contract record",
+  "Current club source unavailable":"Current club source unavailable"
+});
+Object.assign(ES, {
+  "Current club confirmed by contract":"Club actual confirmado por contrato",
+  "Current club based on latest transfer":"Club actual basado en el último traspaso",
+  "Current club based on latest club statistics":"Club actual basado en las estadísticas de club más recientes",
+  "Current club based on latest contract record":"Club actual basado en el contrato más reciente",
+  "Current club source unavailable":"Fuente del club actual no disponible"
+});
+Object.assign(PT, {
+  "Current club confirmed by contract":"Clube atual confirmado por contrato",
+  "Current club based on latest transfer":"Clube atual baseado na transferência mais recente",
+  "Current club based on latest club statistics":"Clube atual baseado nas estatísticas de clube mais recentes",
+  "Current club based on latest contract record":"Clube atual baseado no contrato mais recente",
+  "Current club source unavailable":"Fonte do clube atual indisponível"
+});
+Object.assign(FR, {
+  "Current club confirmed by contract":"Club actuel confirmé par contrat",
+  "Current club based on latest transfer":"Club actuel basé sur le dernier transfert",
+  "Current club based on latest club statistics":"Club actuel basé sur les dernières statistiques du club",
+  "Current club based on latest contract record":"Club actuel basé sur le contrat le plus récent",
+  "Current club source unavailable":"Source du club actuel indisponible"
+});
+Object.assign(DE, {
+  "Current club confirmed by contract":"Aktueller Verein durch Vertrag bestätigt",
+  "Current club based on latest transfer":"Aktueller Verein laut letztem Transfer",
+  "Current club based on latest club statistics":"Aktueller Verein laut neuesten Vereinsstatistiken",
+  "Current club based on latest contract record":"Aktueller Verein laut neuestem Vertragsdatensatz",
+  "Current club source unavailable":"Quelle des aktuellen Vereins nicht verfügbar"
+});
+
 export const WFM_UI_TRANSLATIONS: Record<WfmLocale, Record<string,string>> = { en: EN, es: ES, pt: PT, fr: FR, de: DE }
