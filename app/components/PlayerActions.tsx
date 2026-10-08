@@ -145,7 +145,7 @@ export default function PlayerActions() {
         style={{
           position: "fixed",
           right: 20,
-          bottom: 20,
+          bottom: "max(20px, env(safe-area-inset-bottom))",
           zIndex: 50,
           display: "flex",
           gap: 8,
