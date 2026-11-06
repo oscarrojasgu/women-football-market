@@ -54,7 +54,7 @@ function formatOriginal(amount: number | null, currency: string | null, t: (key:
 
 function label(value: string | null, t: (key: string) => string) {
   if (!value) return t("Unknown")
-  return value.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
+  return t(value.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()))
 }
 
 function confidenceTone(value: string | null) {
@@ -255,7 +255,7 @@ export default function SalariesPage() {
               {leagueOptions.map((league) => <option key={league} value={league}>{league === 'All' ? t("All leagues") : league}</option>)}
             </select>
             <select value={bandFilter} onChange={(event) => setBandFilter(event.target.value)} aria-label={t("Filter by salary band")}>
-              {['All', 'Under $50K', '$50K–$99K', '$100K–$199K', '$200K–$299K', '$300K+'].map((band) => <option key={band} value={band}>{band === 'All' ? t("All salary bands") : band}</option>)}
+              {['All', 'Under $50K', '$50K–$99K', '$100K–$199K', '$200K–$299K', '$300K+'].map((band) => <option key={band} value={band}>{band === 'All' ? t("All salary bands") : t(band)}</option>)}
             </select>
             <select value={confidenceFilter} onChange={(event) => setConfidenceFilter(event.target.value)} aria-label={t("All confidence")}>
               {confidenceOptions.map((confidence) => <option key={confidence} value={confidence}>{confidence === 'All' ? t("All confidence") : label(confidence, t)}</option>)}
