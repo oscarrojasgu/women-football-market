@@ -200,7 +200,16 @@ export const WFM_PLAYER_PROFILE_TRANSLATIONS: Record<WfmLocale, Record<string, s
     "Above most recorded peers": "Above most recorded peers",
     "Above the peer-group midpoint": "Above the peer-group midpoint",
     "Below the peer-group midpoint": "Below the peer-group midpoint",
-    "Below most recorded peers": "Below most recorded peers"
+    "Below most recorded peers": "Below most recorded peers",
+    "Career Statistics": "Career Statistics",
+    "Season-by-season statistics by club and competition": "Season-by-season statistics by club and competition",
+    "Season": "Season",
+    "All": "All",
+    "Competition": "Competition",
+    "Club": "Club",
+    "Advanced Statistics": "Advanced Statistics",
+    "Competitions:": "Competitions:",
+    "Confidence:": "Confidence:"
   },
   "es": {
     "Player not found": "Jugadora no encontrada",
@@ -401,7 +410,16 @@ export const WFM_PLAYER_PROFILE_TRANSLATIONS: Record<WfmLocale, Record<string, s
     "Above most recorded peers": "Por encima de la mayoría de las pares registradas",
     "Above the peer-group midpoint": "Por encima de la mediana del grupo",
     "Below the peer-group midpoint": "Por debajo de la mediana del grupo",
-    "Below most recorded peers": "Por debajo de la mayoría de las pares registradas"
+    "Below most recorded peers": "Por debajo de la mayoría de las pares registradas",
+    "Career Statistics": "Estadísticas de carrera",
+    "Season-by-season statistics by club and competition": "Estadísticas por temporada, club y competición",
+    "Season": "Temporada",
+    "All": "Todas",
+    "Competition": "Competición",
+    "Club": "Club",
+    "Advanced Statistics": "Estadísticas avanzadas",
+    "Competitions:": "Competiciones:",
+    "Confidence:": "Confianza:"
   },
   "pt": {
     "Player not found": "Jogadora não encontrada",
@@ -602,7 +620,16 @@ export const WFM_PLAYER_PROFILE_TRANSLATIONS: Record<WfmLocale, Record<string, s
     "Above most recorded peers": "Acima da maioria das atletas registradas",
     "Above the peer-group midpoint": "Acima do ponto médio do grupo",
     "Below the peer-group midpoint": "Abaixo do ponto médio do grupo",
-    "Below most recorded peers": "Abaixo da maioria das atletas registradas"
+    "Below most recorded peers": "Abaixo da maioria das atletas registradas",
+    "Career Statistics": "Estatísticas da carreira",
+    "Season-by-season statistics by club and competition": "Estatísticas por temporada, clube e competição",
+    "Season": "Temporada",
+    "All": "Todas",
+    "Competition": "Competição",
+    "Club": "Clube",
+    "Advanced Statistics": "Estatísticas avançadas",
+    "Competitions:": "Competições:",
+    "Confidence:": "Confiança:"
   },
   "fr": {
     "Player not found": "Joueuse introuvable",
@@ -803,7 +830,16 @@ export const WFM_PLAYER_PROFILE_TRANSLATIONS: Record<WfmLocale, Record<string, s
     "Above most recorded peers": "Au-dessus de la plupart des joueuses comparables",
     "Above the peer-group midpoint": "Au-dessus de la médiane du groupe",
     "Below the peer-group midpoint": "En dessous de la médiane du groupe",
-    "Below most recorded peers": "En dessous de la plupart des joueuses comparables"
+    "Below most recorded peers": "En dessous de la plupart des joueuses comparables",
+    "Career Statistics": "Statistiques de carrière",
+    "Season-by-season statistics by club and competition": "Statistiques par saison, club et compétition",
+    "Season": "Saison",
+    "All": "Toutes",
+    "Competition": "Compétition",
+    "Club": "Club",
+    "Advanced Statistics": "Statistiques avancées",
+    "Competitions:": "Compétitions :",
+    "Confidence:": "Confiance :"
   },
   "de": {
     "Player not found": "Spielerin nicht gefunden",
@@ -1004,6 +1040,15 @@ export const WFM_PLAYER_PROFILE_TRANSLATIONS: Record<WfmLocale, Record<string, s
     "Above most recorded peers": "Über den meisten erfassten Vergleichsspielerinnen",
     "Above the peer-group midpoint": "Über dem Mittelpunkt der Vergleichsgruppe",
     "Below the peer-group midpoint": "Unter dem Mittelpunkt der Vergleichsgruppe",
-    "Below most recorded peers": "Unter den meisten erfassten Vergleichsspielerinnen"
+    "Below most recorded peers": "Unter den meisten erfassten Vergleichsspielerinnen",
+    "Career Statistics": "Karrierestatistiken",
+    "Season-by-season statistics by club and competition": "Saisonstatistiken nach Verein und Wettbewerb",
+    "Season": "Saison",
+    "All": "Alle",
+    "Competition": "Wettbewerb",
+    "Club": "Verein",
+    "Advanced Statistics": "Erweiterte Statistiken",
+    "Competitions:": "Wettbewerbe:",
+    "Confidence:": "Vertrauen:"
   }
 };
