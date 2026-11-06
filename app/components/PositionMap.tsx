@@ -1,6 +1,8 @@
 type PositionMapProps = {
   primaryPosition?: string | null;
   secondaryPosition?: string | null;
+  primaryText?: string;
+  secondaryText?: string;
 };
 
 type PositionData = {
@@ -245,6 +247,8 @@ const getSecondaryOffset = (
 export default function PositionMap({
   primaryPosition,
   secondaryPosition,
+  primaryText = "Primary",
+  secondaryText = "Secondary",
 }: PositionMapProps) {
   const primary = normalizePosition(primaryPosition);
   const secondary = normalizePosition(secondaryPosition);
@@ -446,7 +450,7 @@ export default function PositionMap({
                   display: "inline-block",
                 }}
               />
-              <span>Primary</span>
+              <span>{primaryText}</span>
             </div>
           )}
 
@@ -468,7 +472,7 @@ export default function PositionMap({
                   display: "inline-block",
                 }}
               />
-              <span>Secondary</span>
+              <span>{secondaryText}</span>
             </div>
           )}
         </div>
