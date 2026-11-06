@@ -662,11 +662,11 @@ export default function PlayersPage() {
 
   const addPlayerToScoutingList = async (playerId: string) => {
     if (!userId) {
-      setScoutingMessage("Sign in to add players to persistent scouting lists.");
+      setScoutingMessage(t("Sign in to add players to persistent scouting lists."));
       return;
     }
     if (!selectedScoutingListId) {
-      setScoutingMessage("Create or select a scouting list first.");
+      setScoutingMessage(t("Create or select a scouting list first."));
       return;
     }
 
@@ -680,7 +680,7 @@ export default function PlayersPage() {
 
     if (error) {
       if (error.code === "23505") {
-        setScoutingMessage("That player is already in the selected scouting list.");
+        setScoutingMessage(t("That player is already in the selected scouting list."));
       } else {
         setScoutingMessage(error.message);
       }
@@ -688,7 +688,7 @@ export default function PlayersPage() {
     }
 
     const listName = scoutingLists.find((list) => list.id === selectedScoutingListId)?.name || "scouting list";
-    setScoutingMessage(`Added player to ${listName}.`);
+    setScoutingMessage(`${t("Added player to")} ${listName}.`);
   };
 
   const compareShortlist = () => {
@@ -922,7 +922,7 @@ export default function PlayersPage() {
               <option value="All">{t("All Roles")}</option>
               {roles.map((item) => (
                 <option key={item} value={item}>
-                  {roleLabels[item]}
+                  {t(roleLabels[item])}
                 </option>
               ))}
             </select>
@@ -1017,7 +1017,7 @@ export default function PlayersPage() {
             <span>
               {loading
                 ? t("Loading scouting database...")
-                : `${filteredPlayers.length} player${filteredPlayers.length === 1 ? "" : "s"} match your criteria`}
+                : `${filteredPlayers.length} ${t(filteredPlayers.length === 1 ? "player" : "players")} ${t("match your criteria")}`}
             </span>
 
             <div>
@@ -1032,7 +1032,7 @@ export default function PlayersPage() {
 
         <div className="scout-shortlist-bar">
           <div>
-            <strong>{shortlist.length}</strong> player{shortlist.length === 1 ? "" : "s"} in compare shortlist
+            <strong>{shortlist.length}</strong> {t(shortlist.length === 1 ? "player" : "players")} {t("in compare shortlist")}
           </div>
           <div className="scout-shortlist-actions">
             <select
@@ -1148,28 +1148,28 @@ export default function PlayersPage() {
         <section className="scout-table-wrap">
           <div className="scout-table-header">
             <button type="button" onClick={() => changeSort("name")}>
-              PLAYER{sortIndicator("name")}
+              {t("PLAYER")}{sortIndicator("name")}
             </button>
             <button type="button" onClick={() => changeSort("age")}>
-              AGE{sortIndicator("age")}
+              {t("AGE")}{sortIndicator("age")}
             </button>
             <button type="button" onClick={() => changeSort("minutes")}>
-              MINUTES{sortIndicator("minutes")}
+              {t("MINUTES")}{sortIndicator("minutes")}
             </button>
             <button type="button" onClick={() => changeSort("goals90")}>
-              G/90{sortIndicator("goals90")}
+              {t("G/90")}{sortIndicator("goals90")}
             </button>
             <button type="button" onClick={() => changeSort("assists90")}>
-              A/90{sortIndicator("assists90")}
+              {t("A/90")}{sortIndicator("assists90")}
             </button>
             <button type="button" onClick={() => changeSort("xg90")}>
-              xG/90{sortIndicator("xg90")}
+              {t("xG/90")}{sortIndicator("xg90")}
             </button>
             <button type="button" onClick={() => changeSort("value")}>
-              MARKET VALUE{sortIndicator("value")}
+              {t("MARKET VALUE")}{sortIndicator("value")}
             </button>
             <button type="button" onClick={() => changeSort("salary")}>
-              SALARY{sortIndicator("salary")}
+              {t("SALARY")}{sortIndicator("salary")}
             </button>
           </div>
 
@@ -1190,14 +1190,14 @@ export default function PlayersPage() {
                     type="button"
                     className="scout-shortlist-toggle"
                     onClick={() => toggleShortlist(player.id)}
-                    aria-label={shortlist.includes(player.id) ? `Remove ${player.full_name} from compare shortlist` : `Add ${player.full_name} to compare shortlist`}
+                    aria-label={shortlist.includes(player.id) ? `Remove ${player.full_name} from compare shortlist`  : `${t("Add")} ${player.full_name} ${t("to compare shortlist")}`}
                   >{shortlist.includes(player.id) ? "✓" : "+"}</button>
                   <button
                     type="button"
                     className="scout-list-add"
                     onClick={() => addPlayerToScoutingList(player.id)}
                     disabled={!userId || !selectedScoutingListId}
-                    aria-label={`Add ${player.full_name} to selected scouting list`}
+                    aria-label={`${t("Add")} ${player.full_name} ${t("to selected scouting list")}`}
                   >{t("Add")}</button>
                 </div>
                 <Link href={`/players/${player.id}`} className="scout-player">
