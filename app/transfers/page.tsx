@@ -62,24 +62,24 @@ function formatConfidence(confidence: string | null) {
   return confidence.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function formatCurrency(value: number, currency: string | null) {
+function formatCurrency(value: number, currency: string | null, locale: string) {
   const code = currency || "USD";
   try {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: code,
       maximumFractionDigits: 0,
       notation: value >= 1000000 ? "compact" : "standard",
     }).format(value);
   } catch {
-    return `${code} ${value.toLocaleString("en-US")}`;
+    return `${code} ${value.toLocaleString(locale)}`;
   }
 }
 
-function formatFee(fee: number | null, currency: string | null, transferType: string | null) {
+function formatFee(fee: number | null, currency: string | null, transferType: string | null, locale: string) {
   const normalizedType = transferType?.toLowerCase();
   if (normalizedType === "free") return "Free transfer";
-  if (normalizedType === "loan") return fee === null ? "Loan" : formatCurrency(fee, currency);
+  if (normalizedType === "loan") return fee === null ? "Loan" : formatCurrency(fee, currency, locale);
   if (fee === null || fee === undefined) return "Undisclosed";
   return formatCurrency(fee, currency);
 }
@@ -282,7 +282,7 @@ export default function TransfersPage() {
       <section style={{ background: "#111", color: "#fff", padding: "54px 24px 48px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ fontSize: 11, letterSpacing: 2.2, fontWeight: 800, color: "#aaa", marginBottom: 12 }}>
-            WOMEN&apos;S FOOTBALL MARKET · {t("LIVE DATABASE")}
+            {t("WOMEN’S FOOTBALL MARKET")} · {t("LIVE DATABASE")}
           </div>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
             <div>
@@ -319,7 +319,7 @@ export default function TransfersPage() {
 
         <div style={{ background: "#fff", border: "1px solid #e2e1dc", borderRadius: 14, padding: 18, marginBottom: 22 }}>
           <div style={{ display: "grid", gridTemplateColumns: "minmax(220px, 1fr) repeat(4, minmax(125px, 160px))", gap: 10 }}>
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t("Search player, club, league, position...")} style={{ ...inputStyle }} />
+            <input aria-label={t("Search transfers")} value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t("Search player, club, league, position...")} style={{ ...inputStyle }} />
             <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} style={selectStyle}>
               {transferTypes.map((type) => <option key={type} value={type}>{type === "All" ? t("All types") : t(formatTransferType(type))}</option>)}
             </select>
@@ -344,7 +344,7 @@ export default function TransfersPage() {
         {loading ? (
           <div style={emptyStateStyle}>{t("Loading the transfer market...")}</div>
         ) : error ? (
-          <div style={emptyStateStyle}>{error}</div>
+          <div style={emptyStateStyle}>{t(error)}</div>
         ) : filteredTransfers.length === 0 ? (
           <div style={emptyStateStyle}>
             <div style={{ fontWeight: 800, color: "#111", marginBottom: 6 }}>{t("No transfers found")}</div>
@@ -389,7 +389,7 @@ export default function TransfersPage() {
                         <div><span style={{ ...badgeBase, ...typeBadgeStyles[typeTone] }}>{t(formatTransferType(transfer.transfer_type))}</span></div>
 
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 800 }}>{t(formatFee(transfer.fee, transfer.currency, transfer.transfer_type))}</div>
+                          <div style={{ fontSize: 13, fontWeight: 800 }}>{t(formatFee(transfer.fee, transfer.currency, transfer.transfer_type, dateLocale))}</div>
                           {transfer.fee !== null && transfer.transfer_type?.toLowerCase() !== "free" && <div style={{ fontSize: 10, color: "#999", marginTop: 3 }}>{t("Reported fee")}</div>}
                         </div>
 
@@ -416,7 +416,7 @@ function ClubCell({ club, direction, t }: { club: Club | null; direction: "From"
     <Link href={`/clubs/${club.id}`} style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, color: "#111", textDecoration: "none" }}>
       <Asset src={club.logo_url} alt={club.name} kind="club" />
       <div style={{ minWidth: 0 }}>
-        <div style={clubLabelStyle}>{direction}</div>
+        <div style={clubLabelStyle}>{t(direction)}</div>
         <div style={{ fontSize: 12, fontWeight: 750, marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{club.name}</div>
         <div style={{ fontSize: 10, color: "#888", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{club.league || club.country || t("League unknown")}</div>
       </div>
