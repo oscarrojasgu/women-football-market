@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { useWfmT } from "./lib/use-wfm-t"
 import { useEffect, useMemo, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { getLocaleFromPathname } from './lib/i18n'
 import { supabase } from './lib/supabase'
 
 type Player = {
@@ -101,7 +103,7 @@ type MatchTickerItem = {
 
 function MatchTicker({ items, t }: { items: MatchTickerItem[]; t: (key: string) => string }) {
   return (
-    <section className="wfm-match-ticker" aria-label="Women's football match center">
+    <section className="wfm-match-ticker" aria-label={t("Women's football match center")}>
       <div className="wfm-match-ticker-label">
         <span className="wfm-live-dot" />{t("MATCH CENTER")}</div>
       <div className="wfm-match-ticker-viewport">
@@ -114,7 +116,7 @@ function MatchTicker({ items, t }: { items: MatchTickerItem[]; t: (key: string) 
                 <strong>{match.homeScore ?? '—'}</strong>
                 <span className="wfm-match-team">{match.away}</span>
                 <strong>{match.awayScore ?? '—'}</strong>
-                <span className="wfm-match-status">{match.status}</span>
+                <span className="wfm-match-status">{t(match.status)}</span>
               </Link>
             ))}
           </div>
@@ -146,24 +148,29 @@ function calculateAge(dateOfBirth: string | null) {
   return age
 }
 
-function formatSalary(annualSalaryUsd: number | null) {
-  if (annualSalaryUsd === null) return 'Unknown'
+function formatSalary(annualSalaryUsd: number | null, locale: string, t: (key: string) => string) {
+  if (annualSalaryUsd === null) return t('Unknown')
 
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: 'USD',
     maximumFractionDigits: 0,
   }).format(annualSalaryUsd)
 }
 
-function formatConfidence(confidence: string | null) {
-  if (!confidence) return 'Database'
-
+function formatConfidence(confidence: string | null, t: (key: string) => string) {
+  if (!confidence) return t('Database')
+  const normalized = confidence.toLowerCase()
+  if (normalized === 'verified') return t('Verified')
+  if (normalized === 'reported') return t('Reported')
+  if (normalized === 'estimated') return t('Estimated')
   return confidence.charAt(0).toUpperCase() + confidence.slice(1)
 }
 
 export default function Home() {
  const t = useWfmT()
+  const pathname = usePathname()
+  const locale = getLocaleFromPathname(pathname)
   const [q, setQ] = useState('')
   const [databasePlayers, setDatabasePlayers] = useState<Player[]>([])
   const [contracts, setContracts] = useState<ContractInfo[]>([])
@@ -631,9 +638,7 @@ export default function Home() {
               color: '#c7c7c7',
             }}
           >
-            A modern football intelligence platform for players, clubs,
-            scouts, agents and fans — with the data and transparency to
-            understand the Women’s game.
+            {t("A modern football intelligence platform for players, clubs, scouts, agents and fans — with the data and transparency to understand the Women’s game.")}
           </p>
 
           <div
@@ -807,16 +812,16 @@ export default function Home() {
       <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px 55px' }}>
         <div className="sectionhead" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '20px' }}>
           <div>
-            <span className="eyebrow" style={{ fontSize: '13px', color: '#777', fontWeight: 700, letterSpacing: '1.2px' }}>WFM INTELLIGENCE</span>
-            <h2 style={{ margin: '8px 0 0', fontSize: '30px', lineHeight: 1.1, letterSpacing: '-.5px' }}>What’s moving in the women’s game.</h2>
+            <span className="eyebrow" style={{ fontSize: '13px', color: '#777', fontWeight: 700, letterSpacing: '1.2px' }}>{t("WFM INTELLIGENCE")}</span>
+            <h2 style={{ margin: '8px 0 0', fontSize: '30px', lineHeight: 1.1, letterSpacing: '-.5px' }}>{t("What’s moving in the women’s game.")}</h2>
           </div>
-          <Link href="/transfers" style={{ color: '#111', textDecoration: 'none', fontSize: '13px', fontWeight: 800 }}>View market activity →</Link>
+          <Link href="/transfers" style={{ color: '#111', textDecoration: 'none', fontSize: '13px', fontWeight: 800 }}>{t("View market activity →")}</Link>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr 1fr 1fr', gap: '12px' }}>
           <div style={{ background: '#fff', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', minHeight: '245px' }}>
-            <div style={{ fontSize: '10px', color: '#888', fontWeight: 800, letterSpacing: '1px' }}>WOMEN’S FOOTBALL NEWS</div>
-            <h3 style={{ margin: '13px 0 12px', fontSize: '20px' }}>Latest from the game</h3>
+            <div style={{ fontSize: '10px', color: '#888', fontWeight: 800, letterSpacing: '1px' }}>{t("WOMEN’S FOOTBALL NEWS")}</div>
+            <h3 style={{ margin: '13px 0 12px', fontSize: '20px' }}>{t("Latest from the game")}</h3>
             <div style={{ display: 'grid', gap: '12px' }}>
               {homeNews.slice(0, 4).map(item => (
                 <a key={item.id} href={item.url} target="_blank" rel="noreferrer" style={{ color: '#111', textDecoration: 'none' }}>
@@ -824,47 +829,47 @@ export default function Home() {
                   <small style={{ display: 'block', marginTop: '4px', color: '#888' }}>{item.publisher} · {new Date(item.published_at).toLocaleDateString()}</small>
                 </a>
               ))}
-              {!homeNews.length && <div style={{ color: '#777', fontSize: '13px', lineHeight: 1.5 }}>Source-linked news will appear here as WFM publishes verified external stories.</div>}
+              {!homeNews.length && <div style={{ color: '#777', fontSize: '13px', lineHeight: 1.5 }}>{t("Source-linked news will appear here as WFM publishes verified external stories.")}</div>}
             </div>
           </div>
           <div style={{ background: '#111', color: '#fff', borderRadius: '14px', padding: '22px', minHeight: '245px' }}>
-            <div style={{ fontSize: '10px', color: '#aaa', fontWeight: 800, letterSpacing: '1px' }}>LATEST TRANSFERS</div>
+            <div style={{ fontSize: '10px', color: '#aaa', fontWeight: 800, letterSpacing: '1px' }}>{t("LATEST TRANSFERS")}</div>
             <div style={{ marginTop: '16px', display: 'grid', gap: '13px' }}>
               {homeTransfers.slice(0, 4).map(transfer => (
                 <Link key={transfer.id} href={transfer.player_id ? `/players/${transfer.player_id}` : '/transfers'} style={{ color: '#fff', textDecoration: 'none', display: 'grid', gridTemplateColumns: '36px 1fr', gap: '10px', alignItems: 'center' }}>
                   <img src={transfer.player?.photo_url || '/wfm-player-placeholder.svg'} alt="" width={36} height={36} style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', background: '#222' }} />
                   <span style={{ minWidth: 0 }}>
-                    <strong style={{ display: 'block', fontSize: '13px' }}>{transfer.player?.full_name || 'Unknown player'}</strong>
-                    <small style={{ display: 'block', marginTop: '3px', color: '#aaa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{transfer.from_club?.name || 'Free agent'} → {transfer.to_club?.name || 'Unknown club'}</small>
+                    <strong style={{ display: 'block', fontSize: '13px' }}>{transfer.player?.full_name || t('Unknown player')}</strong>
+                    <small style={{ display: 'block', marginTop: '3px', color: '#aaa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{transfer.from_club?.name || t('Free agent')} → {transfer.to_club?.name || t('Unknown club')}</small>
                   </span>
                 </Link>
               ))}
-              {!homeTransfers.length && <div style={{ color: '#aaa', fontSize: '13px', lineHeight: 1.5 }}>Transfer activity will appear here as verified WFM records are added.</div>}
+              {!homeTransfers.length && <div style={{ color: '#aaa', fontSize: '13px', lineHeight: 1.5 }}>{t("Transfer activity will appear here as verified WFM records are added.")}</div>}
             </div>
           </div>
 
           <div style={{ background: '#fff', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', minHeight: '245px' }}>
-            <div style={{ fontSize: '10px', color: '#888', fontWeight: 800, letterSpacing: '1px' }}>CONTRACT WATCH</div>
-            <h3 style={{ margin: '13px 0 8px', fontSize: '20px' }}>Expiring soon</h3>
+            <div style={{ fontSize: '10px', color: '#888', fontWeight: 800, letterSpacing: '1px' }}>{t("CONTRACT WATCH")}</div>
+            <h3 style={{ margin: '13px 0 8px', fontSize: '20px' }}>{t("Expiring soon")}</h3>
             <div style={{ display: 'grid', gap: '10px' }}>
               {contracts.filter(contract => contract.end_date).sort((a,b) => String(a.end_date).localeCompare(String(b.end_date))).slice(0, 4).map(contract => {
                 const player = databasePlayers.find(item => item.id === contract.player_id)
                 return <Link key={contract.player_id + '-' + contract.end_date} href={`/players/${contract.player_id}`} style={{ color: '#111', textDecoration: 'none', fontSize: '13px', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
-                  <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{player?.full_name || 'Player'}</span>
+                  <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{player?.full_name || t('Player')}</span>
                   <strong style={{ whiteSpace: 'nowrap' }}>{contract.end_date}</strong>
                 </Link>
               })}
-              {!contracts.some(contract => contract.end_date) && <div style={{ color: '#777', fontSize: '13px' }}>Contract dates will appear here as WFM coverage expands.</div>}
+              {!contracts.some(contract => contract.end_date) && <div style={{ color: '#777', fontSize: '13px' }}>{t("Contract dates will appear here as WFM coverage expands.")}</div>}
             </div>
-            <Link href="/contracts" style={{ display: 'inline-block', marginTop: '18px', color: '#111', fontSize: '12px', fontWeight: 800, textDecoration: 'none' }}>Explore contracts →</Link>
+            <Link href="/contracts" style={{ display: 'inline-block', marginTop: '18px', color: '#111', fontSize: '12px', fontWeight: 800, textDecoration: 'none' }}>{t("Explore contracts →")}</Link>
           </div>
 
           <div style={{ background: '#fff', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', minHeight: '245px' }}>
-            <div style={{ fontSize: '10px', color: '#888', fontWeight: 800, letterSpacing: '1px' }}>DISCOVER</div>
-            <h3 style={{ margin: '13px 0 8px', fontSize: '20px' }}>Follow the data.</h3>
-            <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.55 }}>Move from matches to players, clubs, contracts and transfers without leaving the WFM ecosystem.</p>
+            <div style={{ fontSize: '10px', color: '#888', fontWeight: 800, letterSpacing: '1px' }}>{t("DISCOVER")}</div>
+            <h3 style={{ margin: '13px 0 8px', fontSize: '20px' }}>{t("Follow the data.")}</h3>
+            <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.55 }}>{t("Move from matches to players, clubs, contracts and transfers without leaving the WFM ecosystem.")}</p>
             <div style={{ display: 'grid', gap: '8px', marginTop: '18px' }}>
-              {[['/players','Players'],['/clubs','Clubs'],['/competitions','Competitions'],['/scouting','Scouting']].map(([href,label]) => <Link key={href} href={href} style={{ color: '#111', textDecoration: 'none', fontSize: '12px', fontWeight: 800 }}>{label} →</Link>)}
+              {[['/players','Players'],['/clubs','Clubs'],['/competitions','Competitions'],['/scouting','Scouting']].map(([href,label]) => <Link key={href} href={href} style={{ color: '#111', textDecoration: 'none', fontSize: '12px', fontWeight: 800 }}>{t(label)} →</Link>)}
             </div>
           </div>
         </div>
@@ -875,22 +880,22 @@ export default function Home() {
         <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px 55px' }}>
           <div className="sectionhead" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '20px' }}>
             <div>
-              <span className="eyebrow" style={{ fontSize: '13px', color: '#777', fontWeight: 700, letterSpacing: '1.2px' }}>COMPETITION WATCH</span>
-              <h2 style={{ margin: '8px 0 0', fontSize: '30px', lineHeight: 1.1, letterSpacing: '-.5px' }}>Follow the competitions.</h2>
+              <span className="eyebrow" style={{ fontSize: '13px', color: '#777', fontWeight: 700, letterSpacing: '1.2px' }}>{t("COMPETITION WATCH")}</span>
+              <h2 style={{ margin: '8px 0 0', fontSize: '30px', lineHeight: 1.1, letterSpacing: '-.5px' }}>{t("Follow the competitions.")}</h2>
             </div>
-            <Link href="/competitions" style={{ color: '#111', textDecoration: 'none', fontSize: '13px', fontWeight: 800 }}>View all competitions →</Link>
+            <Link href="/competitions" style={{ color: '#111', textDecoration: 'none', fontSize: '13px', fontWeight: 800 }}>{t("View all competitions →")}</Link>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
             {homeCompetitions.map(competition => (
               <Link key={competition.id} href={`/competitions/${competition.id}`} style={{ background: '#fff', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '20px', color: '#111', textDecoration: 'none', minHeight: '155px' }}>
-                <div style={{ fontSize: '10px', color: '#888', fontWeight: 800, letterSpacing: '1px' }}>COMPETITION</div>
+                <div style={{ fontSize: '10px', color: '#888', fontWeight: 800, letterSpacing: '1px' }}>{t("COMPETITION")}</div>
                 <h3 style={{ margin: '10px 0 5px', fontSize: '19px', lineHeight: 1.15 }}>{competition.canonical_name}</h3>
-                <div style={{ color: '#777', fontSize: '12px' }}>{competition.country || 'International'}</div>
+                <div style={{ color: '#777', fontSize: '12px' }}>{competition.country || t('International')}</div>
                 <div style={{ display: 'flex', gap: '14px', marginTop: '18px', fontSize: '11px', color: '#555' }}>
-                  <span><strong>{competition.recentMatches}</strong> match records</span>
-                  <span><strong>{competition.newsCount}</strong> news</span>
+                  <span><strong>{competition.recentMatches}</strong> {t("match records")}</span>
+                  <span><strong>{competition.newsCount}</strong> {t("news")}</span>
                 </div>
-                {competition.nextMatch && <div style={{ marginTop: '9px', fontSize: '11px', color: '#888' }}>Next: {new Date(competition.nextMatch).toLocaleDateString()}</div>}
+                {competition.nextMatch && <div style={{ marginTop: '9px', fontSize: '11px', color: '#888' }}>{t("Next:")} {new Date(competition.nextMatch).toLocaleDateString(locale)}</div>}
               </Link>
             ))}
           </div>
@@ -967,11 +972,7 @@ export default function Home() {
           >
             {loading
               ? t("Searching database…")
-              : `${filteredDatabasePlayers.length} result${
-                  filteredDatabasePlayers.length !== 1
-                    ? 's'
-                    : ''
-                } found`}
+              : `${filteredDatabasePlayers.length} ${t(filteredDatabasePlayers.length === 1 ? 'result found' : 'results found')}`}
           </div>
         )}
 
@@ -1004,7 +1005,7 @@ export default function Home() {
               ['PLAYER','player'],['CLUB','club'],['LEAGUE','league'],['CONTRACT','contract'],['SALARY','salary'],['CONFIDENCE','confidence']
             ] as const).map(([label,key]) => (
               <button key={key} type="button" onClick={() => changeHomeSort(key)}>
-                <span>{label}</span><span className="wfm-sort-indicator">{homeSortIndicator(key)}</span>
+                <span>{t(label)}</span><span className="wfm-sort-indicator">{homeSortIndicator(key)}</span>
               </button>
             ))}
           </div>
@@ -1066,7 +1067,7 @@ export default function Home() {
                       fontSize: '12px',
                     }}
                   >
-                    {player.position || 'Unknown'}
+                    {player.position || t('Unknown')}
                     {age !== null ? ` · ${age}` : ''}
                   </small>
                   </span>
@@ -1081,15 +1082,15 @@ export default function Home() {
                 </span>
 
                 <span className="home-player-cell home-player-cell--contract">
-                  <small>Contract</small>{contract?.end_date || 'Unknown'}
+                  <small>{t("Contract")}</small>{contract?.end_date || 'Unknown'}
                 </span>
 
                 <span className="home-player-cell home-player-cell--salary">
-                  <small>{t("Salary")}</small>{formatSalary(contract?.annual_salary ?? null)}
+                  <small>{t("Salary")}</small>{formatSalary(contract?.annual_salary_usd ?? null, locale, t)}
                 </span>
 
                 <span className="home-player-cell home-player-cell--confidence">
-                  <small>Confidence</small><i
+                  <small>{t("Confidence")}</small><i
                     className="badge"
                     style={{
                       display: 'inline-block',
@@ -1112,7 +1113,7 @@ export default function Home() {
                             : '#806b45',
                     }}
                   >
-                    {formatConfidence(contract?.confidence ?? null)}
+                    {t(formatConfidence(contract?.confidence ?? null, t))}
                   </i>
                 </span>
               </Link>
@@ -1178,29 +1179,29 @@ export default function Home() {
         <Link href="/contracts" style={{ color: '#111', textDecoration: 'none', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', background: '#fff', transition: 'transform .15s ease' }}>
           <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>01</span>
           <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>{t("Contracts")}</h3>
-          <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>Expiration dates, options, extensions and free-agent status.</p>
+          <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>{t("Expiration dates, options, extensions and free-agent status.")}</p>
           <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>Explore contracts →</span>
         </Link>
 
         <Link href="/transfers" style={{ color: '#111', textDecoration: 'none', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', background: '#fff' }}>
           <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>02</span>
           <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>{t("Transfers")}</h3>
-          <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>Permanent moves, loans, trades, releases and fees.</p>
-          <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>Explore transfers →</span>
+          <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>{t("Permanent moves, loans, trades, releases and fees.")}</p>
+          <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>{t("Explore transfers →")}</span>
         </Link>
 
         <Link href="/salaries" style={{ color: '#111', textDecoration: 'none', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', background: '#fff' }}>
           <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>03</span>
           <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>{t("Salaries")}</h3>
-          <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>Reported and estimated compensation with source confidence.</p>
-          <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>Explore salaries →</span>
+          <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>{t("Reported and estimated compensation with source confidence.")}</p>
+          <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>{t("Explore salaries →")}</span>
         </Link>
 
         <Link href="/scouting" style={{ color: '#111', textDecoration: 'none', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', background: '#fff' }}>
           <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>04</span>
           <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>{t("Scouting")}</h3>
-          <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>Find players by position, age, league and contract status.</p>
-          <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>Open scouting →</span>
+          <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>{t("Find players by position, age, league and contract status.")}</p>
+          <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>{t("Open scouting →")}</span>
         </Link>
       </section>
 
@@ -1208,13 +1209,13 @@ export default function Home() {
       <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px 70px' }}>
         <div style={{ background: '#111', color: '#fff', borderRadius: '16px', padding: '30px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
           <div style={{ maxWidth: '700px' }}>
-            <div style={{ fontSize: '11px', color: '#aaa', fontWeight: 800, letterSpacing: '1.2px', marginBottom: '10px' }}>FOR CLUBS · AGENTS · SCOUTS</div>
-            <h2 style={{ margin: 0, fontSize: '28px', letterSpacing: '-.5px' }}>Go deeper with WFM.</h2>
-            <p style={{ margin: '9px 0 0', color: '#c7c7c7', fontSize: '14px', lineHeight: 1.5 }}>Create an account to use private scouting workflows, club and agency workspaces, and request commercial data access.</p>
+            <div style={{ fontSize: '11px', color: '#aaa', fontWeight: 800, letterSpacing: '1.2px', marginBottom: '10px' }}>{t("FOR CLUBS · AGENTS · SCOUTS")}</div>
+            <h2 style={{ margin: 0, fontSize: '28px', letterSpacing: '-.5px' }}>{t("Go deeper with WFM.")}</h2>
+            <p style={{ margin: '9px 0 0', color: '#c7c7c7', fontSize: '14px', lineHeight: 1.5 }}>{t("Create an account to use private scouting workflows, club and agency workspaces, and request commercial data access.")}</p>
           </div>
           <div style={{ display: 'flex', gap: '9px', flexWrap: 'wrap' }}>
-            <Link href="/login" style={{ display: 'inline-block', background: '#c9ff3d', color: '#111', textDecoration: 'none', fontWeight: 800, borderRadius: '8px', padding: '11px 16px', fontSize: '13px' }}>Sign in / create account</Link>
-            <Link href="/account/licensing" style={{ display: 'inline-block', border: '1px solid #555', color: '#fff', textDecoration: 'none', borderRadius: '8px', padding: '11px 16px', fontSize: '13px', fontWeight: 700 }}>Commercial access</Link>
+            <Link href="/login" style={{ display: 'inline-block', background: '#c9ff3d', color: '#111', textDecoration: 'none', fontWeight: 800, borderRadius: '8px', padding: '11px 16px', fontSize: '13px' }}>{t("Sign in / create account")}</Link>
+            <Link href="/account/licensing" style={{ display: 'inline-block', border: '1px solid #555', color: '#fff', textDecoration: 'none', borderRadius: '8px', padding: '11px 16px', fontSize: '13px', fontWeight: 700 }}>{t("Commercial access")}</Link>
           </div>
         </div>
       </section>
@@ -1225,7 +1226,7 @@ export default function Home() {
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: '30px', flexWrap: 'wrap' }}>
             <div style={{ maxWidth: '360px' }}>
               <div className="logo" style={{ fontSize: '22px', fontWeight: 800 }}>WFM<span style={{ color: '#777' }}>•</span></div>
-              <p style={{ color: '#777', fontSize: '13px', lineHeight: 1.5, margin: '10px 0 0' }}>Women’s football data for players, clubs, scouts, agents and researchers.</p>
+              <p style={{ color: '#777', fontSize: '13px', lineHeight: 1.5, margin: '10px 0 0' }}>{t("Women’s football data for players, clubs, scouts, agents and researchers.")}</p>
             </div>
             <nav aria-label="WFM public navigation" style={{ display: 'flex', gap: '18px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
               {[
@@ -1236,11 +1237,11 @@ export default function Home() {
                 ['/salaries','Salaries'],
                 ['/transfers','Transfers'],
                 ['/scouting','Scouting'],
-              ].map(([href,label]) => <Link key={href} href={href} style={{ color: '#444', textDecoration: 'none', fontSize: '12px', fontWeight: 700 }}>{label}</Link>)}
+              ].map(([href,label]) => <Link key={href} href={href} style={{ color: '#444', textDecoration: 'none', fontSize: '12px', fontWeight: 700 }}>{t(label)}</Link>)}
             </nav>
           </div>
           <div style={{ marginTop: '28px', paddingTop: '18px', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', gap: '15px', flexWrap: 'wrap' }}>
-            <small style={{ color: '#999', fontSize: '12px' }}>Data confidence is shown on every record. Estimates are never presented as confirmed facts.</small>
+            <small style={{ color: '#999', fontSize: '12px' }}>{t("Data confidence is shown on every record. Estimates are never presented as confirmed facts.")}</small>
             <small style={{ color: '#999', fontSize: '12px' }}>© Women’s Football Market</small>
           </div>
         </div>
