@@ -82,6 +82,8 @@ export default function ContractsPage() {
   const [expiry, setExpiry] = useState("All");
   const [sortKey, setSortKey] = useState<"player"|"club"|"status"|"expiry"|"salary"|"confidence">("expiry");
   const [sortDir, setSortDir] = useState<"asc"|"desc">("asc");
+  const [page, setPage] = useState(1);
+  const pageSize = 25;
 
   useEffect(() => {
     async function loadContracts() {
@@ -154,6 +156,16 @@ export default function ContractsPage() {
     });
     return rows;
   }, [filteredContracts, sortKey, sortDir]);
+  const totalPages = Math.max(1, Math.ceil(sortedContracts.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = sortedContracts.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const pageEnd = Math.min(currentPage * pageSize, sortedContracts.length);
+  const visibleContracts = sortedContracts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, status, league, expiry, sortKey, sortDir]);
+
   const changeSort = (key: typeof sortKey) => {
     if (sortKey === key) setSortDir(d => d === "asc" ? "desc" : "asc");
     else { setSortKey(key); setSortDir(key === "player" || key === "club" || key === "status" || key === "confidence" ? "asc" : "desc"); }
@@ -242,7 +254,7 @@ export default function ContractsPage() {
               <button type="button" onClick={clearFilters}>{t("Reset contract filters")}</button>
             </div>
           ) : (
-            sortedContracts.map(c => {
+            visibleContracts.map(c => {
               const days = daysUntil(c.end_date);
               const urgent = days !== null && days >= 0 && days <= 90;
 
@@ -291,6 +303,17 @@ export default function ContractsPage() {
               );
             })
           )}
+          {!loading && filteredContracts.length > 0 && (
+            <div className="scout-pagination">
+              <span>{t("Showing")} {pageStart}–{pageEnd} {t("of")} {filteredContracts.length}</span>
+              <div>
+                <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>{t("Previous")}</button>
+                <strong>{t("Page")} {currentPage} {t("of")} {totalPages}</strong>
+                <button type="button" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>{t("Next")}</button>
+              </div>
+            </div>
+          )}
+
         </section>
       </main>
     </>
