@@ -1,6 +1,14 @@
 import type { WfmLocale } from './i18n'
 
 const entries: Record<string, Record<WfmLocale, string>> = {
+  "MATCH CENTER": { en: "MATCH CENTER", es: "CENTRO DE PARTIDOS", pt: "CENTRO DE JOGOS", fr: "CENTRE DES MATCHS", de: "SPIELZENTRUM" },
+  "Women's football match center": { en: "Women's football match center", es: "Centro de partidos de fútbol femenino", pt: "Centro de jogos do futebol feminino", fr: "Centre des matchs de football féminin", de: "Spielzentrum für Frauenfußball" },
+  "LIVE": { en: "LIVE", es: "EN DIRECTO", pt: "AO VIVO", fr: "EN DIRECT", de: "LIVE" },
+  "HT": { en: "HT", es: "DESC", pt: "INT", fr: "MT", de: "HZ" },
+  "FT": { en: "FT", es: "FINAL", pt: "FIM", fr: "FIN", de: "ENDE" },
+  "POSTPONED": { en: "POSTPONED", es: "APLAZADO", pt: "ADIADO", fr: "REPORTÉ", de: "VERSCHOBEN" },
+  "result found": { en: "result found", es: "resultado encontrado", pt: "resultado encontrado", fr: "résultat trouvé", de: "Ergebnis gefunden" },
+
   "THE WOMEN’S FOOTBALL DATABASE": { en: "THE WOMEN’S FOOTBALL DATABASE", es: "LA BASE DE DATOS DE FÚTBOL FEMENINO", pt: "A BASE DE DADOS DO FUTEBOL FEMININO", fr: "LA BASE DE DONNÉES DU FOOTBALL FÉMININ", de: "DIE DATENBANK FÜR FRAUENFUSSBALL" },
   "Built differently.": { en: "Built differently.", es: "Hecho diferente.", pt: "Feito de forma diferente.", fr: "Pensé autrement.", de: "Anders gemacht." },
   "A modern football intelligence platform for players, clubs, scouts, agents and fans — with the data and transparency to understand the Women’s game.": { en: "A modern football intelligence platform for players, clubs, scouts, agents and fans — with the data and transparency to understand the Women’s game.", es: "Una plataforma moderna de inteligencia futbolística para jugadoras, clubes, ojeadores, agentes y aficionados, con datos y transparencia para comprender el fútbol femenino.", pt: "Uma plataforma moderna de inteligência do futebol para jogadoras, clubes, olheiros, agentes e torcedores — com dados e transparência para entender o futebol feminino.", fr: "Une plateforme moderne d’intelligence du football pour les joueuses, les clubs, les recruteurs, les agents et les supporters, avec les données et la transparence nécessaires pour comprendre le football féminin.", de: "Eine moderne Fußball-Analyseplattform für Spielerinnen, Vereine, Scouts, Agenten und Fans – mit Daten und Transparenz, um den Frauenfußball besser zu verstehen." },
