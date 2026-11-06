@@ -327,6 +327,7 @@ export const WFM_PLAYER_PROFILE_TRANSLATIONS: Record<WfmLocale, Record<string, s
     "Current club based on latest transfer": "Current club based on latest transfer",
     "Current club based on latest club statistics": "Current club based on latest club statistics",
     "Current club based on latest contract record": "Current club based on latest contract record",
+    "Latest transfer": "Latest transfer",
   },
   "es": {
     "Player not found": "Jugadora no encontrada",
@@ -654,6 +655,7 @@ export const WFM_PLAYER_PROFILE_TRANSLATIONS: Record<WfmLocale, Record<string, s
     "Current club based on latest transfer": "Club actual según el último traspaso",
     "Current club based on latest club statistics": "Club actual según las últimas estadísticas del club",
     "Current club based on latest contract record": "Club actual según el último contrato registrado",
+    "Latest transfer": "Último traspaso",
   },
   "pt": {
     "Player not found": "Jogadora não encontrada",
@@ -981,6 +983,7 @@ export const WFM_PLAYER_PROFILE_TRANSLATIONS: Record<WfmLocale, Record<string, s
     "Current club based on latest transfer": "Clube atual com base na última transferência",
     "Current club based on latest club statistics": "Clube atual com base nas estatísticas mais recentes",
     "Current club based on latest contract record": "Clube atual com base no contrato mais recente",
+    "Latest transfer": "Última transferência",
   },
   "fr": {
     "Player not found": "Joueuse introuvable",
@@ -1308,6 +1311,7 @@ export const WFM_PLAYER_PROFILE_TRANSLATIONS: Record<WfmLocale, Record<string, s
     "Current club based on latest transfer": "Club actuel selon le dernier transfert",
     "Current club based on latest club statistics": "Club actuel selon les dernières statistiques du club",
     "Current club based on latest contract record": "Club actuel selon le dernier contrat enregistré",
+    "Latest transfer": "Dernier transfert",
   },
   "de": {
     "Player not found": "Spielerin nicht gefunden",
@@ -1635,5 +1639,6 @@ export const WFM_PLAYER_PROFILE_TRANSLATIONS: Record<WfmLocale, Record<string, s
     "Current club based on latest transfer": "Aktueller Verein laut letztem Transfer",
     "Current club based on latest club statistics": "Aktueller Verein laut neuesten Vereinsstatistiken",
     "Current club based on latest contract record": "Aktueller Verein laut letztem Vertragseintrag",
+    "Latest transfer": "Letzter Transfer",
   },
 };
