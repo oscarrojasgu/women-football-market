@@ -641,7 +641,7 @@ export default function PlayersPage() {
       return;
     }
 
-    const name = window.prompt("Name this scouting list")?.trim();
+    const name = window.prompt(t("Name this scouting list"))?.trim();
     if (!name) return;
 
     const { data, error } = await supabase
@@ -877,10 +877,9 @@ export default function PlayersPage() {
       <section className="players-scout-hero">
         <div className="players-scout-shell">
           <div className="players-scout-eyebrow">WOMEN&apos;S FOOTBALL MARKET</div>
-          <h1>Player Scouting Database</h1>
+          <h1>{t("Player Scouting Database")}</h1>
           <p>
-            Search the WFM player pool by role, league, club, age, playing time,
-            performance output, contract context and recorded market value.
+            {t("Search the WFM player pool by role, league, club, age, playing time, performance output, contract context and recorded market value.")}
           </p>
         </div>
       </section>
@@ -1040,9 +1039,9 @@ export default function PlayersPage() {
               value={selectedScoutingListId}
               onChange={(event) => setSelectedScoutingListId(event.target.value)}
               disabled={!userId}
-              aria-label="Scouting list"
+              aria-label={t("Scouting list")}
             >
-              <option value="">{userId ? "Select scouting list" : "Sign in for scouting lists"}</option>
+              <option value="">{userId ? t("Select scouting list") : t("Sign in for scouting lists")}</option>
               {scoutingLists.map((list) => (
                 <option key={list.id} value={list.id}>{list.name}</option>
               ))}
@@ -1053,10 +1052,10 @@ export default function PlayersPage() {
               type="button"
               onClick={async () => {
                 if (!userId) {
-                  setScoutingMessage("Sign in to save persistent scouting workflows.");
+                  setScoutingMessage(t("Sign in to save persistent scouting workflows."));
                   return;
                 }
-                const name = window.prompt("Name this scouting workflow")?.trim();
+                const name = window.prompt(t("Name this scouting workflow"))?.trim();
                 if (!name) return;
 
                 const filters = {
@@ -1089,10 +1088,10 @@ export default function PlayersPage() {
                 }
 
                 setSavedWorkflows((current) => [data as SavedWorkflow, ...current]);
-                setScoutingMessage("Scouting workflow saved.");
+                setScoutingMessage(t("Scouting workflow saved."));
               }}
             >
-              Save workflow
+              {t("Save workflow")}
             </button>
             <button type="button" onClick={() => setShortlist([])} disabled={!shortlist.length}>{t("Clear shortlist")}</button>
           </div>
@@ -1143,12 +1142,7 @@ export default function PlayersPage() {
           {scoutingMessage && <span style={{marginLeft:8}}>{scoutingMessage}</span>}
         </div>
         <div className="scout-note">
-          <strong>{t("Scouting context:")}</strong> performance figures use the latest
-          recorded season available for each player. Peer-percentile filters use
-          the latest eligible league/position benchmark. They are descriptive
-          research context, not WFM ratings or predictions.
-          Players without recorded season statistics remain searchable but are
-          excluded when a minimum-minutes filter is applied.
+          <strong>{t("Scouting context:")}</strong> {t("performance figures use the latest recorded season available for each player. Peer-percentile filters use the latest eligible league/position benchmark. They are descriptive research context, not WFM ratings or predictions. Players without recorded season statistics remain searchable but are excluded when a minimum-minutes filter is applied.")}
         </div>
 
         <section className="scout-table-wrap">
@@ -1186,8 +1180,8 @@ export default function PlayersPage() {
             const playerRole = getPlayerRoleGroup(player.position, player.secondary_position);
             const age = calculateAge(player.date_of_birth);
             const currentClub = currentClubByPlayer.get(player.id);
-            const playerClub = currentClub?.current_club_name || contract?.club?.name || intel?.club_name || "Club unavailable";
-            const playerLeague = currentClub?.current_club_league || participationByPlayer.get(player.id)?.find((row) => row.season_key === intel?.season)?.competition_name || contract?.club?.league || intel?.league || "Competition unavailable";
+            const playerClub = currentClub?.current_club_name || contract?.club?.name || intel?.club_name || t("Club unavailable");
+            const playerLeague = currentClub?.current_club_league || participationByPlayer.get(player.id)?.find((row) => row.season_key === intel?.season)?.competition_name || contract?.club?.league || intel?.league || t("Competition unavailable");
 
             return (
               <div className={`scout-row ${shortlist.includes(player.id) ? "is-shortlisted" : ""}`} key={player.id}>
@@ -1260,7 +1254,7 @@ export default function PlayersPage() {
               <strong>{t("No players match the current filters")}</strong>
               <span>{t("Broaden the role, league, club or minutes criteria.")}</span>
               <button type="button" onClick={clearFilters}>
-                Reset scouting filters
+                {t("Reset scouting filters")}
               </button>
             </div>
           )}
