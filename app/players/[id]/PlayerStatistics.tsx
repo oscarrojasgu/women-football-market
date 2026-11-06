@@ -532,7 +532,7 @@ export default function PlayerStatistics({
               }
               style={selectStyle}
             >
-              <option value="All">All</option>
+              <option value="All">{t("All")}</option>
 
               {competitions.map((competition) => (
                 <option
@@ -555,7 +555,7 @@ export default function PlayerStatistics({
               }
               style={selectStyle}
             >
-              <option value="All">All</option>
+              <option value="All">{t("All")}</option>
 
               {statClubs.map((club) => (
                 <option key={club.id} value={club.id}>
