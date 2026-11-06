@@ -447,7 +447,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           <div style={{ marginTop: 14, color: "#888", fontSize: 11, lineHeight: 1.6 }}>{t("Unknown values remain unknown. A missing source, confidence level, date, salary, transfer fee or valuation is intentionally displayed as unavailable rather than being filled with an unsupported assumption.")}</div>
         </section>
 
-        <div style={{ marginTop: 18, fontSize: 11, color: "#999", lineHeight: 1.6 }}>{t("Profile coverage")}: {player.full_name} · {contracts.length} {t(contracts.length === 1 ? "contract record" : "contract records")} · {marketValues.length} {t(marketValues.length === 1 ? "market-value record" : "market-value records")} · {transfers.length} {t(transfers.length === 1 ? "transfer record" : "transfer records")} · {stats.length} {t(stats.length === 1 ? "club-stat record" : "club-stat records")}. Latest transfer: {latestTransfer ? dateText(latestTransfer.transfer_date, dateLocale) : t("none recorded")}.</div>
+        <div style={{ marginTop: 18, fontSize: 11, color: "#999", lineHeight: 1.6 }}>{t("Profile coverage")}: {player.full_name} · {contracts.length} {t(contracts.length === 1 ? "contract record" : "contract records")} · {marketValues.length} {t(marketValues.length === 1 ? "market-value record" : "market-value records")} · {transfers.length} {t(transfers.length === 1 ? "transfer record" : "transfer records")} · {stats.length} {t(stats.length === 1 ? "club-stat record" : "club-stat records")}. {t("Latest transfer")}: {latestTransfer ? dateText(latestTransfer.transfer_date, dateLocale) : t("none recorded")}.</div>
       </div>
     </main>
   );
