@@ -30,7 +30,7 @@ type Player = {
   photo_url: string | null
 }
 
-type Source = { id: string; publisher: string | null; url: string | null; published_at: string | null;{t(" reliability")}: string | null; accessed_at: string | null }
+type Source = { id: string; publisher: string | null; url: string | null; published_at: string | null; reliability: string | null; accessed_at: string | null }
 
 const normalizeSource = (value: unknown): Source | null => Array.isArray(value) ? ((value[0] as Source | undefined) || null) : ((value as Source | null | undefined) || null)
 
@@ -68,7 +68,7 @@ function formatSalary(
   amount: number | null,
   currency: string | null
 ) {
-  if (amount === null) return "{t("Unknown")}"
+  if (amount === null) return t("Unknown")
 
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -99,7 +99,7 @@ export default function ClubProfilePage() {
   const [sortBy, setSortBy] = useState("salary")
   const [officialVerification, setOfficialVerification] = useState<any>(null)
   const [clubParticipations, setClubParticipations] = useState<ClubParticipation[]>([])
-  const [rosterPlayers, set{t("Roster")}Players] = useState<Player[]>([])
+  const [rosterPlayers, setRosterPlayers] = useState<Player[]>([])
   const [selectedSeason, setSelectedSeason] = useState("all")
 
   useEffect(() => {
@@ -161,7 +161,7 @@ export default function ClubProfilePage() {
           .eq("club_competition_id", currentClubCompetition.id)
         rosterRows = rosterData || []
       }
-      set{t("Roster")}Players(rosterRows.map((row: any) => Array.isArray(row.player) ? row.player[0] : row.player).filter(Boolean))
+      setRosterPlayers(rosterRows.map((row: any) => Array.isArray(row.player) ? row.player[0] : row.player).filter(Boolean))
 
       const { data: officialData } = await supabase
         .from("official_verification_public")
@@ -429,7 +429,7 @@ export default function ClubProfilePage() {
     const active = currentContracts
     const positions = new Map<string, number>()
     for (const contract of active) {
-      const key = contract.player?.position || "{t("Unknown")}"
+      const key = contract.player?.position || "Unknown"
       positions.set(key, (positions.get(key) || 0) + 1)
     }
     const expiring180 = active.filter(contract => {
@@ -552,7 +552,7 @@ export default function ClubProfilePage() {
             <div>
               <span className="club-section-eyebrow">{t("CLUB CONTEXT")}</span>
               <h2>{t("Competition & Season")}</h2>
-              <p>{competitionsForSeason.length ? competitionsForSeason.join(" · ") : "{t("No competition participation recorded.")}"}</p>
+              <p>{competitionsForSeason.length ? competitionsForSeason.join(" · ") : t("No competition participation recorded.")}</p>
             </div>
             <div className="club-context-controls">
               <label>
@@ -594,10 +594,10 @@ export default function ClubProfilePage() {
               <h3>{t("Contracts ending soon")}</h3>
               {clubIntelligence.expiring180.length ? clubIntelligence.expiring180.slice(0, 8).map(contract => (
                 <div className="club-intelligence-line" key={contract.id}>
-                  <Link href={contract.player ? `/players/${contract.player.id}` : "#"}>{contract.player?.full_name || "{t("{t("Unknown")} player")}"}</Link>
+                  <Link href={contract.player ? `/players/${contract.player.id}` : "#"}>{contract.player?.full_name || t("Unknown player")}</Link>
                   <span>{formatDate(contract.end_date)}</span>
                 </div>
-              )) : <p className="club-muted">{t("{t("No active contracts ending within 180 days based on available dates.")}")}</p>}
+              )) : <p className="club-muted">{t(t("No active contracts ending within 180 days based on available dates."))}</p>}
             </div>
           </div>
         </section>
@@ -627,12 +627,12 @@ export default function ClubProfilePage() {
                   <span className="club-player-cell club-player">
                     <Link href={`/players/${player.id}`} className="club-player-link">
                       {player.photo_url ? <img src={player.photo_url} alt={player.full_name} onError={(event) => { event.currentTarget.src = "/wfm-player-placeholder.svg" }} /> : <img src="/wfm-player-placeholder.svg" alt="" />}
-                      <span><strong>{player.full_name}</strong><small>{[player.position, player.nationality].filter(Boolean).join(" · ") || "{t("Player details unavailable")}"}</small></span>
+                      <span><strong>{player.full_name}</strong><small>{[player.position, player.nationality].filter(Boolean).join(" · ") || t("Player details unavailable")}</small></span>
                     </Link>
                   </span>
-                  <span className="club-player-cell" data-label="Status">{contract?.status || "{t("Roster")}"}</span>
-                  <span className="club-player-cell" data-label="Expiry">{contract ? <strong>{formatDate(contract.end_date)}</strong> : "{t("Not published")}"}</span>
-                  <span className="club-player-cell" data-label="Annual Salary">{contract ? formatSalary(contract.annual_salary, contract.currency) : "{t("Unknown")}"}</span>
+                  <span className="club-player-cell" data-label="Status">{contract?.status || t("Roster")}</span>
+                  <span className="club-player-cell" data-label="Expiry">{contract ? <strong>{formatDate(contract.end_date)}</strong> : t("Not published")}</span>
+                  <span className="club-player-cell" data-label="Annual Salary">{contract ? formatSalary(contract.annual_salary, contract.currency) : "Unknown"}</span>
                 </div>
               )
             }) : sortedContracts.map((contract) => {
@@ -642,10 +642,10 @@ export default function ClubProfilePage() {
                   <span className="club-player-cell club-player">
                     <Link href={player ? `/players/${player.id}` : "#"} className="club-player-link">
                       {player?.photo_url ? <img src={player.photo_url} alt={player.full_name} onError={(event) => { event.currentTarget.src = "/wfm-player-placeholder.svg" }} /> : <img src="/wfm-player-placeholder.svg" alt="" />}
-                      <span><strong>{player?.full_name || "{t("{t("Unknown")} Player")}"}</strong><small>{[player?.position, player?.nationality].filter(Boolean).join(" · ") || "{t("Player details unavailable")}"}</small></span>
+                      <span><strong>{player?.full_name || t("Unknown Player")}</strong><small>{[player?.position, player?.nationality].filter(Boolean).join(" · ") || "Player details unavailable"}</small></span>
                     </Link>
                   </span>
-                  <span className="club-player-cell" data-label="Status">{contract.status || "{t("Unknown")}"}</span>
+                  <span className="club-player-cell" data-label="Status">{contract.status || "Unknown"}</span>
                   <span className="club-player-cell" data-label="Expiry"><strong>{formatDate(contract.end_date)}</strong></span>
                   <span className="club-player-cell club-salary-cell" data-label="Salary"><strong>{formatSalary(contract.annual_salary, contract.currency)}</strong></span>
                 </div>
@@ -670,12 +670,12 @@ export default function ClubProfilePage() {
             </div>
             {transfers.map((transfer) => (
               <div className="club-transfer-row" key={transfer.id}>
-                <span><Link href={transfer.player ? `/players/${transfer.player.id}` : "#"}>{transfer.player?.full_name || "{t("{t("Unknown")} Player")}"}</Link></span>
-                <span>{transfer.from_club ? <Link href={`/clubs/${transfer.from_club.id}`}>{transfer.from_club.name}</Link> : "{t("Unknown")}"}</span>
+                <span><Link href={transfer.player ? `/players/${transfer.player.id}` : "#"}>{transfer.player?.full_name || "Unknown Player"}</Link></span>
+                <span>{transfer.from_club ? <Link href={`/clubs/${transfer.from_club.id}`}>{transfer.from_club.name}</Link> : "Unknown"}</span>
                 <span className="club-transfer-arrow">→</span>
-                <span>{transfer.to_club ? <Link href={`/clubs/${transfer.to_club.id}`}>{transfer.to_club.name}</Link> : "{t("Unknown")}"}</span>
+                <span>{transfer.to_club ? <Link href={`/clubs/${transfer.to_club.id}`}>{transfer.to_club.name}</Link> : "Unknown"}</span>
                 <span>{formatDate(transfer.transfer_date)}</span>
-                <span><strong>{transfer.fee !== null ? formatSalary(transfer.fee, transfer.currency) : transfer.transfer_type || "{t("Unknown")}"}</strong></span>
+                <span><strong>{transfer.fee !== null ? formatSalary(transfer.fee, transfer.currency) : transfer.transfer_type || "Unknown"}</strong></span>
               </div>
             ))}
             {transfers.length === 0 ? <div className="scout-empty">{t("No transfer activity found.")}</div> : null}
@@ -689,7 +689,7 @@ export default function ClubProfilePage() {
               <h2>{t("Source Context")}</h2>
               <p>{t("WFM keeps uncertainty visible rather than presenting unsupported assumptions as facts.")}</p>
             </div>
-            <span className="club-source-count">{linkedSources.length}{t(" linked source")}{linkedSources.length === 1 ? "" : "s"}</span>
+            <span className="club-source-count">{linkedSources.length} {t(linkedSources.length === 1 ? "linked source" : "linked sources")}</span>
           </div>
 
           {linkedSources.length > 0 ? (
@@ -697,11 +697,11 @@ export default function ClubProfilePage() {
               {linkedSources.map(source => (
                 <div className="club-source-row" key={source.id}>
                   <div>
-                    <strong>{source.publisher || "{t("Source publisher not recorded")}"}</strong>
+                    <strong>{source.publisher || t("Source publisher not recorded")}</strong>
                     <small>
-                      {source.published_at ? "{t("Published ")}" + formatDate(source.published_at) : "{t("Publication date not recorded")}"}
-                      {source.reliability ? " · " + source.reliability + "{t(" reliability")}" : ""}
-                      {source.accessed_at ? "{t(" · Accessed ")}" + new Date(source.accessed_at).toLocaleDateString("en-US") : ""}
+                      {source.published_at ? t("Published") + " " + formatDate(source.published_at) : t("Publication date not recorded")}
+                      {source.reliability ? " · " + source.reliability + " " + t("reliability") : ""}
+                      {source.accessed_at ? " · " + t("Accessed") + " " + new Date(source.accessed_at).toLocaleDateString("en-US") : ""}
                     </small>
                   </div>
                   {source.url ? <a href={source.url} target="_blank" rel="noreferrer">{t("View source")} →</a> : null}
@@ -709,7 +709,7 @@ export default function ClubProfilePage() {
               ))}
             </div>
           ) : (
-            <div className="club-source-empty">{t("No{t(" linked source")} records are currently available for this club. WFM does not infer a source when one is not recorded.")}</div>
+            <div className="club-source-empty">{t("No linked source records are currently available for this club. WFM does not infer a source when one is not recorded.")}</div>
           )}
         </section>
       </main>
