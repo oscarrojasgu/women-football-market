@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { getLocaleFromPathname } from "../lib/i18n";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useWfmT } from "../lib/use-wfm-t";
@@ -36,18 +38,18 @@ type Transfer = {
   to_club: Club | null;
 };
 
-function formatDate(date: string | null) {
-  if (!date) return "Date unknown";
+function formatDate(date: string | null, locale: string, t: (key: string) => string) {
+  if (!date) return t("Date unknown");
   const parsed = new Date(date);
   if (Number.isNaN(parsed.getTime())) return date;
-  return parsed.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return parsed.toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" });
 }
 
-function formatMonth(date: string | null) {
-  if (!date) return "Date unknown";
+function formatMonth(date: string | null, locale: string, t: (key: string) => string) {
+  if (!date) return t("Date unknown");
   const parsed = new Date(date);
-  if (Number.isNaN(parsed.getTime())) return "Date unknown";
-  return parsed.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  if (Number.isNaN(parsed.getTime())) return t("Date unknown");
+  return parsed.toLocaleDateString(locale, { month: "long", year: "numeric" });
 }
 
 function formatTransferType(type: string | null) {
@@ -134,6 +136,9 @@ function Asset({ src, alt, kind }: { src: string | null | undefined; alt: string
 
 export default function TransfersPage() {
   const t = useWfmT();
+  const pathname = usePathname();
+  const localeCode = getLocaleFromPathname(pathname);
+  const dateLocale = ({ en: "en-US", es: "es-ES", pt: "pt-BR", fr: "fr-FR", de: "de-DE" } as const)[localeCode];
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -254,7 +259,7 @@ export default function TransfersPage() {
   const groupedTransfers = useMemo(() => {
     const groups = new Map<string, Transfer[]>();
     for (const transfer of filteredTransfers) {
-      const key = formatMonth(transfer.transfer_date);
+      const key = formatMonth(transfer.transfer_date, dateLocale, t);
       const existing = groups.get(key) || [];
       existing.push(transfer);
       groups.set(key, existing);
@@ -344,7 +349,7 @@ export default function TransfersPage() {
           <div style={emptyStateStyle}>
             <div style={{ fontWeight: 800, color: "#111", marginBottom: 6 }}>{t("No transfers found")}</div>
             <div>{t("Try changing your filters or clearing the search.")}</div>
-            {hasFilters && <button type="button" onClick={clearFilters} style={clearButtonStyle}>Clear filters</button>}
+            {hasFilters && <button type="button" onClick={clearFilters} style={clearButtonStyle}>{t("Clear filters")}</button>}
           </div>
         ) : (
           <div>
@@ -363,7 +368,7 @@ export default function TransfersPage() {
                     return (
                       <article key={transfer.id} style={{ background: "#fff", border: "1px solid #e2e1dc", borderRadius: 14, padding: "14px 16px", display: "grid", gridTemplateColumns: "90px minmax(190px, 1.1fr) minmax(230px, 1.3fr) 110px 130px 105px", alignItems: "center", gap: 14, boxShadow: "0 1px 0 rgba(0,0,0,0.02)" }}>
                         <div>
-                          <div style={{ fontSize: 12, fontWeight: 800 }}>{transfer.transfer_date ? formatDate(transfer.transfer_date) : t("Date unknown")}</div>
+                          <div style={{ fontSize: 12, fontWeight: 800 }}>{transfer.transfer_date ? formatDate(transfer.transfer_date, dateLocale, t) : t("Date unknown")}</div>
                           <div style={{ fontSize: 10, color: "#999", marginTop: 3, textTransform: "uppercase", letterSpacing: 0.7 }}>{t("Move date")}</div>
                         </div>
 
