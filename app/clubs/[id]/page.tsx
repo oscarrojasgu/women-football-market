@@ -429,7 +429,7 @@ export default function ClubProfilePage() {
     const active = currentContracts
     const positions = new Map<string, number>()
     for (const contract of active) {
-      const key = contract.player?.position || "Unknown"
+      const key = contract.player?.position || t("Unknown")
       positions.set(key, (positions.get(key) || 0) + 1)
     }
     const expiring180 = active.filter(contract => {
@@ -632,7 +632,7 @@ export default function ClubProfilePage() {
                   </span>
                   <span className="club-player-cell" data-label="Status">{contract?.status || t("Roster")}</span>
                   <span className="club-player-cell" data-label="Expiry">{contract ? <strong>{formatDate(contract.end_date)}</strong> : t("Not published")}</span>
-                  <span className="club-player-cell" data-label="Annual Salary">{contract ? formatSalary(contract.annual_salary, contract.currency) : "Unknown"}</span>
+                  <span className="club-player-cell" data-label="Annual Salary">{contract ? formatSalary(contract.annual_salary, contract.currency) : t("Unknown")}</span>
                 </div>
               )
             }) : sortedContracts.map((contract) => {
@@ -642,7 +642,7 @@ export default function ClubProfilePage() {
                   <span className="club-player-cell club-player">
                     <Link href={player ? `/players/${player.id}` : "#"} className="club-player-link">
                       {player?.photo_url ? <img src={player.photo_url} alt={player.full_name} onError={(event) => { event.currentTarget.src = "/wfm-player-placeholder.svg" }} /> : <img src="/wfm-player-placeholder.svg" alt="" />}
-                      <span><strong>{player?.full_name || t("Unknown Player")}</strong><small>{[player?.position, player?.nationality].filter(Boolean).join(" · ") || "Player details unavailable"}</small></span>
+                      <span><strong>{player?.full_name || t("Unknown Player")}</strong><small>{[player?.position, player?.nationality].filter(Boolean).join(" · ") || t("Player details unavailable")}</small></span>
                     </Link>
                   </span>
                   <span className="club-player-cell" data-label="Status">{contract.status || "Unknown"}</span>
@@ -670,10 +670,10 @@ export default function ClubProfilePage() {
             </div>
             {transfers.map((transfer) => (
               <div className="club-transfer-row" key={transfer.id}>
-                <span><Link href={transfer.player ? `/players/${transfer.player.id}` : "#"}>{transfer.player?.full_name || "Unknown Player"}</Link></span>
-                <span>{transfer.from_club ? <Link href={`/clubs/${transfer.from_club.id}`}>{transfer.from_club.name}</Link> : "Unknown"}</span>
+                <span><Link href={transfer.player ? `/players/${transfer.player.id}` : "#"}>{transfer.player?.full_name || t("Unknown Player")}</Link></span>
+                <span>{transfer.from_club ? <Link href={`/clubs/${transfer.from_club.id}`}>{transfer.from_club.name}</Link> : t("Unknown")}</span>
                 <span className="club-transfer-arrow">→</span>
-                <span>{transfer.to_club ? <Link href={`/clubs/${transfer.to_club.id}`}>{transfer.to_club.name}</Link> : "Unknown"}</span>
+                <span>{transfer.to_club ? <Link href={`/clubs/${transfer.to_club.id}`}>{transfer.to_club.name}</Link> : t("Unknown")}</span>
                 <span>{formatDate(transfer.transfer_date)}</span>
                 <span><strong>{transfer.fee !== null ? formatSalary(transfer.fee, transfer.currency) : transfer.transfer_type || "Unknown"}</strong></span>
               </div>
