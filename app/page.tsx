@@ -826,7 +826,7 @@ export default function Home() {
               {homeNews.slice(0, 4).map(item => (
                 <a key={item.id} href={item.url} target="_blank" rel="noreferrer" style={{ color: '#111', textDecoration: 'none' }}>
                   <strong style={{ display: 'block', fontSize: '13px', lineHeight: 1.35 }}>{item.title}</strong>
-                  <small style={{ display: 'block', marginTop: '4px', color: '#888' }}>{item.publisher} · {new Date(item.published_at).toLocaleDateString()}</small>
+                  <small style={{ display: 'block', marginTop: '4px', color: '#888' }}>{item.publisher} · {new Date(item.published_at).toLocaleDateString(locale)}</small>
                 </a>
               ))}
               {!homeNews.length && <div style={{ color: '#777', fontSize: '13px', lineHeight: 1.5 }}>{t("Source-linked news will appear here as WFM publishes verified external stories.")}</div>}
@@ -856,7 +856,7 @@ export default function Home() {
                 const player = databasePlayers.find(item => item.id === contract.player_id)
                 return <Link key={contract.player_id + '-' + contract.end_date} href={`/players/${contract.player_id}`} style={{ color: '#111', textDecoration: 'none', fontSize: '13px', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
                   <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{player?.full_name || t('Player')}</span>
-                  <strong style={{ whiteSpace: 'nowrap' }}>{contract.end_date}</strong>
+                  <strong style={{ whiteSpace: 'nowrap' }}>{new Date(contract.end_date + 'T00:00:00').toLocaleDateString(locale)}</strong>
                 </Link>
               })}
               {!contracts.some(contract => contract.end_date) && <div style={{ color: '#777', fontSize: '13px' }}>{t("Contract dates will appear here as WFM coverage expands.")}</div>}
@@ -1180,7 +1180,7 @@ export default function Home() {
           <span style={{ fontSize: '11px', color: '#999', fontWeight: 700 }}>01</span>
           <h3 style={{ margin: '28px 0 8px', fontSize: '18px' }}>{t("Contracts")}</h3>
           <p style={{ margin: 0, color: '#777', fontSize: '13px', lineHeight: 1.5 }}>{t("Expiration dates, options, extensions and free-agent status.")}</p>
-          <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>Explore contracts →</span>
+          <span style={{ display: 'block', marginTop: '18px', fontSize: '12px', fontWeight: 700 }}>{t("Explore contracts →")}</span>
         </Link>
 
         <Link href="/transfers" style={{ color: '#111', textDecoration: 'none', border: '1px solid #e3e3e3', borderRadius: '14px', padding: '22px', background: '#fff' }}>
