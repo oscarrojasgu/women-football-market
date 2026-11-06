@@ -1,6 +1,8 @@
 "use client";
 
-import Link from "next/link";\nimport { usePathname } from "next/navigation";\nimport { getLocaleFromPathname } from "../lib/i18n";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { getLocaleFromPathname } from "../lib/i18n";
 import { useWfmT } from "../lib/use-wfm-t"
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -69,7 +71,9 @@ function expiryLabel(contract: Contract, t: (key: string) => string) {
 }
 
 export default function ContractsPage() {
- const t = useWfmT()\n  const locale = typeof document === "undefined" ? "en-US" : (document.documentElement.lang || "en-US")
+ const t = useWfmT()
+  const pathname = usePathname()
+  const locale = getLocaleFromPathname(pathname)
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
