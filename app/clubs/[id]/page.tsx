@@ -637,7 +637,7 @@ export default function ClubProfilePage() {
                     </Link>
                   </span>
                   <span className="club-player-cell" data-label="Status">{contract?.status ? t(contract.status) : t("Roster")}</span>
-                  <span className="club-player-cell" data-label="Expiry">{contract ? <strong>{formatDate(contract.end_date)}</strong> : t("Not published")}</span>
+                  <span className="club-player-cell" data-label="Expiry">{contract ? <strong>{formatDate(contract.end_date, intlLocale, t)}</strong> : t("Not published")}</span>
                   <span className="club-player-cell" data-label="Annual Salary">{contract ? formatSalary(contract.annual_salary, contract.currency, t, intlLocale) : t("Unknown")}</span>
                 </div>
               )
@@ -653,7 +653,7 @@ export default function ClubProfilePage() {
                   </span>
                   <span className="club-player-cell" data-label="Status">{t(contract.status || "Unknown")}</span>
                   <span className="club-player-cell" data-label="Expiry"><strong>{formatDate(contract.end_date)}</strong></span>
-                  <span className="club-player-cell club-salary-cell" data-label="Salary"><strong>{formatSalary(contract.annual_salary, contract.currency, t)}</strong></span>
+                  <span className="club-player-cell club-salary-cell" data-label="Salary"><strong>{formatSalary(contract.annual_salary, contract.currency, t, intlLocale)}</strong></span>
                 </div>
               )
             })}
@@ -680,7 +680,7 @@ export default function ClubProfilePage() {
                 <span>{transfer.from_club ? <Link href={`/clubs/${transfer.from_club.id}`}>{transfer.from_club.name}</Link> : t("Unknown")}</span>
                 <span className="club-transfer-arrow">→</span>
                 <span>{transfer.to_club ? <Link href={`/clubs/${transfer.to_club.id}`}>{transfer.to_club.name}</Link> : t("Unknown")}</span>
-                <span>{formatDate(transfer.transfer_date)}</span>
+                <span>{formatDate(transfer.transfer_date, intlLocale, t)}</span>
                 <span><strong>{transfer.fee !== null ? formatSalary(transfer.fee, transfer.currency, t, intlLocale) : t(transfer.transfer_type || "Unknown")}</strong></span>
               </div>
             ))}
