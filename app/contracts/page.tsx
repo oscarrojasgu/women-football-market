@@ -35,8 +35,8 @@ function formatDate(date: string | null, locale: string) {
   return new Date(`${date}T00:00:00`).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" });
 }
 
-function formatSalary(value: number | null, locale: string) {
-  if (value === null || value === undefined) return "Not available";
+function formatSalary(value: number | null, locale: string, t: (key: string) => string) {
+  if (value === null || value === undefined) return t("Not available");
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: "USD",
