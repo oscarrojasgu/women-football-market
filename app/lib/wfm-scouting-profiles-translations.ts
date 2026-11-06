@@ -65,6 +65,14 @@ const entries: Record<string, Record<WfmLocale, string>> = {
   "Cancel": { en: "Cancel", es: "Cancelar", pt: "Cancelar", fr: "Annuler", de: "Abbrechen" },
   "Saving…": { en: "Saving…", es: "Guardando…", pt: "Salvando…", fr: "Enregistrement…", de: "Wird gespeichert …" },
   "Save Criteria": { en: "Save Criteria", es: "Guardar criterios", pt: "Salvar critérios", fr: "Enregistrer les critères", de: "Kriterien speichern" },
+  "Active": { en: "Active", es: "Activo", pt: "Ativo", fr: "Actif", de: "Aktiv" },
+  "Archived": { en: "Archived", es: "Archivado", pt: "Arquivado", fr: "Archivé", de: "Archiviert" },
+  "active": { en: "active", es: "activo", pt: "ativo", fr: "actif", de: "aktiv" },
+  "archived": { en: "archived", es: "archivado", pt: "arquivado", fr: "archivé", de: "archiviert" },
+  "expiring": { en: "expiring", es: "por vencer", pt: "prestes a expirar", fr: "bientôt expiré", de: "läuft aus" },
+  "free_agent": { en: "free agent", es: "agente libre", pt: "agente livre", fr: "agent libre", de: "vereinslos" },
+  "competition": { en: "competition", es: "competición", pt: "competição", fr: "compétition", de: "Wettbewerb" },
+  "competitions": { en: "competitions", es: "competiciones", pt: "competições", fr: "compétitions", de: "Wettbewerbe" },
 };
 
 export const WFM_SCOUTING_PROFILES_TRANSLATIONS: Record<WfmLocale, Record<string, string>> = {
