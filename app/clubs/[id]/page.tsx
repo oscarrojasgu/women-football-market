@@ -587,7 +587,7 @@ export default function ClubProfilePage() {
             <div>
               <h3>{t("Position mix")}</h3>
               {clubIntelligence.positions.length ? clubIntelligence.positions.map(([position, count]) => (
-                <div className="club-intelligence-line" key={position}><span>{position}</span><strong>{count}</strong></div>
+                <div className="club-intelligence-line" key={position}><span>{t(position)}</span><strong>{count}</strong></div>
               )) : <p className="club-muted">{t("No position data recorded.")}</p>}
             </div>
             <div>
@@ -627,10 +627,10 @@ export default function ClubProfilePage() {
                   <span className="club-player-cell club-player">
                     <Link href={`/players/${player.id}`} className="club-player-link">
                       {player.photo_url ? <img src={player.photo_url} alt={player.full_name} onError={(event) => { event.currentTarget.src = "/wfm-player-placeholder.svg" }} /> : <img src="/wfm-player-placeholder.svg" alt="" />}
-                      <span><strong>{player.full_name}</strong><small>{[player.position, player.nationality].filter(Boolean).join(" · ") || t("Player details unavailable")}</small></span>
+                      <span><strong>{player.full_name}</strong><small>{[player.position ? t(player.position) : null, player.nationality].filter(Boolean).join(" · ") || t("Player details unavailable")}</small></span>
                     </Link>
                   </span>
-                  <span className="club-player-cell" data-label="Status">{contract?.status || t("Roster")}</span>
+                  <span className="club-player-cell" data-label="Status">{contract?.status ? t(contract.status) : t("Roster")}</span>
                   <span className="club-player-cell" data-label="Expiry">{contract ? <strong>{formatDate(contract.end_date)}</strong> : t("Not published")}</span>
                   <span className="club-player-cell" data-label="Annual Salary">{contract ? formatSalary(contract.annual_salary, contract.currency) : t("Unknown")}</span>
                 </div>
@@ -642,7 +642,7 @@ export default function ClubProfilePage() {
                   <span className="club-player-cell club-player">
                     <Link href={player ? `/players/${player.id}` : "#"} className="club-player-link">
                       {player?.photo_url ? <img src={player.photo_url} alt={player.full_name} onError={(event) => { event.currentTarget.src = "/wfm-player-placeholder.svg" }} /> : <img src="/wfm-player-placeholder.svg" alt="" />}
-                      <span><strong>{player?.full_name || t("Unknown Player")}</strong><small>{[player?.position, player?.nationality].filter(Boolean).join(" · ") || t("Player details unavailable")}</small></span>
+                      <span><strong>{player?.full_name || t("Unknown Player")}</strong><small>{[player?.position ? t(player.position) : null, player?.nationality].filter(Boolean).join(" · ") || t("Player details unavailable")}</small></span>
                     </Link>
                   </span>
                   <span className="club-player-cell" data-label="Status">{contract.status || "Unknown"}</span>
