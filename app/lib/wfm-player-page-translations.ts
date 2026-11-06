@@ -3,7 +3,9 @@ import type { WfmLocale } from "./i18n";
 export const WFM_PLAYER_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, string>> = {
   en: {
     "PLAYER POOL":"PLAYER POOL","WITH RECORDED STATS":"WITH RECORDED STATS","ACTIVE CONTRACTS":"ACTIVE CONTRACTS","COMPETITIONS":"COMPETITIONS",
-    "Player Scouting Database":"Player Scouting Database","Search player, club, league, nationality or agency...":"Search player, club, league, nationality or agency...",
+    "Player Scouting Database":"Player Scouting Database",
+    "Search the WFM player pool by role, league, club, age, playing time, performance output, contract context and recorded market value.":"Search the WFM player pool by role, league, club, age, playing time, performance output, contract context and recorded market value.",
+    "Sign in to create a persistent scouting list.":"Sign in to create a persistent scouting list.","Scouting list created.":"Scouting list created.","Search player, club, league, nationality or agency...":"Search player, club, league, nationality or agency...",
     "All Roles":"All Roles","All Nationalities":"All Nationalities","All Competitions":"All Competitions","All Seasons":"All Seasons","All Clubs":"All Clubs","All Scouting Focus":"All Scouting Focus",
     "Goal Threat":"Goal Threat","Chance Creation":"Chance Creation","Defensive Work":"Defensive Work","Ball Progression":"Ball Progression",
     "Competition Peer Benchmark":"Competition Peer Benchmark","Global Peer Benchmark":"Global Peer Benchmark","Any Peer Percentile":"Any Peer Percentile",
@@ -22,7 +24,9 @@ export const WFM_PLAYER_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, stri
   },
   es: {
     "PLAYER POOL":"BASE DE JUGADORAS","WITH RECORDED STATS":"CON ESTADÍSTICAS REGISTRADAS","ACTIVE CONTRACTS":"CONTRATOS ACTIVOS","COMPETITIONS":"COMPETICIONES",
-    "Player Scouting Database":"Base de datos de scouting de jugadoras","Search player, club, league, nationality or agency...":"Buscar jugadora, club, liga, nacionalidad o agencia...",
+    "Player Scouting Database":"Base de datos de scouting de jugadoras",
+    "Search the WFM player pool by role, league, club, age, playing time, performance output, contract context and recorded market value.":"Busca en la base de jugadoras de WFM por posición, liga, club, edad, minutos de juego, rendimiento, contexto contractual y valor de mercado registrado.",
+    "Sign in to create a persistent scouting list.":"Inicia sesión para crear una lista de scouting permanente.","Scouting list created.":"Lista de scouting creada.","Search player, club, league, nationality or agency...":"Buscar jugadora, club, liga, nacionalidad o agencia...",
     "All Roles":"Todas las posiciones","All Nationalities":"Todas las nacionalidades","All Competitions":"Todas las competiciones","All Seasons":"Todas las temporadas","All Clubs":"Todos los clubes","All Scouting Focus":"Todos los enfoques de scouting",
     "Goal Threat":"Amenaza de gol","Chance Creation":"Creación de ocasiones","Defensive Work":"Trabajo defensivo","Ball Progression":"Progresión del balón",
     "Competition Peer Benchmark":"Comparación con jugadoras de la competición","Global Peer Benchmark":"Comparación global","Any Peer Percentile":"Cualquier percentil",
@@ -41,7 +45,9 @@ export const WFM_PLAYER_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, stri
   },
   pt: {
     "PLAYER POOL":"BANCO DE JOGADORAS","WITH RECORDED STATS":"COM ESTATÍSTICAS REGISTRADAS","ACTIVE CONTRACTS":"CONTRATOS ATIVOS","COMPETITIONS":"COMPETIÇÕES",
-    "Player Scouting Database":"Banco de dados de scouting de jogadoras","Search player, club, league, nationality or agency...":"Buscar jogadora, clube, liga, nacionalidade ou agência...",
+    "Player Scouting Database":"Banco de dados de scouting de jogadoras",
+    "Search the WFM player pool by role, league, club, age, playing time, performance output, contract context and recorded market value.":"Pesquise o banco de jogadoras da WFM por posição, liga, clube, idade, minutos jogados, desempenho, contexto contratual e valor de mercado registrado.",
+    "Sign in to create a persistent scouting list.":"Entre para criar uma lista permanente de scouting.","Scouting list created.":"Lista de scouting criada.","Search player, club, league, nationality or agency...":"Buscar jogadora, clube, liga, nacionalidade ou agência...",
     "All Roles":"Todas as posições","All Nationalities":"Todas as nacionalidades","All Competitions":"Todas as competições","All Seasons":"Todas as temporadas","All Clubs":"Todos os clubes","All Scouting Focus":"Todos os focos de scouting",
     "Goal Threat":"Ameaça de gol","Chance Creation":"Criação de chances","Defensive Work":"Trabalho defensivo","Ball Progression":"Progressão com a bola",
     "Competition Peer Benchmark":"Comparação com atletas da competição","Global Peer Benchmark":"Comparação global","Any Peer Percentile":"Qualquer percentil",
@@ -60,7 +66,9 @@ export const WFM_PLAYER_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, stri
   },
   fr: {
     "PLAYER POOL":"BASE DE JOUEUSES","WITH RECORDED STATS":"AVEC STATISTIQUES ENREGISTRÉES","ACTIVE CONTRACTS":"CONTRATS ACTIFS","COMPETITIONS":"COMPÉTITIONS",
-    "Player Scouting Database":"Base de données de recrutement des joueuses","Search player, club, league, nationality or agency...":"Rechercher une joueuse, un club, une ligue, une nationalité ou une agence...",
+    "Player Scouting Database":"Base de données de recrutement des joueuses",
+    "Search the WFM player pool by role, league, club, age, playing time, performance output, contract context and recorded market value.":"Explorez la base de joueuses WFM par poste, ligue, club, âge, temps de jeu, performances, contexte contractuel et valeur marchande enregistrée.",
+    "Sign in to create a persistent scouting list.":"Connectez-vous pour créer une liste de recrutement permanente.","Scouting list created.":"Liste de recrutement créée.","Search player, club, league, nationality or agency...":"Rechercher une joueuse, un club, une ligue, une nationalité ou une agence...",
     "All Roles":"Tous les postes","All Nationalities":"Toutes les nationalités","All Competitions":"Toutes les compétitions","All Seasons":"Toutes les saisons","All Clubs":"Tous les clubs","All Scouting Focus":"Tous les axes de recrutement",
     "Goal Threat":"Menace offensive","Chance Creation":"Création d’occasions","Defensive Work":"Travail défensif","Ball Progression":"Progression du ballon",
     "Competition Peer Benchmark":"Comparaison au sein de la compétition","Global Peer Benchmark":"Comparaison mondiale","Any Peer Percentile":"Tous les percentiles",
@@ -79,7 +87,9 @@ export const WFM_PLAYER_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, stri
   },
   de: {
     "PLAYER POOL":"SPIELERINNEN-POOL","WITH RECORDED STATS":"MIT ERFASSTEN STATISTIKEN","ACTIVE CONTRACTS":"AKTIVE VERTRÄGE","COMPETITIONS":"WETTBEWERBE",
-    "Player Scouting Database":"Scouting-Datenbank für Spielerinnen","Search player, club, league, nationality or agency...":"Spielerin, Verein, Liga, Nationalität oder Agentur suchen...",
+    "Player Scouting Database":"Scouting-Datenbank für Spielerinnen",
+    "Search the WFM player pool by role, league, club, age, playing time, performance output, contract context and recorded market value.":"Durchsuche den WFM-Spielerinnenpool nach Position, Liga, Verein, Alter, Einsatzzeit, Leistung, Vertragskontext und erfasstem Marktwert.",
+    "Sign in to create a persistent scouting list.":"Melde dich an, um eine dauerhafte Scouting-Liste zu erstellen.","Scouting list created.":"Scouting-Liste erstellt.","Search player, club, league, nationality or agency...":"Spielerin, Verein, Liga, Nationalität oder Agentur suchen...",
     "All Roles":"Alle Positionen","All Nationalities":"Alle Nationalitäten","All Competitions":"Alle Wettbewerbe","All Seasons":"Alle Spielzeiten","All Clubs":"Alle Vereine","All Scouting Focus":"Alle Scouting-Schwerpunkte",
     "Goal Threat":"Torgefahr","Chance Creation":"Chancenkreation","Defensive Work":"Defensivarbeit","Ball Progression":"Ballprogression",
     "Competition Peer Benchmark":"Vergleich innerhalb des Wettbewerbs","Global Peer Benchmark":"Globaler Vergleich","Any Peer Percentile":"Jedes Perzentil",
