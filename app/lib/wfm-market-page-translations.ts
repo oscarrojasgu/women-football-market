@@ -153,7 +153,9 @@ export const WFM_MARKET_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, stri
     "Center Back": "Center Back",
     "Full Back": "Full Back",
     "Attacking Midfielder": "Attacking Midfielder",
-    "Defensive Midfielder": "Defensive Midfielder"
+    "Defensive Midfielder": "Defensive Midfielder",
+    "From": "From",
+    "To": "To"
   },
   "es": {
     "Recent · 30 days": "Últimos 30 días",
@@ -307,7 +309,9 @@ export const WFM_MARKET_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, stri
     "Center Back": "Defensa central",
     "Full Back": "Lateral",
     "Attacking Midfielder": "Mediapunta",
-    "Defensive Midfielder": "Centrocampista defensiva"
+    "Defensive Midfielder": "Centrocampista defensiva",
+    "From": "Desde",
+    "To": "Hacia"
   },
   "pt": {
     "Recent · 30 days": "Últimos 30 dias",
@@ -461,7 +465,9 @@ export const WFM_MARKET_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, stri
     "Center Back": "Zagueira",
     "Full Back": "Lateral",
     "Attacking Midfielder": "Meia-atacante",
-    "Defensive Midfielder": "Volante defensiva"
+    "Defensive Midfielder": "Volante defensiva",
+    "From": "De",
+    "To": "Para"
   },
   "fr": {
     "Recent · 30 days": "30 derniers jours",
@@ -615,7 +621,9 @@ export const WFM_MARKET_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, stri
     "Center Back": "Défenseure centrale",
     "Full Back": "Arrière latérale",
     "Attacking Midfielder": "Milieu offensive",
-    "Defensive Midfielder": "Milieu défensive"
+    "Defensive Midfielder": "Milieu défensive",
+    "From": "De",
+    "To": "Vers"
   },
   "de": {
     "Recent · 30 days": "Letzte 30 Tage",
@@ -769,6 +777,8 @@ export const WFM_MARKET_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, stri
     "Center Back": "Innenverteidigerin",
     "Full Back": "Außenverteidigerin",
     "Attacking Midfielder": "Offensive Mittelfeldspielerin",
-    "Defensive Midfielder": "Defensive Mittelfeldspielerin"
+    "Defensive Midfielder": "Defensive Mittelfeldspielerin",
+    "From": "Von",
+    "To": "Nach"
   }
 };
