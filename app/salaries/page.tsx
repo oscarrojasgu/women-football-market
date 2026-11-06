@@ -1,6 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { getLocaleFromPathname } from '../lib/i18n'
 import { useWfmT } from "../lib/use-wfm-t"
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
@@ -30,25 +32,25 @@ type SalaryRecord = {
   } | null
 }
 
-function formatUSD(amount: number | null, t: (key: string) => string) {
+function formatUSD(amount: number | null, t: (key: string) => string, locale: string) {
   if (amount === null || amount === undefined) return t("Unknown")
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: 'USD',
     maximumFractionDigits: 0,
   }).format(amount)
 }
 
-function formatOriginal(amount: number | null, currency: string | null, t: (key: string) => string) {
+function formatOriginal(amount: number | null, currency: string | null, t: (key: string) => string, locale: string) {
   if (amount === null || amount === undefined) return t("Unknown")
   try {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: currency || 'USD',
       maximumFractionDigits: 0,
     }).format(amount)
   } catch {
-    return `${currency || 'USD'} ${amount.toLocaleString('en-US')}`
+    return `${currency || 'USD'} ${amount.toLocaleString(locale)}`
   }
 }
 
@@ -86,6 +88,9 @@ function median(values: number[]) {
 
 export default function SalariesPage() {
  const t = useWfmT()
+  const pathname = usePathname()
+  const localeCode = getLocaleFromPathname(pathname)
+  const dateLocale = ({ en: 'en-US', es: 'es-ES', pt: 'pt-BR', fr: 'fr-FR', de: 'de-DE' } as const)[localeCode]
   const [records, setRecords] = useState<SalaryRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -236,9 +241,9 @@ export default function SalariesPage() {
       <section className="salary-shell salary-content">
         <div className="salary-stat-grid">
           <div className="salary-stat"><span>{t("Salary records")}</span><strong>{stats.count}</strong></div>
-          <div className="salary-stat"><span>{t("Median annual")}</span><strong>{formatUSD(stats.median, t)}</strong></div>
-          <div className="salary-stat"><span>{t("Average annual")}</span><strong>{formatUSD(stats.average, t)}</strong></div>
-          <div className="salary-stat"><span>{t("Highest annual")}</span><strong>{formatUSD(stats.highest, t)}</strong></div>
+          <div className="salary-stat"><span>{t("Median annual")}</span><strong>{formatUSD(stats.median, t, dateLocale)}</strong></div>
+          <div className="salary-stat"><span>{t("Average annual")}</span><strong>{formatUSD(stats.average, t, dateLocale)}</strong></div>
+          <div className="salary-stat"><span>{t("Highest annual")}</span><strong>{formatUSD(stats.highest, t, dateLocale)}</strong></div>
           <div className="salary-stat"><span>{t("Leagues covered")}</span><strong>{stats.leagues}</strong></div>
           <div className="salary-stat"><span>{t("Verified records")}</span><strong>{stats.verified}</strong></div>
         </div>
@@ -335,10 +340,10 @@ export default function SalariesPage() {
                   <small>{record.club?.league || record.club?.country || t("League unknown")}</small>
                 </span>
                 <span>{record.player?.position || t("Unknown")}</span>
-                <span className="salary-primary">{formatUSD(record.annual_salary_usd, t)}</span>
-                <span>{formatUSD(record.weekly_salary_usd, t)}</span>
+                <span className="salary-primary">{formatUSD(record.annual_salary_usd, t, dateLocale)}</span>
+                <span>{formatUSD(record.weekly_salary_usd, t, dateLocale)}</span>
                 <span className="salary-original">
-                  {formatOriginal(record.annual_salary, record.currency, t)}
+                  {formatOriginal(record.annual_salary, record.currency, t, dateLocale)}
                   <small>{record.currency || 'USD'}</small>
                 </span>
                 <span><i className={`salary-confidence ${confidenceTone(record.confidence)}`}>{label(record.confidence, t)}</i></span>
