@@ -652,7 +652,7 @@ export default function ClubProfilePage() {
                     </Link>
                   </span>
                   <span className="club-player-cell" data-label="Status">{t(contract.status || "Unknown")}</span>
-                  <span className="club-player-cell" data-label="Expiry"><strong>{formatDate(contract.end_date)}</strong></span>
+                  <span className="club-player-cell" data-label="Expiry"><strong>{formatDate(contract.end_date, intlLocale, t)}</strong></span>
                   <span className="club-player-cell club-salary-cell" data-label="Salary"><strong>{formatSalary(contract.annual_salary, contract.currency, t, intlLocale)}</strong></span>
                 </div>
               )
