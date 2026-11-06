@@ -132,7 +132,6 @@ const entries: Record<string, Record<WfmLocale, string>> = {
   "Creation:": { en: "Creation:", es: "Creación:", pt: "Criação:", fr: "Création :", de: "Chancenkreation:" },
   "Progression:": { en: "Progression:", es: "Progresión:", pt: "Progressão:", fr: "Progression :", de: "Progression:" },
   "th": { en: "th", es: "º", pt: "º", fr: "e", de: "." },
-  "Saving...": { en: "Saving...", es: "Guardando...", pt: "Salvando...", fr: "Enregistrement…", de: "Wird gespeichert …" },
   "Scouting Players": { en: "Scouting Players", es: "Jugadoras para scouting", pt: "Jogadoras para observação", fr: "Joueuses à recruter", de: "Scouting-Spielerinnen" },
   "Players Database": { en: "Players Database", es: "Base de datos de jugadoras", pt: "Banco de dados de jogadoras", fr: "Base de données des joueuses", de: "Spielerinnendatenbank" },
   "MY WORKSPACE": { en: "MY WORKSPACE", es: "MI ESPACIO DE TRABAJO", pt: "MEU ESPAÇO DE TRABALHO", fr: "MON ESPACE DE TRAVAIL", de: "MEIN ARBEITSBEREICH" },
