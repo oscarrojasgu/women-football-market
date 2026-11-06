@@ -274,7 +274,7 @@ export default function SalariesPage() {
         </div>
 
         <div className="salary-note">
-          <strong>{t("How to read the numbers:")}</strong> Annual and weekly figures use the database’s normalized USD fields. Original salary and currency are retained for source context. A confidence label indicates how firmly the underlying figure is supported.
+          <strong>{t("How to read the numbers:")}</strong> {t("Annual and weekly figures use the database’s normalized USD fields. Original salary and currency are retained for source context. A confidence label indicates how firmly the underlying figure is supported.")}
         </div>
 
         {loading ? (
