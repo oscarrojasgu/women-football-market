@@ -646,7 +646,7 @@ export default function ClubProfilePage() {
                       <span><strong>{player?.full_name || t("Unknown Player")}</strong><small>{[player?.position ? t(player.position) : null, player?.nationality].filter(Boolean).join(" · ") || t("Player details unavailable")}</small></span>
                     </Link>
                   </span>
-                  <span className="club-player-cell" data-label="Status">{contract.status || "Unknown"}</span>
+                  <span className="club-player-cell" data-label="Status">{t(contract.status || "Unknown")}</span>
                   <span className="club-player-cell" data-label="Expiry"><strong>{formatDate(contract.end_date)}</strong></span>
                   <span className="club-player-cell club-salary-cell" data-label="Salary"><strong>{formatSalary(contract.annual_salary, contract.currency, t)}</strong></span>
                 </div>
@@ -667,7 +667,7 @@ export default function ClubProfilePage() {
 
           <div className="club-transfer-table">
             <div className="club-transfer-header">
-              <span>{t("PLAYER")}</span><span>{t("FROM")}</span><span></span><span>TO</span><span>{t("DATE")}</span><span>{t("FEE")}</span>
+              <span>{t("PLAYER")}</span><span>{t("FROM")}</span><span></span><span>{t("TO")}</span><span>{t("DATE")}</span><span>{t("FEE")}</span>
             </div>
             {transfers.map((transfer) => (
               <div className="club-transfer-row" key={transfer.id}>
@@ -676,7 +676,7 @@ export default function ClubProfilePage() {
                 <span className="club-transfer-arrow">→</span>
                 <span>{transfer.to_club ? <Link href={`/clubs/${transfer.to_club.id}`}>{transfer.to_club.name}</Link> : t("Unknown")}</span>
                 <span>{formatDate(transfer.transfer_date)}</span>
-                <span><strong>{transfer.fee !== null ? formatSalary(transfer.fee, transfer.currency, t) : transfer.transfer_type || "Unknown"}</strong></span>
+                <span><strong>{transfer.fee !== null ? formatSalary(transfer.fee, transfer.currency, t) : t(transfer.transfer_type || "Unknown")}</strong></span>
               </div>
             ))}
             {transfers.length === 0 ? <div className="scout-empty">{t("No transfer activity found.")}</div> : null}
@@ -716,7 +716,7 @@ export default function ClubProfilePage() {
       </main>
 
       <footer className="club-profile-footer">
-        Women&apos;s Football Market · Data focused on the women&apos;s game
+        Women&apos;s Football Market · {t("Data focused on the women’s game")}
       </footer>
     </>
   );
