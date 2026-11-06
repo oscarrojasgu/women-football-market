@@ -353,9 +353,9 @@ export default function PlayerStatistics({
         }
 
         return (
-          a.club?.name || "Club not specified"
+          a.club?.name || t("Club not specified")
         ).localeCompare(
-          b.club?.name || "Club not specified"
+          b.club?.name || t("Club not specified")
         );
       });
   }, [filteredStats, clubMap]);
@@ -485,8 +485,7 @@ export default function PlayerStatistics({
               paddingTop: 4,
             }}
           >
-            {filteredStats.length} record
-            {filteredStats.length !== 1 ? "s" : ""}
+            {filteredStats.length} {t(filteredStats.length === 1 ? "record" : "records")}
           </div>
         </div>
 
@@ -689,7 +688,7 @@ export default function PlayerStatistics({
                       }}
                     >
                       {group.club?.name ||
-                        "Club not specified"}
+                        t("Club not specified")}
                     </div>
 
                     {group.club && (
@@ -701,7 +700,7 @@ export default function PlayerStatistics({
                         }}
                       >
                         {group.club.league ||
-                          "League unknown"}
+                          t("League unknown")}
                         {group.club.country
                           ? ` · ${group.club.country}`
                           : ""}
@@ -784,7 +783,7 @@ export default function PlayerStatistics({
                               whiteSpace: "nowrap",
                             }}
                           >
-                            {heading}
+                            {t(heading)}
                           </th>
                         ))}
                       </tr>
@@ -994,7 +993,7 @@ export default function PlayerStatistics({
                                 whiteSpace: "nowrap",
                               }}
                             >
-                              {heading}
+                              {t(heading)}
                             </th>
                           ))}
                         </tr>
@@ -1165,8 +1164,7 @@ export default function PlayerStatistics({
               paddingTop: 4,
             }}
           >
-            {nationalTeamStats.length} record
-            {nationalTeamStats.length !== 1 ? "s" : ""}
+            {nationalTeamStats.length} {t(nationalTeamStats.length === 1 ? "record" : "records")}
           </div>
         </div>
 
@@ -1283,7 +1281,7 @@ export default function PlayerStatistics({
                           textTransform: "capitalize",
                         }}
                       >
-                        {stat.level || "senior"} · {formatStat(stat.caps)} caps · {formatStat(stat.goals)} goals
+                        {t(stat.level || "senior")} · {formatStat(stat.caps)} {t("caps")} · {formatStat(stat.goals)} {t("goals")}
                       </div>
                     </div>
 
