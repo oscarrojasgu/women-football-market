@@ -282,10 +282,10 @@ export default function TransfersPage() {
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
             <div>
               <h1 style={{ margin: 0, fontSize: "clamp(36px, 5vw, 58px)", lineHeight: 1, letterSpacing: "-2px" }}>
-                Transfer Market
+                {t("Transfer Market")}
               </h1>
               <p style={{ maxWidth: 720, margin: "18px 0 0", color: "#c8c8c8", fontSize: 16, lineHeight: 1.6 }}>
-                A chronological view of player movement across the women&apos;s game — with clubs, transfer type, reported fees, dates, and source confidence connected to the database.
+                {t("A chronological view of player movement across the women’s game — with clubs, transfer type, reported fees, dates, and source confidence connected to the database.")}
               </p>
             </div>
             <div style={{ padding: "10px 14px", border: "1px solid #3a3a3a", borderRadius: 999, color: "#ddd", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>
