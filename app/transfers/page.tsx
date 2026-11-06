@@ -381,14 +381,14 @@ export default function TransfersPage() {
                           <ClubCell club={transfer.to_club} direction="To" t={t} />
                         </div>
 
-                        <div><span style={{ ...badgeBase, ...typeBadgeStyles[typeTone] }}>{formatTransferType(transfer.transfer_type)}</span></div>
+                        <div><span style={{ ...badgeBase, ...typeBadgeStyles[typeTone] }}>{t(formatTransferType(transfer.transfer_type))}</span></div>
 
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 800 }}>{t(formatFee(transfer.fee, transfer.currency, transfer.transfer_type))}</div>
                           {transfer.fee !== null && transfer.transfer_type?.toLowerCase() !== "free" && <div style={{ fontSize: 10, color: "#999", marginTop: 3 }}>{t("Reported fee")}</div>}
                         </div>
 
-                        <div style={{ textAlign: "right" }}><span style={{ ...badgeBase, ...confidenceBadgeStyles[confidenceTone] }}>{formatConfidence(transfer.confidence)}</span></div>
+                        <div style={{ textAlign: "right" }}><span style={{ ...badgeBase, ...confidenceBadgeStyles[confidenceTone] }}>{t(formatConfidence(transfer.confidence))}</span></div>
                       </article>
                     );
                   })}
@@ -404,7 +404,7 @@ export default function TransfersPage() {
 
 function ClubCell({ club, direction, t }: { club: Club | null; direction: "From" | "To"; t: (key: string) => string }) {
   if (!club) {
-    return <div style={{ minWidth: 0 }}><div style={clubLabelStyle}>{direction}</div><div style={{ fontSize: 12, color: "#777", marginTop: 4 }}>{t("Unknown club")}</div></div>;
+    return <div style={{ minWidth: 0 }}><div style={clubLabelStyle}>{t(direction)}</div><div style={{ fontSize: 12, color: "#777", marginTop: 4 }}>{t("Unknown club")}</div></div>;
   }
 
   return (
