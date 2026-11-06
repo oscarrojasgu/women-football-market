@@ -434,7 +434,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                     <strong>{source.publisher || t("Source publisher not recorded")}</strong>
                     <div style={{ marginTop: 4, color: "#777", fontSize: 11 }}>
                       {source.published_at ? t("Published") + " " + dateText(source.published_at, dateLocale) : t("Publication date not recorded")}
-                      {source.reliability ? " · " + t(titleCase(source.reliability)) + " " + t("reliability") : ""}
+                      {source.reliability ? " · " + t("Reliability") + ": " + t(titleCase(source.reliability)) : ""}
                       {source.accessed_at ? " · " + t("Accessed") + " " + new Date(source.accessed_at).toLocaleDateString(dateLocale) : ""}
                     </div>
                   </div>
