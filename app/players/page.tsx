@@ -637,7 +637,7 @@ export default function PlayersPage() {
 
   const createScoutingList = async () => {
     if (!userId) {
-      setScoutingMessage("Sign in to create a persistent scouting list.");
+      setScoutingMessage(t("Sign in to create a persistent scouting list."));
       return;
     }
 
@@ -657,7 +657,7 @@ export default function PlayersPage() {
 
     setScoutingLists((current) => [data, ...current]);
     setSelectedScoutingListId(data.id);
-    setScoutingMessage("Scouting list created.");
+    setScoutingMessage(t("Scouting list created."));
   };
 
   const addPlayerToScoutingList = async (playerId: string) => {
