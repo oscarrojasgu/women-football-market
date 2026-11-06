@@ -81,7 +81,7 @@ function formatFee(fee: number | null, currency: string | null, transferType: st
   if (normalizedType === "free") return "Free transfer";
   if (normalizedType === "loan") return fee === null ? "Loan" : formatCurrency(fee, currency, locale);
   if (fee === null || fee === undefined) return "Undisclosed";
-  return formatCurrency(fee, currency);
+  return formatCurrency(fee, currency, locale);
 }
 
 function getTypeTone(type: string | null) {
