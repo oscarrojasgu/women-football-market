@@ -378,7 +378,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             {[t("Player identity"), player.date_of_birth ? t("Date of birth") : t("Date of birth missing"), player.birthplace ? t("Birthplace") : t("Birthplace missing"), player.height_cm ? t("Height") : t("Height missing"), player.position ? t("Primary position") : t("Primary position missing"), player.secondary_position ? t("Secondary position") : t("Secondary position missing"), player.preferred_foot ? t("Preferred foot") : t("Preferred foot missing"), player.photo_url ? t("Player photo") : t("Player photo placeholder"), currentClub ? t("Current club") : t("Current club unknown"), contracts.length ? t("Contract history") : t("Contract data unavailable"), marketValues.length ? t("Market value history") : t("Market value unavailable"), transfers.length ? t("Transfer history") : t("Transfer history unavailable"), stats.length ? t("Club statistics") : t("Club statistics unavailable")].map((text, index) => <div key={text} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "9px 0", borderBottom: index === 12 ? 0 : "1px solid #eee", fontSize: 12 }}><span>{text}</span><strong style={{ color: index === 1 && !player.photo_url ? "#888" : "#111" }}>{text.includes("missing") ? t("Missing") : text.includes("placeholder") ? t("Placeholder") : t("Available")}</strong></div>)}
             <div style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "9px 0", borderBottom: "1px solid #eee", fontSize: 12 }}><span>{t("Sources")}</span><strong>{uniqueSourceIds.size || 0}</strong></div>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "9px 0", borderBottom: "1px solid #eee", fontSize: 12 }}><span>{t("Verified records")}</span><strong>{verifiedRecordCount}/{confidenceRecordCount || 0}</strong></div>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "9px 0", fontSize: 12 }}><span>{t("Latest source access")}</span><strong>{latestSourceAccess ? dateText(latestSourceAccess.slice(0, 10)) : "—"}</strong></div>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "9px 0", fontSize: 12 }}><span>{t("Latest source access")}</span><strong>{latestSourceAccess ? dateText(latestSourceAccess.slice(0, 10), dateLocale) : "—"}</strong></div>
           </aside>
         </div>
 
@@ -408,7 +408,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
               <h2 style={{ margin: 0, fontSize: 19 }}>{t("Data Provenance & Trust")}</h2>
               <p style={{ margin: "5px 0 0", color: "#888", fontSize: 12 }}>{t("WFM shows the evidence context attached to published player records. Confidence describes the strength of the record, while the source identifies where the information came from.")}</p>
             </div>
-            <div style={{ fontSize: 11, color: "#888" }}>{Array.from(new Map([...contracts.map(c => c.source), ...stats.map(s => s.source), ...transfers.map(t => t.source), ...marketValues.map(v => v.source)].filter(Boolean).map(s => [s!.id, s!])).values()).length} {t("linked source")}{Array.from(new Map([...contracts.map(c => c.source), ...stats.map(s => s.source), ...transfers.map(t => t.source), ...marketValues.map(v => v.source)].filter(Boolean).map(s => [s!.id, s!])).values()).length === 1 ? "" : t("plural s")}</div>
+            <div style={{ fontSize: 11, color: "#888" }}>{Array.from(new Map([...contracts.map(c => c.source), ...stats.map(s => s.source), ...transfers.map(t => t.source), ...marketValues.map(v => v.source)].filter(Boolean).map(s => [s!.id, s!])).values()).length} {t(Array.from(new Map([...contracts.map(c => c.source), ...stats.map(s => s.source), ...transfers.map(t => t.source), ...marketValues.map(v => v.source)].filter(Boolean).map(s => [s!.id, s!])).values()).length === 1 ? "linked source" : "linked sources")}</div>
           </div>
           <div style={{ marginTop: 16, display: "grid", gap: 9 }}>
             {Array.from(new Map([...contracts.map(c => c.source), ...stats.map(s => s.source), ...transfers.map(t => t.source), ...marketValues.map(v => v.source)].filter(Boolean).map(s => [s!.id, s!])).values()).map(source => (
@@ -418,8 +418,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                     <strong>{source.publisher || t("Source publisher not recorded")}</strong>
                     <div style={{ marginTop: 4, color: "#777", fontSize: 11 }}>
                       {source.published_at ? t("Published") + " " + dateText(source.published_at, dateLocale) : t("Publication date not recorded")}
-                      {source.reliability ? " · " + titleCase(source.reliability) + " " + t("reliability") : ""}
-                      {source.accessed_at ? " · " + t("Accessed") + " " + new Date(source.accessed_at).toLocaleDateString("en-US") : ""}
+                      {source.reliability ? " · " + t(titleCase(source.reliability)) + " " + t("reliability") : ""}
+                      {source.accessed_at ? " · " + t("Accessed") + " " + new Date(source.accessed_at).toLocaleDateString(dateLocale) : ""}
                     </div>
                   </div>
                   {source.url && <a href={source.url} target="_blank" rel="noreferrer" style={{ color: "#111", fontSize: 12, fontWeight: 700 }}>{t("View source")} →</a>}
