@@ -316,7 +316,7 @@ export default function TransfersPage() {
           <div style={{ display: "grid", gridTemplateColumns: "minmax(220px, 1fr) repeat(4, minmax(125px, 160px))", gap: 10 }}>
             <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t("Search player, club, league, position...")} style={{ ...inputStyle }} />
             <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} style={selectStyle}>
-              {transferTypes.map((type) => <option key={type} value={type}>{type === "All" ? t("All types") : formatTransferType(type)}</option>)}
+              {transferTypes.map((type) => <option key={type} value={type}>{type === "All" ? t("All types") : t(formatTransferType(type))}</option>)}
             </select>
             <select value={leagueFilter} onChange={(event) => setLeagueFilter(event.target.value)} style={selectStyle}>
               {leagueOptions.map((league) => <option key={league} value={league}>{league === "All" ? t("All leagues") : league}</option>)}
@@ -325,14 +325,14 @@ export default function TransfersPage() {
               {yearOptions.map((year) => <option key={year} value={year}>{year === "All" ? t("All years") : year}</option>)}
             </select>
             <select value={confidenceFilter} onChange={(event) => setConfidenceFilter(event.target.value)} style={selectStyle}>
-              {confidenceOptions.map((confidence) => <option key={confidence} value={confidence}>{confidence === "All" ? t("All confidence") : formatConfidence(confidence)}</option>)}
+              {confidenceOptions.map((confidence) => <option key={confidence} value={confidence}>{confidence === "All" ? t("All confidence") : t(formatConfidence(confidence))}</option>)}
             </select>
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginTop: 13 }}>
             <div style={{ fontSize: 13, color: "#777" }}>
               {t("Showing")} <strong style={{ color: "#111" }}>{filteredTransfers.length}</strong> {t("of")} {transfers.length} {t("transfers")}
             </div>
-            {hasFilters && <button type="button" onClick={clearFilters} style={clearLinkStyle}>Clear filters</button>}
+            {hasFilters && <button type="button" onClick={clearFilters} style={clearLinkStyle}>{t("Clear filters")}</button>}
           </div>
         </div>
 
@@ -363,7 +363,7 @@ export default function TransfersPage() {
                     return (
                       <article key={transfer.id} style={{ background: "#fff", border: "1px solid #e2e1dc", borderRadius: 14, padding: "14px 16px", display: "grid", gridTemplateColumns: "90px minmax(190px, 1.1fr) minmax(230px, 1.3fr) 110px 130px 105px", alignItems: "center", gap: 14, boxShadow: "0 1px 0 rgba(0,0,0,0.02)" }}>
                         <div>
-                          <div style={{ fontSize: 12, fontWeight: 800 }}>{formatDate(transfer.transfer_date)}</div>
+                          <div style={{ fontSize: 12, fontWeight: 800 }}>{transfer.transfer_date ? formatDate(transfer.transfer_date) : t("Date unknown")}</div>
                           <div style={{ fontSize: 10, color: "#999", marginTop: 3, textTransform: "uppercase", letterSpacing: 0.7 }}>{t("Move date")}</div>
                         </div>
 
@@ -384,7 +384,7 @@ export default function TransfersPage() {
                         <div><span style={{ ...badgeBase, ...typeBadgeStyles[typeTone] }}>{formatTransferType(transfer.transfer_type)}</span></div>
 
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 800 }}>{formatFee(transfer.fee, transfer.currency, transfer.transfer_type)}</div>
+                          <div style={{ fontSize: 13, fontWeight: 800 }}>{t(formatFee(transfer.fee, transfer.currency, transfer.transfer_type))}</div>
                           {transfer.fee !== null && transfer.transfer_type?.toLowerCase() !== "free" && <div style={{ fontSize: 10, color: "#999", marginTop: 3 }}>{t("Reported fee")}</div>}
                         </div>
 
@@ -404,7 +404,7 @@ export default function TransfersPage() {
 
 function ClubCell({ club, direction, t }: { club: Club | null; direction: "From" | "To"; t: (key: string) => string }) {
   if (!club) {
-    return <div style={{ minWidth: 0 }}><div style={clubLabelStyle}>{direction}</div><div style={{ fontSize: 12, color: "#777", marginTop: 4 }}>Unknown club</div></div>;
+    return <div style={{ minWidth: 0 }}><div style={clubLabelStyle}>{direction}</div><div style={{ fontSize: 12, color: "#777", marginTop: 4 }}>{t("Unknown club")}</div></div>;
   }
 
   return (
