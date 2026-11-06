@@ -464,7 +464,7 @@ export default function PlayerStatistics({
                 fontWeight: 750,
               }}
             >
-              Career Statistics
+              {t("Career Statistics")}
             </h2>
 
             <div
@@ -585,7 +585,7 @@ export default function PlayerStatistics({
                 color: "#555",
               }}
             >
-              Reset
+              {t("Reset")}
             </button>
           )}
         </div>
@@ -600,7 +600,7 @@ export default function PlayerStatistics({
               textAlign: "center",
             }}
           >
-            No statistics match the selected filters.
+            {t("No statistics match the selected filters.")}
           </div>
         ) : (
           <div style={{ marginTop: 22 }}>
@@ -1143,7 +1143,7 @@ export default function PlayerStatistics({
                 fontWeight: 750,
               }}
             >
-              National Team
+              {t("National Team")}
             </h2>
 
             <div
@@ -1153,7 +1153,7 @@ export default function PlayerStatistics({
                 color: "#888",
               }}
             >
-              Senior and youth international career records
+              {t("Senior and youth international career records")}
             </div>
           </div>
 
@@ -1343,7 +1343,7 @@ export default function PlayerStatistics({
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {heading}
+                                {t(heading)}
                               </th>
                             ))}
                           </tr>
