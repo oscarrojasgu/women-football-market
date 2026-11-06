@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { useWfmT } from "../../lib/use-wfm-t"
 import { useEffect, useMemo, useState } from "react"
-import { useParams } from "next/navigation"
+import { useParams, usePathname } from "next/navigation"
+import { getLocaleFromPathname } from "../../lib/i18n"
 import { supabase } from "../../lib/supabase"
 
 type ClubParticipation = {
@@ -67,21 +68,22 @@ type Transfer = {
 function formatSalary(
   amount: number | null,
   currency: string | null,
-  t: (key: string) => string
+  t: (key: string) => string,
+  locale: string
 ) {
   if (amount === null) return t("Unknown")
 
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: currency || "USD",
     maximumFractionDigits: 0,
   }).format(amount)
 }
 
-function formatDate(date: string | null) {
-  if (!date) return "Present"
+function formatDate(date: string | null, locale: string, t: (key: string) => string) {
+  if (!date) return t("Present")
 
-  return new Date(`${date}T00:00:00`).toLocaleDateString("en-US", {
+  return new Date(`${date}T00:00:00`).toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -91,6 +93,9 @@ function formatDate(date: string | null) {
 export default function ClubProfilePage() {
   const t = useWfmT()
   const params = useParams()
+  const pathname = usePathname()
+  const localeCode = getLocaleFromPathname(pathname)
+  const intlLocale = ({ en: "en-US", es: "es-ES", pt: "pt-BR", fr: "fr-FR", de: "de-DE" } as const)[localeCode]
   const id = params.id as string
 
   const [club, setClub] = useState<Club | null>(null)
@@ -544,7 +549,7 @@ export default function ClubProfilePage() {
         <section className="scout-stat-grid">
           <div className="scout-stat"><span>{t("ACTIVE PLAYERS")}</span><strong>{rosterPlayers.length || currentContracts.length}</strong></div>
           <div className="scout-stat"><span>{t("CONTRACT RECORDS")}</span><strong>{contracts.length}</strong></div>
-          <div className="scout-stat"><span>{t("KNOWN PAYROLL")}</span><strong>{formatSalary(totalKnownPayroll, "USD", t)}</strong></div>
+          <div className="scout-stat"><span>{t("KNOWN PAYROLL")}</span><strong>{formatSalary(totalKnownPayroll, "USD", t, intlLocale)}</strong></div>
           <div className="scout-stat"><span>{t("TRANSFER RECORDS")}</span><strong>{transfers.length}</strong></div>
         </section>
 
@@ -596,7 +601,7 @@ export default function ClubProfilePage() {
               {clubIntelligence.expiring180.length ? clubIntelligence.expiring180.slice(0, 8).map(contract => (
                 <div className="club-intelligence-line" key={contract.id}>
                   <Link href={contract.player ? `/players/${contract.player.id}` : "#"}>{contract.player?.full_name || t("Unknown player")}</Link>
-                  <span>{formatDate(contract.end_date)}</span>
+                  <span>{formatDate(contract.end_date, intlLocale, t)}</span>
                 </div>
               )) : <p className="club-muted">{t("No active contracts ending within 180 days based on available dates.")}</p>}
             </div>
@@ -633,7 +638,7 @@ export default function ClubProfilePage() {
                   </span>
                   <span className="club-player-cell" data-label="Status">{contract?.status ? t(contract.status) : t("Roster")}</span>
                   <span className="club-player-cell" data-label="Expiry">{contract ? <strong>{formatDate(contract.end_date)}</strong> : t("Not published")}</span>
-                  <span className="club-player-cell" data-label="Annual Salary">{contract ? formatSalary(contract.annual_salary, contract.currency, t) : t("Unknown")}</span>
+                  <span className="club-player-cell" data-label="Annual Salary">{contract ? formatSalary(contract.annual_salary, contract.currency, t, intlLocale) : t("Unknown")}</span>
                 </div>
               )
             }) : sortedContracts.map((contract) => {
@@ -676,7 +681,7 @@ export default function ClubProfilePage() {
                 <span className="club-transfer-arrow">→</span>
                 <span>{transfer.to_club ? <Link href={`/clubs/${transfer.to_club.id}`}>{transfer.to_club.name}</Link> : t("Unknown")}</span>
                 <span>{formatDate(transfer.transfer_date)}</span>
-                <span><strong>{transfer.fee !== null ? formatSalary(transfer.fee, transfer.currency, t) : t(transfer.transfer_type || "Unknown")}</strong></span>
+                <span><strong>{transfer.fee !== null ? formatSalary(transfer.fee, transfer.currency, t, intlLocale) : t(transfer.transfer_type || "Unknown")}</strong></span>
               </div>
             ))}
             {transfers.length === 0 ? <div className="scout-empty">{t("No transfer activity found.")}</div> : null}
@@ -700,9 +705,9 @@ export default function ClubProfilePage() {
                   <div>
                     <strong>{source.publisher || t("Source publisher not recorded")}</strong>
                     <small>
-                      {source.published_at ? t("Published") + " " + formatDate(source.published_at) : t("Publication date not recorded")}
+                      {source.published_at ? t("Published") + " " + formatDate(source.published_at, intlLocale, t) : t("Publication date not recorded")}
                       {source.reliability ? " · " + source.reliability + " " + t("reliability") : ""}
-                      {source.accessed_at ? " · " + t("Accessed") + " " + new Date(source.accessed_at).toLocaleDateString("en-US") : ""}
+                      {source.accessed_at ? " · " + t("Accessed") + " " + new Date(source.accessed_at).toLocaleDateString(intlLocale) : ""}
                     </small>
                   </div>
                   {source.url ? <a href={source.url} target="_blank" rel="noreferrer">{t("View source")} →</a> : null}
