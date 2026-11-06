@@ -66,7 +66,8 @@ type Transfer = {
 
 function formatSalary(
   amount: number | null,
-  currency: string | null
+  currency: string | null,
+  t: (key: string) => string
 ) {
   if (amount === null) return t("Unknown")
 
@@ -543,7 +544,7 @@ export default function ClubProfilePage() {
         <section className="scout-stat-grid">
           <div className="scout-stat"><span>{t("ACTIVE PLAYERS")}</span><strong>{rosterPlayers.length || currentContracts.length}</strong></div>
           <div className="scout-stat"><span>{t("CONTRACT RECORDS")}</span><strong>{contracts.length}</strong></div>
-          <div className="scout-stat"><span>{t("KNOWN PAYROLL")}</span><strong>{formatSalary(totalKnownPayroll, "USD")}</strong></div>
+          <div className="scout-stat"><span>{t("KNOWN PAYROLL")}</span><strong>{formatSalary(totalKnownPayroll, "USD", t)}</strong></div>
           <div className="scout-stat"><span>{t("TRANSFER RECORDS")}</span><strong>{transfers.length}</strong></div>
         </section>
 
@@ -597,7 +598,7 @@ export default function ClubProfilePage() {
                   <Link href={contract.player ? `/players/${contract.player.id}` : "#"}>{contract.player?.full_name || t("Unknown player")}</Link>
                   <span>{formatDate(contract.end_date)}</span>
                 </div>
-              )) : <p className="club-muted">{t(t("No active contracts ending within 180 days based on available dates."))}</p>}
+              )) : <p className="club-muted">{t("No active contracts ending within 180 days based on available dates.")}</p>}
             </div>
           </div>
         </section>
@@ -632,7 +633,7 @@ export default function ClubProfilePage() {
                   </span>
                   <span className="club-player-cell" data-label="Status">{contract?.status ? t(contract.status) : t("Roster")}</span>
                   <span className="club-player-cell" data-label="Expiry">{contract ? <strong>{formatDate(contract.end_date)}</strong> : t("Not published")}</span>
-                  <span className="club-player-cell" data-label="Annual Salary">{contract ? formatSalary(contract.annual_salary, contract.currency) : t("Unknown")}</span>
+                  <span className="club-player-cell" data-label="Annual Salary">{contract ? formatSalary(contract.annual_salary, contract.currency, t) : t("Unknown")}</span>
                 </div>
               )
             }) : sortedContracts.map((contract) => {
@@ -647,7 +648,7 @@ export default function ClubProfilePage() {
                   </span>
                   <span className="club-player-cell" data-label="Status">{contract.status || "Unknown"}</span>
                   <span className="club-player-cell" data-label="Expiry"><strong>{formatDate(contract.end_date)}</strong></span>
-                  <span className="club-player-cell club-salary-cell" data-label="Salary"><strong>{formatSalary(contract.annual_salary, contract.currency)}</strong></span>
+                  <span className="club-player-cell club-salary-cell" data-label="Salary"><strong>{formatSalary(contract.annual_salary, contract.currency, t)}</strong></span>
                 </div>
               )
             })}
@@ -675,7 +676,7 @@ export default function ClubProfilePage() {
                 <span className="club-transfer-arrow">→</span>
                 <span>{transfer.to_club ? <Link href={`/clubs/${transfer.to_club.id}`}>{transfer.to_club.name}</Link> : t("Unknown")}</span>
                 <span>{formatDate(transfer.transfer_date)}</span>
-                <span><strong>{transfer.fee !== null ? formatSalary(transfer.fee, transfer.currency) : transfer.transfer_type || "Unknown"}</strong></span>
+                <span><strong>{transfer.fee !== null ? formatSalary(transfer.fee, transfer.currency, t) : transfer.transfer_type || "Unknown"}</strong></span>
               </div>
             ))}
             {transfers.length === 0 ? <div className="scout-empty">{t("No transfer activity found.")}</div> : null}
