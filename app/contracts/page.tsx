@@ -28,14 +28,14 @@ function daysUntil(date: string | null) {
   return Math.ceil((end.getTime() - today.getTime()) / 86400000);
 }
 
-function formatDate(date: string | null) {
+function formatDate(date: string | null, locale: string) {
   if (!date) return "Unknown";
-  return new Date(`${date}T00:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return new Date(`${date}T00:00:00`).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" });
 }
 
-function formatSalary(value: number | null) {
+function formatSalary(value: number | null, locale: string) {
   if (value === null || value === undefined) return "Not available";
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,
@@ -58,18 +58,18 @@ function expiryBucket(contract: Contract) {
   return "long";
 }
 
-function expiryLabel(contract: Contract) {
+function expiryLabel(contract: Contract, t: (key: string) => string) {
   const days = daysUntil(contract.end_date);
-  if (days === null) return "Unknown expiry";
-  if (days < 0) return "Expired";
-  if (days === 0) return "Expires today";
-  if (days <= 90) return `${days} days`;
-  if (days <= 365) return `${Math.ceil(days / 30)} months`;
-  return `${Math.ceil(days / 365)}+ years`;
+  if (days === null) return t("Unknown expiry");
+  if (days < 0) return t("Expired");
+  if (days === 0) return t("Expires today");
+  if (days <= 90) return `${days} ${t("days")}`;
+  if (days <= 365) return `${Math.ceil(days / 30)} ${t("months")}`;
+  return `${Math.ceil(days / 365)}+ ${t("years")}`;
 }
 
 export default function ContractsPage() {
- const t = useWfmT()
+ const t = useWfmT()\n  const locale = typeof document === "undefined" ? "en-US" : (document.documentElement.lang || "en-US")
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -172,7 +172,7 @@ export default function ContractsPage() {
           <div className="players-scout-eyebrow">WOMEN&apos;S FOOTBALL MARKET</div>
           <h1>{t("Contract Intelligence")}</h1>
           <p>
-            Track active deals, contract expiry windows, salary information and confidence across the database.
+            {t("Track active deals, contract expiry windows, salary information and confidence across the database.")}
           </p>
         </div>
       </section>
@@ -182,7 +182,7 @@ export default function ContractsPage() {
           <div className="scout-stat"><span>{t("ACTIVE CONTRACTS")}</span><strong>{loading ? "—" : activeContracts.length}</strong></div>
           <div className="scout-stat"><span>{t("EXPIRING ≤90 DAYS")}</span><strong>{loading ? "—" : expiring90.length}</strong></div>
           <div className="scout-stat"><span>{t("EXPIRING ≤6 MONTHS")}</span><strong>{loading ? "—" : expiring90.length + expiring180.length}</strong></div>
-          <div className="scout-stat"><span>{t("KNOWN PAYROLL")}</span><strong>{loading ? "—" : formatSalary(knownPayroll)}</strong></div>
+          <div className="scout-stat"><span>{t("KNOWN PAYROLL")}</span><strong>{loading ? "—" : formatSalary(knownPayroll, locale)}</strong></div>
         </section>
 
         <section className="scout-controls">
@@ -210,13 +210,13 @@ export default function ContractsPage() {
           </div>
 
           <div className="scout-control-footer">
-            <span>{loading ? t("Loading contract database...") : `${filteredContracts.length} contract${filteredContracts.length === 1 ? "" : "s"} match your criteria`}</span>
+            <span>{loading ? t("Loading contract database...") : `${filteredContracts.length} ${t(filteredContracts.length === 1 ? "contract matches your criteria" : "contracts match your criteria")}`}</span>
             <button type="button" onClick={clearFilters} disabled={!hasFilters}>{t("Clear filters")}</button>
           </div>
         </section>
 
         <div className="scout-note">
-          <strong>{t("Contract context:")}</strong> expiry, salary and confidence reflect the recorded WFM contract data. Expired and historical records remain available through the expiry filter.
+          <strong>{t("Contract context:")}</strong> {t("Contract context detail")}
         </div>
 
         <section className="scout-table-wrap contracts-scout-table">
@@ -259,25 +259,25 @@ export default function ContractsPage() {
                       }}
                     />
                     <span>
-                      <strong>{c.player?.full_name || "Unknown Player"}</strong>
-                      <small>{c.player?.position || "Position unavailable"} · {c.player?.nationality || "Nationality unavailable"}</small>
+                      <strong>{c.player?.full_name || t("Unknown Player")}</strong>
+                      <small>{c.player?.position || t("Position unavailable")} · {c.player?.nationality || t("Nationality unavailable")}</small>
                     </span>
                   </span>
 
                   <span>
-                    <strong>{c.club?.name || "Unknown Club"}</strong>
-                    <small>{c.club?.league || "League unavailable"}</small>
+                    <strong>{c.club?.name || t("Unknown Club")}</strong>
+                    <small>{c.club?.league || t("League unavailable")}</small>
                   </span>
 
                   <span>{statusLabel(c.status)}</span>
 
                   <span className={urgent ? "contract-urgent" : ""}>
-                    <strong>{formatDate(c.end_date)}</strong>
-                    <small>{expiryLabel(c)}</small>
+                    <strong>{formatDate(c.end_date, locale)}</strong>
+                    <small>{expiryLabel(c, t)}</small>
                   </span>
 
                   <span>
-                    <strong>{formatSalary(c.annual_salary_usd)}</strong>
+                    <strong>{formatSalary(c.annual_salary_usd, locale)}</strong>
                   </span>
 
                   <span>
