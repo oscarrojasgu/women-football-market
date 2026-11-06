@@ -209,7 +209,7 @@ export const WFM_PLAYER_PROFILE_TRANSLATIONS: Record<WfmLocale, Record<string, s
     "Club": "Club",
     "Advanced Statistics": "Advanced Statistics",
     "Competitions:": "Competitions:",
-    "Confidence:": "Confidence:"
+    "Confidence:": "Confidence:",
     "Full": "Full",
     "Partial": "Partial",
     "Limited": "Limited",
@@ -513,7 +513,7 @@ export const WFM_PLAYER_PROFILE_TRANSLATIONS: Record<WfmLocale, Record<string, s
     "Club": "Club",
     "Advanced Statistics": "Estadísticas avanzadas",
     "Competitions:": "Competiciones:",
-    "Confidence:": "Confianza:"
+    "Confidence:": "Confianza:",
     "Full": "Completo",
     "Partial": "Parcial",
     "Limited": "Limitado",
@@ -817,7 +817,7 @@ export const WFM_PLAYER_PROFILE_TRANSLATIONS: Record<WfmLocale, Record<string, s
     "Club": "Clube",
     "Advanced Statistics": "Estatísticas avançadas",
     "Competitions:": "Competições:",
-    "Confidence:": "Confiança:"
+    "Confidence:": "Confiança:",
     "Full": "Completo",
     "Partial": "Parcial",
     "Limited": "Limitado",
@@ -1121,7 +1121,7 @@ export const WFM_PLAYER_PROFILE_TRANSLATIONS: Record<WfmLocale, Record<string, s
     "Club": "Club",
     "Advanced Statistics": "Statistiques avancées",
     "Competitions:": "Compétitions :",
-    "Confidence:": "Confiance :"
+    "Confidence:": "Confiance :",
     "Full": "Complet",
     "Partial": "Partiel",
     "Limited": "Limité",
@@ -1425,7 +1425,7 @@ export const WFM_PLAYER_PROFILE_TRANSLATIONS: Record<WfmLocale, Record<string, s
     "Club": "Verein",
     "Advanced Statistics": "Erweiterte Statistiken",
     "Competitions:": "Wettbewerbe:",
-    "Confidence:": "Vertrauen:"
+    "Confidence:": "Vertrauen:",
     "Full": "Vollständig",
     "Partial": "Teilweise",
     "Limited": "Begrenzt",
