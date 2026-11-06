@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { useWfmT } from "../lib/use-wfm-t"
+import { usePathname } from 'next/navigation'
+import { getLocaleFromPathname } from '../lib/i18n'
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
@@ -44,10 +46,10 @@ type TransferRecord = {
 
 type SortKey = 'name' | 'competition' | 'season' | 'country' | 'players' | 'payroll' | 'value' | 'transfers'
 
-function formatMoney(value: number | null) {
+function formatMoney(value: number | null, locale: string) {
   if (value === null || !Number.isFinite(value)) return '—'
 
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: 'USD',
     maximumFractionDigits: 0,
@@ -61,6 +63,9 @@ function normalize(value: string | null | undefined) {
 
 export default function ClubsPage() {
  const t = useWfmT()
+  const pathname = usePathname()
+  const locale = getLocaleFromPathname(pathname)
+  const intlLocale = ({ en: 'en-US', es: 'es-ES', pt: 'pt-BR', fr: 'fr-FR', de: 'de-DE' } as const)[locale]
   const [clubs, setClubs] = useState<Club[]>([])
   const [contracts, setContracts] = useState<ContractRecord[]>([])
   const [marketValues, setMarketValues] = useState<MarketValueRecord[]>([])
@@ -347,7 +352,7 @@ export default function ClubsPage() {
       <section style={{ maxWidth: 1200, margin: '0 auto', padding: '28px 24px 20px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 12 }}>
           {[
-            ['CLUBS', loading ? '—' : clubs.length.toString()],
+            [t('CLUBS'), loading ? '—' : clubs.length.toString()],
             [t("ACTIVE PLAYERS"), loading ? '—' : totalPlayers.toString()],
             [t("WITH SALARY DATA"), loading ? '—' : clubsWithSalary.toString()],
             [t("WITH MARKET VALUES"), loading ? '—' : clubsWithValues.toString()],
@@ -367,7 +372,7 @@ export default function ClubsPage() {
               <div>
                 <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>{t("Club intelligence")}</h2>
                 <p style={{ margin: '6px 0 0', color: '#777', fontSize: 13 }}>
-                  {loading ? t("Loading clubs…") : `${filteredClubs.length} of ${clubs.length} clubs shown`}
+                  {loading ? t("Loading clubs…") : `${filteredClubs.length} ${t('of')} ${clubs.length} ${t('clubs shown')}`}
                 </p>
               </div>
 
@@ -394,7 +399,7 @@ export default function ClubsPage() {
                 </select>
                 <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} style={{ flex: '0 1 150px', border: '1px solid #d8d8d8', borderRadius: 9, padding: '11px 30px 11px 11px', background: '#fff', fontSize: 13 }}>
                   <option value="all">{t("All types")}</option>
-                  {organizationTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+                  {organizationTypes.map((type) => <option key={type} value={type}>{t(type)}</option>)}
                 </select>
               </div>
             </div>
@@ -444,12 +449,12 @@ export default function ClubsPage() {
                 {loading ? (
                   <tr><td colSpan={8} style={{ padding: 50, textAlign: 'center', color: '#777' }}>{t("Loading club database…")}</td></tr>
                 ) : filteredClubs.length === 0 ? (
-                  <tr><td colSpan={7} style={{ padding: 50, textAlign: 'center', color: '#777' }}>{t("No clubs match these filters.")}</td></tr>
+                  <tr><td colSpan={8} style={{ padding: 50, textAlign: 'center', color: '#777' }}>{t("No clubs match these filters.")}</td></tr>
                 ) : (
                   filteredClubs.map((club) => {
                     const stats = clubStats[club.id]
-                    const payroll = stats.salaryCount > 0 ? formatMoney(stats.payroll) : 'Unknown'
-                    const marketValue = stats.marketValueCount > 0 ? formatMoney(stats.marketValue) : 'Unknown'
+                    const payroll = stats.salaryCount > 0 ? formatMoney(stats.payroll, intlLocale) : t('Unknown')
+                    const marketValue = stats.marketValueCount > 0 ? formatMoney(stats.marketValue, intlLocale) : t('Unknown')
 
                     return (
                       <tr key={club.id} style={{ borderBottom: '1px solid #eeeeee' }}>
@@ -466,7 +471,7 @@ export default function ClubsPage() {
                               <Link href={`/clubs/${club.id}`} style={{ color: '#111', textDecoration: 'none', fontWeight: 800 }}>
                                 {club.name}
                               </Link>
-                              <div style={{ marginTop: 3, fontSize: 11, color: '#888' }}>{club.organization_type || 'club'}</div>
+                              <div style={{ marginTop: 3, fontSize: 11, color: '#888' }}>{t(club.organization_type || 'club')}</div>
                             </div>
                           </div>
                         </td>
@@ -506,7 +511,7 @@ export default function ClubsPage() {
       </section>
 
       <footer style={{ borderTop: '1px solid #e5e5e5', padding: '28px 20px', textAlign: 'center', fontSize: 12, color: '#888', background: '#fff' }}>
-        Club figures are calculated from the WFM database. Payroll and market-value totals only include records with known USD values.
+        {t('Club figures are calculated from the WFM database. Payroll and market-value totals only include records with known USD values.')}
       </footer>
     </main>
   )
