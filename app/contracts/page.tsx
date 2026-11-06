@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "next/link";\nimport { usePathname } from "next/navigation";\nimport { getLocaleFromPathname } from "../lib/i18n";
 import { useWfmT } from "../lib/use-wfm-t"
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
@@ -182,7 +182,7 @@ export default function ContractsPage() {
           <div className="scout-stat"><span>{t("ACTIVE CONTRACTS")}</span><strong>{loading ? "—" : activeContracts.length}</strong></div>
           <div className="scout-stat"><span>{t("EXPIRING ≤90 DAYS")}</span><strong>{loading ? "—" : expiring90.length}</strong></div>
           <div className="scout-stat"><span>{t("EXPIRING ≤6 MONTHS")}</span><strong>{loading ? "—" : expiring90.length + expiring180.length}</strong></div>
-          <div className="scout-stat"><span>{t("KNOWN PAYROLL")}</span><strong>{loading ? "—" : formatSalary(knownPayroll, locale)}</strong></div>
+          <div className="scout-stat"><span>{t("KNOWN PAYROLL")}</span><strong>{loading ? "—" : formatSalary(knownPayroll, locale, t)}</strong></div>
         </section>
 
         <section className="scout-controls">
@@ -202,7 +202,7 @@ export default function ContractsPage() {
               <option value="unknown">{t("Unknown")}</option>
             </select>
             <select value={status} onChange={e => setStatus(e.target.value)}>
-              {statuses.map(v => <option key={v} value={v}>{v === "All" ? t("All Statuses") : statusLabel(v)}</option>)}
+              {statuses.map(v => <option key={v} value={v}>{v === "All" ? t("All Statuses") : t(statusLabel(v))}</option>)}
             </select>
             <select value={league} onChange={e => setLeague(e.target.value)}>
               {leagues.map(v => <option key={v} value={v}>{v === "All" ? t("All Leagues") : v}</option>)}
@@ -247,7 +247,7 @@ export default function ContractsPage() {
                   <span className="scout-player">
                     <img
                       src={c.player?.photo_url || "/wfm-player-placeholder.svg"}
-                      alt={c.player?.full_name || "Player"}
+                      alt={c.player?.full_name || t("Player")}
                       width={46}
                       height={46}
                       loading="lazy"
@@ -269,7 +269,7 @@ export default function ContractsPage() {
                     <small>{c.club?.league || t("League unavailable")}</small>
                   </span>
 
-                  <span>{statusLabel(c.status)}</span>
+                  <span>{t(statusLabel(c.status))}</span>
 
                   <span className={urgent ? "contract-urgent" : ""}>
                     <strong>{formatDate(c.end_date, locale)}</strong>
@@ -277,11 +277,11 @@ export default function ContractsPage() {
                   </span>
 
                   <span>
-                    <strong>{formatSalary(c.annual_salary_usd, locale)}</strong>
+                    <strong>{formatSalary(c.annual_salary_usd, locale, t)}</strong>
                   </span>
 
                   <span>
-                    <em className={`contract-confidence ${c.confidence || "unknown"}`}>{statusLabel(c.confidence)}</em>
+                    <em className={`contract-confidence ${c.confidence || "unknown"}`}>{t(statusLabel(c.confidence))}</em>
                   </span>
                 </Link>
               );
