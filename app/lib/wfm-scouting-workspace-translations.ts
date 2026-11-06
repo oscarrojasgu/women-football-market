@@ -119,6 +119,24 @@ const entries: Record<string, Record<WfmLocale, string>> = {
   "Delete list confirmation": { en: "Delete list confirmation", es: "¿Eliminar definitivamente esta lista? Se borrarán la lista, sus jugadoras, notas y registros del proceso. Esta acción no se puede deshacer.", pt: "Excluir esta lista permanentemente? A lista, jogadoras, notas e registros do processo serão removidos. Esta ação não pode ser desfeita.", fr: "Supprimer définitivement cette liste ? La liste, ses joueuses, notes et données de suivi seront supprimées. Cette action est irréversible.", de: "Diese Liste endgültig löschen? Die Liste sowie Spielerinnen, Notizen und Pipeline-Datensätze werden entfernt. Dieser Vorgang kann nicht rückgängig gemacht werden." },
   "Archive list confirmation": { en: "Archive list confirmation", es: "¿Archivar esta lista?", pt: "Arquivar esta lista?", fr: "Archiver cette liste ?", de: "Diese Liste archivieren?" },
   "Rename list prompt": { en: "Rename list prompt", es: "Cambiar nombre de la lista de scouting", pt: "Renomear lista de observação", fr: "Renommer la liste de recrutement", de: "Scouting-Liste umbenennen" }
+  "recruitment data": { en: "recruitment data", es: "datos de fichajes", pt: "dados de recrutamento", fr: "données de recrutement", de: "Rekrutierungsdaten" },
+  "in": { en: "in", es: "entrantes", pt: "de entrada", fr: "entrants", de: "eingehend" },
+  "out": { en: "out", es: "salientes", pt: "de saída", fr: "sortants", de: "ausgehend" },
+  "covered": { en: "covered", es: "cubierto", pt: "coberto", fr: "couvert", de: "abgedeckt" },
+  "COMPETITIONS": { en: "COMPETITIONS", es: "COMPETICIONES", pt: "COMPETIÇÕES", fr: "COMPÉTITIONS", de: "WETTBEWERBE" },
+  "Overdue": { en: "Overdue", es: "Atrasada", pt: "Atrasada", fr: "En retard", de: "Überfällig" },
+  "No date": { en: "No date", es: "Sin fecha", pt: "Sem data", fr: "Aucune date", de: "Kein Datum" },
+  "All": { en: "All", es: "Todas", pt: "Todas", fr: "Toutes", de: "Alle" },
+  "Global peer context": { en: "Global peer context", es: "Contexto global de comparación", pt: "Contexto global de comparação", fr: "Contexte comparatif global", de: "Globaler Vergleichskontext" },
+  "Peer pool:": { en: "Peer pool:", es: "Grupo de comparación:", pt: "Grupo de comparação:", fr: "Groupe de comparaison :", de: "Vergleichsgruppe:" },
+  "Creation:": { en: "Creation:", es: "Creación:", pt: "Criação:", fr: "Création :", de: "Chancenkreation:" },
+  "Progression:": { en: "Progression:", es: "Progresión:", pt: "Progressão:", fr: "Progression :", de: "Progression:" },
+  "th": { en: "th", es: "º", pt: "º", fr: "e", de: "." },
+  "Saving...": { en: "Saving...", es: "Guardando...", pt: "Salvando...", fr: "Enregistrement…", de: "Wird gespeichert …" },
+  "Scouting Players": { en: "Scouting Players", es: "Jugadoras para scouting", pt: "Jogadoras para observação", fr: "Joueuses à recruter", de: "Scouting-Spielerinnen" },
+  "Players Database": { en: "Players Database", es: "Base de datos de jugadoras", pt: "Banco de dados de jogadoras", fr: "Base de données des joueuses", de: "Spielerinnendatenbank" },
+  "MY WORKSPACE": { en: "MY WORKSPACE", es: "MI ESPACIO DE TRABAJO", pt: "MEU ESPAÇO DE TRABALHO", fr: "MON ESPACE DE TRAVAIL", de: "MEIN ARBEITSBEREICH" },
+  "Scouting Lists": { en: "Scouting Lists", es: "Listas de scouting", pt: "Listas de observação", fr: "Listes de recrutement", de: "Scouting-Listen" },
 }
 
 export const WFM_SCOUTING_WORKSPACE_TRANSLATIONS: Record<WfmLocale, Record<string, string>> = {
