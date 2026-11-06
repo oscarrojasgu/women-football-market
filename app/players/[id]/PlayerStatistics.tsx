@@ -418,7 +418,7 @@ export default function PlayerStatistics({
             fontWeight: 750,
           }}
         >
-          Career Statistics
+          {t("Career Statistics")}
         </h2>
 
         <div
@@ -474,8 +474,7 @@ export default function PlayerStatistics({
                 color: "#888",
               }}
             >
-              Season-by-season statistics by club and
-              competition
+              {t("Season-by-season statistics by club and competition")}
             </div>
           </div>
 
@@ -504,7 +503,7 @@ export default function PlayerStatistics({
           }}
         >
           <div>
-            <label style={labelStyle}>Season</label>
+            <label style={labelStyle}>{t("Season")}</label>
 
             <select
               value={seasonFilter}
@@ -513,7 +512,7 @@ export default function PlayerStatistics({
               }
               style={selectStyle}
             >
-              <option value="All">All</option>
+              <option value="All">{t("All")}</option>
 
               {seasons.map((season) => (
                 <option key={season} value={season}>
@@ -524,7 +523,7 @@ export default function PlayerStatistics({
           </div>
 
           <div>
-            <label style={labelStyle}>Competition</label>
+            <label style={labelStyle}>{t("Competition")}</label>
 
             <select
               value={competitionFilter}
@@ -547,7 +546,7 @@ export default function PlayerStatistics({
           </div>
 
           <div>
-            <label style={labelStyle}>Club</label>
+            <label style={labelStyle}>{t("Club")}</label>
 
             <select
               value={clubFilter}
@@ -920,7 +919,7 @@ export default function PlayerStatistics({
                         cursor: "pointer",
                       }}
                     >
-                      <span>Advanced Statistics</span>
+                      <span>{t("Advanced Statistics")}</span>
                       <span
                         style={{
                           fontSize: 14,
@@ -1425,14 +1424,14 @@ export default function PlayerStatistics({
                       >
                         {stat.competitions && (
                           <div>
-                            <strong>Competitions:</strong>{" "}
+                            <strong>{t("Competitions:")}</strong>{" "}
                             {stat.competitions}
                           </div>
                         )}
 
                         {stat.confidence && (
                           <div>
-                            <strong>Confidence:</strong>{" "}
+                            <strong>{t("Confidence:")}</strong>{" "}
                             {displayConfidence(stat.confidence)}
                           </div>
                         )}
