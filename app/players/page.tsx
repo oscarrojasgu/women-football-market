@@ -1190,7 +1190,7 @@ export default function PlayersPage() {
                     type="button"
                     className="scout-shortlist-toggle"
                     onClick={() => toggleShortlist(player.id)}
-                    aria-label={shortlist.includes(player.id) ? `Remove ${player.full_name} from compare shortlist`  : `${t("Add")} ${player.full_name} ${t("to compare shortlist")}`}
+                    aria-label={shortlist.includes(player.id) ? `${t("Remove")} ${player.full_name} ${t("from compare shortlist")}` : `${t("Add")} ${player.full_name} ${t("to compare shortlist")}`}
                   >{shortlist.includes(player.id) ? "✓" : "+"}</button>
                   <button
                     type="button"
