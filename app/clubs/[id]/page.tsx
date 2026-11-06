@@ -542,9 +542,9 @@ export default function ClubProfilePage() {
       <main className="players-page players-scout-page clubs-profile-page">
         <section className="scout-stat-grid">
           <div className="scout-stat"><span>{t("ACTIVE PLAYERS")}</span><strong>{rosterPlayers.length || currentContracts.length}</strong></div>
-          <div className="scout-stat"><span>{{t("CONTRACT RECORDS")}}</span><strong>{contracts.length}</strong></div>
-          <div className="scout-stat"><span>{{t("KNOWN PAYROLL")}}</span><strong>{formatSalary(totalKnownPayroll, "USD")}</strong></div>
-          <div className="scout-stat"><span>{{t("TRANSFER RECORDS")}}</span><strong>{transfers.length}</strong></div>
+          <div className="scout-stat"><span>{t("CONTRACT RECORDS")}</span><strong>{contracts.length}</strong></div>
+          <div className="scout-stat"><span>{t("KNOWN PAYROLL")}</span><strong>{formatSalary(totalKnownPayroll, "USD")}</strong></div>
+          <div className="scout-stat"><span>{t("TRANSFER RECORDS")}</span><strong>{transfers.length}</strong></div>
         </section>
 
         <section className="club-context-card">
@@ -607,7 +607,7 @@ export default function ClubProfilePage() {
             <div>
               <span className="club-section-eyebrow">{t("SQUAD")}</span>
               <h2>{t("Current Players")}</h2>
-              <p>{t("{t("Active roster and known contract information for the club profile.")}")}</p>
+              <p>{t("Active roster and known contract information for the club profile.")}</p>
             </div>
             <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="club-sort-select">
               <option value="salary">{t("Sort by Salary")}</option>
