@@ -192,6 +192,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   const localeHeader = requestHeaders.get("x-wfm-locale");
   const locale = isWfmLocale(localeHeader) ? localeHeader : DEFAULT_LOCALE;
   const dateLocale = ({ en: "en-US", es: "es-ES", pt: "pt-BR", fr: "fr-FR", de: "de-DE" } as const)[locale];
+  const regionNames = new Intl.DisplayNames([dateLocale], { type: "region" });
+  const localizedNationality = (code: string | null, fallback: string | null) => code ? (regionNames.of(code.toUpperCase()) || fallback || "—") : (fallback || "—");
   const { id } = await params;
   const { data: player, error } = await supabase.from("players").select("*").eq("id", id).single();
 
@@ -315,7 +317,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 {officialVerification && <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 8px", borderRadius: 999, background: "#e8f2ea", color: "#245b32", fontSize: 10, fontWeight: 800, letterSpacing: ".04em" }}>✓ {t("WFM VERIFIED PLAYER")}</span>}
                 {code && <img src={`https://flagcdn.com/w40/${code}.png`} alt={player.nationality || "Nationality"} width={28} height={19} style={{ objectFit: "cover", borderRadius: 2 }} />}
               </div>
-              <div style={{ marginTop: 13, color: "#bbb", fontSize: 15 }}>{player.nationality || t("Nationality unknown")} · {player.position || t("Position unknown")}{player.secondary_position ? ` / ${player.secondary_position}` : ""}{age !== null ? ` · ${age}` : ""}</div>
+              <div style={{ marginTop: 13, color: "#bbb", fontSize: 15 }}>{localizedNationality(code, player.nationality)} · {player.position ? t(player.position) : t("Position unknown")}{player.secondary_position ? ` / ${t(player.secondary_position)}` : ""}{age !== null ? ` · ${age}` : ""}</div>
               {currentClub && <Link href={`/clubs/${currentClub.id}`} style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 15, color: "#fff", textDecoration: "none", fontWeight: 700 }}><img src={currentClub.logo_url || "/wfm-club-placeholder.svg"} alt="" width={26} height={26} style={{ objectFit: "contain" }} />{currentClub.name}</Link>}
             </div>
             <div className="player-hero-value" style={{ minWidth: 190, textAlign: "right" }}>
@@ -346,12 +348,12 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           <div className="player-personal-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 12, marginTop: 18 }}>
             <div style={card}><div style={label}>{t("Date of Birth")}</div><div style={{ marginTop: 7, fontWeight: 750 }}>{dateText(player.date_of_birth, dateLocale)}</div></div>
             <div style={card}><div style={label}>{t("Age")}</div><div style={{ marginTop: 7, fontWeight: 750 }}>{age !== null ? age : "—"}</div></div>
-            <div style={card}><div style={label}>{t("Nationality")}</div><div style={{ marginTop: 7, fontWeight: 750, display: "flex", alignItems: "center", gap: 8 }}>{code && <img src={`https://flagcdn.com/w40/${code}.png`} alt="" width={24} height={16} style={{ objectFit: "cover", borderRadius: 2 }} />}{player.nationality || "—"}</div></div>
+            <div style={card}><div style={label}>{t("Nationality")}</div><div style={{ marginTop: 7, fontWeight: 750, display: "flex", alignItems: "center", gap: 8 }}>{code && <img src={`https://flagcdn.com/w40/${code}.png`} alt="" width={24} height={16} style={{ objectFit: "cover", borderRadius: 2 }} />}{localizedNationality(code, player.nationality)}</div></div>
             <div style={card}><div style={label}>{t("Birthplace")}</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.birthplace || "—"}</div></div>
             <div style={card}><div style={label}>{t("Height")}</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.height_cm ? `${player.height_cm} cm` : "—"}</div></div>
-            <div style={card}><div style={label}>{t("Primary Position")}</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.position || "—"}</div></div>
-            <div style={card}><div style={label}>{t("Secondary Position")}</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.secondary_position || "—"}</div></div>
-            <div style={card}><div style={label}>{t("Preferred Foot")}</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.preferred_foot || "—"}</div></div>
+            <div style={card}><div style={label}>{t("Primary Position")}</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.position ? t(player.position) : "—"}</div></div>
+            <div style={card}><div style={label}>{t("Secondary Position")}</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.secondary_position ? t(player.secondary_position) : "—"}</div></div>
+            <div style={card}><div style={label}>{t("Preferred Foot")}</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.preferred_foot ? t(player.preferred_foot) : "—"}</div></div>
             <div style={card}><div style={label}>{t("Agency")}</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.agency || "—"}</div></div>
             <div style={card}><div style={label}>{t("Current Club Since")}</div><div style={{ marginTop: 7, fontWeight: 750 }}>{dateText(player.current_club_since, dateLocale)}</div></div>
             <div style={{ ...card, gridColumn: "span 2" }}><div style={label}>{t("Youth Clubs")}</div><div style={{ marginTop: 7, fontWeight: 750 }}>{player.youth_clubs || "—"}</div></div>
@@ -364,7 +366,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
               <div><h2 style={{ margin: 0, fontSize: 19 }}>{t("Player Intelligence")}</h2><p style={{ margin: "4px 0 0", color: "#888", fontSize: 12 }}>{t("The central record connecting performance, contracts, market value and movement.")}</p></div>
               <div style={{ fontSize: 11, color: "#888" }}>{stats.length} {t(stats.length === 1 ? "club stat record" : "club stat records")} · {transfers.length} {t(transfers.length === 1 ? "transfer" : "transfers")}</div>
             </div>
-            <div style={{ marginTop: 20 }}><div style={label}>{t("Position Map")}</div><div style={{ marginTop: 8 }}><PositionMap primaryPosition={player.position} secondaryPosition={player.secondary_position} /></div></div>
+            <div style={{ marginTop: 20 }}><div style={label}>{t("Position Map")}</div><div style={{ marginTop: 8 }}><PositionMap primaryPosition={player.position} secondaryPosition={player.secondary_position} primaryText={t("Primary")} secondaryText={t("Secondary")} /></div></div>
             <div className="player-links-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 10, marginTop: 20 }}>
               <a href="#contract" style={{ textDecoration: "none", color: "#111", border: "1px solid #ddd", borderRadius: 9, padding: 13, background: "#fafafa" }}><div style={label}>{t("Contracts")}</div><strong>{contracts.length}</strong> {t(contracts.length === 1 ? "record" : "records")}</a>
               <a href="#market-value" style={{ textDecoration: "none", color: "#111", border: "1px solid #ddd", borderRadius: 9, padding: 13, background: "#fafafa" }}><div style={label}>{t("Market Value")}</div><strong>{marketValues.length}</strong> {t(marketValues.length === 1 ? "valuation" : "valuations")}</a>
@@ -375,7 +377,21 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           <aside style={card}>
             <h2 style={{ margin: 0, fontSize: 19 }}>{t("Data Coverage")}</h2>
             <p style={{ margin: "5px 0 18px", color: "#888", fontSize: 12 }}>{t("What WFM currently knows about this player.")}</p>
-            {[t("Player identity"), player.date_of_birth ? t("Date of birth") : t("Date of birth missing"), player.birthplace ? t("Birthplace") : t("Birthplace missing"), player.height_cm ? t("Height") : t("Height missing"), player.position ? t("Primary position") : t("Primary position missing"), player.secondary_position ? t("Secondary position") : t("Secondary position missing"), player.preferred_foot ? t("Preferred foot") : t("Preferred foot missing"), player.photo_url ? t("Player photo") : t("Player photo placeholder"), currentClub ? t("Current club") : t("Current club unknown"), contracts.length ? t("Contract history") : t("Contract data unavailable"), marketValues.length ? t("Market value history") : t("Market value unavailable"), transfers.length ? t("Transfer history") : t("Transfer history unavailable"), stats.length ? t("Club statistics") : t("Club statistics unavailable")].map((text, index) => <div key={text} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "9px 0", borderBottom: index === 12 ? 0 : "1px solid #eee", fontSize: 12 }}><span>{text}</span><strong style={{ color: index === 1 && !player.photo_url ? "#888" : "#111" }}>{text.toLowerCase().includes("missing") ? t("Missing") : text.toLowerCase().includes("placeholder") ? t("Placeholder") : text.toLowerCase().includes("unavailable") ? t("Unavailable") : t("Available")}</strong></div>)}
+            {[
+              [t("Player identity"), "Available"],
+              [player.date_of_birth ? t("Date of birth") : t("Date of birth missing"), player.date_of_birth ? "Available" : "Missing"],
+              [player.birthplace ? t("Birthplace") : t("Birthplace missing"), player.birthplace ? "Available" : "Missing"],
+              [player.height_cm ? t("Height") : t("Height missing"), player.height_cm ? "Available" : "Missing"],
+              [player.position ? t("Primary position") : t("Primary position missing"), player.position ? "Available" : "Missing"],
+              [player.secondary_position ? t("Secondary position") : t("Secondary position missing"), player.secondary_position ? "Available" : "Missing"],
+              [player.preferred_foot ? t("Preferred foot") : t("Preferred foot missing"), player.preferred_foot ? "Available" : "Missing"],
+              [player.photo_url ? t("Player photo") : t("Player photo placeholder"), player.photo_url ? "Available" : "Placeholder"],
+              [currentClub ? t("Current club") : t("Current club unknown"), currentClub ? "Available" : "Missing"],
+              [contracts.length ? t("Contract history") : t("Contract data unavailable"), contracts.length ? "Available" : "Unavailable"],
+              [marketValues.length ? t("Market value history") : t("Market value unavailable"), marketValues.length ? "Available" : "Unavailable"],
+              [transfers.length ? t("Transfer history") : t("Transfer history unavailable"), transfers.length ? "Available" : "Unavailable"],
+              [stats.length ? t("Club statistics") : t("Club statistics unavailable"), stats.length ? "Available" : "Unavailable"],
+            ].map(([text, status], index) => <div key={text} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "9px 0", borderBottom: index === 12 ? 0 : "1px solid #eee", fontSize: 12 }}><span>{text}</span><strong style={{ color: status === "Missing" || status === "Placeholder" ? "#888" : "#111" }}>{t(status)}</strong></div>)}
             <div style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "9px 0", borderBottom: "1px solid #eee", fontSize: 12 }}><span>{t("Sources")}</span><strong>{uniqueSourceIds.size || 0}</strong></div>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "9px 0", borderBottom: "1px solid #eee", fontSize: 12 }}><span>{t("Verified records")}</span><strong>{verifiedRecordCount}/{confidenceRecordCount || 0}</strong></div>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "9px 0", fontSize: 12 }}><span>{t("Latest source access")}</span><strong>{latestSourceAccess ? dateText(latestSourceAccess.slice(0, 10), dateLocale) : "—"}</strong></div>
