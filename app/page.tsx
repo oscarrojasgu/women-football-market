@@ -930,7 +930,7 @@ export default function Home() {
                 letterSpacing: '1.2px',
               }}
             >
-              PLAYER DATABASE
+              {t("PLAYER DATABASE")}
             </span>
 
             <h2
@@ -958,7 +958,7 @@ export default function Home() {
               fontSize: '14px',
             }}
           >
-            View all players →
+            {t("View all players →")}
           </Link>
         </div>
 
@@ -1074,15 +1074,15 @@ export default function Home() {
                 </span>
 
                 <span className="home-player-cell home-player-cell--club">
-                  <small>{t("Club")}</small>{currentClub?.current_club_name || contract?.club?.name || 'Unknown'}
+                  <small>{t("Club")}</small>{currentClub?.current_club_name || contract?.club?.name || t('Unknown')}
                 </span>
 
                 <span className="home-player-cell home-player-cell--league" style={{ color: '#666' }}>
-                  <small>{t("League")}</small>{currentClub?.current_club_league || contract?.club?.league || 'Unknown'}
+                  <small>{t("League")}</small>{currentClub?.current_club_league || contract?.club?.league || t('Unknown')}
                 </span>
 
                 <span className="home-player-cell home-player-cell--contract">
-                  <small>{t("Contract")}</small>{contract?.end_date || 'Unknown'}
+                  <small>{t("Contract")}</small>{contract?.end_date ? new Date(contract.end_date + 'T00:00:00').toLocaleDateString(locale) : t('Unknown')}
                 </span>
 
                 <span className="home-player-cell home-player-cell--salary">
@@ -1130,7 +1130,7 @@ export default function Home() {
                   color: '#777',
                 }}
               >
-                No players found. Try another search.
+                {t("No players found. Try another search.")}
               </div>
             )}
 
@@ -1143,7 +1143,7 @@ export default function Home() {
                 color: '#777',
               }}
             >
-              Loading players...
+              {t("Loading players...")}
             </div>
           )}
 
@@ -1158,7 +1158,7 @@ export default function Home() {
                   color: '#777',
                 }}
               >
-                No players found.
+                {t("No players found.")}
               </div>
             )}
         </div>
