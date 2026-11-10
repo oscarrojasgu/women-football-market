@@ -147,6 +147,7 @@ export default function PlayersPage() {
   const [playerParticipations, setPlayerParticipations] = useState<PlayerParticipation[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+  const [dataWarning, setDataWarning] = useState("");
 
   const [search, setSearch] = useState("");
   const [role, setRole] = useState<PlayerRoleGroup | "All">("All");
@@ -398,6 +399,9 @@ export default function PlayersPage() {
       } else {
         setGlobalPeerBenchmarks((globalPeerResult.data || []) as GlobalPeerBenchmark[]);
       }
+
+      const secondaryErrors = [contractResult.error, currentClubResult.error, intelResult.error, valueResult.error, participationResult.error, peerResult.error, globalPeerResult.error].filter(Boolean);
+      if (secondaryErrors.length) setDataWarning("Some player statistics or scouting details may be incomplete because related data could not be loaded.");
 
       setLoading(false);
     }
@@ -1174,6 +1178,8 @@ export default function PlayersPage() {
               {t("SALARY")}{sortIndicator("salary")}
             </button>
           </div>
+
+          {dataWarning && <p role="status" style={{ margin: "0 0 14px", padding: "12px 14px", border: "1px solid #e6d7a8", borderRadius: 9, background: "#fff9e8", color: "#6b551c", fontSize: 13 }}>{t(dataWarning)}</p>}
 
           {visiblePlayers.map((player) => {
             const intel = latestIntelByPlayer.get(player.id);
