@@ -46,6 +46,7 @@ const entries: Record<string, Record<WfmLocale, string>> = {
 "Estimated":{en:"Estimated",es:"Estimado",pt:"Estimado",fr:"Estimé",de:"Geschätzt"},
 "Rumored":{en:"Rumored",es:"Rumoreado",pt:"Rumorizado",fr:"Rumeur",de:"Gerücht"},
 "Unknown":{en:"Unknown",es:"Desconocido",pt:"Desconhecido",fr:"Inconnu",de:"Unbekannt"},
+"Some player or club details could not be loaded, so transfer records may be incomplete.":{en:"Some player or club details could not be loaded, so transfer records may be incomplete.",es:"No se pudieron cargar algunos datos de jugadoras o clubes, por lo que los registros de fichajes pueden estar incompletos.",pt:"Alguns dados de jogadoras ou clubes não puderam ser carregados, portanto os registros de transferências podem estar incompletos.",fr:"Certaines informations sur les joueuses ou les clubs n’ont pas pu être chargées ; les transferts peuvent donc être incomplets.",de:"Einige Spielerinnen- oder Vereinsdetails konnten nicht geladen werden; daher sind die Transferdaten möglicherweise unvollständig."},
 "We couldn't load the transfer market right now.":{en:"We couldn't load the transfer market right now.",es:"No se pudo cargar el mercado de fichajes en este momento.",pt:"Não foi possível carregar o mercado de transferências agora.",fr:"Impossible de charger le marché des transferts pour le moment.",de:"Der Transfermarkt konnte derzeit nicht geladen werden."}
 }
 export const WFM_TRANSFER_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string,string>> = {
