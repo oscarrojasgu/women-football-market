@@ -146,6 +146,7 @@ export default function PlayersPage() {
   const [globalPeerBenchmarks, setGlobalPeerBenchmarks] = useState<GlobalPeerBenchmark[]>([]);
   const [playerParticipations, setPlayerParticipations] = useState<PlayerParticipation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   const [search, setSearch] = useState("");
   const [role, setRole] = useState<PlayerRoleGroup | "All">("All");
@@ -320,6 +321,7 @@ export default function PlayersPage() {
       if (playerResult.error) {
         console.error("Error loading players:", playerResult.error);
         setPlayers([]);
+        setLoadError("We could not load the player database.");
       } else {
         setPlayers(playerResult.data || []);
       }
@@ -1249,7 +1251,11 @@ export default function PlayersPage() {
             </div>
           )}
 
-          {!loading && filteredPlayers.length === 0 && (
+          {!loading && loadError && (
+            <div className="scout-empty" role="alert">{t(loadError)}</div>
+          )}
+
+          {!loading && !loadError && filteredPlayers.length === 0 && (
             <div className="scout-empty">
               <strong>{t("No players match the current filters")}</strong>
               <span>{t("Broaden the role, league, club or minutes criteria.")}</span>
