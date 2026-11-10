@@ -136,6 +136,9 @@ const entries: Record<string, Record<WfmLocale, string>> = {
   "Players Database": { en: "Players Database", es: "Base de datos de jugadoras", pt: "Banco de dados de jogadoras", fr: "Base de données des joueuses", de: "Spielerinnendatenbank" },
   "MY WORKSPACE": { en: "MY WORKSPACE", es: "MI ESPACIO DE TRABAJO", pt: "MEU ESPAÇO DE TRABALHO", fr: "MON ESPACE DE TRAVAIL", de: "MEIN ARBEITSBEREICH" },
   "Scouting Lists": { en: "Scouting Lists", es: "Listas de scouting", pt: "Listas de observação", fr: "Listes de recrutement", de: "Scouting-Listen" },
+  "Clubs": { en: "Clubs", es: "Clubes", pt: "Clubes", fr: "Clubs", de: "Vereine" },
+  "Competitions": { en: "Competitions", es: "Competiciones", pt: "Competições", fr: "Compétitions", de: "Wettbewerbe" },
+
 }
 
 export const WFM_SCOUTING_WORKSPACE_TRANSLATIONS: Record<WfmLocale, Record<string, string>> = {
