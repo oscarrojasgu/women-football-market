@@ -25,7 +25,7 @@ with authorized as (
   having count(*)>1
 
   union all
-  select 'warning','duplicate_player_name_missing_dob','players',min(p.id),
+  select 'warning','duplicate_player_name_missing_dob','players',(array_agg(p.id order by p.id))[1],
     'Potential duplicate player name: '||max(p.full_name)||
     ' ('||count(*)::text||' records; '||
     count(*) filter (where p.date_of_birth is null)::text||' missing DOB)'
