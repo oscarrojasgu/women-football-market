@@ -101,8 +101,8 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
   const availabilityLabel = contract?.status?.toLowerCase() === "active"
     ? contract?.end_date
       ? `Contracted through ${contract.end_date}`
-      : "Currently contracted"
-    : "No active contract recorded";
+      : t("Currently contracted")
+    : t(t("No active contract recorded"));
   const latestGoals = latest?.goals_per90;
   const latestAssists = latest?.assists_per90;
   const latestCreation = latest?.chances_created_per90;
@@ -148,10 +148,10 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
 
         <section style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginTop: 14 }}>
           {[
-            ["MINUTES", latest?.minutes ?? null],
+            [t("MINUTES"), latest?.minutes ?? null],
             ["G/90", latest?.goals_per90 == null ? null : latest.goals_per90.toFixed(2)],
             ["A/90", latest?.assists_per90 == null ? null : latest.assists_per90.toFixed(2)],
-            ["GLOBAL PEER POOL", peer?.peer_count_global ?? null],
+            [t("GLOBAL PEER POOL"), peer?.peer_count_global ?? null],
           ].map(([label, value]) => (
             <div key={label as string} style={cardStyle}>
               <div style={{ fontSize: 9, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>{label}</div>
@@ -163,7 +163,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
         <div style={{ display: "grid", gridTemplateColumns: "1.4fr .8fr", gap: 14, marginTop: 14 }}>
           <section style={cardStyle}>
             <div style={{ fontSize: 10, color: "#888", letterSpacing: "0.08em", fontWeight: 800 }}>{t("CURRENT PERFORMANCE")}</div>
-            <h2 style={{ margin: "5px 0 16px" }}>{latest?.season || "Latest season"} profile</h2>
+            <h2 style={{ margin: "5px 0 16px" }}>{latest?.season || t("Latest season")} profile</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
               {[
                 [t("Goals"), latest?.goals],
@@ -286,7 +286,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
               <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 720, fontSize: 12 }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid #ddd", textAlign: "left" }}>
-                    {["Season","Club / League","Min","G/90","A/90","xG/90","xA/90","Chances/90"].map(label => (
+                    {[t("Season"),t("Club / League"),t("Min"),"G/90","A/90","xG/90","xA/90","Chances/90"].map(label => (
                       <th key={label} style={{ padding: "9px 8px", fontSize: 9, color: "#888", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>{label}</th>
                     ))}
                   </tr>
@@ -326,7 +326,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
               </div>
               {primaryPipeline ? (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
-                  {[["Stage", primaryPipeline.stage],["Priority", primaryPipeline.priority],["Fit", primaryPipeline.fit_status],["Target", primaryPipeline.target_date || "—"]].map(([label, value]) => <div key={label as string} style={{ border: "1px solid #eee", borderRadius: 6, padding: 10 }}><small style={{ color: "#888" }}>{label}</small><strong style={{ display: "block", marginTop: 4, textTransform: "capitalize" }}>{String(value).replace(/_/g, " ")}</strong></div>)}
+                  {[[t("Stage"), primaryPipeline.stage],[t("Priority"), primaryPipeline.priority],[t("Fit"), primaryPipeline.fit_status],[t("Target"), primaryPipeline.target_date || "—"]].map(([label, value]) => <div key={label as string} style={{ border: "1px solid #eee", borderRadius: 6, padding: 10 }}><small style={{ color: "#888" }}>{label}</small><strong style={{ display: "block", marginTop: 4, textTransform: "capitalize" }}>{String(value).replace(/_/g, " ")}</strong></div>)}
                 </div>
               ) : <p style={{ color: "#777", fontSize: 12 }}>{t("This player is on a scouting list but has no pipeline assessment yet.")}</p>}
               {primaryPipeline?.next_action && <div style={{ borderTop: "1px solid #eee", paddingTop: 10 }}><small style={{ color: "#888" }}>{t("Next recruitment action")}</small><strong style={{ display: "block", marginTop: 4 }}>{primaryPipeline.next_action}</strong></div>}
