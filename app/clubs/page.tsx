@@ -80,6 +80,7 @@ export default function ClubsPage() {
   const [sortDir, setSortDir] = useState<'asc'|'desc'>('asc')
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
+  const [dataWarning, setDataWarning] = useState('')
 
   useEffect(() => {
     async function loadClubs() {
@@ -127,10 +128,12 @@ export default function ClubsPage() {
         setClubs([])
         setLoadError('We could not load the club directory.')
       }
+      const secondaryErrors = [contractResult.error, valueResult.error, transferResult.error, participationResult.error].filter(Boolean)
       if (contractResult.error) console.error('Error loading club contracts:', contractResult.error)
       if (valueResult.error) console.error('Error loading market values:', valueResult.error)
       if (transferResult.error) console.error('Error loading club transfers:', transferResult.error)
       if (participationResult.error) console.error('Error loading club competition participation:', participationResult.error)
+      if (secondaryErrors.length) setDataWarning('Some club statistics may be incomplete because related data could not be loaded.')
 
       setClubs((clubResult.data || []) as Club[])
       setContracts((contractResult.data || []) as ContractRecord[])
@@ -308,7 +311,7 @@ export default function ClubsPage() {
       if (result === 0) result = a.name.localeCompare(b.name)
       return sortDir === 'asc' ? result : -result
     })
-  }, [clubs, clubStats, participationByClub, q, leagueFilter, seasonFilter, countryFilter, typeFilter, sortBy])
+  }, [clubs, clubStats, participationByClub, q, leagueFilter, seasonFilter, countryFilter, typeFilter, sortBy, sortDir])
 
   const totalPlayers = useMemo(
     () => new Set(contracts.filter((contract) => normalize(contract.status) === 'active').map((contract) => contract.player_id)).size,
@@ -353,6 +356,12 @@ export default function ClubsPage() {
           </p>
         </div>
       </section>
+
+      {dataWarning && (
+        <section style={{ maxWidth: 1200, margin: '0 auto', padding: '14px 24px 0' }}>
+          <p role="status" style={{ margin: 0, padding: '12px 14px', border: '1px solid #e6d7a8', borderRadius: 9, background: '#fff9e8', color: '#6b551c', fontSize: 13 }}>{t(dataWarning)}</p>
+        </section>
+      )}
 
       <section style={{ maxWidth: 1200, margin: '0 auto', padding: '28px 24px 20px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 12 }}>
