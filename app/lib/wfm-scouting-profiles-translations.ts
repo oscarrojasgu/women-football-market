@@ -111,8 +111,6 @@ const entries: Record<string, Record<WfmLocale, string>> = {
   "any": { en: "Any", es: "Cualquiera", pt: "Qualquer", fr: "Tous", de: "Beliebig" },
   "candidate": { en: "candidate", es: "candidata", pt: "candidata", fr: "candidate", de: "Kandidatin" },
   "candidates": { en: "candidates", es: "candidatas", pt: "candidatas", fr: "candidates", de: "Kandidatinnen" },
-  "active": { en: "active", es: "activo", pt: "ativo", fr: "actif", de: "aktiv" },
-  "archived": { en: "archived", es: "archivado", pt: "arquivado", fr: "archivé", de: "archiviert" },
 
 };
 
