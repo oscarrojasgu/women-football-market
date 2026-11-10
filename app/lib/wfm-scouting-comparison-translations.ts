@@ -55,6 +55,17 @@ const entries: Record<string, Record<WfmLocale, string>> = {
   "Recruitment context or internal purpose.": { en: "Recruitment context or internal purpose.", es: "Contexto del fichaje o propósito interno.", pt: "Contexto do recrutamento ou finalidade interna.", fr: "Contexte du recrutement ou objectif interne.", de: "Rekrutierungskontext oder interner Zweck." },
   "Saving…": { en: "Saving…", es: "Guardando…", pt: "Salvando…", fr: "Enregistrement…", de: "Wird gespeichert …" },
   "Cancel": { en: "Cancel", es: "Cancelar", pt: "Cancelar", fr: "Annuler", de: "Abbrechen" },
+  "Season unavailable": { en: "Season unavailable", es: "Temporada no disponible", pt: "Temporada indisponível", fr: "Saison indisponible", de: "Saison nicht verfügbar" },
+  "Competition unavailable": { en: "Competition unavailable", es: "Competición no disponible", pt: "Competição indisponível", fr: "Compétition indisponible", de: "Wettbewerb nicht verfügbar" },
+  "Active": { en: "Active", es: "Activo", pt: "Ativo", fr: "Actif", de: "Aktiv" },
+  "Expired": { en: "Expired", es: "Vencido", pt: "Expirado", fr: "Expiré", de: "Abgelaufen" },
+  "Pending": { en: "Pending", es: "Pendiente", pt: "Pendente", fr: "En attente", de: "Ausstehend" },
+  "Free agent": { en: "Free agent", es: "Agente libre", pt: "Agente livre", fr: "Agent libre", de: "Vertragslos" },
+  "Creation": { en: "Creation", es: "Creación", pt: "Criação", fr: "Création", de: "Kreation" },
+  "Key passes": { en: "Key passes", es: "Pases clave", pt: "Passes decisivos", fr: "Passes clés", de: "Schlüsselpässe" },
+  "Tackles": { en: "Tackles", es: "Entradas", pt: "Desarmes", fr: "Tacles", de: "Zweikämpfe" },
+  "Interceptions": { en: "Interceptions", es: "Intercepciones", pt: "Interceptações", fr: "Interceptions", de: "Abfangen" },
+  "Progression": { en: "Progression", es: "Progresión", pt: "Progressão", fr: "Progression", de: "Progression" },
 }
 
 export const WFM_SCOUTING_COMPARISON_TRANSLATIONS: Record<WfmLocale, Record<string, string>> = {
