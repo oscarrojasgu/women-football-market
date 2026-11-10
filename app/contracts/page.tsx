@@ -76,6 +76,7 @@ export default function ContractsPage() {
   const locale = getLocaleFromPathname(pathname)
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All");
   const [league, setLeague] = useState("All");
@@ -96,6 +97,7 @@ export default function ContractsPage() {
       if (error) {
         console.error("Error loading contracts:", error);
         setContracts([]);
+        setLoadError("We could not load contract data.");
       } else {
         setContracts((data || []).map((c: any) => ({
           ...c,
@@ -247,6 +249,8 @@ export default function ContractsPage() {
 
           {loading ? (
             <div className="scout-empty">{t("Loading...")}</div>
+          ) : loadError ? (
+            <div className="scout-empty" role="alert">{t(loadError)}</div>
           ) : filteredContracts.length === 0 ? (
             <div className="scout-empty">
               <strong>{t("No contracts match the current filters")}</strong>
