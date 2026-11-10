@@ -107,6 +107,13 @@ const entries: Record<string, Record<WfmLocale, string>> = {
   "value": { en: "value", es: "valor", pt: "valor", fr: "valeur", de: "Wert" },
   "← Scouting Profiles": { en: "← Scouting Profiles", es: "← Perfiles de scouting", pt: "← Perfis de observação", fr: "← Profils de recrutement", de: "← Scouting-Profile" },
 
+  "Squad position mix": { en: "Squad position mix", es: "Distribución de posiciones de la plantilla", pt: "Distribuição de posições do elenco", fr: "Répartition des postes de l’effectif", de: "Positionsverteilung im Kader" },
+  "any": { en: "Any", es: "Cualquiera", pt: "Qualquer", fr: "Tous", de: "Beliebig" },
+  "candidate": { en: "candidate", es: "candidata", pt: "candidata", fr: "candidate", de: "Kandidatin" },
+  "candidates": { en: "candidates", es: "candidatas", pt: "candidatas", fr: "candidates", de: "Kandidatinnen" },
+  "active": { en: "active", es: "activo", pt: "ativo", fr: "actif", de: "aktiv" },
+  "archived": { en: "archived", es: "archivado", pt: "arquivado", fr: "archivé", de: "archiviert" },
+
 };
 
 export const WFM_SCOUTING_PROFILES_TRANSLATIONS: Record<WfmLocale, Record<string, string>> = {
