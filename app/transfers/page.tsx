@@ -142,6 +142,7 @@ export default function TransfersPage() {
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [relationshipWarning, setRelationshipWarning] = useState("");
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
   const [confidenceFilter, setConfidenceFilter] = useState("All");
@@ -179,7 +180,10 @@ export default function TransfersPage() {
           : Promise.resolve({ data: [], error: null }),
       ]);
 
-      if (playerError || clubError) console.error("Error loading transfer relationships:", playerError || clubError);
+      if (playerError || clubError) {
+        console.error("Error loading transfer relationships:", playerError || clubError);
+        setRelationshipWarning("Some player or club details could not be loaded, so transfer records may be incomplete.");
+      }
 
       const playerMap = new Map((playerData || []).map((player) => [player.id, player]));
       const clubMap = new Map((clubData || []).map((club) => [club.id, club]));
@@ -353,6 +357,7 @@ export default function TransfersPage() {
           </div>
         ) : (
           <div>
+            {relationshipWarning && <p role="status" style={{ margin: "0 0 14px", padding: "12px 14px", border: "1px solid #e6d7a8", borderRadius: 9, background: "#fff9e8", color: "#6b551c", fontSize: 13 }}>{t(relationshipWarning)}</p>}
             {groupedTransfers.map(([month, monthTransfers]) => (
               <section key={month} style={{ marginBottom: 30 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
