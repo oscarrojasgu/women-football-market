@@ -7,6 +7,7 @@ export const WFM_CONTRACT_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, st
     'Loading contract database...':'Loading contract database...','contract matches your criteria':'contract matches your criteria','contracts match your criteria':'contracts match your criteria',
     'Contract context detail':'Expiry, salary and confidence reflect the recorded WFM contract data. Expired and historical records remain available through the expiry filter.',
     'Unknown Player':'Unknown Player','Position unavailable':'Position unavailable','Nationality unavailable':'Nationality unavailable','Unknown Club':'Unknown Club','League unavailable':'League unavailable',
+    'We could not load contract data.':'We could not load contract data.',
     'Unknown expiry':'Unknown expiry','Expires today':'Expires today','days':'days','months':'months','years':'years','Not available':'Not available'
   },
   es: {
@@ -15,6 +16,7 @@ export const WFM_CONTRACT_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, st
     'Loading contract database...':'Cargando la base de datos de contratos...','contract matches your criteria':'contrato coincide con tus criterios','contracts match your criteria':'contratos coinciden con tus criterios',
     'Contract context detail':'Los vencimientos, salarios y niveles de confianza reflejan los datos contractuales registrados en WFM. Los registros vencidos e históricos siguen disponibles mediante el filtro de vencimiento.',
     'Unknown Player':'Jugadora desconocida','Position unavailable':'Posición no disponible','Nationality unavailable':'Nacionalidad no disponible','Unknown Club':'Club desconocido','League unavailable':'Liga no disponible',
+    'We could not load contract data.':'No se pudieron cargar los datos de contratos.',
     'Unknown expiry':'Vencimiento desconocido','Expires today':'Vence hoy','days':'días','months':'meses','years':'años','Not available':'No disponible'
   },
   pt: {
@@ -23,6 +25,7 @@ export const WFM_CONTRACT_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, st
     'Loading contract database...':'Carregando banco de dados de contratos...','contract matches your criteria':'contrato corresponde aos seus critérios','contracts match your criteria':'contratos correspondem aos seus critérios',
     'Contract context detail':'Vencimentos, salários e níveis de confiança refletem os dados contratuais registrados no WFM. Registros expirados e históricos continuam disponíveis pelo filtro de vencimento.',
     'Unknown Player':'Jogadora desconhecida','Position unavailable':'Posição indisponível','Nationality unavailable':'Nacionalidade indisponível','Unknown Club':'Clube desconhecido','League unavailable':'Liga indisponível',
+    'We could not load contract data.':'Não foi possível carregar os dados dos contratos.',
     'Unknown expiry':'Vencimento desconhecido','Expires today':'Vence hoje','days':'dias','months':'meses','years':'anos','Not available':'Não disponível'
   },
   fr: {
@@ -31,6 +34,7 @@ export const WFM_CONTRACT_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, st
     'Loading contract database...':'Chargement de la base de données des contrats...','contract matches your criteria':'contrat correspond à vos critères','contracts match your criteria':'contrats correspondent à vos critères',
     'Contract context detail':'Les échéances, salaires et niveaux de fiabilité reflètent les données contractuelles enregistrées dans WFM. Les contrats expirés et historiques restent accessibles avec le filtre d’échéance.',
     'Unknown Player':'Joueuse inconnue','Position unavailable':'Poste indisponible','Nationality unavailable':'Nationalité indisponible','Unknown Club':'Club inconnu','League unavailable':'Ligue indisponible',
+    'We could not load contract data.':'Impossible de charger les données des contrats.',
     'Unknown expiry':'Échéance inconnue','Expires today':'Expire aujourd’hui','days':'jours','months':'mois','years':'ans','Not available':'Indisponible'
   },
   de: {
@@ -39,6 +43,7 @@ export const WFM_CONTRACT_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, st
     'Loading contract database...':'Vertragsdatenbank wird geladen...','contract matches your criteria':'Vertrag entspricht deinen Kriterien','contracts match your criteria':'Verträge entsprechen deinen Kriterien',
     'Contract context detail':'Ablaufdaten, Gehälter und Zuverlässigkeitsstufen entsprechen den in WFM gespeicherten Vertragsdaten. Abgelaufene und historische Einträge bleiben über den Ablauf-Filter verfügbar.',
     'Unknown Player':'Unbekannte Spielerin','Position unavailable':'Position nicht verfügbar','Nationality unavailable':'Nationalität nicht verfügbar','Unknown Club':'Unbekannter Verein','League unavailable':'Liga nicht verfügbar',
+    'We could not load contract data.':'Vertragsdaten konnten nicht geladen werden.',
     'Unknown expiry':'Ablauf unbekannt','Expires today':'Läuft heute ab','days':'Tage','months':'Monate','years':'Jahre','Not available':'Nicht verfügbar'
   }
 }
