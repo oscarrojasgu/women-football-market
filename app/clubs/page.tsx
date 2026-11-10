@@ -79,6 +79,7 @@ export default function ClubsPage() {
   const [sortBy, setSortBy] = useState<SortKey>('name')
   const [sortDir, setSortDir] = useState<'asc'|'desc'>('asc')
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
 
   useEffect(() => {
     async function loadClubs() {
@@ -121,7 +122,11 @@ export default function ClubsPage() {
           .select('club_id,competition_season:competition_seasons(competition:competitions(id,canonical_name),season:seasons(season_key,label))'),
       ])
 
-      if (clubResult.error) console.error('Error loading clubs:', clubResult.error)
+      if (clubResult.error) {
+        console.error('Error loading clubs:', clubResult.error)
+        setClubs([])
+        setLoadError('We could not load the club directory.')
+      }
       if (contractResult.error) console.error('Error loading club contracts:', contractResult.error)
       if (valueResult.error) console.error('Error loading market values:', valueResult.error)
       if (transferResult.error) console.error('Error loading club transfers:', transferResult.error)
@@ -448,6 +453,8 @@ export default function ClubsPage() {
               <tbody>
                 {loading ? (
                   <tr><td colSpan={8} style={{ padding: 50, textAlign: 'center', color: '#777' }}>{t("Loading club database…")}</td></tr>
+                ) : loadError ? (
+                  <tr><td colSpan={8} role="alert" style={{ padding: 50, textAlign: "center", color: "#777" }}>{t(loadError)}</td></tr>
                 ) : filteredClubs.length === 0 ? (
                   <tr><td colSpan={8} style={{ padding: 50, textAlign: 'center', color: '#777' }}>{t("No clubs match these filters.")}</td></tr>
                 ) : (
