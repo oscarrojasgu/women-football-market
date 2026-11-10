@@ -80,6 +80,10 @@ const entries: Record<string, Record<WfmLocale, string>> = {
   "chance-creation data unavailable": { en: "chance-creation data unavailable", es: "datos de creación de ocasiones no disponibles", pt: "dados de criação de chances indisponíveis", fr: "données de création d’occasions indisponibles", de: "Daten zur Chancenkreation nicht verfügbar" },
   "market value unavailable": { en: "market value unavailable", es: "valor de mercado no disponible", pt: "valor de mercado indisponível", fr: "valeur marchande indisponible", de: "Marktwert nicht verfügbar" },
   "Peer percentile unavailable": { en: "Peer percentile unavailable", es: "Percentil comparativo no disponible", pt: "Percentil comparativo indisponível", fr: "Percentile comparatif indisponible", de: "Vergleichsperzentil nicht verfügbar" },
+  "Assists": { en: "Assists", es: "Asistencias", pt: "Assistências", fr: "Passes décisives", de: "Vorlagen" },
+  "Goals": { en: "Goals", es: "Goles", pt: "Gols", fr: "Buts", de: "Tore" },
+  "Scouting report unavailable": { en: "Scouting report unavailable", es: "Informe de scouting no disponible", pt: "Relatório de observação indisponível", fr: "Rapport de recrutement indisponible", de: "Scouting-Bericht nicht verfügbar" },
+
 }
 export const WFM_SCOUTING_PLAYER_TRANSLATIONS: Record<WfmLocale, Record<string, string>> = {
   en: Object.fromEntries(Object.entries(entries).map(([key, value]) => [key, value.en])),
