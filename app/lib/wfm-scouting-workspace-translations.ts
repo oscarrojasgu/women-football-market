@@ -139,6 +139,10 @@ const entries: Record<string, Record<WfmLocale, string>> = {
   "Clubs": { en: "Clubs", es: "Clubes", pt: "Clubes", fr: "Clubs", de: "Vereine" },
   "Competitions": { en: "Competitions", es: "Competiciones", pt: "Competições", fr: "Compétitions", de: "Wettbewerbe" },
 
+  "High": { en: "High", es: "Alta", pt: "Alta", fr: "Élevée", de: "Hoch" },
+  "Normal": { en: "Normal", es: "Normal", pt: "Normal", fr: "Normale", de: "Normal" },
+  "Low": { en: "Low", es: "Baja", pt: "Baixa", fr: "Faible", de: "Niedrig" },
+
 }
 
 export const WFM_SCOUTING_WORKSPACE_TRANSLATIONS: Record<WfmLocale, Record<string, string>> = {
