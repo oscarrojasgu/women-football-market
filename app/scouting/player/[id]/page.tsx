@@ -100,9 +100,9 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
 
   const availabilityLabel = contract?.status?.toLowerCase() === "active"
     ? contract?.end_date
-      ? `Contracted through ${contract.end_date}`
+      ? `${t("Contracted through")} ${contract.end_date}`
       : t("Currently contracted")
-    : t(t("No active contract recorded"));
+    : t(t(t("No active contract recorded")));
   const latestGoals = latest?.goals_per90;
   const latestAssists = latest?.assists_per90;
   const latestCreation = latest?.chances_created_per90;
@@ -213,7 +213,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
           <p style={{ color: "#666", fontSize: 12, marginTop: 0 }}>{t("A transparent view of the WFM records supporting this report. Presence of data does not by itself establish that every underlying source is current or independently verified.")}</p>
           <div style={{ display: "grid", gridTemplateColumns: "180px 1fr", gap: 14, alignItems: "start", marginTop: 12 }}>
             <div style={{ border: "1px solid #eee", borderRadius: 8, padding: 14 }}>
-              <small style={{ color: "#888", letterSpacing: "0.06em" }}>EVIDENCE COVERAGE</small>
+              <small style={{ color: "#888", letterSpacing: "0.06em" }}>{t("EVIDENCE COVERAGE")}</small>
               <strong style={{ display: "block", fontSize: 30, marginTop: 5 }}>{evidencePercent}%</strong>
               <span style={{ color: "#777", fontSize: 11 }}>{evidencePresent} of {evidenceItems.length} evidence areas have data</span>
             </div>
@@ -245,7 +245,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
                     {source.published_at ? <span style={{ color: "#777", marginLeft: 8 }}>{t("Published")}: {source.published_at}</span> : null}
                     {source.url ? <a href={source.url} target="_blank" rel="noreferrer" style={{ marginLeft: 8 }}>{t("View source")}</a> : null}
                   </div>
-                ) : <span style={{ color: "#888", fontSize: 11 }}>No linked source record</span>}
+                ) : <span style={{ color: "#888", fontSize: 11 }}>{t("No linked source record")}</span>}
               </div>
             ))}
           </div>
@@ -262,18 +262,18 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
             </div>
             <div style={{ border: "1px solid #eee", borderRadius: 6, padding: 11 }}>
               <small style={{ color: "#888" }}>CURRENT OUTPUT</small>
-              <strong style={{ display: "block", marginTop: 4 }}>{latestGoals == null ? "G/90 unavailable" : `G/90 ${latestGoals.toFixed(2)}`} · {latestAssists == null ? "A/90 unavailable" : `A/90 ${latestAssists.toFixed(2)}`}</strong>
+              <strong style={{ display: "block", marginTop: 4 }}>{latestGoals == null ? t("G/90 unavailable") : `G/90 ${latestGoals.toFixed(2)}`} · {latestAssists == null ? t("A/90 unavailable") : `A/90 ${latestAssists.toFixed(2)}`}</strong>
             </div>
             <div style={{ border: "1px solid #eee", borderRadius: 6, padding: 11 }}>
               <small style={{ color: "#888" }}>PEER SIGNAL</small>
-              <strong style={{ display: "block", marginTop: 4 }}>{strongestPeerSignal ? `${strongestPeerSignal[0]} · ${pct(strongestPeerSignal[1] as number)} percentile` : "Peer percentile unavailable"}</strong>
+              <strong style={{ display: "block", marginTop: 4 }}>{strongestPeerSignal ? `${strongestPeerSignal[0]} · ${pct(strongestPeerSignal[1] as number)} percentile` : t("Peer percentile unavailable")}</strong>
             </div>
           </div>
           <div style={{ marginTop: 10, borderTop: "1px solid #eee", paddingTop: 10, fontSize: 12, color: "#555" }}>
-            <strong style={{ color: "#222" }}>Data points to review:</strong>{" "}
-            {latest?.minutes != null ? `${latest.minutes} minutes in ${latest.season || "latest season"}` : "Latest-season minutes unavailable"}{" · "}
-            {latestCreation == null ? "chance-creation data unavailable" : `chance creation ${latestCreation.toFixed(2)}/90`}{" · "}
-            {value?.market_value_usd != null ? `market value ${money(value.market_value_usd)}` : "market value unavailable"}.
+            <strong style={{ color: "#222" }}>{t("Data points to review:")}</strong>{" "}
+            {latest?.minutes != null ? `${latest.minutes} minutes in ${latest.season || "latest season"}` : t("Latest-season minutes unavailable")}{" · "}
+            {latestCreation == null ? t("chance-creation data unavailable") : `chance creation ${latestCreation.toFixed(2)}/90`}{" · "}
+            {value?.market_value_usd != null ? `market value ${money(value.market_value_usd)}` : t("market value unavailable")}.
           </div>
         </section>
 
@@ -310,7 +310,7 @@ export default async function ScoutingReportPage({ params, searchParams }: PageP
                 </tbody>
               </table>
             </div>
-          ) : <p style={{ color: "#777", fontSize: 12 }}>No season history is currently available for this player.</p>}
+          ) : <p style={{ color: "#777", fontSize: 12 }}>{t("No season history is currently available for this player.")}</p>}
         </section>
 
         <section style={{ ...cardStyle, marginTop: 14 }}>
