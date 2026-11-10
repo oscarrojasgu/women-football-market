@@ -74,6 +74,12 @@ const entries: Record<string, Record<WfmLocale, string>> = {
   "Priority": { en: "Priority", es: "Prioridad", pt: "Prioridade", fr: "Priorité", de: "Priorität" },
   "Fit": { en: "Fit", es: "Adecuación", pt: "Compatibilidade", fr: "Adéquation", de: "Eignung" },
   "Target": { en: "Target", es: "Objetivo", pt: "Meta", fr: "Objectif", de: "Ziel" },
+  "G/90 unavailable": { en: "G/90 unavailable", es: "G/90 no disponible", pt: "G/90 indisponível", fr: "G/90 indisponible", de: "G/90 nicht verfügbar" },
+  "A/90 unavailable": { en: "A/90 unavailable", es: "A/90 no disponible", pt: "A/90 indisponível", fr: "A/90 indisponible", de: "A/90 nicht verfügbar" },
+  "Latest-season minutes unavailable": { en: "Latest-season minutes unavailable", es: "Minutos de la última temporada no disponibles", pt: "Minutos da temporada mais recente indisponíveis", fr: "Minutes de la dernière saison indisponibles", de: "Minuten der letzten Saison nicht verfügbar" },
+  "chance-creation data unavailable": { en: "chance-creation data unavailable", es: "datos de creación de ocasiones no disponibles", pt: "dados de criação de chances indisponíveis", fr: "données de création d’occasions indisponibles", de: "Daten zur Chancenkreation nicht verfügbar" },
+  "market value unavailable": { en: "market value unavailable", es: "valor de mercado no disponible", pt: "valor de mercado indisponível", fr: "valeur marchande indisponible", de: "Marktwert nicht verfügbar" },
+  "Peer percentile unavailable": { en: "Peer percentile unavailable", es: "Percentil comparativo no disponible", pt: "Percentil comparativo indisponível", fr: "Percentile comparatif indisponible", de: "Vergleichsperzentil nicht verfügbar" },
 }
 export const WFM_SCOUTING_PLAYER_TRANSLATIONS: Record<WfmLocale, Record<string, string>> = {
   en: Object.fromEntries(Object.entries(entries).map(([key, value]) => [key, value.en])),
