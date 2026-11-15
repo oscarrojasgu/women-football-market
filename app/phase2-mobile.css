@@ -1,3 +1,40 @@
+/* WFM Intelligence homepage: preserve desktop layout and make cards usable on phones. */
+@media (max-width: 650px) {
+  .wfm-intelligence-section {
+    min-width: 0;
+  }
+
+  .wfm-intelligence-section > .sectionhead {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .wfm-intelligence-section > .sectionhead h2 {
+    font-size: clamp(25px, 7vw, 32px) !important;
+    line-height: 1.08 !important;
+    overflow-wrap: anywhere;
+  }
+
+  .wfm-intelligence-section > .sectionhead > a {
+    align-self: flex-start;
+  }
+
+  .wfm-intelligence-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .wfm-intelligence-grid > * {
+    width: 100%;
+    min-width: 0;
+    min-height: 0 !important;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+  }
+}
+
 /* Phase 2 mobile pass: keep the market pages usable on iPhone without shrinking desktop layouts. */
 
 .salary-page,
