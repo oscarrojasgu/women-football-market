@@ -1534,3 +1534,109 @@
   .wfm-match-ticker-item { min-height:42px; padding:0 16px; gap:7px; }
   .wfm-match-ticker-empty { min-height:42px; padding:0 14px; font-size:10px; }
 }
+
+
+/* HOMEPAGE MOBILE REPAIR — final overrides, after all earlier mobile rules.
+   Keep the four intelligence panels readable and make the home player cards
+   use the full available width in a balanced two-column information layout. */
+@media (max-width: 767px) {
+  .wfm-intelligence-section {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  .wfm-intelligence-section .wfm-intelligence-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .wfm-intelligence-section .wfm-intelligence-grid > * {
+    display: block;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-wrap: anywhere;
+  }
+
+  .content .home-player-table {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .content .home-player-table .home-player-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 12px 14px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 15px !important;
+    align-items: start !important;
+  }
+
+  .content .home-player-table .home-player-cell {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    justify-self: stretch !important;
+    grid-row: auto !important;
+    grid-column: auto !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    padding: 0 !important;
+    border: 0 !important;
+    text-align: left !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+    box-sizing: border-box !important;
+  }
+
+  .content .home-player-table .home-player-cell--player,
+  .content .home-player-table .home-player-cell--club {
+    grid-column: 1 / -1 !important;
+  }
+
+  .content .home-player-table .home-player-cell--player {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding-bottom: 11px !important;
+    border-bottom: 1px solid #eeeeee !important;
+  }
+
+  .content .home-player-table .home-player-cell--player > span {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .content .home-player-table .home-player-cell--player img {
+    flex: 0 0 46px !important;
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  .content .home-player-table .home-player-cell--confidence {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    justify-self: stretch !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+  }
+
+  .content .home-player-table .home-player-cell small {
+    max-width: 100%;
+    margin: 0 0 4px !important;
+    line-height: 1.25;
+  }
+}
