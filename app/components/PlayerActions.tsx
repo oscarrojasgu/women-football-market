@@ -8,7 +8,7 @@ import { getLocaleFromPathname, type WfmLocale } from "../lib/i18n";
 export default function PlayerActions() {
   const pathname = usePathname();
   const playerId = useMemo(() => {
-    const match = pathname?.match(/^\/players\/([^/]+)$/);
+    const match = pathname?.match(/^\/(?:en|es|pt|fr|de\/)?players\/([^/]+)\/?$/);
     return match?.[1] || null;
   }, [pathname]);
 
