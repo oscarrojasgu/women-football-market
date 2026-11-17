@@ -2,6 +2,8 @@ import type { WfmLocale } from './i18n'
 
 export const WFM_CONTRACT_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, string>> = {
   en: {
+    'Search player, club, league or position...':'Search player, club, league or position...','Page':'Page',
+    'Unknown':'Unknown','Active':'Active','Expired':'Expired','Pending':'Pending','Verified':'Verified','Reported':'Reported','Estimated':'Estimated','Rumored':'Rumored',
     'Track active deals, contract expiry windows, salary information and confidence across the database.':'Track active deals, contract expiry windows, salary information and confidence across the database.',
     '3–6 Months':'3–6 Months','6–12 Months':'6–12 Months','12+ Months':'12+ Months','All Statuses':'All Statuses','All Leagues':'All Leagues','Loading...':'Loading...',
     'Loading contract database...':'Loading contract database...','contract matches your criteria':'contract matches your criteria','contracts match your criteria':'contracts match your criteria',
@@ -11,6 +13,8 @@ export const WFM_CONTRACT_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, st
     'Unknown expiry':'Unknown expiry','Expires today':'Expires today','days':'days','months':'months','years':'years','Not available':'Not available'
   },
   es: {
+    'Search player, club, league or position...':'Buscar jugadora, club, liga o posición...','Page':'Página',
+    'Unknown':'Desconocido','Active':'Activo','Expired':'Vencido','Pending':'Pendiente','Verified':'Verificado','Reported':'Reportado','Estimated':'Estimado','Rumored':'Rumoreado',
     'Track active deals, contract expiry windows, salary information and confidence across the database.':'Consulta los contratos activos, los plazos de vencimiento, la información salarial y el nivel de confianza de los datos.',
     '3–6 Months':'3–6 meses','6–12 Months':'6–12 meses','12+ Months':'Más de 12 meses','All Statuses':'Todos los estados','All Leagues':'Todas las ligas','Loading...':'Cargando...',
     'Loading contract database...':'Cargando la base de datos de contratos...','contract matches your criteria':'contrato coincide con tus criterios','contracts match your criteria':'contratos coinciden con tus criterios',
@@ -20,6 +24,8 @@ export const WFM_CONTRACT_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, st
     'Unknown expiry':'Vencimiento desconocido','Expires today':'Vence hoy','days':'días','months':'meses','years':'años','Not available':'No disponible'
   },
   pt: {
+    'Search player, club, league or position...':'Pesquisar jogadora, clube, liga ou posição...','Page':'Página',
+    'Unknown':'Desconhecido','Active':'Ativo','Expired':'Expirado','Pending':'Pendente','Verified':'Verificado','Reported':'Reportado','Estimated':'Estimado','Rumored':'Rumor',
     'Track active deals, contract expiry windows, salary information and confidence across the database.':'Acompanhe contratos ativos, prazos de vencimento, informações salariais e nível de confiança dos dados.',
     '3–6 Months':'3–6 meses','6–12 Months':'6–12 meses','12+ Months':'Mais de 12 meses','All Statuses':'Todos os status','All Leagues':'Todas as ligas','Loading...':'Carregando...',
     'Loading contract database...':'Carregando banco de dados de contratos...','contract matches your criteria':'contrato corresponde aos seus critérios','contracts match your criteria':'contratos correspondem aos seus critérios',
@@ -29,6 +35,8 @@ export const WFM_CONTRACT_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, st
     'Unknown expiry':'Vencimento desconhecido','Expires today':'Vence hoje','days':'dias','months':'meses','years':'anos','Not available':'Não disponível'
   },
   fr: {
+    'Search player, club, league or position...':'Rechercher une joueuse, un club, une ligue ou un poste...','Page':'Page',
+    'Unknown':'Inconnu','Active':'Actif','Expired':'Expiré','Pending':'En attente','Verified':'Vérifié','Reported':'Signalé','Estimated':'Estimé','Rumored':'Faisant l’objet d’une rumeur',
     'Track active deals, contract expiry windows, salary information and confidence across the database.':'Suivez les contrats actifs, leurs échéances, les informations salariales et le niveau de fiabilité des données.',
     '3–6 Months':'3 à 6 mois','6–12 Months':'6 à 12 mois','12+ Months':'Plus de 12 mois','All Statuses':'Tous les statuts','All Leagues':'Toutes les ligues','Loading...':'Chargement...',
     'Loading contract database...':'Chargement de la base de données des contrats...','contract matches your criteria':'contrat correspond à vos critères','contracts match your criteria':'contrats correspondent à vos critères',
@@ -38,6 +46,8 @@ export const WFM_CONTRACT_PAGE_TRANSLATIONS: Record<WfmLocale, Record<string, st
     'Unknown expiry':'Échéance inconnue','Expires today':'Expire aujourd’hui','days':'jours','months':'mois','years':'ans','Not available':'Indisponible'
   },
   de: {
+    'Search player, club, league or position...':'Spielerin, Verein, Liga oder Position suchen...','Page':'Seite',
+    'Unknown':'Unbekannt','Active':'Aktiv','Expired':'Abgelaufen','Pending':'Ausstehend','Verified':'Verifiziert','Reported':'Gemeldet','Estimated':'Geschätzt','Rumored':'Gerüchteweise',
     'Track active deals, contract expiry windows, salary information and confidence across the database.':'Behalte aktive Verträge, Ablaufzeiträume, Gehaltsinformationen und die Datenzuverlässigkeit im Blick.',
     '3–6 Months':'3–6 Monate','6–12 Months':'6–12 Monate','12+ Months':'Mehr als 12 Monate','All Statuses':'Alle Status','All Leagues':'Alle Ligen','Loading...':'Wird geladen...',
     'Loading contract database...':'Vertragsdatenbank wird geladen...','contract matches your criteria':'Vertrag entspricht deinen Kriterien','contracts match your criteria':'Verträge entsprechen deinen Kriterien',

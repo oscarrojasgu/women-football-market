@@ -30,8 +30,8 @@ function daysUntil(date: string | null) {
   return Math.ceil((end.getTime() - today.getTime()) / 86400000);
 }
 
-function formatDate(date: string | null, locale: string) {
-  if (!date) return "Unknown";
+function formatDate(date: string | null, locale: string, t: (key: string) => string) {
+  if (!date) return t("Unknown");
   return new Date(`${date}T00:00:00`).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" });
 }
 
@@ -187,7 +187,7 @@ export default function ContractsPage() {
     <>
       <section className="players-scout-hero">
         <div className="players-scout-shell">
-          <div className="players-scout-eyebrow">WOMEN&apos;S FOOTBALL MARKET</div>
+          <div className="players-scout-eyebrow">{t("WOMEN’S FOOTBALL MARKET")}</div>
           <h1>{t("Contract Intelligence")}</h1>
           <p>
             {t("Track active deals, contract expiry windows, salary information and confidence across the database.")}
@@ -292,7 +292,7 @@ export default function ContractsPage() {
                   <span>{t(statusLabel(c.status))}</span>
 
                   <span className={urgent ? "contract-urgent" : ""}>
-                    <strong>{formatDate(c.end_date, locale)}</strong>
+                    <strong>{formatDate(c.end_date, locale, t)}</strong>
                     <small>{expiryLabel(c, t)}</small>
                   </span>
 
