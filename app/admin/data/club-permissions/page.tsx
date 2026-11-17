@@ -32,7 +32,7 @@ const CLUB_PERMISSION_STATUS = {"en":{"not_contacted":"Not contacted","researchi
 export default function ClubPermissionPage(){
  const pathname=usePathname();
  const locale=getLocaleFromPathname(pathname || "/");
- const t=(key:string)=>CLUB_PERMISSION_COPY[locale]?.[key]??CLUB_PERMISSION_COPY.en[key]??key;
+ const t=(key:string)=>CLUB_PERMISSION_COPY[locale]?.[key]??key;
  const statusLabel=(key:string)=>CLUB_PERMISSION_STATUS[locale]?.[key]??key;
 
  const [authorized,setAuthorized]=useState(false),[loading,setLoading]=useState(true),[rows,setRows]=useState<Row[]>([]);
