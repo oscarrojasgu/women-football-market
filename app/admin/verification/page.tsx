@@ -524,11 +524,18 @@ export default function VerificationDashboard() {
                     Approve & apply
                   </button>
                   <button
+                    onClick={() => reviewSubmission(item.id, "needs_evidence")}
+                    disabled={busy}
+                    style={styles.rejectButton}
+                  >
+                    {t("Needs evidence")}
+                  </button>
+                  <button
                     onClick={() => reviewSubmission(item.id, "rejected")}
                     disabled={busy}
                     style={styles.rejectButton}
                   >
-                    Reject
+                    {t("Reject")}
                   </button>
                 </div>
               </article>
