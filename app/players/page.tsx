@@ -882,7 +882,7 @@ export default function PlayersPage() {
     <>
       <section className="players-scout-hero">
         <div className="players-scout-shell">
-          <div className="players-scout-eyebrow">WOMEN&apos;S FOOTBALL MARKET</div>
+          <div className="players-scout-eyebrow">{t("WOMEN’S FOOTBALL MARKET")}</div>
           <h1>{t("Player Scouting Database")}</h1>
           <p>
             {t("Search the WFM player pool by role, league, club, age, playing time, performance output, contract context and recorded market value.")}
