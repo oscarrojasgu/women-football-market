@@ -636,9 +636,9 @@ export default function ClubProfilePage() {
                       <span><strong>{player.full_name}</strong><small>{[player.position ? t(player.position) : null, player.nationality].filter(Boolean).join(" · ") || t("Player details unavailable")}</small></span>
                     </Link>
                   </span>
-                  <span className="club-player-cell" data-label="Status">{contract?.status ? t(contract.status) : t("Roster")}</span>
-                  <span className="club-player-cell" data-label="Expiry">{contract ? <strong>{formatDate(contract.end_date, intlLocale, t)}</strong> : t("Not published")}</span>
-                  <span className="club-player-cell" data-label="Annual Salary">{contract ? formatSalary(contract.annual_salary, contract.currency, t, intlLocale) : t("Unknown")}</span>
+                  <span className="club-player-cell" data-label={t("Status")}>{contract?.status ? t(contract.status) : t("Roster")}</span>
+                  <span className="club-player-cell" data-label={t("Expiry")}>{contract ? <strong>{formatDate(contract.end_date, intlLocale, t)}</strong> : t("Not published")}</span>
+                  <span className="club-player-cell" data-label={t("Annual Salary")}>{contract ? formatSalary(contract.annual_salary, contract.currency, t, intlLocale) : t("Unknown")}</span>
                 </div>
               )
             }) : sortedContracts.map((contract) => {
@@ -651,9 +651,9 @@ export default function ClubProfilePage() {
                       <span><strong>{player?.full_name || t("Unknown Player")}</strong><small>{[player?.position ? t(player.position) : null, player?.nationality].filter(Boolean).join(" · ") || t("Player details unavailable")}</small></span>
                     </Link>
                   </span>
-                  <span className="club-player-cell" data-label="Status">{t(contract.status || "Unknown")}</span>
-                  <span className="club-player-cell" data-label="Expiry"><strong>{formatDate(contract.end_date, intlLocale, t)}</strong></span>
-                  <span className="club-player-cell club-salary-cell" data-label="Salary"><strong>{formatSalary(contract.annual_salary, contract.currency, t, intlLocale)}</strong></span>
+                  <span className="club-player-cell" data-label={t("Status")}>{t(contract.status || "Unknown")}</span>
+                  <span className="club-player-cell" data-label={t("Expiry")}><strong>{formatDate(contract.end_date, intlLocale, t)}</strong></span>
+                  <span className="club-player-cell club-salary-cell" data-label={t("Salary")}><strong>{formatSalary(contract.annual_salary, contract.currency, t, intlLocale)}</strong></span>
                 </div>
               )
             })}
