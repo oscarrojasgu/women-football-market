@@ -173,7 +173,7 @@ export default function PlayerActions() {
             boxShadow: "0 6px 20px rgba(0,0,0,.16)",
           }}
         >
-          Claim this profile
+          {t("Claim this profile")}
         </button>
 
         <button
@@ -192,7 +192,7 @@ export default function PlayerActions() {
             boxShadow: "0 6px 20px rgba(0,0,0,.12)",
           }}
         >
-          Suggest an update
+          {t("Suggest an update")}
         </button>
       </div>
 
@@ -278,7 +278,7 @@ export default function PlayerActions() {
                     lineHeight: 1.5,
                   }}
                 >
-                  Create an account or sign in with your email and password. Your account lets you submit claims and corrections, but does not automatically verify anything.
+                  {t("Create an account or sign in with your email and password. Your account lets you submit claims and corrections, but does not automatically verify anything.")}
                 </div>
 
                 <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
@@ -286,13 +286,13 @@ export default function PlayerActions() {
                     onClick={() => setAuthMode("signin")}
                     style={{ flex: 1, padding: 9, border: "1px solid #ccc", borderRadius: 8, background: authMode === "signin" ? "#111" : "#fff", color: authMode === "signin" ? "#fff" : "#111", fontWeight: 700 }}
                   >
-                    Sign in
+                    {t("Sign in")}
                   </button>
                   <button
                     onClick={() => setAuthMode("signup")}
                     style={{ flex: 1, padding: 9, border: "1px solid #ccc", borderRadius: 8, background: authMode === "signup" ? "#111" : "#fff", color: authMode === "signup" ? "#fff" : "#111", fontWeight: 700 }}
                   >
-                    Create account
+                    {t("Create account")}
                   </button>
                 </div>
 
@@ -306,7 +306,7 @@ export default function PlayerActions() {
                     color: "#777",
                   }}
                 >
-                  Email
+                  {t("Email")}
                 </label>
 
                 <input
@@ -325,7 +325,7 @@ export default function PlayerActions() {
                 />
 
                 <label style={{ display: "block", marginTop: 14, fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#777" }}>
-                  Password
+                  {t("Password")}
                 </label>
 
                 <input
@@ -365,8 +365,7 @@ export default function PlayerActions() {
                     lineHeight: 1.5,
                   }}
                 >
-                  Submit your claim and WFM will review your relationship to
-                  this player profile before marking it verified.
+                  {t("Submit your claim and WFM will review your relationship to this player profile before marking it verified.")}
                 </div>
 
                 <button
