@@ -261,7 +261,7 @@ export default function PlayerActions() {
                   height: 34,
                   fontSize: 18,
                 }}
-                aria-label=t("Close")
+                aria-label={t("Close")}
               >
                 ×
               </button>
@@ -332,7 +332,7 @@ export default function PlayerActions() {
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   type="password"
-                  placeholder=t("Create a password")
+                  placeholder={t("Create a password")}
                   style={{ width: "100%", marginTop: 6, padding: 11, border: "1px solid #ccc", borderRadius: 8, fontSize: 14 }}
                 />
 
@@ -415,7 +415,7 @@ export default function PlayerActions() {
                   value={newValue}
                   onChange={(event) => setNewValue(event.target.value)}
                   rows={3}
-                  placeholder=t("Enter the correct information...")
+                  placeholder={t("Enter the correct information...")}
                   style={input}
                 />
 
@@ -433,7 +433,7 @@ export default function PlayerActions() {
                   value={notes}
                   onChange={(event) => setNotes(event.target.value)}
                   rows={3}
-                  placeholder=t("Tell us why this should be changed.")
+                  placeholder={t("Tell us why this should be changed.")}
                   style={input}
                 />
 
