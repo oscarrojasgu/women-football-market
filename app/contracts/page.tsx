@@ -187,7 +187,7 @@ export default function ContractsPage() {
     <>
       <section className="players-scout-hero">
         <div className="players-scout-shell">
-          <div className="players-scout-eyebrow">WOMEN&apos;S FOOTBALL MARKET</div>
+          <div className="players-scout-eyebrow">{t("WOMEN’S FOOTBALL MARKET")}</div>
           <h1>{t("Contract Intelligence")}</h1>
           <p>
             {t("Track active deals, contract expiry windows, salary information and confidence across the database.")}
