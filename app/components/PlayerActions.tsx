@@ -13,7 +13,7 @@ export default function PlayerActions() {
   }, [pathname]);
 
   const locale = getLocaleFromPathname(pathname || "/");
-  const t = (key: string) => PLAYER_ACTIONS_COPY[locale][key] ?? PLAYER_ACTIONS_COPY.en[key] ?? key;
+  const t = (key: string) => PLAYER_ACTIONS_COPY[locale][key] ?? key;
 
   const [open, setOpen] = useState<"claim" | "update" | null>(null);
   const [email, setEmail] = useState("");
