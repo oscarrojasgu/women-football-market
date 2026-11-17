@@ -32,6 +32,7 @@ const entries: Record<string, Record<WfmLocale, string>> = {
 "Unknown player": { en: "Unknown player", es: "Jugadora desconocida", pt: "Jogadora desconhecida", fr: "Joueuse inconnue", de: "Unbekannte Spielerin" },
 "Unknown club": { en: "Unknown club", es: "Club desconocido", pt: "Clube desconhecido", fr: "Club inconnu", de: "Unbekannter Verein" },
 "Nationality unknown": { en: "Nationality unknown", es: "Nacionalidad desconocida", pt: "Nacionalidade desconhecida", fr: "Nationalité inconnue", de: "Nationalität unbekannt" },
+"salary records": { en: "salary records", es: "registros salariales", pt: "registros salariais", fr: "dossiers salariaux", de: "Gehaltsdatensätze" },
 "Verified": { en: "Verified", es: "Verificado", pt: "Verificado", fr: "Vérifié", de: "Verifiziert" },
 "Reported": { en: "Reported", es: "Reportado", pt: "Reportado", fr: "Signalé", de: "Gemeldet" },
 "Estimated": { en: "Estimated", es: "Estimado", pt: "Estimado", fr: "Estimé", de: "Geschätzt" },
