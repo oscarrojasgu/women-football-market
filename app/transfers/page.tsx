@@ -161,7 +161,7 @@ export default function TransfersPage() {
 
       if (transferError) {
         console.error("Error loading transfers:", transferError);
-        setError("We couldn't load the transfer market right now.");
+        setError(t("We couldn't load the transfer market right now."));
         setTransfers([]);
         setLoading(false);
         return;
@@ -182,7 +182,7 @@ export default function TransfersPage() {
 
       if (playerError || clubError) {
         console.error("Error loading transfer relationships:", playerError || clubError);
-        setRelationshipWarning("Some player or club details could not be loaded, so transfer records may be incomplete.");
+        setRelationshipWarning(t("Some player or club details could not be loaded, so transfer records may be incomplete."));
       }
 
       const playerMap = new Map((playerData || []).map((player) => [player.id, player]));
