@@ -568,7 +568,7 @@ en: {
 "You already submitted a claim for this profile.": "You already submitted a claim for this profile.",
 "Claim submitted. WFM will review your verification.": "Claim submitted. WFM will review your verification.",
 "Choose a field and enter the corrected information.": "Choose a field and enter the corrected information.",
-"Update submitted for WFM review.": "Update submitted for WFM review."
+"Update submitted for WFM review.": "Update submitted for WFM review.",
 "Your relationship to this player": "Your relationship to this player",
 "Player": "Player",
 "Club representative": "Club representative",
@@ -624,7 +624,7 @@ es: {
 "You already submitted a claim for this profile.": "Ya has enviado una solicitud para este perfil.",
 "Claim submitted. WFM will review your verification.": "Solicitud enviada. WFM revisará tu verificación.",
 "Choose a field and enter the corrected information.": "Selecciona un campo e introduce la información corregida.",
-"Update submitted for WFM review.": "Actualización enviada para revisión de WFM."
+"Update submitted for WFM review.": "Actualización enviada para revisión de WFM.",
 "Your relationship to this player": "Tu relación con esta jugadora",
 "Player": "Jugadora",
 "Club representative": "Representante del club",
@@ -680,7 +680,7 @@ pt: {
 "You already submitted a claim for this profile.": "Você já enviou uma solicitação para este perfil.",
 "Claim submitted. WFM will review your verification.": "Solicitação enviada. A WFM analisará sua verificação.",
 "Choose a field and enter the corrected information.": "Selecione um campo e informe os dados corrigidos.",
-"Update submitted for WFM review.": "Atualização enviada para análise da WFM."
+"Update submitted for WFM review.": "Atualização enviada para análise da WFM.",
 "Your relationship to this player": "Sua relação com esta jogadora",
 "Player": "Jogadora",
 "Club representative": "Representante do clube",
@@ -736,7 +736,7 @@ fr: {
 "You already submitted a claim for this profile.": "Vous avez déjà soumis une demande pour ce profil.",
 "Claim submitted. WFM will review your verification.": "Demande envoyée. WFM examinera votre vérification.",
 "Choose a field and enter the corrected information.": "Choisissez un champ et saisissez l’information corrigée.",
-"Update submitted for WFM review.": "Modification soumise à l’examen de WFM."
+"Update submitted for WFM review.": "Modification soumise à l’examen de WFM.",
 "Your relationship to this player": "Votre lien avec cette joueuse",
 "Player": "Joueuse",
 "Club representative": "Représentant du club",
@@ -792,7 +792,7 @@ de: {
 "You already submitted a claim for this profile.": "Du hast bereits einen Antrag für dieses Profil eingereicht.",
 "Claim submitted. WFM will review your verification.": "Antrag eingereicht. WFM prüft deine Verifizierung.",
 "Choose a field and enter the corrected information.": "Wähle ein Feld und gib die korrigierten Angaben ein.",
-"Update submitted for WFM review.": "Änderung zur Prüfung an WFM übermittelt."
+"Update submitted for WFM review.": "Änderung zur Prüfung an WFM übermittelt.",
 "Your relationship to this player": "Deine Beziehung zu dieser Spielerin",
 "Player": "Spielerin",
 "Club representative": "Vereinsvertretung",
