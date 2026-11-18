@@ -569,7 +569,6 @@ en: {
 "Claim submitted. WFM will review your verification.": "Claim submitted. WFM will review your verification.",
 "Choose a field and enter the corrected information.": "Choose a field and enter the corrected information.",
 "Update submitted for WFM review.": "Update submitted for WFM review."
-},
 "Your relationship to this player": "Your relationship to this player",
 "Player": "Player",
 "Club representative": "Club representative",
@@ -577,6 +576,7 @@ en: {
 "Explain your relationship and the evidence provided.": "Explain your relationship and the evidence provided.",
 "Add an evidence URL and explain your relationship to this player.": "Add an evidence URL and explain your relationship to this player.",
 "Representation request submitted. WFM will review your evidence.": "Representation request submitted. WFM will review your evidence.",
+},
 es: {
 "Claim this profile": "Reclamar este perfil",
 "Suggest an update": "Sugerir una actualización",
@@ -625,7 +625,6 @@ es: {
 "Claim submitted. WFM will review your verification.": "Solicitud enviada. WFM revisará tu verificación.",
 "Choose a field and enter the corrected information.": "Selecciona un campo e introduce la información corregida.",
 "Update submitted for WFM review.": "Actualización enviada para revisión de WFM."
-},
 "Your relationship to this player": "Tu relación con esta jugadora",
 "Player": "Jugadora",
 "Club representative": "Representante del club",
@@ -633,6 +632,7 @@ es: {
 "Explain your relationship and the evidence provided.": "Explica tu relación y las pruebas que aportas.",
 "Add an evidence URL and explain your relationship to this player.": "Añade una URL de prueba y explica tu relación con esta jugadora.",
 "Representation request submitted. WFM will review your evidence.": "Solicitud de representación enviada. WFM revisará tus pruebas.",
+},
 pt: {
 "Claim this profile": "Reivindicar este perfil",
 "Suggest an update": "Sugerir uma atualização",
@@ -681,7 +681,6 @@ pt: {
 "Claim submitted. WFM will review your verification.": "Solicitação enviada. A WFM analisará sua verificação.",
 "Choose a field and enter the corrected information.": "Selecione um campo e informe os dados corrigidos.",
 "Update submitted for WFM review.": "Atualização enviada para análise da WFM."
-},
 "Your relationship to this player": "Sua relação com esta jogadora",
 "Player": "Jogadora",
 "Club representative": "Representante do clube",
@@ -689,6 +688,7 @@ pt: {
 "Explain your relationship and the evidence provided.": "Explique sua relação e as evidências fornecidas.",
 "Add an evidence URL and explain your relationship to this player.": "Adicione uma URL de evidência e explique sua relação com esta jogadora.",
 "Representation request submitted. WFM will review your evidence.": "Solicitação de representação enviada. A WFM analisará suas evidências.",
+},
 fr: {
 "Claim this profile": "Revendiquer ce profil",
 "Suggest an update": "Suggérer une modification",
@@ -737,7 +737,6 @@ fr: {
 "Claim submitted. WFM will review your verification.": "Demande envoyée. WFM examinera votre vérification.",
 "Choose a field and enter the corrected information.": "Choisissez un champ et saisissez l’information corrigée.",
 "Update submitted for WFM review.": "Modification soumise à l’examen de WFM."
-},
 "Your relationship to this player": "Votre lien avec cette joueuse",
 "Player": "Joueuse",
 "Club representative": "Représentant du club",
@@ -745,6 +744,7 @@ fr: {
 "Explain your relationship and the evidence provided.": "Expliquez votre lien et les justificatifs fournis.",
 "Add an evidence URL and explain your relationship to this player.": "Ajoutez une URL de justificatif et expliquez votre lien avec cette joueuse.",
 "Representation request submitted. WFM will review your evidence.": "Demande de représentation envoyée. WFM examinera vos justificatifs.",
+},
 de: {
 "Claim this profile": "Dieses Profil beanspruchen",
 "Suggest an update": "Änderung vorschlagen",
