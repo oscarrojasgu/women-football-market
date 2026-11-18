@@ -32,6 +32,20 @@ type Player = {
   full_name: string;
 };
 
+type RepresentationRequest = {
+  id: string;
+  user_id: string;
+  player_id: string | null;
+  club_id: string | null;
+  agency_name: string | null;
+  relationship_type: string;
+  status: string;
+  verification_method: string | null;
+  evidence_url: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
 type OfficialVerification = {
   id: string;
   user_id: string;
@@ -57,6 +71,7 @@ export default function VerificationDashboard() {
   const [busy, setBusy] = useState(false);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [claims, setClaims] = useState<Claim[]>([]);
+  const [representationRequests, setRepresentationRequests] = useState<RepresentationRequest[]>([]);
   const [officialVerifications, setOfficialVerifications] = useState<OfficialVerification[]>([]);
   const [players, setPlayers] = useState<Record<string, Player>>({});
   const [clubs, setClubs] = useState<Record<string, { id: string; name: string }>>({});
@@ -156,7 +171,7 @@ export default function VerificationDashboard() {
   async function loadQueue() {
     setLoading(true);
 
-    const [{ data: submissionData, error: submissionError }, { data: claimData, error: claimError }, { data: officialData, error: officialError }] =
+    const [{ data: submissionData, error: submissionError }, { data: claimData, error: claimError }, { data: officialData, error: officialError }, { data: representationData, error: representationError }] =
       await Promise.all([
         supabase
           .from("verification_submissions")
@@ -177,10 +192,15 @@ export default function VerificationDashboard() {
           .select("id, user_id, player_id, club_id, agency_name, verification_type, status, verification_method, evidence_url, notes, created_at")
           .eq("status", "pending")
           .order("created_at", { ascending: true }),
+        supabase
+          .from("representation_requests")
+          .select("id, user_id, player_id, club_id, agency_name, relationship_type, status, verification_method, evidence_url, notes, created_at")
+          .eq("status", "pending")
+          .order("created_at", { ascending: true }),
       ]);
 
-    if (submissionError || claimError || officialError) {
-      setMessage(submissionError?.message || claimError?.message || officialError?.message || "Could not load the review queue.");
+    if (submissionError || claimError || officialError || representationError) {
+      setMessage(submissionError?.message || claimError?.message || officialError?.message || representationError?.message || "Could not load the review queue.");
       setLoading(false);
       return;
     }
@@ -188,14 +208,17 @@ export default function VerificationDashboard() {
     const nextSubmissions = submissionData || [];
     const nextClaims = claimData || [];
     const nextOfficialVerifications = officialData || [];
+    const nextRepresentationRequests = representationData || [];
     setSubmissions(nextSubmissions);
     setClaims(nextClaims);
     setOfficialVerifications(nextOfficialVerifications);
+    setRepresentationRequests(nextRepresentationRequests);
 
     const ids = Array.from(
       new Set([
         ...nextSubmissions.map((item) => item.player_id),
         ...nextClaims.map((item) => item.player_id),
+        ...nextRepresentationRequests.map((item) => item.player_id).filter(Boolean) as string[],
         ...nextOfficialVerifications.map((item) => item.player_id).filter(Boolean) as string[],
       ])
     );
@@ -291,6 +314,35 @@ export default function VerificationDashboard() {
     }
 
     setMessage("Claim rejected.");
+    await loadQueue();
+  }
+
+  async function reviewRepresentationRequest(id: string, action: "approved" | "rejected" | "needs_evidence") {
+    setBusy(true);
+    setMessage("");
+
+    const { error } = await supabase.rpc("review_representation_request", {
+      p_request_id: id,
+      p_action: action,
+      p_verification_method: null,
+      p_evidence_url: null,
+      p_source_id: null,
+      p_notes: null,
+    });
+
+    setBusy(false);
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setMessage(
+      action === "approved"
+        ? "Representation request approved."
+        : action === "rejected"
+          ? "Representation request rejected."
+          : "Representation request returned for more evidence."
+    );
     await loadQueue();
   }
 
@@ -453,6 +505,60 @@ export default function VerificationDashboard() {
                   <button onClick={() => reviewOfficial(item.id, "approved")} disabled={busy} style={styles.approveButton}>{t("Approve official")}</button>
                   <button onClick={() => reviewOfficial(item.id, "needs_evidence")} disabled={busy} style={styles.rejectButton}>{t("Needs evidence")}</button>
                   <button onClick={() => reviewOfficial(item.id, "rejected")} disabled={busy} style={styles.rejectButton}>Reject</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section style={styles.section}>
+        <div style={styles.sectionHeader}>
+          <h2 style={styles.sectionTitle}>Representation requests</h2>
+          <button onClick={loadQueue} style={styles.refreshButton}>{t("Refresh")}</button>
+        </div>
+        {representationRequests.length === 0 ? (
+          <div style={styles.empty}>No pending representation requests.</div>
+        ) : (
+          <div style={styles.list}>
+            {representationRequests.map((request) => (
+              <article key={request.id} style={styles.card}>
+                <div style={styles.cardTop}>
+                  <div>
+                    <div style={styles.playerName}>
+                      {request.player_id
+                        ? players[request.player_id]?.full_name || "Unknown player"
+                        : request.club_id
+                          ? clubs[request.club_id]?.name || "Club request"
+                          : request.agency_name || "Agency request"}
+                    </div>
+                    <div style={styles.field}>
+                      {request.relationship_type.toUpperCase()} · User ID: {request.user_id}
+                    </div>
+                  </div>
+                  <div style={styles.pending}>{t("PENDING")}</div>
+                </div>
+                <div style={styles.notes}>
+                  Verification method: {request.verification_method || "Not specified"}
+                </div>
+                {request.evidence_url && (
+                  <a href={request.evidence_url} target="_blank" rel="noreferrer" style={styles.evidence}>
+                    {t("Open evidence ↗")}
+                  </a>
+                )}
+                {request.notes && (
+                  <div style={styles.notes}><strong>{t("Notes:")}</strong> {request.notes}</div>
+                )}
+                <div style={styles.actions}>
+                  <button onClick={() => reviewRepresentationRequest(request.id, "approved")} disabled={busy} style={styles.approveButton}>
+                    Approve representation
+                  </button>
+                  <button onClick={() => reviewRepresentationRequest(request.id, "needs_evidence")} disabled={busy} style={styles.rejectButton}>
+                    {t("Needs evidence")}
+                  </button>
+                  <button onClick={() => reviewRepresentationRequest(request.id, "rejected")} disabled={busy} style={styles.rejectButton}>
+                    {t("Reject")}
+                  </button>
                 </div>
               </article>
             ))}
