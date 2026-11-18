@@ -238,7 +238,7 @@ export default function VerificationDashboard() {
       setPlayers({});
     }
 
-    const clubIds = Array.from(new Set(nextOfficialVerifications.map((item) => item.club_id).filter(Boolean) as string[]));
+    const clubIds = Array.from(new Set([...nextOfficialVerifications, ...nextRepresentationRequests].map((item) => item.club_id).filter(Boolean) as string[]));
     if (clubIds.length) {
       const { data: clubData } = await supabase.from("clubs").select("id,name").in("id", clubIds);
       const clubMap: Record<string, { id: string; name: string }> = {};
