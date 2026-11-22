@@ -63,6 +63,12 @@ export const WFM_ADMIN_VERIFICATION_TRANSLATIONS: Record<WfmLocale, Record<strin
     "Approve & apply": "Approve & apply",
     "Verify claim": "Verify claim",
     "Could not load the review queue.": "Could not load the review queue.",
+    "WOMEN’S FOOTBALL MARKET": "WOMEN’S FOOTBALL MARKET",
+    "Player": "Player",
+    "Club": "Club",
+    "Agent": "Agent",
+    "Club representative": "Club representative",
+    "Agency representative": "Agency representative",
     "Verification method": "Verification method"
   },
   es: {
@@ -127,6 +133,12 @@ export const WFM_ADMIN_VERIFICATION_TRANSLATIONS: Record<WfmLocale, Record<strin
     "Approve & apply": "Aprobar y aplicar",
     "Verify claim": "Verificar reclamación",
     "Could not load the review queue.": "No se pudo cargar la cola de revisión.",
+    "WOMEN’S FOOTBALL MARKET": "WOMEN’S FOOTBALL MARKET",
+    "Player": "Jugadora",
+    "Club": "Club",
+    "Agent": "Agente",
+    "Club representative": "Representante del club",
+    "Agency representative": "Representante de la agencia",
     "Verification method": "Método de verificación"
   },
   pt: {
@@ -191,6 +203,12 @@ export const WFM_ADMIN_VERIFICATION_TRANSLATIONS: Record<WfmLocale, Record<strin
     "Approve & apply": "Aprovar e aplicar",
     "Verify claim": "Verificar solicitação",
     "Could not load the review queue.": "Não foi possível carregar a fila de revisão.",
+    "WOMEN’S FOOTBALL MARKET": "WOMEN’S FOOTBALL MARKET",
+    "Player": "Jogadora",
+    "Club": "Clube",
+    "Agent": "Agente",
+    "Club representative": "Representante do clube",
+    "Agency representative": "Representante da agência",
     "Verification method": "Método de verificação"
   },
   fr: {
@@ -255,6 +273,12 @@ export const WFM_ADMIN_VERIFICATION_TRANSLATIONS: Record<WfmLocale, Record<strin
     "Approve & apply": "Approuver et appliquer",
     "Verify claim": "Vérifier la réclamation",
     "Could not load the review queue.": "Impossible de charger la file de vérification.",
+    "WOMEN’S FOOTBALL MARKET": "WOMEN’S FOOTBALL MARKET",
+    "Player": "Joueuse",
+    "Club": "Club",
+    "Agent": "Agent",
+    "Club representative": "Représentant du club",
+    "Agency representative": "Représentant de l’agence",
     "Verification method": "Méthode de vérification"
   },
   de: {
@@ -319,6 +343,12 @@ export const WFM_ADMIN_VERIFICATION_TRANSLATIONS: Record<WfmLocale, Record<strin
     "Approve & apply": "Genehmigen und übernehmen",
     "Verify claim": "Anspruch verifizieren",
     "Could not load the review queue.": "Die Prüfliste konnte nicht geladen werden.",
+    "WOMEN’S FOOTBALL MARKET": "WOMEN’S FOOTBALL MARKET",
+    "Player": "Spielerin",
+    "Club": "Verein",
+    "Agent": "Agent",
+    "Club representative": "Clubvertretung",
+    "Agency representative": "Agenturvertretung",
     "Verification method": "Verifizierungsmethode"
   }
 };
