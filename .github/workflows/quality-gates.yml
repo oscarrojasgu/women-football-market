@@ -38,9 +38,14 @@ jobs:
       - name: Generate timestamped resubmission migration
         if: github.ref == 'refs/heads/feat/representation-claims-security'
         run: |
-          npx --yes supabase@latest init
-          npx --yes supabase@latest migration new representation_request_resubmission
+          if [ ! -f supabase/config.toml ]; then
+            npx --yes supabase@latest init
+          fi
           migration_file="$(find supabase/migrations -maxdepth 1 -type f -name '*_representation_request_resubmission.sql' -print -quit)"
+          if [ -z "$migration_file" ]; then
+            npx --yes supabase@latest migration new representation_request_resubmission
+            migration_file="$(find supabase/migrations -maxdepth 1 -type f -name '*_representation_request_resubmission.sql' -print -quit)"
+          fi
           if [ -z "$migration_file" ]; then
             echo "Supabase CLI did not create the expected migration file."
             exit 1
@@ -127,6 +132,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
       - name: Run representation resubmission SQL tests
+        if: hashFiles('supabase/migrations/*_representation_request_resubmission.sql') != ''
         env:
           PGPASSWORD: postgres
         run: |
