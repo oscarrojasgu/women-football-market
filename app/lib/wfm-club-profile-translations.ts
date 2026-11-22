@@ -2,6 +2,8 @@ import type { WfmLocale } from "./i18n"
 
 const entries: Record<string, Record<WfmLocale, string>> = {
   "Unknown": { es: "Desconocido", pt: "Desconhecido", fr: "Inconnu", de: "Unbekannt", en: "Unknown" },
+  "Expires": { es: "Vence", pt: "Vence", fr: "Échéance", de: "Ablauf", en: "Expires" },
+  "Annual Salary": { es: "Salario anual", pt: "Salário anual", fr: "Salaire annuel", de: "Jahresgehalt", en: "Annual Salary" },
   "WOMEN’S FOOTBALL MARKET": { es: "Mercado de Fútbol Femenino", pt: "Mercado do Futebol Feminino", fr: "Marché du football féminin", de: "Frauenfußballmarkt", en: "WOMEN’S FOOTBALL MARKET" },
   "Club Profile": { es: "Perfil del club", pt: "Perfil do clube", fr: "Profil du club", de: "Vereinsprofil", en: "Club Profile" },
   "Loading club information, squad records, contract context and transfer activity.": { es: "Cargando información del club, plantilla, contratos y actividad de fichajes.", pt: "Carregando informações do clube, elenco, contratos e atividade de transferências.", fr: "Chargement des informations du club, de l’effectif, des contrats et des transferts.", de: "Vereinsinformationen, Kader, Vertragsdaten und Transferaktivitäten werden geladen.", en: "Loading club information, squad records, contract context and transfer activity." },
