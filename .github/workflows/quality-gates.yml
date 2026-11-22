@@ -85,3 +85,32 @@ jobs:
 
       - name: Build Next.js application
         run: npm run build
+
+  sql-resubmission-test:
+    if: hashFiles('docs/launch/representation-request-resubmission.sql', 'tests/sql/representation-request-resubmission-test.sql') != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: wfm_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d wfm_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Run representation resubmission SQL tests
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d wfm_test -v ON_ERROR_STOP=1 -f tests/sql/representation-request-resubmission-test.sql
