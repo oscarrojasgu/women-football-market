@@ -33,5 +33,13 @@ jobs:
       - name: Install pinned dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Upload generated npm lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: wfm-package-lock
+          path: package-lock.json
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Build Next.js application
         run: npm run build
