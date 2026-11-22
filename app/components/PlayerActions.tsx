@@ -115,6 +115,7 @@ export default function PlayerActions() {
         p_request_id: existingRequest.id,
         p_evidence_url: evidenceUrl.trim(),
         p_notes: notes.trim(),
+        p_relationship_type: relationshipType,
       });
       submissionError = error;
     } else if (existingRequest) {
