@@ -63,6 +63,22 @@ type OfficialVerification = {
 
 export default function VerificationDashboard() {
  const t=useWfmT()
+  function verificationTypeLabel(value: string) {
+    const normalized = value.toLowerCase();
+    if (normalized === "player") return t("Player");
+    if (normalized === "club") return t("Club");
+    if (normalized === "agent") return t("Agent");
+    if (normalized === "agency") return t("Agency");
+    return value.toUpperCase();
+  }
+  function relationshipTypeLabel(value: string) {
+    const normalized = value.toLowerCase();
+    if (normalized === "player") return t("Player");
+    if (normalized === "agent") return t("Agent");
+    if (normalized === "club") return t("Club representative");
+    if (normalized === "agency") return t("Agency representative");
+    return value.toUpperCase();
+  }
   const [user, setUser] = useState<any>(null);
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -165,7 +181,7 @@ export default function VerificationDashboard() {
       ]);
 
     if (submissionError || claimError || officialError || representationError) {
-      setMessage(submissionError?.message || claimError?.message || officialError?.message || representationError?.message || "Could not load the review queue.");
+      setMessage(submissionError?.message || claimError?.message || officialError?.message || representationError?.message || t("Could not load the review queue."));
       setLoading(false);
       return;
     }
@@ -234,10 +250,10 @@ export default function VerificationDashboard() {
 
     setMessage(
       action === "approved"
-        ? "Approved and applied to the player profile."
+        ? t("Approved and applied to the player profile.")
         : action === "rejected"
-          ? "Submission rejected."
-          : "Submission marked as needing more evidence."
+          ? t("Submission rejected.")
+          : t("Submission marked as needing more evidence.")
     );
     await loadQueue();
   }
@@ -258,7 +274,7 @@ export default function VerificationDashboard() {
       return;
     }
 
-    setMessage("Claim verified and representation access granted.");
+    setMessage(t("Claim verified and representation access granted."));
     await loadQueue();
   }
 
@@ -278,7 +294,7 @@ export default function VerificationDashboard() {
       return;
     }
 
-    setMessage("Claim rejected.");
+    setMessage(t("Claim rejected."));
     await loadQueue();
   }
 
@@ -303,10 +319,10 @@ export default function VerificationDashboard() {
 
     setMessage(
       action === "approved"
-        ? "Representation request approved."
+        ? t("Representation request approved.")
         : action === "rejected"
-          ? "Representation request rejected."
-          : "Representation request returned for more evidence."
+          ? t("Representation request rejected.")
+          : t("Representation request returned for more evidence.")
     );
     await loadQueue();
   }
@@ -323,7 +339,7 @@ export default function VerificationDashboard() {
       setMessage(error.message);
       return;
     }
-    setMessage(action === "approved" ? "Official verification approved and published." : action === "rejected" ? "Official verification rejected." : action === "revoked" ? "Official verification revoked." : "Official verification returned for more evidence.");
+    setMessage(action === "approved" ? t("Official verification approved and published.") : action === "rejected" ? t("Official verification rejected.") : action === "revoked" ? t("Official verification revoked.") : t("Official verification returned for more evidence."));
     await loadQueue();
   }
 
@@ -346,8 +362,7 @@ export default function VerificationDashboard() {
           <div style={styles.eyebrow}>{t("WOMEN’S FOOTBALL MARKET")}</div>
           <h1 style={styles.title}>{t("Owner verification")}</h1>
           <p style={styles.muted}>
-            Sign in with the owner email. This area is separate from the public
-            player verification flow.
+            {t("Sign in with the owner email. This area is separate from the public player verification flow.")}
           </p>
 
           <label style={styles.label}>{t("Owner email")}</label>
@@ -373,7 +388,7 @@ export default function VerificationDashboard() {
             disabled={busy || !email || !password}
             style={styles.primaryButton}
           >
-            {busy ? "Signing in..." : "Sign in"}
+            {busy ? t("Signing in...") : t("Sign in")}
           </button>
 
           {message && <div style={styles.message}>{message}</div>}
@@ -389,12 +404,10 @@ export default function VerificationDashboard() {
           <div style={styles.eyebrow}>{t("ACCESS DENIED")}</div>
           <h1 style={styles.title}>{t("This account is not an owner.")}</h1>
           <p style={styles.muted}>
-            Signed in as <strong>{user.email || "this account"}</strong>.
-            The account must be added to the WFM owner list before it can
-            review submissions.
+            {t("Signed in as")} <strong>{user.email || t("this account")}</strong>. {t("The account must be added to the WFM owner list before it can review submissions.")}
           </p>
           <button onClick={signOut} style={styles.secondaryButton}>
-            Sign out
+            {t("Sign out")}
           </button>
         </div>
       </main>
@@ -408,13 +421,12 @@ export default function VerificationDashboard() {
           <div style={styles.eyebrow}>{t("WOMEN’S FOOTBALL MARKET")}</div>
           <h1 style={styles.title}>{t("Verification dashboard")}</h1>
           <p style={styles.muted}>
-            Review player claims and submitted corrections before they become
-            part of the public database.
+            {t("Review player claims and submitted corrections before they become part of the public database.")}
           </p>
         </div>
 
         <button onClick={signOut} style={styles.secondaryButton}>
-          Sign out
+          {t("Sign out")}
         </button>
       </div>
 
@@ -449,19 +461,19 @@ export default function VerificationDashboard() {
                 <div style={styles.cardTop}>
                   <div>
                     <div style={styles.playerName}>
-                      {item.player_id ? players[item.player_id]?.full_name || "Unknown player" : item.club_id ? clubs[item.club_id]?.name || "Unknown club" : item.agency_name || "Agency"}
+                      {item.player_id ? players[item.player_id]?.full_name || t("Unknown player") : item.club_id ? clubs[item.club_id]?.name || t("Unknown club") : item.agency_name || t("Agency")}
                     </div>
-                    <div style={styles.field}>{item.verification_type.toUpperCase()} · User ID: {item.user_id}</div>
+                    <div style={styles.field}>{verificationTypeLabel(item.verification_type)} · {t("User ID:")} {item.user_id}</div>
                   </div>
                   <div style={styles.pending}>{t("PENDING")}</div>
                 </div>
-                <div style={styles.notes}>Verification method: {item.verification_method || "Not specified"}</div>
+                <div style={styles.notes}>{t("Verification method:")} {item.verification_method || t("Not specified")}</div>
                 {item.evidence_url && <a href={item.evidence_url} target="_blank" rel="noreferrer" style={styles.evidence}>{t("Open evidence ↗")}</a>}
                 {item.notes && <div style={styles.notes}><strong>{t("Notes:")}</strong> {item.notes}</div>}
                 <div style={styles.actions}>
                   <button onClick={() => reviewOfficial(item.id, "approved")} disabled={busy} style={styles.approveButton}>{t("Approve official")}</button>
                   <button onClick={() => reviewOfficial(item.id, "needs_evidence")} disabled={busy} style={styles.rejectButton}>{t("Needs evidence")}</button>
-                  <button onClick={() => reviewOfficial(item.id, "rejected")} disabled={busy} style={styles.rejectButton}>Reject</button>
+                  <button onClick={() => reviewOfficial(item.id, "rejected")} disabled={busy} style={styles.rejectButton}>{t("Reject")}</button>
                 </div>
               </article>
             ))}
@@ -471,11 +483,11 @@ export default function VerificationDashboard() {
 
       <section style={styles.section}>
         <div style={styles.sectionHeader}>
-          <h2 style={styles.sectionTitle}>Representation requests</h2>
+          <h2 style={styles.sectionTitle}>{t("Representation requests")}</h2>
           <button onClick={loadQueue} style={styles.refreshButton}>{t("Refresh")}</button>
         </div>
         {representationRequests.length === 0 ? (
-          <div style={styles.empty}>No pending representation requests.</div>
+          <div style={styles.empty}>{t("No pending representation requests.")}</div>
         ) : (
           <div style={styles.list}>
             {representationRequests.map((request) => (
@@ -484,19 +496,19 @@ export default function VerificationDashboard() {
                   <div>
                     <div style={styles.playerName}>
                       {request.player_id
-                        ? players[request.player_id]?.full_name || "Unknown player"
+                        ? players[request.player_id]?.full_name || t("Unknown player")
                         : request.club_id
-                          ? clubs[request.club_id]?.name || "Club request"
-                          : request.agency_name || "Agency request"}
+                          ? clubs[request.club_id]?.name || t("Unknown club")
+                          : request.agency_name || t("Agency")}
                     </div>
                     <div style={styles.field}>
-                      {request.relationship_type.toUpperCase()} · User ID: {request.user_id}
+                      {relationshipTypeLabel(request.relationship_type)} · {t("User ID:")} {request.user_id}
                     </div>
                   </div>
                   <div style={styles.pending}>{t("PENDING")}</div>
                 </div>
                 <div style={styles.notes}>
-                  Verification method: {request.verification_method || "Not specified"}
+                  {t("Verification method:")} {request.verification_method || t("Not specified")}
                 </div>
                 {request.evidence_url && (
                   <a href={request.evidence_url} target="_blank" rel="noreferrer" style={styles.evidence}>
@@ -508,7 +520,7 @@ export default function VerificationDashboard() {
                 )}
                 <div style={styles.actions}>
                   <button onClick={() => reviewRepresentationRequest(request.id, "approved")} disabled={busy} style={styles.approveButton}>
-                    Approve representation
+                    {t("Approve representation")}
                   </button>
                   <button onClick={() => reviewRepresentationRequest(request.id, "needs_evidence")} disabled={busy} style={styles.rejectButton}>
                     {t("Needs evidence")}
@@ -527,7 +539,7 @@ export default function VerificationDashboard() {
         <div style={styles.sectionHeader}>
           <h2 style={styles.sectionTitle}>{t("Profile updates")}</h2>
           <button onClick={loadQueue} style={styles.refreshButton}>
-            Refresh
+            {t("Refresh")}
           </button>
         </div>
 
@@ -568,7 +580,7 @@ export default function VerificationDashboard() {
                     rel="noreferrer"
                     style={styles.evidence}
                   >
-                    Open evidence ↗
+                    {t("Open evidence ↗")}
                   </a>
                 )}
 
@@ -584,7 +596,7 @@ export default function VerificationDashboard() {
                     disabled={busy}
                     style={styles.approveButton}
                   >
-                    Approve & apply
+                    {t("Approve & apply")}
                   </button>
                   <button
                     onClick={() => reviewSubmission(item.id, "needs_evidence")}
@@ -621,17 +633,17 @@ export default function VerificationDashboard() {
                 <div style={styles.cardTop}>
                   <div>
                     <div style={styles.playerName}>
-                      {players[claim.player_id]?.full_name || "Unknown player"}
+                      {players[claim.player_id]?.full_name || t("Unknown player")}
                     </div>
                     <div style={styles.field}>
-                      User ID: {claim.user_id}
+                      {t("User ID:")} {claim.user_id}
                     </div>
                   </div>
                   <div style={styles.pending}>{t("PENDING")}</div>
                 </div>
 
                 <div style={styles.notes}>
-                  Verification method: {claim.verification_method}
+                  {t("Verification method:")} {claim.verification_method}
                 </div>
 
                 <div style={styles.actions}>
@@ -640,14 +652,14 @@ export default function VerificationDashboard() {
                     disabled={busy}
                     style={styles.approveButton}
                   >
-                    Verify claim
+                    {t("Verify claim")}
                   </button>
                   <button
                     onClick={() => rejectClaim(claim.id)}
                     disabled={busy}
                     style={styles.rejectButton}
                   >
-                    Reject
+                    {t("Reject")}
                   </button>
                 </div>
               </article>
