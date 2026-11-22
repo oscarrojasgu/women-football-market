@@ -20,6 +20,7 @@ export default function PlayerActions() {
   const [password, setPassword] = useState("");
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [fieldName, setFieldName] = useState("");
+  const [relationshipType, setRelationshipType] = useState<"player" | "agent" | "club" | "agency">("player");
   const [newValue, setNewValue] = useState("");
   const [evidenceUrl, setEvidenceUrl] = useState("");
   const [notes, setNotes] = useState("");
@@ -85,21 +86,69 @@ export default function PlayerActions() {
     setBusy(true);
     setMessage("");
 
-    const { error } = await supabase.from("player_claims").insert({
-      player_id: playerId,
-      user_id: userId,
-      verification_method: "account",
-      status: "pending",
-    });
+    if (!evidenceUrl.trim() || !notes.trim()) {
+      setBusy(false);
+      setMessage(t("Add an evidence URL and explain your relationship to this player."));
+      return;
+    }
+
+    const { data: existingRequest, error: lookupError } = await supabase
+      .from("representation_requests")
+      .select("id, reviewed_at")
+      .eq("user_id", userId)
+      .eq("player_id", playerId)
+      .eq("status", "pending")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (lookupError) {
+      setBusy(false);
+      setMessage(lookupError.message);
+      return;
+    }
+
+    let submissionError = null;
+
+    if (existingRequest?.reviewed_at) {
+      const { error } = await supabase.rpc("resubmit_representation_request", {
+        p_request_id: existingRequest.id,
+        p_evidence_url: evidenceUrl.trim(),
+        p_notes: notes.trim(),
+        p_relationship_type: relationshipType,
+      });
+      submissionError = error;
+    } else if (existingRequest) {
+      setBusy(false);
+      setMessage(t("Your request is awaiting WFM review."));
+      return;
+    } else {
+      const { error } = await supabase.rpc("submit_representation_request", {
+        p_player_id: playerId,
+        p_club_id: null,
+        p_agency_name: null,
+        p_relationship_type: relationshipType,
+        p_verification_method: "account",
+        p_evidence_url: evidenceUrl.trim(),
+        p_source_id: null,
+        p_notes: notes.trim(),
+      });
+      submissionError = error;
+    }
 
     setBusy(false);
+    if (submissionError) {
+      setMessage(submissionError.message);
+      return;
+    }
+
     setMessage(
-      error
-        ? error.code === "23505"
-          ? t("You already submitted a claim for this profile.")
-          : error.message
-        : t("Claim submitted. WFM will review your verification.")
+      existingRequest
+        ? t("Evidence resubmitted. WFM will review your updated information.")
+        : t("Representation request submitted. WFM will review your evidence.")
     );
+    setEvidenceUrl("");
+    setNotes("");
   };
 
   const submitUpdate = async () => {
@@ -368,9 +417,39 @@ export default function PlayerActions() {
                   {t("Submit your claim and WFM will review your relationship to this player profile before marking it verified.")}
                 </div>
 
+                <label style={label}>{t("Your relationship to this player")}</label>
+                <select
+                  value={relationshipType}
+                  onChange={(event) => setRelationshipType(event.target.value as "player" | "agent" | "club" | "agency")}
+                  style={input}
+                >
+                  <option value="player">{t("Player")}</option>
+                  <option value="agent">{t("Agent")}</option>
+                  <option value="club">{t("Club representative")}</option>
+                  <option value="agency">{t("Agency representative")}</option>
+                </select>
+
+                <label style={label}>{t("Evidence URL")}</label>
+                <input
+                  value={evidenceUrl}
+                  onChange={(event) => setEvidenceUrl(event.target.value)}
+                  type="url"
+                  placeholder="https://..."
+                  style={input}
+                />
+
+                <label style={label}>{t("Notes")}</label>
+                <textarea
+                  value={notes}
+                  onChange={(event) => setNotes(event.target.value)}
+                  rows={3}
+                  placeholder={t("Explain your relationship and the evidence provided.")}
+                  style={input}
+                />
+
                 <button
                   onClick={claimProfile}
-                  disabled={busy}
+                  disabled={busy || !evidenceUrl.trim() || !notes.trim()}
                   style={{
                     width: "100%",
                     marginTop: 14,
@@ -380,6 +459,7 @@ export default function PlayerActions() {
                     background: "#111",
                     color: "#fff",
                     fontWeight: 700,
+                    opacity: busy || !evidenceUrl.trim() || !notes.trim() ? 0.55 : 1,
                   }}
                 >
                   {busy ? t("Submitting...") : t("Submit profile claim")}
@@ -525,7 +605,16 @@ en: {
 "You already submitted a claim for this profile.": "You already submitted a claim for this profile.",
 "Claim submitted. WFM will review your verification.": "Claim submitted. WFM will review your verification.",
 "Choose a field and enter the corrected information.": "Choose a field and enter the corrected information.",
-"Update submitted for WFM review.": "Update submitted for WFM review."
+"Update submitted for WFM review.": "Update submitted for WFM review.",
+"Your relationship to this player": "Your relationship to this player",
+"Player": "Player",
+"Club representative": "Club representative",
+"Agency representative": "Agency representative",
+"Explain your relationship and the evidence provided.": "Explain your relationship and the evidence provided.",
+"Add an evidence URL and explain your relationship to this player.": "Add an evidence URL and explain your relationship to this player.",
+"Representation request submitted. WFM will review your evidence.": "Representation request submitted. WFM will review your evidence.",
+"Your request is awaiting WFM review.": "Your request is awaiting WFM review.",
+"Evidence resubmitted. WFM will review your updated information.": "Evidence resubmitted. WFM will review your updated information.",
 },
 es: {
 "Claim this profile": "Reclamar este perfil",
@@ -574,7 +663,16 @@ es: {
 "You already submitted a claim for this profile.": "Ya has enviado una solicitud para este perfil.",
 "Claim submitted. WFM will review your verification.": "Solicitud enviada. WFM revisará tu verificación.",
 "Choose a field and enter the corrected information.": "Selecciona un campo e introduce la información corregida.",
-"Update submitted for WFM review.": "Actualización enviada para revisión de WFM."
+"Update submitted for WFM review.": "Actualización enviada para revisión de WFM.",
+"Your relationship to this player": "Tu relación con esta jugadora",
+"Player": "Jugadora",
+"Club representative": "Representante del club",
+"Agency representative": "Representante de la agencia",
+"Explain your relationship and the evidence provided.": "Explica tu relación y las pruebas que aportas.",
+"Add an evidence URL and explain your relationship to this player.": "Añade una URL de prueba y explica tu relación con esta jugadora.",
+"Representation request submitted. WFM will review your evidence.": "Solicitud de representación enviada. WFM revisará tus pruebas.",
+"Your request is awaiting WFM review.": "Tu solicitud está pendiente de revisión por WFM.",
+"Evidence resubmitted. WFM will review your updated information.": "Pruebas reenviadas. WFM revisará la información actualizada.",
 },
 pt: {
 "Claim this profile": "Reivindicar este perfil",
@@ -623,7 +721,16 @@ pt: {
 "You already submitted a claim for this profile.": "Você já enviou uma solicitação para este perfil.",
 "Claim submitted. WFM will review your verification.": "Solicitação enviada. A WFM analisará sua verificação.",
 "Choose a field and enter the corrected information.": "Selecione um campo e informe os dados corrigidos.",
-"Update submitted for WFM review.": "Atualização enviada para análise da WFM."
+"Update submitted for WFM review.": "Atualização enviada para análise da WFM.",
+"Your relationship to this player": "Sua relação com esta jogadora",
+"Player": "Jogadora",
+"Club representative": "Representante do clube",
+"Agency representative": "Representante da agência",
+"Explain your relationship and the evidence provided.": "Explique sua relação e as evidências fornecidas.",
+"Add an evidence URL and explain your relationship to this player.": "Adicione uma URL de evidência e explique sua relação com esta jogadora.",
+"Representation request submitted. WFM will review your evidence.": "Solicitação de representação enviada. A WFM analisará suas evidências.",
+"Your request is awaiting WFM review.": "Sua solicitação está aguardando análise da WFM.",
+"Evidence resubmitted. WFM will review your updated information.": "Evidências reenviadas. A WFM analisará as informações atualizadas.",
 },
 fr: {
 "Claim this profile": "Revendiquer ce profil",
@@ -672,7 +779,16 @@ fr: {
 "You already submitted a claim for this profile.": "Vous avez déjà soumis une demande pour ce profil.",
 "Claim submitted. WFM will review your verification.": "Demande envoyée. WFM examinera votre vérification.",
 "Choose a field and enter the corrected information.": "Choisissez un champ et saisissez l’information corrigée.",
-"Update submitted for WFM review.": "Modification soumise à l’examen de WFM."
+"Update submitted for WFM review.": "Modification soumise à l’examen de WFM.",
+"Your relationship to this player": "Votre lien avec cette joueuse",
+"Player": "Joueuse",
+"Club representative": "Représentant du club",
+"Agency representative": "Représentant de l’agence",
+"Explain your relationship and the evidence provided.": "Expliquez votre lien et les justificatifs fournis.",
+"Add an evidence URL and explain your relationship to this player.": "Ajoutez une URL de justificatif et expliquez votre lien avec cette joueuse.",
+"Representation request submitted. WFM will review your evidence.": "Demande de représentation envoyée. WFM examinera vos justificatifs.",
+"Your request is awaiting WFM review.": "Votre demande est en attente d’examen par WFM.",
+"Evidence resubmitted. WFM will review your updated information.": "Justificatifs renvoyés. WFM examinera les informations mises à jour.",
 },
 de: {
 "Claim this profile": "Dieses Profil beanspruchen",
@@ -721,7 +837,16 @@ de: {
 "You already submitted a claim for this profile.": "Du hast bereits einen Antrag für dieses Profil eingereicht.",
 "Claim submitted. WFM will review your verification.": "Antrag eingereicht. WFM prüft deine Verifizierung.",
 "Choose a field and enter the corrected information.": "Wähle ein Feld und gib die korrigierten Angaben ein.",
-"Update submitted for WFM review.": "Änderung zur Prüfung an WFM übermittelt."
+"Update submitted for WFM review.": "Änderung zur Prüfung an WFM übermittelt.",
+"Your relationship to this player": "Deine Beziehung zu dieser Spielerin",
+"Player": "Spielerin",
+"Club representative": "Vereinsvertretung",
+"Agency representative": "Agenturvertretung",
+"Explain your relationship and the evidence provided.": "Erkläre deine Beziehung und die eingereichten Nachweise.",
+"Add an evidence URL and explain your relationship to this player.": "Füge eine Nachweis-URL hinzu und erkläre deine Beziehung zu dieser Spielerin.",
+"Representation request submitted. WFM will review your evidence.": "Vertretungsantrag eingereicht. WFM prüft deine Nachweise.",
+"Your request is awaiting WFM review.": "Dein Antrag wartet auf die Prüfung durch WFM.",
+"Evidence resubmitted. WFM will review your updated information.": "Nachweise erneut eingereicht. WFM prüft deine aktualisierten Angaben.",
 }
 };
 
