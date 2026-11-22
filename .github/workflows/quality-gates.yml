@@ -87,7 +87,7 @@ jobs:
         run: npm run build
 
   sql-resubmission-test:
-    if: hashFiles('docs/launch/representation-request-resubmission.sql', 'tests/sql/representation-request-resubmission-test.sql') != ''
+    if: github.ref == 'refs/heads/feat/representation-claims-security' || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'feat/representation-claims-security')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:
