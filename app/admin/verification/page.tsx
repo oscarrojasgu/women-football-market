@@ -44,6 +44,7 @@ type RepresentationRequest = {
   evidence_url: string | null;
   notes: string | null;
   created_at: string;
+  reviewed_at: string | null;
 };
 
 type OfficialVerification = {
@@ -206,8 +207,9 @@ export default function VerificationDashboard() {
           .order("created_at", { ascending: true }),
         supabase
           .from("representation_requests")
-          .select("id, user_id, player_id, club_id, agency_name, relationship_type, status, verification_method, evidence_url, notes, created_at")
+          .select("id, user_id, player_id, club_id, agency_name, relationship_type, status, verification_method, evidence_url, notes, created_at, reviewed_at")
           .eq("status", "pending")
+          .is("reviewed_at", null)
           .order("created_at", { ascending: true }),
       ]);
 
