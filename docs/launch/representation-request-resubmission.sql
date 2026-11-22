@@ -34,7 +34,8 @@ begin
     raise exception 'Evidence URL must use HTTP or HTTPS';
   end if;
 
-  if p_relationship_type not in ('player', 'agent', 'club', 'agency') then
+  if p_relationship_type is null
+     or p_relationship_type not in ('player', 'agent', 'club', 'agency') then
     raise exception 'Invalid relationship type';
   end if;
 
