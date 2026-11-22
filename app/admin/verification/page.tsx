@@ -102,18 +102,30 @@ export default function VerificationDashboard() {
       .eq("user_id", currentUser.id)
       .maybeSingle();
 
-    // First-time owner bootstrap. The database function only succeeds for
-    // the WFM owner email configured in Supabase.
+    // First-time owner provisioning runs on the server. The route validates
+    // the signed-in access token and the verified owner email before using
+    // the server-only service key to create the initial owner record.
     if (!admin) {
-      await supabase.rpc("bootstrap_wfm_owner");
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
 
-      const result = await supabase
-        .from("wfm_admins")
-        .select("user_id, email, role")
-        .eq("user_id", currentUser.id)
-        .maybeSingle();
+      if (accessToken) {
+        const response = await fetch("/api/admin/owner-bootstrap", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${accessToken}` },
+          cache: "no-store",
+        });
 
-      admin = result.data;
+        if (response.ok) {
+          const result = await supabase
+            .from("wfm_admins")
+            .select("user_id, email, role")
+            .eq("user_id", currentUser.id)
+            .maybeSingle();
+
+          admin = result.data;
+        }
+      }
     }
 
     setAuthorized(!!admin);
