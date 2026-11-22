@@ -92,24 +92,60 @@ export default function PlayerActions() {
       return;
     }
 
-    const { error } = await supabase.rpc("submit_representation_request", {
-      p_player_id: playerId,
-      p_club_id: null,
-      p_agency_name: null,
-      p_relationship_type: relationshipType,
-      p_verification_method: "account",
-      p_evidence_url: evidenceUrl.trim(),
-      p_source_id: null,
-      p_notes: notes.trim(),
-    });
+    const { data: existingRequest, error: lookupError } = await supabase
+      .from("representation_requests")
+      .select("id, reviewed_at")
+      .eq("user_id", userId)
+      .eq("player_id", playerId)
+      .eq("status", "pending")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    setBusy(false);
-    if (error) {
-      setMessage(error.message);
+    if (lookupError) {
+      setBusy(false);
+      setMessage(lookupError.message);
       return;
     }
 
-    setMessage(t("Representation request submitted. WFM will review your evidence."));
+    let submissionError = null;
+
+    if (existingRequest?.reviewed_at) {
+      const { error } = await supabase.rpc("resubmit_representation_request", {
+        p_request_id: existingRequest.id,
+        p_evidence_url: evidenceUrl.trim(),
+        p_notes: notes.trim(),
+      });
+      submissionError = error;
+    } else if (existingRequest) {
+      setBusy(false);
+      setMessage(t("Your request is awaiting WFM review."));
+      return;
+    } else {
+      const { error } = await supabase.rpc("submit_representation_request", {
+        p_player_id: playerId,
+        p_club_id: null,
+        p_agency_name: null,
+        p_relationship_type: relationshipType,
+        p_verification_method: "account",
+        p_evidence_url: evidenceUrl.trim(),
+        p_source_id: null,
+        p_notes: notes.trim(),
+      });
+      submissionError = error;
+    }
+
+    setBusy(false);
+    if (submissionError) {
+      setMessage(submissionError.message);
+      return;
+    }
+
+    setMessage(
+      existingRequest
+        ? t("Evidence resubmitted. WFM will review your updated information.")
+        : t("Representation request submitted. WFM will review your evidence.")
+    );
     setEvidenceUrl("");
     setNotes("");
   };
@@ -576,6 +612,8 @@ en: {
 "Explain your relationship and the evidence provided.": "Explain your relationship and the evidence provided.",
 "Add an evidence URL and explain your relationship to this player.": "Add an evidence URL and explain your relationship to this player.",
 "Representation request submitted. WFM will review your evidence.": "Representation request submitted. WFM will review your evidence.",
+"Your request is awaiting WFM review.": "Your request is awaiting WFM review.",
+"Evidence resubmitted. WFM will review your updated information.": "Evidence resubmitted. WFM will review your updated information.",
 },
 es: {
 "Claim this profile": "Reclamar este perfil",
@@ -632,6 +670,8 @@ es: {
 "Explain your relationship and the evidence provided.": "Explica tu relación y las pruebas que aportas.",
 "Add an evidence URL and explain your relationship to this player.": "Añade una URL de prueba y explica tu relación con esta jugadora.",
 "Representation request submitted. WFM will review your evidence.": "Solicitud de representación enviada. WFM revisará tus pruebas.",
+"Your request is awaiting WFM review.": "Tu solicitud está pendiente de revisión por WFM.",
+"Evidence resubmitted. WFM will review your updated information.": "Pruebas reenviadas. WFM revisará la información actualizada.",
 },
 pt: {
 "Claim this profile": "Reivindicar este perfil",
@@ -688,6 +728,8 @@ pt: {
 "Explain your relationship and the evidence provided.": "Explique sua relação e as evidências fornecidas.",
 "Add an evidence URL and explain your relationship to this player.": "Adicione uma URL de evidência e explique sua relação com esta jogadora.",
 "Representation request submitted. WFM will review your evidence.": "Solicitação de representação enviada. A WFM analisará suas evidências.",
+"Your request is awaiting WFM review.": "Sua solicitação está aguardando análise da WFM.",
+"Evidence resubmitted. WFM will review your updated information.": "Evidências reenviadas. A WFM analisará as informações atualizadas.",
 },
 fr: {
 "Claim this profile": "Revendiquer ce profil",
@@ -744,6 +786,8 @@ fr: {
 "Explain your relationship and the evidence provided.": "Expliquez votre lien et les justificatifs fournis.",
 "Add an evidence URL and explain your relationship to this player.": "Ajoutez une URL de justificatif et expliquez votre lien avec cette joueuse.",
 "Representation request submitted. WFM will review your evidence.": "Demande de représentation envoyée. WFM examinera vos justificatifs.",
+"Your request is awaiting WFM review.": "Votre demande est en attente d’examen par WFM.",
+"Evidence resubmitted. WFM will review your updated information.": "Justificatifs renvoyés. WFM examinera les informations mises à jour.",
 },
 de: {
 "Claim this profile": "Dieses Profil beanspruchen",
@@ -800,6 +844,8 @@ de: {
 "Explain your relationship and the evidence provided.": "Erkläre deine Beziehung und die eingereichten Nachweise.",
 "Add an evidence URL and explain your relationship to this player.": "Füge eine Nachweis-URL hinzu und erkläre deine Beziehung zu dieser Spielerin.",
 "Representation request submitted. WFM will review your evidence.": "Vertretungsantrag eingereicht. WFM prüft deine Nachweise.",
+"Your request is awaiting WFM review.": "Dein Antrag wartet auf die Prüfung durch WFM.",
+"Evidence resubmitted. WFM will review your updated information.": "Nachweise erneut eingereicht. WFM prüft deine aktualisierten Angaben.",
 }
 };
 
