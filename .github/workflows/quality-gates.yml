@@ -1,4 +1,5 @@
 name: WFM Quality Gates
+# Prefer npm ci with the checked-in lockfile; npm install bootstraps older branches.
 
 on:
   push:
