@@ -60,6 +60,9 @@ export const WFM_ADMIN_VERIFICATION_TRANSLATIONS: Record<WfmLocale, Record<strin
     "Official verification rejected.": "Official verification rejected.",
     "Official verification revoked.": "Official verification revoked.",
     "Official verification returned for more evidence.": "Official verification returned for more evidence.",
+    "Approve & apply": "Approve & apply",
+    "Verify claim": "Verify claim",
+    "Could not load the review queue.": "Could not load the review queue.",
     "Verification method": "Verification method"
   },
   es: {
@@ -121,6 +124,9 @@ export const WFM_ADMIN_VERIFICATION_TRANSLATIONS: Record<WfmLocale, Record<strin
     "Official verification rejected.": "Verificación oficial rechazada.",
     "Official verification revoked.": "Verificación oficial revocada.",
     "Official verification returned for more evidence.": "Verificación oficial devuelta para aportar más pruebas.",
+    "Approve & apply": "Aprobar y aplicar",
+    "Verify claim": "Verificar reclamación",
+    "Could not load the review queue.": "No se pudo cargar la cola de revisión.",
     "Verification method": "Método de verificación"
   },
   pt: {
@@ -182,6 +188,9 @@ export const WFM_ADMIN_VERIFICATION_TRANSLATIONS: Record<WfmLocale, Record<strin
     "Official verification rejected.": "Verificação oficial rejeitada.",
     "Official verification revoked.": "Verificação oficial revogada.",
     "Official verification returned for more evidence.": "Verificação oficial devolvida para envio de mais evidências.",
+    "Approve & apply": "Aprovar e aplicar",
+    "Verify claim": "Verificar solicitação",
+    "Could not load the review queue.": "Não foi possível carregar a fila de revisão.",
     "Verification method": "Método de verificação"
   },
   fr: {
@@ -243,6 +252,9 @@ export const WFM_ADMIN_VERIFICATION_TRANSLATIONS: Record<WfmLocale, Record<strin
     "Official verification rejected.": "Vérification officielle rejetée.",
     "Official verification revoked.": "Vérification officielle révoquée.",
     "Official verification returned for more evidence.": "Vérification officielle renvoyée pour justificatifs supplémentaires.",
+    "Approve & apply": "Approuver et appliquer",
+    "Verify claim": "Vérifier la réclamation",
+    "Could not load the review queue.": "Impossible de charger la file de vérification.",
     "Verification method": "Méthode de vérification"
   },
   de: {
@@ -304,6 +316,9 @@ export const WFM_ADMIN_VERIFICATION_TRANSLATIONS: Record<WfmLocale, Record<strin
     "Official verification rejected.": "Offizielle Verifizierung abgelehnt.",
     "Official verification revoked.": "Offizielle Verifizierung widerrufen.",
     "Official verification returned for more evidence.": "Offizielle Verifizierung zur Ergänzung von Nachweisen zurückgegeben.",
+    "Approve & apply": "Genehmigen und übernehmen",
+    "Verify claim": "Anspruch verifizieren",
+    "Could not load the review queue.": "Die Prüfliste konnte nicht geladen werden.",
     "Verification method": "Verifizierungsmethode"
   }
 };
