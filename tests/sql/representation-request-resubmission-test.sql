@@ -35,7 +35,7 @@ create table public.representation_reviews (
   created_at timestamptz not null default now()
 );
 
-\i docs/launch/representation-request-resubmission.sql
+\i :migration_file
 
 insert into public.representation_requests
   (id, user_id, status, relationship_type, evidence_url, notes, reviewed_at)
