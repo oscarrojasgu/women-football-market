@@ -48,6 +48,14 @@ type OfficialVerification = {
 
 export default function VerificationDashboard() {
  const t=useWfmT()
+  function verificationTypeLabel(value: string) {
+    const normalized = value.toLowerCase();
+    if (normalized === "player") return t("Player");
+    if (normalized === "club") return t("Club");
+    if (normalized === "agent") return t("Agent");
+    if (normalized === "agency") return t("Agency");
+    return value.toUpperCase();
+  }
   const [user, setUser] = useState<any>(null);
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -405,7 +413,7 @@ export default function VerificationDashboard() {
                     <div style={styles.playerName}>
                       {item.player_id ? players[item.player_id]?.full_name || t("Unknown player") : item.club_id ? clubs[item.club_id]?.name || t("Unknown club") : item.agency_name || t("Agency")}
                     </div>
-                    <div style={styles.field}>{item.verification_type.toUpperCase()} · {t("User ID:")} {item.user_id}</div>
+                    <div style={styles.field}>{verificationTypeLabel(item.verification_type)} · {t("User ID:")} {item.user_id}</div>
                   </div>
                   <div style={styles.pending}>{t("PENDING")}</div>
                 </div>
