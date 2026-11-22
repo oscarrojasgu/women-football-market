@@ -103,31 +103,7 @@ export default function VerificationDashboard() {
       .eq("user_id", currentUser.id)
       .maybeSingle();
 
-    // First-time owner provisioning runs on the server. The route validates
-    // the signed-in access token and the verified owner email before using
-    // the server-only service key to create the initial owner record.
-    if (!admin) {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData.session?.access_token;
 
-      if (accessToken) {
-        const response = await fetch("/api/admin/owner-bootstrap", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${accessToken}` },
-          cache: "no-store",
-        });
-
-        if (response.ok) {
-          const result = await supabase
-            .from("wfm_admins")
-            .select("user_id, email, role")
-            .eq("user_id", currentUser.id)
-            .maybeSingle();
-
-          admin = result.data;
-        }
-      }
-    }
 
     setAuthorized(!!admin);
     setLoading(false);
@@ -142,31 +118,6 @@ export default function VerificationDashboard() {
     setMessage("");
 
     const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    setBusy(false);
-
-    if (error) {
-      setMessage(error.message);
-      return;
-    }
-
-    await checkSession();
-  }
-
-  async function createOwnerAccount() {
-    setBusy(true);
-    setMessage("");
-
-    if (email.toLowerCase() !== "oscarrojasgu@hotmail.com") {
-      setBusy(false);
-      setMessage("Owner account creation is restricted to the WFM owner email.");
-      return;
-    }
-
-    const { error } = await supabase.auth.signUp({
       email,
       password,
     });
@@ -423,14 +374,6 @@ export default function VerificationDashboard() {
             style={styles.primaryButton}
           >
             {busy ? "Signing in..." : "Sign in"}
-          </button>
-
-          <button
-            onClick={createOwnerAccount}
-            disabled={busy || !email || !password}
-            style={{ ...styles.secondaryButton, width: "100%", marginTop: 8 }}
-          >
-            {busy ? "Creating..." : "Create owner account"}
           </button>
 
           {message && <div style={styles.message}>{message}</div>}
