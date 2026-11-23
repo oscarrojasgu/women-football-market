@@ -13,6 +13,8 @@ as $function$
   select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid;
 $function$;
 
+create table public.wfm_admins (user_id uuid primary key);
+
 create table public.representation_requests (
   id uuid primary key,
   user_id uuid not null,
@@ -32,10 +34,13 @@ create table public.representation_reviews (
   user_id uuid not null,
   reviewer_id uuid not null,
   action text not null,
+  status_before text,
+  status_after text,
   created_at timestamptz not null default now()
 );
 
 \i :migration_file
+\i :review_migration_file
 
 insert into public.representation_requests
   (id, user_id, status, relationship_type, evidence_url, notes, reviewed_at)
@@ -172,4 +177,88 @@ begin
 end;
 $test$;
 
-select 'representation request resubmission SQL tests passed' as result;
+
+-- Exercise the admin-only review audit RLS policy.
+insert into public.wfm_admins (user_id)
+values ('90000000-0000-0000-0000-000000000009');
+
+alter table public.representation_reviews enable row level security;
+grant select on public.representation_requests, public.wfm_admins to authenticated;
+grant insert on public.representation_reviews to authenticated;
+
+update public.representation_requests
+set status = 'approved',
+    reviewed_by = '90000000-0000-0000-0000-000000000009',
+    reviewed_at = now()
+where id = '00000000-0000-0000-0000-000000000002';
+
+do $test$
+begin
+  perform set_config('request.jwt.claim.sub', '90000000-0000-0000-0000-000000000009', true);
+  execute 'set local role authenticated';
+  insert into public.representation_reviews
+    (id, request_id, user_id, reviewer_id, action, status_before, status_after)
+  values
+    ('00000000-0000-0000-0000-000000000201',
+     '00000000-0000-0000-0000-000000000002',
+     '10000000-0000-0000-0000-000000000001',
+     '90000000-0000-0000-0000-000000000009',
+     'approved', 'pending', 'approved');
+  execute 'reset role';
+end;
+$test$;
+
+do $test$
+begin
+  perform set_config('request.jwt.claim.sub', '80000000-0000-0000-0000-000000000008', true);
+  execute 'set local role authenticated';
+  begin
+    insert into public.representation_reviews
+      (id, request_id, user_id, reviewer_id, action, status_before, status_after)
+    values
+      ('00000000-0000-0000-0000-000000000202',
+       '00000000-0000-0000-0000-000000000002',
+       '10000000-0000-0000-0000-000000000001',
+       '80000000-0000-0000-0000-000000000008',
+       'approved', 'pending', 'approved');
+    raise exception 'TEST_FAILURE: non-admin inserted a review audit';
+  exception when others then
+    if sqlerrm like 'TEST_FAILURE:%' then raise; end if;
+  end;
+  execute 'reset role';
+end;
+$test$;
+
+do $test$
+begin
+  perform set_config('request.jwt.claim.sub', '90000000-0000-0000-0000-000000000009', true);
+  execute 'set local role authenticated';
+  begin
+    insert into public.representation_reviews
+      (id, request_id, user_id, reviewer_id, action, status_before, status_after)
+    values
+      ('00000000-0000-0000-0000-000000000203',
+       '00000000-0000-0000-0000-000000000002',
+       '20000000-0000-0000-0000-000000000002',
+       '90000000-0000-0000-0000-000000000009',
+       'approved', 'pending', 'approved');
+    raise exception 'TEST_FAILURE: mismatched claimant audit was inserted';
+  exception when others then
+    if sqlerrm like 'TEST_FAILURE:%' then raise; end if;
+  end;
+  execute 'reset role';
+end;
+$test$;
+
+do $test$
+begin
+  if has_function_privilege('anon', 'public.review_representation_request(uuid,text,text,text,uuid,text)', 'EXECUTE') then
+    raise exception 'Anonymous users can execute the review RPC';
+  end if;
+  if not has_function_privilege('authenticated', 'public.review_representation_request(uuid,text,text,text,uuid,text)', 'EXECUTE') then
+    raise exception 'Authenticated users cannot execute the review RPC';
+  end if;
+end;
+$test$;
+
+select 'representation request and review audit SQL tests passed' as result;
