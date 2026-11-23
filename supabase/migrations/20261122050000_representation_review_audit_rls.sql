@@ -26,6 +26,7 @@ with check (
     where r.id = representation_reviews.request_id
       and r.user_id = representation_reviews.user_id
       and r.reviewed_by = (select auth.uid())
+      and r.reviewed_at is not null
       and r.status = representation_reviews.status_after
       and (
         (representation_reviews.action = 'needs_evidence' and representation_reviews.status_after = 'pending')
