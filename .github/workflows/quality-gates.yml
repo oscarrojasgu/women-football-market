@@ -141,4 +141,9 @@ jobs:
             echo "Expected timestamped resubmission migration was not found."
             exit 1
           fi
-          psql -h localhost -U postgres -d wfm_test -v ON_ERROR_STOP=1 -v migration_file="$migration_file" -f tests/sql/representation-request-resubmission-test.sql
+          review_migration_file="$(find supabase/migrations -maxdepth 1 -type f -name '*_representation_review_audit_rls.sql' -print -quit)"
+          if [ -z "$review_migration_file" ]; then
+            echo "Expected representation review audit RLS migration was not found."
+            exit 1
+          fi
+          psql -h localhost -U postgres -d wfm_test -v ON_ERROR_STOP=1 -v migration_file="$migration_file" -v review_migration_file="$review_migration_file" -f tests/sql/representation-request-resubmission-test.sql
