@@ -192,26 +192,22 @@ set status = 'approved',
     reviewed_at = now()
 where id = '00000000-0000-0000-0000-000000000002';
 
-do $test$
-begin
-  perform set_config('request.jwt.claim.sub', '90000000-0000-0000-0000-000000000009', true);
-  execute 'set local role authenticated';
-  insert into public.representation_reviews
-    (id, request_id, user_id, reviewer_id, action, status_before, status_after)
-  values
-    ('00000000-0000-0000-0000-000000000201',
-     '00000000-0000-0000-0000-000000000002',
-     '10000000-0000-0000-0000-000000000001',
-     '90000000-0000-0000-0000-000000000009',
-     'approved', 'pending', 'approved');
-  execute 'reset role';
-end;
-$test$;
+set role authenticated;
+select set_config('request.jwt.claim.sub', '90000000-0000-0000-0000-000000000009', false);
+insert into public.representation_reviews
+  (id, request_id, user_id, reviewer_id, action, status_before, status_after)
+values
+  ('00000000-0000-0000-0000-000000000201',
+   '00000000-0000-0000-0000-000000000002',
+   '10000000-0000-0000-0000-000000000001',
+   '90000000-0000-0000-0000-000000000009',
+   'approved', 'pending', 'approved');
+reset role;
 
+set role authenticated;
+select set_config('request.jwt.claim.sub', '80000000-0000-0000-0000-000000000008', false);
 do $test$
 begin
-  perform set_config('request.jwt.claim.sub', '80000000-0000-0000-0000-000000000008', true);
-  execute 'set local role authenticated';
   begin
     insert into public.representation_reviews
       (id, request_id, user_id, reviewer_id, action, status_before, status_after)
@@ -225,14 +221,14 @@ begin
   exception when others then
     if sqlerrm like 'TEST_FAILURE:%' then raise; end if;
   end;
-  execute 'reset role';
 end;
 $test$;
+reset role;
 
+set role authenticated;
+select set_config('request.jwt.claim.sub', '90000000-0000-0000-0000-000000000009', false);
 do $test$
 begin
-  perform set_config('request.jwt.claim.sub', '90000000-0000-0000-0000-000000000009', true);
-  execute 'set local role authenticated';
   begin
     insert into public.representation_reviews
       (id, request_id, user_id, reviewer_id, action, status_before, status_after)
@@ -246,9 +242,9 @@ begin
   exception when others then
     if sqlerrm like 'TEST_FAILURE:%' then raise; end if;
   end;
-  execute 'reset role';
 end;
 $test$;
+reset role;
 
 do $test$
 begin
