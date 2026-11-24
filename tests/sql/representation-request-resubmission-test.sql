@@ -25,6 +25,8 @@ create table public.representation_requests (
   notes text,
   reviewed_by uuid,
   reviewed_at timestamptz,
+  verification_method text,
+  source_id uuid,
   updated_at timestamptz not null default now()
 );
 
@@ -36,6 +38,10 @@ create table public.representation_reviews (
   action text not null,
   status_before text,
   status_after text,
+  verification_method text,
+  evidence_url text,
+  source_id uuid,
+  notes text,
   created_at timestamptz not null default now()
 );
 
@@ -53,8 +59,35 @@ create function public.review_representation_request(
 returns void
 language plpgsql
 as $function$
+declare r public.representation_requests%rowtype;
 begin
-  null;
+  if not exists (select 1 from public.wfm_admins where user_id = auth.uid()) then
+    raise exception 'WFM admin access required';
+  end if;
+  if p_action not in ('approved','rejected','revoked','needs_evidence') then
+    raise exception 'Invalid review action';
+  end if;
+
+  select * into r from public.representation_requests where id = p_request_id for update;
+  if not found then raise exception 'Representation request not found'; end if;
+
+  update public.representation_requests
+  set status = case when p_action='needs_evidence' then 'pending' else p_action end,
+      verification_method = coalesce(p_verification_method, verification_method),
+      evidence_url = coalesce(p_evidence_url, evidence_url),
+      source_id = coalesce(p_source_id, source_id),
+      notes = coalesce(p_notes, notes),
+      reviewed_by = auth.uid(),
+      reviewed_at = now(),
+      updated_at = now()
+  where id = p_request_id;
+
+  insert into public.representation_reviews
+    (request_id,user_id,reviewer_id,action,status_before,status_after,verification_method,evidence_url,source_id,notes)
+  values
+    (r.id,r.user_id,auth.uid(),p_action,r.status,
+      case when p_action='needs_evidence' then 'pending' else p_action end,
+      p_verification_method,p_evidence_url,p_source_id,p_notes);
 end;
 $function$;
 
@@ -216,26 +249,41 @@ using (
   or exists (select 1 from public.wfm_admins a where a.user_id = auth.uid())
 );
 
-grant select on public.representation_requests, public.wfm_admins to authenticated;
-grant insert on public.representation_reviews to authenticated;
+create policy "Admins can update representation requests"
+on public.representation_requests for update to authenticated
+using (exists (select 1 from public.wfm_admins a where a.user_id = auth.uid()))
+with check (exists (select 1 from public.wfm_admins a where a.user_id = auth.uid()));
 
-update public.representation_requests
-set status = 'approved',
-    reviewed_by = '90000000-0000-0000-0000-000000000009',
-    reviewed_at = now()
-where id = '00000000-0000-0000-0000-000000000002';
+grant select, update on public.representation_requests to authenticated;
+grant select on public.wfm_admins to authenticated;
+grant insert on public.representation_reviews to authenticated;
 
 set role authenticated;
 select set_config('request.jwt.claim.sub', '90000000-0000-0000-0000-000000000009', false);
-insert into public.representation_reviews
-  (id, request_id, user_id, reviewer_id, action, status_before, status_after)
-values
-  ('00000000-0000-0000-0000-000000000201',
-   '00000000-0000-0000-0000-000000000002',
-   '10000000-0000-0000-0000-000000000001',
-   '90000000-0000-0000-0000-000000000009',
-   'approved', 'pending', 'approved');
+select public.review_representation_request(
+  '00000000-0000-0000-0000-000000000002',
+  'approved',
+  null,
+  null,
+  null,
+  'Reviewed by the authorized administrator'
+);
 reset role;
+
+do $test$
+begin
+  if not exists (
+    select 1 from public.representation_reviews
+    where request_id = '00000000-0000-0000-0000-000000000002'
+      and reviewer_id = '90000000-0000-0000-0000-000000000009'
+      and action = 'approved'
+      and status_before = 'pending'
+      and status_after = 'approved'
+  ) then
+    raise exception 'Review RPC did not write the expected audit row';
+  end if;
+end;
+$test$;
 
 set role authenticated;
 select set_config('request.jwt.claim.sub', '80000000-0000-0000-0000-000000000008', false);
