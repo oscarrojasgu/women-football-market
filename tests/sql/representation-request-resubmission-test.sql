@@ -202,6 +202,20 @@ insert into public.wfm_admins (user_id)
 values ('90000000-0000-0000-0000-000000000009');
 
 alter table public.representation_reviews enable row level security;
+alter table public.representation_requests enable row level security;
+alter table public.wfm_admins enable row level security;
+
+create policy "Admins can view their own admin record"
+on public.wfm_admins for select to authenticated
+using (auth.uid() = user_id);
+
+create policy "Users and admins can view representation requests"
+on public.representation_requests for select to authenticated
+using (
+  auth.uid() = user_id
+  or exists (select 1 from public.wfm_admins a where a.user_id = auth.uid())
+);
+
 grant select on public.representation_requests, public.wfm_admins to authenticated;
 grant insert on public.representation_reviews to authenticated;
 
