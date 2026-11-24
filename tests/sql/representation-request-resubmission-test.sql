@@ -39,6 +39,25 @@ create table public.representation_reviews (
   created_at timestamptz not null default now()
 );
 
+-- Minimal signature fixture: the production review RPC is defined by an earlier
+-- migration not included in this focused test harness. The follow-up migration
+-- only changes its EXECUTE grants; RLS is exercised directly below.
+create function public.review_representation_request(
+  p_request_id uuid,
+  p_action text,
+  p_verification_method text default null,
+  p_evidence_url text default null,
+  p_source_id uuid default null,
+  p_notes text default null
+)
+returns void
+language plpgsql
+as $function$
+begin
+  null;
+end;
+$function$;
+
 \i :migration_file
 \i :review_migration_file
 
