@@ -13,6 +13,8 @@ as $function$
   select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid;
 $function$;
 
+grant usage on schema auth to public;
+
 create table public.wfm_admins (user_id uuid primary key);
 
 create table public.representation_requests (
