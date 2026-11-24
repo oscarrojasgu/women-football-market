@@ -306,6 +306,25 @@ begin
   end;
 end;
 $test$;
+
+do $test$
+begin
+  begin
+    perform public.review_representation_request(
+      '00000000-0000-0000-0000-000000000002',
+      'approved',
+      null,
+      null,
+      null,
+      'This call must be rejected for a non-admin'
+    );
+    raise exception 'TEST_FAILURE: non-admin executed the review RPC';
+  exception when others then
+    if sqlerrm like 'TEST_FAILURE:%' then raise; end if;
+    if sqlerrm not like '%WFM admin access required%' then raise; end if;
+  end;
+end;
+$test$;
 reset role;
 
 set role authenticated;
