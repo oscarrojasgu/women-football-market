@@ -33,7 +33,7 @@ create table public.representation_requests (
 );
 
 create table public.representation_reviews (
-  id uuid primary key,
+  id uuid primary key default gen_random_uuid(),
   request_id uuid not null references public.representation_requests(id),
   user_id uuid not null,
   reviewer_id uuid not null,
