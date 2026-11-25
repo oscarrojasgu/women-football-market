@@ -1,5 +1,4 @@
 name: WFM Quality Gates
-# Prefer npm ci with the checked-in lockfile; npm install bootstraps older branches.
 
 on:
   push:
@@ -15,63 +14,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lockfile:
-    if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[skip ci]')
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: write
-    steps:
-      - name: Check out source without persisted credentials
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: Generate lockfile without running package scripts
-        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-
-      - name: Generate timestamped resubmission migration
-        if: startsWith(github.ref, 'refs/heads/feat/representation-claims-security')
-        run: |
-          if [ ! -f supabase/config.toml ]; then
-            npx --yes supabase@latest init
-          fi
-          migration_file="$(find supabase/migrations -maxdepth 1 -type f -name '*_representation_request_resubmission.sql' -print -quit)"
-          if [ -z "$migration_file" ]; then
-            npx --yes supabase@latest migration new representation_request_resubmission
-            migration_file="$(find supabase/migrations -maxdepth 1 -type f -name '*_representation_request_resubmission.sql' -print -quit)"
-          fi
-          if [ -z "$migration_file" ]; then
-            echo "Supabase CLI did not create the expected migration file."
-            exit 1
-          fi
-          {
-            printf '%s\n\n' '-- Secure evidence resubmission for returned representation requests.'
-            sed '1,3d' docs/launch/representation-request-resubmission.sql
-          } > "$migration_file"
-
-      - name: Commit lockfile and migration to this branch
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH_NAME: ${{ github.ref_name }}
-        run: |
-          git add package-lock.json
-          if [ -d supabase ]; then git add supabase/; fi
-          if git diff --cached --quiet; then
-            echo "No lockfile or migration changes to commit."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore: add lockfile and resubmission migration [skip ci]"
-          AUTH_HEADER="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
-          git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" push origin "HEAD:$BRANCH_NAME"
-
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -88,21 +30,13 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Install pinned dependencies
+      - name: Install dependencies
         run: |
           if [ -f package-lock.json ]; then
             npm ci --no-audit --no-fund
           else
             npm install --no-audit --no-fund
           fi
-
-      - name: Upload generated npm lockfile
-        uses: actions/upload-artifact@v4
-        with:
-          name: wfm-package-lock
-          path: package-lock.json
-          if-no-files-found: error
-          retention-days: 1
 
       - name: Build Next.js application
         run: npm run build
@@ -132,7 +66,6 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
       - name: Run representation resubmission SQL tests
-        if: hashFiles('supabase/migrations/*_representation_request_resubmission.sql') != ''
         env:
           PGPASSWORD: postgres
         run: |
